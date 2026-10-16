@@ -1,0 +1,50 @@
+{% from "_chip.html" import chip %}
+{# Partial: pills, list and footer. Swapped into #feed-rows by htmx and included by feed.html. #}
+<nav class="pills" aria-label="Signal type">
+  <a class="pill" href="/" hx-get="/feed/rows" hx-target="#feed-rows" hx-push-url="/" {% if not selected %}aria-current="true"{% endif %}>All <span class="n">{{ total }}</span></a>
+  {% for p in pills %}
+  <a class="pill{% if p.count == 0 %} zero{% endif %}" href="{{ p.href }}" hx-get="/feed/rows?type={{ p.key }}" hx-target="#feed-rows" hx-push-url="{{ p.href }}" {% if selected == p.key %}aria-current="true"{% endif %}>
+    {{ p.label }} {% if p.count %}<span class="n">{{ p.count }}</span>{% else %}<span class="n">no signals</span>{% endif %}
+  </a>
+  {% endfor %}
+</nav>
+
+{% if rows %}
+<ol class="feed" aria-label="Companies, newest first">
+{% for r in rows %}
+  <li class="feed-row{% if r.confidence == 'low' %} low{% endif %}">
+    <a class="co" href="/c/{{ r.company_key }}">{{ r.name }}</a>
+    <p class="meta">{{ r.type_label }} <span class="sep">/</span> <time datetime="{{ r.date }}">{{ r.date }}</time>{% if r.earlier_count %} <span class="sep">/</span> {{ r.earlier_count }} earlier signal{{ "s" if r.earlier_count != 1 }}{% endif %}</p>
+    {% if r.detail %}<p class="detail">{{ r.detail }}</p>{% endif %}
+    <div class="proof">
+      {{ chip(r.evidence) }}
+      {% if r.amount_eur is not none %}<a class="amt" href="{{ r.evidence.url }}" target="_blank" rel="noopener">{{ "{:,.0f}".format(r.amount_eur).replace(",", " ") }} EUR <span class="amt-src">per {{ r.evidence.label }}</span></a>{% endif %}
+      <span class="conf conf-{{ r.confidence }}">confidence: {{ "low: keyword or code match only" if r.confidence == "low" else r.confidence }}</span>
+    </div>
+  </li>
+{% endfor %}
+</ol>
+{% elif no_db or (not selected and total == 0) %}
+<section class="empty" aria-label="Empty state">
+  <p class="answer">no signals yet{% if no_db %}. Run <code>python3 -m radar.build</code>{% endif %}</p>
+  <p><span class="hatch">not in public records</span></p>
+</section>
+{% else %}
+<section class="empty" aria-label="Empty state">
+  <p class="answer">no signals of this type in the window</p>
+  <p><a href="/" hx-get="/feed/rows" hx-target="#feed-rows" hx-push-url="/">Show all signal types</a></p>
+</section>
+{% endif %}
+
+<footer class="chiprule">
+  {% if counts %}
+  <p>{{ rows | length }} companies{% if truncated %} (first {{ rows | length }} of {{ total }}){% endif %}, {{ rows | sum(attribute="signal_count") }} signals in the window {{ counts.window_start }} to {{ counts.window_end }}.
+  Rule: {{ rule }}
+  Data fetched {{ (counts.last_fetched or "no data")[:10] }}.
+  By confidence: high {{ counts.by_confidence.high }}, medium {{ counts.by_confidence.medium }}, low {{ counts.by_confidence.low }}.
+  Declared cohort and portfolio companies are excluded ({{ counts.excluded_declared }}).</p>
+  {% else %}
+  <p>Rule: {{ rule }}</p>
+  {% endif %}
+  <p><a href="/method">How the rule works</a></p>
+</footer>

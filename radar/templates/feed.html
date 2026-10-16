@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Early signals | Ocean Opportunity Radar{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/feed.css?v={{ asset_v }}">{% endblock %}
+{% block content %}
+<h1>Early signals: companies your pipeline has not seen yet</h1>
+<p class="lede">{% if counts %}Public sources, {{ counts.window_start }} to {{ counts.window_end }} ({{ counts.window_days }} days), newest first.{% else %}Window: last {{ thesis.geography.feed_window_days }} days.{% endif %}</p>
+
+<form class="search" action="/search" method="get" role="search">
+  <label for="q">Find a company</label>
+  <div class="searchrow">
+    <input id="q" name="q" type="search" value="{{ q or '' }}" autocomplete="off" placeholder="Name or business id">
+    <button type="submit">Search</button>
+  </div>
+</form>
+
+{% if q is not none %}
+<section class="matches" aria-label="Search results">
+  {% if matches %}
+  <h2>{{ matches | length }} matches for '{{ q }}'</h2>
+  <ul>
+    {% for m in matches %}<li><a class="co" href="/c/{{ m.company_key }}">{{ m.name }}</a>{% if m.y_tunnus %} <span class="meta">{{ m.y_tunnus }}</span>{% endif %}</li>{% endfor %}
+  </ul>
+  {% else %}
+  <p class="answer">no company matches '{{ q }}' in this radar</p>
+  {% endif %}
+</section>
+{% endif %}
+
+<div id="feed-rows" class="feed-wrap">
+{% include "feed_rows.html" %}
+</div>
+{% endblock %}

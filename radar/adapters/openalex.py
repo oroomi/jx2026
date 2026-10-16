@@ -40,9 +40,17 @@ def affiliation_matches(core: str, work: dict) -> bool:
     if not core:
         return False
     pat = re.compile(r"(?<![a-z0-9])" + re.escape(core) + r"(?![a-z0-9])")
+    # a one-word name is often an ordinary word ("Klimate", "Sensemakers"): it must be followed by a legal form or be the whole string
+    single = re.compile(r"(?<![a-z0-9])" + re.escape(core) + r" (oy|oyj|ab|as|asa|a s|aps|ltd|limited|gmbh|inc|llc|bv|sa|plc|ky)(?![a-z0-9])")
     for a in work.get("authorships") or []:
         for raw in a.get("raw_affiliation_strings") or []:
-            if pat.search(fold(raw)):
+            if len(raw) > 160:
+                continue  # a biography or prose paragraph, not an affiliation
+            f = fold(raw)
+            if " " in core:
+                if pat.search(f):
+                    return True
+            elif f == core or single.search(f):
                 return True
     return False
 
@@ -53,12 +61,13 @@ def work_signal(work: dict) -> tuple[str, str, str, str] | None:
     if not day or not url or not re.match(r"^\d{4}-\d{2}-\d{2}$", day):
         return None
     venue = ((work.get("primary_location") or {}).get("source") or {}).get("display_name")
-    return day, url, (work.get("title") or "title not stated").strip(), venue or "venue not stated"
+    clean = lambda t: re.sub(r"[\x00-\x1f\x7f-\x9f]", "", t).strip()  # OpenAlex venue names can carry C1 control characters
+    return day, url, clean(work.get("title") or "") or "title not stated", clean(venue or "") or "venue not stated"
 
 
 def run(conn: sqlite3.Connection, thesis: dict) -> dict:
     stats = {"companies": 0, "signals": 0, "skipped": 0, "requests": 0, "blocked": 0}
-    rows = conn.execute(f"SELECT company_key, name FROM companies WHERE group_tag IN ({','.join('?' * len(GROUPS))}) ORDER BY name",
+    rows = conn.execute(f"SELECT company_key, name, founded FROM companies WHERE group_tag IN ({','.join('?' * len(GROUPS))}) ORDER BY name",
                         GROUPS).fetchall()
     mailto = os.environ.get("OPENALEX_MAILTO")  # optional polite-pool address; never stored in the repo
     failures = 0
@@ -89,6 +98,8 @@ def run(conn: sqlite3.Connection, thesis: dict) -> dict:
             if s is None:
                 continue
             day, url, title, venue = s
+            if r["founded"] and day < r["founded"]:
+                continue  # published before the company existed: a different organisation with the same name
             stats["signals"] += emit.emit_signal(
                 conn, company_key=r["company_key"], signal_type="research_output", date=day, source_url=url, confidence="medium",
                 adapter=NAME, detail=f"{title} ({venue}); an author affiliation names '{r['name']}'.")

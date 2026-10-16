@@ -2,7 +2,7 @@
 
 registeredEntries carry register (1 trade, 4 Tax Administration, 5 prepayment, 6 VAT liability, 7 employer), type,
 registrationDate and endDate. Per company:
-  first_sales    earliest of the VAT-liable entry (register 6, type 6_80 only) and the prepayment register entry (5)
+  first_sales    earliest of the VAT-liable entry (register 6, code 6_80, API type 80 in register 6) and the prepayment register entry (5)
   first_hire     earliest employer register (7) entry: the day the company could first pay a salary
   sales_ended / employer_ended  only when every entry of that kind has an endDate (the latest one is the date)
 Months from founding to first hire are stored in company_traction, a derived field, never as a signal.
@@ -38,12 +38,19 @@ def months_between(start: str, end: str) -> int | None:
     return (b.year - a.year) * 12 + (b.month - a.month) - (1 if b.day < a.day else 0)
 
 
+def _code(register: str, type_) -> str:
+    """REK_KDI code. The live API gives type "80" inside register "6"; the code list writes it "6_80". Both forms map to "6_80"."""
+    t = str(type_)
+    return t if "_" in t else f"{register}_{t}"
+
+
 def _entries(company: dict, register: str, type_: str | None = None) -> list[dict]:
     out = []
     for e in company.get("registeredEntries", []) or []:
         if str(e.get("register")) != register or not _ISO.match(str(e.get("registrationDate") or "")):
             continue
-        if type_ is not None and str(e.get("type")) != type_:
+        code = _code(register, e.get("type"))
+        if code.endswith("_99") or (type_ is not None and code != type_):  # x_99 = "Incorrect line" in REK_KDI
             continue
         out.append(e)
     return out

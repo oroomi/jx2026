@@ -33,26 +33,26 @@ def conn_with(*companies):
 def test_vat_counts_only_type_6_80():
     t = tr.extract(ytj(("6", "6_81", "2022-03-01", None)))
     assert t["first_sales"] is None
-    t = tr.extract(ytj(("6", "6_80", "2022-03-01", None)))
+    t = tr.extract(ytj(("6", "80", "2022-03-01", None)))
     assert t["first_sales"] == ("2022-03-01", "VAT liability register (type 6_80)")
 
 
 def test_first_sales_is_earliest_of_vat_and_prepayment():
-    t = tr.extract(ytj(("6", "6_80", "2022-05-10", None), ("5", "5_1", "2022-04-02", None)))
+    t = tr.extract(ytj(("6", "80", "2022-05-10", None), ("5", "55", "2022-04-02", None)))
     assert t["first_sales"] == ("2022-04-02", "prepayment register")
-    t = tr.extract(ytj(("6", "6_80", "2022-04-02", None), ("5", "5_1", "2022-04-02", None)))
+    t = tr.extract(ytj(("6", "80", "2022-04-02", None), ("5", "55", "2022-04-02", None)))
     assert t["first_sales"][1].startswith("VAT")
 
 
 def test_first_hire_is_earliest_employer_entry_and_trade_register_is_ignored():
-    t = tr.extract(ytj(("1", "1_1", "2021-01-01", None), ("7", "7_1", "2023-02-01", None), ("7", "7_1", "2022-09-01", None)))
+    t = tr.extract(ytj(("1", "1_1", "2021-01-01", None), ("7", "41", "2023-02-01", None), ("7", "41", "2022-09-01", None)))
     assert t["first_hire"] == "2022-09-01" and t["first_sales"] is None
 
 
 def test_end_dates_need_every_entry_ended():
-    t = tr.extract(ytj(("6", "6_80", "2022-01-01", "2023-06-30"), ("5", "5_1", "2022-01-01", "2023-08-31"), ("7", "7_1", "2022-03-01", "2024-01-31")))
+    t = tr.extract(ytj(("6", "80", "2022-01-01", "2023-06-30"), ("5", "55", "2022-01-01", "2023-08-31"), ("7", "41", "2022-03-01", "2024-01-31")))
     assert t["sales_ended"] == "2023-08-31" and t["employer_ended"] == "2024-01-31"
-    t = tr.extract(ytj(("6", "6_80", "2022-01-01", "2023-06-30"), ("5", "5_1", "2022-01-01", None), ("7", "7_1", "2022-03-01", None)))
+    t = tr.extract(ytj(("6", "80", "2022-01-01", "2023-06-30"), ("5", "55", "2022-01-01", None), ("7", "41", "2022-03-01", None)))
     assert t["sales_ended"] is None and t["employer_ended"] is None
 
 
@@ -64,7 +64,7 @@ def test_months_between_calendar_months():
 
 def test_run_emits_signals_derived_row_and_no_signal_for_months(monkeypatch):
     conn = conn_with((BID, "Fixture Oy", "2022-01-31", "feed"))
-    rec = ytj(("6", "6_80", "2022-04-01", None), ("7", "7_1", "2022-09-01", "2024-01-01"))
+    rec = ytj(("6", "80", "2022-04-01", None), ("7", "41", "2022-09-01", "2024-01-01"))
     monkeypatch.setattr(prh, "fetch", lambda params, client=None: ({"companies": [rec]}, False))
     res = tr.run(conn, {})
     assert res["companies"] == 1 and res["signals"] == 3 and res["blocked"] == 0
@@ -270,3 +270,23 @@ def test_first_hire_row_in_feed_with_why_detail(client):
     html = client.get("/").text
     assert "Entered the employer register 2026-09-01, 3 months after founding (PRH)." in html
     assert "First hire" in html
+
+
+def test_live_shape_type_80_and_incorrect_lines():
+    # the live API writes type "80" inside register "6"; 6_82 (property rental) and x_99 (incorrect line) never count
+    assert tr.extract(ytj(("6", "80", "2022-01-01", None)))["first_sales"][0] == "2022-01-01"
+    assert tr.extract(ytj(("6", "82", "2022-01-01", None)))["first_sales"] is None
+    assert tr.extract(ytj(("6", "6_80", "2022-02-01", None)))["first_sales"][0] == "2022-02-01"
+    assert tr.extract(ytj(("5", "99", "2022-01-01", None), ("7", "99", "2022-02-01", None))) == {
+        "first_sales": None, "first_hire": None, "sales_ended": None, "employer_ended": None}
+
+
+def test_affiliation_single_word_needs_legal_form_and_multiword_whole_words():
+    assert not openalex.affiliation_matches("fixture", work("Fixture Lab, Somewhere"))  # ordinary word, no legal form
+    assert openalex.affiliation_matches("fixture", work("Fixture"))
+    assert openalex.affiliation_matches("fixture robotics", work("Fixture Robotics, Turku"))
+    assert not openalex.affiliation_matches("fixture robotics", work("Fixture Roboticsx"))
+
+
+def test_affiliation_prose_is_rejected():
+    assert not openalex.affiliation_matches("fixture robotics", work("He wrote about Fixture Robotics. " + "x" * 200))

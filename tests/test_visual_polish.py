@@ -60,3 +60,55 @@ def test_no_text_under_14px_outside_the_svg_charts():
                 if px < 14:
                     small.append((f.name, sel.strip(), size))
     assert not small, small
+
+
+# One-line answers for questions 02 and 03 (radar/templates/_answers.html), built only from values the page shows.
+
+def _answer(t, qid):
+    m = re.search(r'<p class="answer-line" id="%s-answer">(.*?)</p>' % qid, t, re.S)
+    return m and m.group(1)
+
+
+def _section(t, qid):
+    return t.split('<section id="%s"' % qid, 1)[1].split("</section>", 1)[0]
+
+
+def test_answer_lines_on_kelluu(client):
+    t = client.get("/c/2902007-2").text
+    q2 = _answer(t, "q2")
+    assert q2 == "Business readiness 4 of 9, technology 4 of 9, investment 4 of 9; ocean impact: no public evidence."
+    sec = _section(t, "q2")
+    assert sec.index("q2-answer") < sec.index('class="ready"'), "the answer comes before the evidence"
+    assert sec.count("<strong>level 4 of 9</strong>") == 3, "every number in the line is a level the table shows"
+    q3 = _answer(t, "q3")
+    rows = [len(re.findall(r"<li>", part.split("</ol>")[0])) if "<ol>" in part else 0
+            for part in _section(t, "q3").split('<div class="nx-list">')[1:]]
+    assert q3.endswith("match; the first one is listed with its reason.")
+    for n, word in zip(rows, ("investor", "funding programme", "partner")):
+        assert (f"{n} {word}" in q3) == (n > 0), (rows, q3)
+
+
+def test_answer_lines_on_a_company_with_no_evidence(client):
+    t = client.get("/c/no-tunisea").text
+    q2 = _answer(t, "q2")
+    assert q2 == ("Business readiness: no public evidence, technology: no public evidence, "
+                  "investment: no public evidence; ocean impact: no public evidence.")
+    assert not re.search(r"\d", q2), "a missing level is never a number"
+    assert _answer(t, "q3"), "question 03 always has its line"
+
+
+def test_answer_macros_on_their_own():
+    from jinja2 import Environment, FileSystemLoader
+    env = Environment(loader=FileSystemLoader(str(ROOT / "radar" / "templates")))
+    mod = env.get_template("_answers.html").module
+    none = {"level": None}
+    assert "Business readiness: no public evidence, technology: no public evidence" in str(
+        mod.ready_answer({"brl": none, "trl": none, "irl": none, "category": {"category": None}}))
+    some = str(mod.ready_answer({"brl": {"level": 7}, "trl": none, "irl": {"level": 3}, "category": {"category": "Ocean data"}}))
+    assert "Business readiness 7 of 9, technology: no public evidence, investment 3 of 9; ocean impact category Ocean data." in some
+    assert "No investor, funding programme or partner matches in the dataset yet." in str(
+        mod.next_answer({"investors": [], "funding": [], "partners": []}))
+    two = str(mod.next_answer({"investors": [{}], "funding": [{}, {}], "partners": []}))
+    assert "1 investor and 2 funding programmes match; the first one is listed with its reason." in two
+    three = str(mod.next_answer({"investors": [{}] * 5, "funding": [{}] * 5, "partners": [{}] * 5}))
+    assert "5 investors, 5 funding programmes and 5 partners match;" in three

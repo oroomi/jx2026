@@ -1,0 +1,24 @@
+{# One-line answers for the company page (jx30). Each sentence is built only from values the page already shows:
+   the levels in question 02 and the rows listed in question 03. A missing level reads "no public evidence", never a number. #}
+
+{% macro _level(name, r, scale="9") -%}
+{{ name }}{% if r and r.level %} {{ r.level }} of {{ scale }}{% else %}: no public evidence{% endif %}
+{%- endmacro %}
+
+{# Question 02: the four frameworks, in the order the table below shows them, read as one line. #}
+{% macro ready_answer(fw) -%}
+<p class="answer-line" id="q2-answer">{{ _level("Business readiness", fw.brl) }}, {{ _level("technology", fw.trl) }}, {{ _level("investment", fw.irl) }}; ocean impact{% if fw.category and fw.category.category %} category {{ fw.category.category }}{% else %}: no public evidence{% endif %}.</p>
+{%- endmacro %}
+
+{% macro _count(n, one, many) -%}
+{{ n }} {{ one if n == 1 else many }}
+{%- endmacro %}
+
+{# Question 03: how many rows each list below holds, and that the first row of each carries its reason. #}
+{% macro next_answer(nxt) -%}
+{% set parts = [] %}
+{% if nxt.investors %}{% set _ = parts.append(_count(nxt.investors | length, "investor", "investors")) %}{% endif %}
+{% if nxt.funding %}{% set _ = parts.append(_count(nxt.funding | length, "funding programme", "funding programmes")) %}{% endif %}
+{% if nxt.partners %}{% set _ = parts.append(_count(nxt.partners | length, "partner", "partners")) %}{% endif %}
+<p class="answer-line" id="q3-answer">{% if parts %}{{ parts[:-1] | join(", ") }}{% if parts | length > 1 %} and {% endif %}{{ parts[-1] }} match; the first one is listed with its reason.{% else %}No investor, funding programme or partner matches in the dataset yet.{% endif %}</p>
+{%- endmacro %}

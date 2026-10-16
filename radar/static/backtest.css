@@ -2,7 +2,7 @@
 .muted{color:var(--muted);font-size:.875rem}
 .bt-rule{white-space:normal;padding-left:28px;margin:8px 0;font-size:.875rem}
 .bt-rule li{margin:4px 0}
-.bt-chart{display:block;width:100%;max-width:520px;height:auto;margin:8px 0 24px;font-family:var(--sans)}
+.bt-chart{display:block;width:100%;max-width:520px;height:auto;margin:8px 0 24px;font-family:var(--sans);overflow:visible}
 .bt-chart text{fill:var(--text);font-size:11.5px}
 .bt-name{font-weight:600;font-size:12.5px}
 .bt-chart a:focus-visible text{text-decoration:underline}
@@ -27,3 +27,32 @@
   .bt-table td{border:0;padding:2px 0;white-space:normal}
   .bt-table td:nth-child(3),.bt-table td:nth-child(4){display:inline-block;width:auto;margin-right:12px}
 }
+/* jx30: on a phone the lanes are HTML (bt-phone), so names and labels stay at 14 px or more and wrap; the SVG serves wider screens */
+.bt-phone{display:none}
+@media (max-width:640px){
+  .bt-chart{display:none}
+  .bt-phone{display:block;margin:var(--s2) 0 var(--s5);overflow:hidden}
+  .bt-lrow{display:grid;grid-template-columns:minmax(0,1fr) 44%;column-gap:var(--s3);align-items:center;border-top:1px solid var(--hairline)}
+  .bt-laxis{border-top:0}
+  .bt-lname{display:flex;align-items:center;min-height:var(--tap);font-size:.9375rem;font-weight:600;line-height:1.2;overflow-wrap:anywhere}
+  .bt-ltrack{position:relative;grid-column:2;grid-row:1;height:var(--tap)}
+  .bt-ltrack::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px solid var(--hairline)}
+  .bt-laxis .bt-ltrack{height:28px}
+  .bt-laxis .bt-ltrack::before{display:none}
+  .blank .bt-ltrack::before{top:calc(50% - 9px);height:18px;border:0;background:repeating-linear-gradient(135deg,transparent 0 5px,var(--hairline) 5px 6px)}
+  .bt-lref{position:absolute;top:0;bottom:0;border-left:2px solid var(--accent)}
+  .bt-lmk{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--accent);border:2px solid var(--accent);box-sizing:border-box}
+  .bt-lmk.hollow{background:var(--bg)}
+  .bt-ltick{position:absolute;bottom:2px;padding-left:4px;border-left:1px dashed var(--muted);font-size:var(--fs-small);line-height:1.2;color:var(--muted)}
+  .bt-llabel{grid-column:1/-1;font-size:var(--fs-small);color:var(--muted);padding:0 0 var(--s2)}
+  .blank .bt-llabel{position:relative;z-index:1;grid-column:2;grid-row:1;align-self:center;justify-self:start;margin-left:var(--s2);padding:0 var(--s1);background:var(--bg);color:var(--muted)}
+  .bt-lnote{margin:var(--s2) 0 0;font-size:var(--fs-small);color:var(--muted)}
+}
+/* the chart sits right under the headline and the four groups; the long rule follows the table */
+body:has(.bt-chart) main{display:flex;flex-direction:column}
+body:has(.bt-chart) main>*{order:1}
+body:has(.bt-chart) main>h1,body:has(.bt-chart) main>#verdict,body:has(.bt-chart) main>.bt-groups,
+body:has(.bt-chart) main>section[aria-labelledby="chart-h"]{order:0}
+body:has(.bt-chart) main>section[aria-labelledby="tbl-h"]{order:2}
+body:has(.bt-chart) main>section[aria-labelledby="rule-h"]{order:3}
+body:has(.bt-chart) main>section[aria-labelledby="lim-h"]{order:4}

@@ -51,7 +51,7 @@ def test_readiness_without_signals_is_empty(client):
 
 def test_later_sections_are_honest_lines(client):
     t = client.get("/c/9000001-1").text
-    assert t.count("no match in the dataset yet") == 3
+    assert t.count("no match in the dataset yet") >= 2  # investors and partners; the funding list may hold open programmes from the declared list
     assert "Not enough public evidence for a next step yet" in t and "Rule used: 5." in t
     assert "not yet scored" not in t
 

@@ -29,7 +29,7 @@
 <h2 id="ecosystem">Declared ecosystem dataset</h2>
 {% if eco %}
 <p>A research dataset of the Finnish blue economy, built on this server and last verified {{ eco.built }}, is imported as <strong>declared data</strong>
-(<code>data/declared/ecosystem/</code>, adapter <code>ecosystem</code>). It holds {{ eco.entities }} entities ({{ eco.supply }} companies, {{ eco.capital }} capital sources, {{ eco.demand }} buyers and partners),
+(<code>data/declared/ecosystem/</code>, source <code>ecosystem</code>). It holds {{ eco.entities }} entities ({{ eco.supply }} companies, {{ eco.capital }} capital sources, {{ eco.demand }} buyers and partners),
 {{ eco.matches_in_dataset }} scored company-to-investor and company-to-buyer pairs, each with a reason string, and readiness evidence for {{ eco.readiness_in_dataset }} companies.
 Its own confidence words: {{ eco.conf_high }} high, {{ eco.conf_medium }} medium, {{ eco.conf_low }} low. Low-confidence rows are leads, not facts.</p>
 <p>Imported here: {{ eco.imported_companies }} companies (matched to the register by business id, then by name, then by website; new ones are tagged <code>ecosystem</code> and are not part of the feed),

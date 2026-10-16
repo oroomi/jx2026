@@ -87,6 +87,9 @@ def ecosystem(conn, key: str, fw: dict) -> dict | None:
     if r is None:
         return {"status": status, "ready": None, "label": meta.get("label")} if status and status != "active" else None
     r = dict(r)
+    for k in ("br_missing", "ir_missing"):
+        if r[k] and re.fullmatch(r"[a-e](\s*[;,]\s*[a-e])*", r[k].strip()):
+            r[k] = "checklist items " + r[k].strip()
     rule_trl = fw["trl"]["level"]
     trl_note = None
     if r["trl"] is not None:
@@ -127,7 +130,8 @@ def company_page(request: Request, company_key: str):
         c, sigs = data["company"], data["signals"]
         n = store.cohort_count(conn)
         profile = blueinvest.profile_for(conn, company_key)
-        fw = frameworks.assess(c, sigs)
+        rule_sigs = [x for x in sigs if x["adapter"] != "ecosystem"]  # declared research is shown beside a level, never inside the rule
+        fw = frameworks.assess(c, rule_sigs)
         if profile and profile.get("trl") is not None:
             fw["trl"] = blueinvest_trl(profile)
         eco = ecosystem(conn, company_key, fw)
@@ -141,7 +145,7 @@ def company_page(request: Request, company_key: str):
                  register=register_rows(c), reasons=reasons, fit_rule=fit_mod.RULE_LINE, entered_via=", ".join(entered),
                  readiness=readiness_rows(thesis, sigs), sources=sources(c, sigs), connectors=CONNECTORS,
                  cohort_n=n, radar_exists=_has_route(request)("/radar"),
-                 fw=fw, connections=frameworks.connections(sigs),
+                 fw=fw, connections=frameworks.connections(rule_sigs),
                  nxt=nxt, step=step, step_rule=matching.NEXT_RULES[step["rule"] - 1], step_rules=matching.NEXT_RULES, rank_rule=matching.RANK_RULE, eco=eco,
                  type_labels=store.TYPE_LABELS)
 

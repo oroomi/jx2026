@@ -7,7 +7,7 @@
 {% set blank = rows | rejectattr("event_count") | list %}
 <div class="srcwrap">
 <table class="rd-table" data-block="{{ label }}">
-  <thead><tr><th>Company</th><th>Country</th><th class="num">Events</th><th>Latest event</th><th>Types</th><th>Timeline</th></tr></thead>
+  <thead><tr><th>Company</th><th>Country</th><th class="num">Public records</th><th>Latest record</th><th>Kinds</th><th>Timeline</th></tr></thead>
   <tbody>
   {% for r in live %}{{ row(r) }}{% endfor %}
   {% if blank %}<tr class="rd-sub"><th colspan="6" scope="colgroup">No public event found ({{ blank | length }})</th></tr>
@@ -29,13 +29,14 @@
 </tr>
 {% endmacro %}
 {% block content %}
-<h1>Cohort radar</h1>
+<h1>The Nordic Blue 19 and the Redstone portfolio</h1>
+<p class="plain">Each row is a startup already in a programme. The question: was it visible in public records before it joined?</p>
 {% if reason %}
 <section class="empty" aria-label="Empty state"><p class="answer">{{ reason }}</p></section>
 {% else %}
 <p class="answer" id="rd-head">{{ cohort | length }} cohort companies, {{ cohort_with }} with at least one dated public event.</p>
 <p class="rule rd-rule" id="rd-rule">{{ rule }}</p>
-<p><a href="/backtest">See the earliness backtest</a>. Year-only events are drawn as hollow ticks; filled ticks have a stated day.</p>
+<p><a class="btnlink" href="/backtest">See the earliness test</a>. Year-only events are drawn as hollow ticks; filled ticks have a stated day.</p>
 {% if nonfi %}<p class="muted">Countries other than FI ({{ nonfi | join(", ") }}): the register adapters cover Finland only, so those rows are often empty by construction.</p>{% endif %}
 {% for tag, title, rows in blocks %}
 {% if rows %}
@@ -46,7 +47,7 @@
 {% endif %}
 {% endfor %}
 <section aria-label="Connector slots" class="rd-slots">
-  <h2>Not connected</h2>
+  <h2>Data sources not connected</h2>
   <p class="muted">Connector slot, not connected, never shown as data:</p>
   <ul>{% for s in slots %}<li><button type="button" disabled>{{ s }}: connector slot, not connected</button></li>{% endfor %}</ul>
 </section>

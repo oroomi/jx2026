@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}{{ heading }} | Ocean Opportunity Radar{% endblock %}
+{% block content %}
+<section class="q notfound errpage">
+  <h1>{{ heading }}</h1>
+  <p class="plain">{{ body }}</p>
+  <p><a class="btnlink" href="/">Back to the start page</a></p>
+  <form action="/company-search" method="get" class="search" role="search">
+    <label for="q">Find a startup</label>
+    <input id="q" name="q" type="search" autocomplete="off" placeholder="Type a startup name, for example Kelluu"> <button type="submit">Find this startup</button>
+  </form>
+</section>
+{% endblock %}

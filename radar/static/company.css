@@ -64,3 +64,6 @@ main.wrap{max-width:1360px}
 .dim-name{font-weight:600;margin-right:6px}
 .ready .rule{font-size:.8125rem}
 .ready th a{color:inherit}
+/* jx20 */
+.connectors button{min-height:44px}
+.connect a{display:inline-block;min-width:44px;padding:10px 0;text-align:center}

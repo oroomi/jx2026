@@ -8,13 +8,13 @@
     <div class="proof">
       {{ chip(r.evidence) }}
       {% if r.amount_eur is not none %}<a class="amt" href="{{ r.evidence.url }}" target="_blank" rel="noopener">{{ "{:,.0f}".format(r.amount_eur).replace(",", " ") }} EUR <span class="amt-src">per {{ r.evidence.label }}</span></a>{% endif %}
-      <span class="conf conf-{{ r.confidence }}">confidence: {{ "low: keyword or code match only" if r.confidence == "low" else r.confidence }}</span>
+      <span class="conf conf-{{ r.confidence }}">How sure: {{ "low: keyword or code match only" if r.confidence == "low" else r.confidence }}</span>
     </div>
   </li>
 {% endmacro %}
 
 {# Partial: pills, list and footer. Swapped into #feed-rows by htmx and included by feed.html. #}
-<nav class="pills" aria-label="Signal type">
+<nav class="pills" aria-label="Filter by kind of public record">
   <a class="pill" href="/" hx-get="/feed/rows" hx-target="#feed-rows" hx-push-url="/" {% if not selected %}aria-current="true"{% endif %}>All <span class="n">{{ total }}</span></a>
   {% for p in pills %}
   <a class="pill{% if p.count == 0 %} zero{% endif %}" href="{{ p.href }}" hx-get="/feed/rows?type={{ p.key }}" hx-target="#feed-rows" hx-push-url="{{ p.href }}" {% if selected == p.key %}aria-current="true"{% endif %}>
@@ -33,7 +33,7 @@
 {% endif %}
 {% if weak_rows %}
 <details class="weak">
-  <summary>Weak matches ({{ weak_rows | length }}): the legal name contains a thesis keyword and nothing else supports it</summary>
+  <summary>Weak matches ({{ weak_rows | length }}): only the company name contains a sector word, nothing else supports it</summary>
   <ol class="feed" aria-label="Weak matches, newest first">
   {% for r in weak_rows %}{{ row(r) }}{% endfor %}
   </ol>
@@ -47,7 +47,7 @@
 {% else %}
 <section class="empty" aria-label="Empty state">
   <p class="answer">no signals of this type in the window</p>
-  <p><a href="/" hx-get="/feed/rows" hx-target="#feed-rows" hx-push-url="/">Show all signal types</a></p>
+  <p><a href="/" hx-get="/feed/rows" hx-target="#feed-rows" hx-push-url="/">Show all kinds of public record</a></p>
 </section>
 {% endif %}
 
@@ -62,5 +62,5 @@
   {% else %}
   <p>Rule: {{ rule }}</p>
   {% endif %}
-  <p><a href="/method">How the rule works</a></p>
+  <p><a class="btnlink" href="/method">See the rules in full</a> <a class="btnlink" href="/how">How to read this page</a></p>
 </footer>

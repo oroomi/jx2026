@@ -1,4 +1,10 @@
-"""python3 -m radar.build : run every adapter in radar/adapters (modules with NAME and run(conn, thesis))."""
+"""python3 -m radar.build : run every adapter in radar/adapters (modules with NAME and run(conn, thesis)).
+
+Adapters run in phases, ordered by the optional module attribute PHASE (default 1), then by name:
+  0  declared lists (the cohort and portfolio companies exist before anything else)
+  1  discoverers (register, procurement, projects: they find and insert companies)
+  2  enrichers (only match companies that already exist, for example Business Finland funding)
+"""
 from __future__ import annotations
 
 import argparse
@@ -11,14 +17,17 @@ from radar import adapters, db, thesis as thesis_mod
 
 def discover() -> list:
     found = []
-    for m in sorted(pkgutil.iter_modules(adapters.__path__), key=lambda m: m.name):
+    mods = []
+    for m in pkgutil.iter_modules(adapters.__path__):
         try:
             mod = importlib.import_module(f"radar.adapters.{m.name}")
         except Exception as e:  # reported per adapter, never stops the others
-            found.append((m.name, e))
+            mods.append((1, m.name, m.name, e))
             continue
         if hasattr(mod, "NAME") and callable(getattr(mod, "run", None)):
-            found.append((mod.NAME, mod))
+            mods.append((getattr(mod, "PHASE", 1), m.name, mod.NAME, mod))
+    mods.sort(key=lambda t: (t[0], t[1]))
+    found = [(name, mod) for _, _, name, mod in mods]
     return found
 
 

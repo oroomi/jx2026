@@ -54,3 +54,5 @@ main.wrap{max-width:1360px}
   .co-main{padding-bottom:0}
 }
 @media (max-width:480px){.fact{grid-template-columns:1fr}.co-head h1{font-size:1.75rem}}
+/* D5: the fixed .co-bar (52px + 1px border) must not cover the page footer */
+@media (max-width:1099px){body{padding-bottom:calc(53px + env(safe-area-inset-bottom))}}

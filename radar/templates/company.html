@@ -78,7 +78,7 @@
   {% if signals %}
   <ul class="siglist">
     {% for s in signals %}
-    <li><span class="s-type">{{ s.type_label }}</span> <time datetime="{{ s.date }}">{{ s.date }}</time>
+    <li><span class="s-type">{{ s.type_label }}</span> <time datetime="{{ s.date[:4] if s.date_precision == "year" else s.date }}">{{ s.date_label or s.date }}</time>
       <span class="s-detail">{% if s.detail %}{{ s.detail }}{% else %}{{ missing("no detail in source") }}{% endif %}</span>
       {{ chip(s.evidence) }} <span class="s-conf">{{ s.confidence }} confidence</span></li>
     {% endfor %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% block title %}Earliness backtest | Ocean Opportunity Radar{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/backtest.css?v={{ asset_v }}">{% endblock %}
+{% block content %}
+<h1>Earliness backtest</h1>
+{% if not res %}
+<section class="empty" aria-label="Empty state"><p class="answer">{{ reason }}</p></section>
+{% else %}
+<p class="answer" id="verdict">We would have flagged <strong>{{ res.earlier }}</strong> of {{ res.total }} before {{ res.reference_label }}; <strong>{{ res.later }}</strong> only after; <strong>{{ res.none }}</strong> have no public signal at all.</p>
+<section aria-labelledby="rule-h">
+  <h2 id="rule-h">The rule</h2>
+  <ol class="rulebox bt-rule">{% for l in rule %}<li>{{ l }}</li>
+{% endfor %}</ol>
+  <p class="rule">Reference date {{ res.reference_date }}: {{ res.reference_source }}.</p>
+</section>
+
+<section aria-labelledby="chart-h">
+  <h2 id="chart-h">First public signal per cohort company</h2>
+  <p class="lede">Time runs left to right. Filled circle: first counted signal with a stated day. Hollow circle: year only, counted as 1 January. Hatched lane: no public signal, drawn blank.</p>
+  <svg class="bt-chart" viewBox="0 0 {{ chart.w }} {{ chart.h }}" role="img" aria-labelledby="bt-t bt-d">
+    <title id="bt-t">First public signal date per cohort company against the reference date {{ chart.ref_label }}</title>
+    <desc id="bt-d">{{ res.earlier }} of {{ res.total }} companies have a first signal before the reference date, {{ res.later }} after, {{ res.none }} have none.</desc>
+    <defs><pattern id="bt-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="bt-hatchline"/></pattern></defs>
+    {% for t in chart.ticks %}<g class="bt-tick"><line x1="{{ t.x }}" x2="{{ t.x }}" y1="{{ chart.top - 4 }}" y2="{{ chart.h - 4 }}"/><text x="{{ t.x + 3 }}" y="{{ chart.top - 8 }}">{{ t.label }}</text></g>
+    {% endfor %}
+    {% for l in chart.lanes %}
+    <g class="bt-lane{% if l.blank %} blank{% endif %}" data-company="{{ l.key }}">
+      <a href="/c/{{ l.key }}"><text class="bt-name" x="{{ chart.x0 }}" y="{{ l.y + 14 }}">{{ l.name }}</text></a>
+      <line class="bt-track" x1="{{ chart.x0 }}" x2="{{ chart.x1 }}" y1="{{ l.ty }}" y2="{{ l.ty }}"/>
+      {% if l.blank %}
+      <rect class="bt-blank" x="{{ chart.x0 }}" y="{{ l.ty - 9 }}" width="{{ chart.x1 - chart.x0 }}" height="18" fill="url(#bt-hatch)"/>
+      <text class="bt-blanktext" x="{{ chart.x0 + 6 }}" y="{{ l.ty + 4 }}">no public signal</text>
+      {% else %}
+      <circle class="mk{% if l.hollow %} hollow{% endif %}" cx="{{ l.mx }}" cy="{{ l.ty }}" r="5.5"/>
+      <text class="bt-mlabel" x="{{ l.lx }}" y="{{ l.ty + 19 }}" text-anchor="{{ l.anchor }}">{{ l.label }}</text>
+      {% endif %}
+    </g>
+    {% endfor %}
+    <g class="bt-ref"><line x1="{{ chart.ref_x }}" x2="{{ chart.ref_x }}" y1="{{ chart.top - 4 }}" y2="{{ chart.h - 4 }}"/><text x="{{ chart.ref_x + (-4 if chart.ref_anchor == 'end' else 4) }}" y="12" text-anchor="{{ chart.ref_anchor }}">reference {{ chart.ref_label }}</text></g>
+  </svg>
+</section>
+
+<section aria-labelledby="tbl-h">
+  <h2 id="tbl-h">All {{ res.total }} companies</h2>
+  <div class="srcwrap">
+  <table class="srctable bt-table">
+    <thead><tr><th>Company</th><th>First public signal</th><th>Timing</th><th>Group</th></tr></thead>
+    <tbody>
+    {% for r in res.rows %}
+    {% set f = r.first_signal %}
+    <tr class="bt-{{ r.group }}">
+      <td><a href="/c/{{ r.company_key }}">{{ r.name }}</a>{% if r.country %} <span class="muted">{{ r.country }}</span>{% endif %}
+        {% if r.reference_from_csv %}<div class="muted">entry date {{ r.reference_date }}: {{ r.reference_source }}</div>{% endif %}</td>
+      <td>
+        {% if f %}
+        <a class="ev-chip" href="{{ f.source_url }}" target="_blank" rel="noopener"><span class="ev-src">{{ f.label }}</span> <time datetime="{{ f.date }}">{{ f.date_label }}</time></a>
+        <span class="muted">{{ f.source_label }}, confidence: {{ f.confidence }}</span>
+        {% else %}<span class="hatch">no public signal</span>{% endif %}
+        {% for o in r.others %}<div class="muted bt-other">{% if o.counted %}also counted: {{ o.label }}, {{ o.date_label }}, <a href="{{ o.source_url }}" target="_blank" rel="noopener">{{ o.source_label }}</a>{% else %}{{ o.reason }} (<a href="{{ o.source_url }}" target="_blank" rel="noopener">{{ o.source_label }}</a>){% endif %}</div>{% endfor %}
+        {% for n in r.notes %}<div class="muted bt-other">{{ n.text }}{% if n.source_url %} (<a href="{{ n.source_url }}" target="_blank" rel="noopener">profile</a>){% endif %}</div>{% endfor %}
+      </td>
+      <td class="bt-months">{% if r.timing %}{{ r.timing }}{% else %}<span class="muted">no data</span>{% endif %}</td>
+      <td>{% if r.group == 'earlier' %}found earlier{% elif r.group == 'later' %}found later{% else %}no public signal{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section aria-labelledby="lim-h">
+  <h2 id="lim-h">Limits</h2>
+  <p>The reference date is a programme start month, not a company's entry date; individual pipeline entry dates are not public. A register entry shows that a company exists, not that anyone was interested in it. {{ res.none }} of {{ res.total }} companies have no counted signal in the sources we connected, which says nothing about whether they were findable elsewhere.</p>
+  <p>Not connected, no signals stored: {% if not_connected %}{% for t in not_connected %}{{ type_labels.get(t, t) | lower }}{{ ", " if not loop.last }}{% endfor %}{% else %}none of the feed signal types is empty{% endif %}; connector slots, not connected: {{ slots | join(", ") }}. BlueInvest pipeline profiles carry no listing date, so they are noted and never counted.</p>
+</section>
+{% endif %}
+{% endblock %}

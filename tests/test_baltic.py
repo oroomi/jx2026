@@ -174,7 +174,8 @@ def test_estonia_fixture_rows(tmp_path):
     assert set(rows) == {"Fixture Mere OÜ", "Fixture Kood OÜ", "Fixture Laev AS"}
     assert rows["Fixture Mere OÜ"]["confidence"] == "medium" and rows["Fixture Kood OÜ"]["confidence"] == "low"
     assert all(r["country"] == "EE" and r["signal_type"] == "register_entry" for r in rows.values())
-    assert rows["Fixture Mere OÜ"]["source_url"] == "https://ariregister.rik.ee/eng/company/90000001"
+    assert rows["Fixture Mere OÜ"]["source_url"] == "https://ariregister.rik.ee/est/company/90000001"
+    assert rows["Fixture Kood OÜ"]["source_url"] == "https://ariregister.rik.ee/eng/company/90000002"  # no link in the row: built from the code
     assert rows["Fixture Laev AS"]["industry_code"] is None            # not stated stays NULL
     assert ee.run(conn, EE_THESIS, path=_ee_file(tmp_path))["signals"] == 0   # idempotent
 

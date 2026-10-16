@@ -1,14 +1,14 @@
 """Estonian e-Business Register open data (avaandmed.ariregister.rik.ee) -> register_entry signals.
 
-The register publishes the basic data of every Estonian business as a CSV download (semicolon separated, zipped) with the
-registry code, legal name, legal form, status, first-entry date and the main EMTAK activity code. EMTAK 2008 follows NACE
-Rev. 2, so the thesis `industry_codes` list is compared with it as written (an assumption: a code outside that list is
-simply not a match). Companies (OU, AS) first entered in the last 365 days are kept when the EMTAK code is in the thesis
-(LOW: a coarse code) or a legal-name word starts with a thesis keyword (MEDIUM). Never high: this is the same rule as PRH.
-Each signal links to the company's public page in the register. Licence and terms: the register's open-data terms of use,
-re-use with attribution (CHECK the terms page named in DISCLOSURE.md).
+Source: the register's "Basic data" CSV (semicolon separated, zipped, refreshed daily, CC BY 4.0 per the download page): legal
+name, registry code, legal form, status, first-entry date (DD.MM.YYYY), address and a public company page link.
+The basic data holds NO activity code. EMTAK (the Estonian NACE) sits only in the 230 MB "General data" JSON, which this
+adapter does not read (HTTP 429 on the second download, no streaming JSON library in the stack). So Estonian matches rest on
+the legal name alone: a name word that starts with a thesis keyword (Estonian words live in the thesis file) is MEDIUM at best,
+and a file that does carry an `emtak_kood` column would also match the thesis `industry_codes` (LOW). Companies (Osauhing, AS)
+first entered in the last 365 days, status "entered into the register", are kept. The signal links to the company's page.
 
-The download goes to data/cache/estonia_register/ once (1 request per 2 s); HTTP 403/429 returns BLOCKED, never a crash.
+The download goes to data/cache/estonia_register/ once; HTTP 403/429 returns BLOCKED, never a crash.
 Run: python3 -m radar.adapters.estonia_register
 """
 from __future__ import annotations
@@ -34,8 +34,8 @@ COUNTRY = "EE"
 UA = "OceanOpportunityRadar/0.1 (JunctionX Turku 2026; +https://jx.hankintaviikko.fi)"
 DOWNLOAD_URL = "https://avaandmed.ariregister.rik.ee/sites/default/files/avaandmed/ettevotja_rekvisiidid__lihtandmed.csv.zip"
 COMPANY_URL = "https://ariregister.rik.ee/eng/company/{}"
-FORMS = ("OÜ", "AS")
-ACTIVE = ("R", "registrisse kantud", "entered into the register")
+FORMS = ("oü", "as", "osaühing", "aktsiaselts")  # legal form, case folded: companies only, no sole traders or associations
+ACTIVE = ("r", "registrisse kantud", "entered into the register")
 # Column names are looked up through aliases; a file that lacks a required column reports `bad_header`, it never guesses.
 COLUMNS = {
     "name": ("nimi", "ettevotja_nimi", "name"),
@@ -43,6 +43,7 @@ COLUMNS = {
     "form": ("ettevotja_oiguslik_vorm", "oiguslik_vorm", "legal_form"),
     "status": ("ettevotja_staatus", "staatus", "status"),
     "first": ("ettevotja_esmakande_kpv", "esmakande_kpv", "first_entry_date", "registered"),
+    "link": ("teabesysteemi_link", "link"),
     "emtak": ("emtak_kood", "emtak", "evrk_kood", "tegevusala_kood", "main_activity_code"),
     "emtak_text": ("emtak_tekstina", "tegevusala_tekstina", "main_activity"),
 }
@@ -137,7 +138,7 @@ def run(conn: sqlite3.Connection, thesis: dict, path: Path | None = None, today:
         if not first or first < start or first > today.isoformat():
             continue
         form, status = get("form"), get("status")
-        if (cols["form"] and form not in FORMS) or (cols["status"] and status.lower() not in tuple(a.lower() for a in ACTIVE)):
+        if (cols["form"] and form.casefold() not in FORMS) or (cols["status"] and status.casefold() not in ACTIVE):
             continue
         name, code = get("name"), get("code")
         if not name or not re.fullmatch(r"\d{6,10}", code):
@@ -151,7 +152,8 @@ def run(conn: sqlite3.Connection, thesis: dict, path: Path | None = None, today:
         key = f"ee-{code}"
         if conn.execute("SELECT 1 FROM signals WHERE company_key=? AND signal_type='register_entry'", (key,)).fetchone():
             continue
-        url = COMPANY_URL.format(code)
+        link = get("link")
+        url = link if link.startswith("https://ariregister.rik.ee/") else COMPANY_URL.format(code)
         why = (f"legal name starts a word with thesis keyword '{hits[0]}'" if hits else f"EMTAK code {emtak} is in the thesis")
         emit.upsert_company(conn, company_key=key, name=name, source_url=url, y_tunnus=None, country=COUNTRY, founded=first,
                             industry_code=emtak or None, industry_desc=get("emtak_text") or None, group_tag="feed",

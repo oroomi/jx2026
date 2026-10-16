@@ -36,6 +36,7 @@ Declared datasets are copied unchanged into `data/declared/` with their `source_
 | Hilma public procurement awards, read-only from /opt/portfolio/tenderhub/data/awards_deep.sqlite (our own archive of public notices, built before the event, 43,495 awards 2018-09-07 to 2026-10-16) | rows used are copied into signals | https://www.hankintailmoitukset.fi | public notices | 2026-10-16 |
 | CORDIS Horizon Europe and H2020 bulk CSV (fetched by radar/adapters/cordis.py) | live | https://cordis.europa.eu/data/ | EU open data, CC BY 4.0 | fetch date stored |
 | Business Finland funding decisions, manual Excel export from the public dashboard (data/declared/businessfinland.xlsx, when present) | export | https://tietopankki.businessfinland.fi | public dashboard export | export date in data/declared/README.md |
+| PRH registered-notices API v3 (fetched live by radar/adapters/prh_notices.py: share issues, capital increases, options, board changes, start-up notices, loss of share capital) | live | https://avoindata.prh.fi/opendata-registerednotices-api/v3 | CC BY 4.0, attribution to PRH | registration date per row; raw pages cached in data/cache/prh_notices |
 | EIC Accelerator call date and BlueInvest pages | 1 official date | EC topic JSON, blueinvest-community.converve.io | public | 2026-10-16 |
 
 Not connected, shown only as "connector slot": LinkedIn, Dealroom, Crunchbase, PitchBook, Tracxn. Nothing from them is in this repo.

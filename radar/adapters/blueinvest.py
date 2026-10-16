@@ -168,12 +168,15 @@ def parse_detail(text: str) -> dict:
         d["title"] = _text(fields[0]) or None
     if len(fields) > 1:
         d["description"] = _text(fields[1]) or None
-    if len(fields) > 2 and "<li" in fields[2]:
-        d["sector"] = _text(re.sub(r"</li>", "\n", fields[2])).replace("\n", "; ") or None
+    sm = re.search(r"keywords-catalogue-view[^>]*>(.*?)</ul>", body, re.S)
+    if sm:
+        d["sector"] = "; ".join(_text(x) for x in re.findall(r"<li[^>]*>(.*?)</li>", sm.group(1), re.S)) or None
     m = re.search(r"Company behind project</span><br />(?:<a[^>]*>)?(.*?)(?:</a>)?<br /><br /><div class=\"catalogue-field\">(.*?)<br />", body, re.S)
     if m:
         d["company_name"] = _text(m.group(1)) or None
         d["country"] = _text(m.group(2)) or None
+    if d["sector"] and d["sector"].startswith("TRL"):
+        d["sector"] = None
     d["trl"] = parse_trl(labelled.get("TRL"))
     for lab, val in labelled.items():
         if _DATE_LABEL.search(lab) and not _UPDATED.search(lab):

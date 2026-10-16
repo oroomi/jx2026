@@ -1,0 +1,133 @@
+"""Read-only JSON API on the committed snapshot stores (data/snapshot): status codes, response shape, sources, read-only, speed."""
+import hashlib
+import time
+from pathlib import Path
+
+import pytest
+from fastapi.testclient import TestClient
+
+from radar import earliness, store
+
+ROOT = Path(__file__).resolve().parent.parent
+SNAP = ROOT / "data" / "snapshot"
+KELLUU = "2902007-2"
+pytestmark = pytest.mark.skipif(not (SNAP / "radar_redstone_apelago_blue.sqlite").is_file(), reason="snapshot store not in this checkout")
+
+
+@pytest.fixture()
+def client(monkeypatch):
+    monkeypatch.setenv("RADAR_DATA_DIR", str(SNAP))
+    monkeypatch.delenv("RADAR_DB", raising=False)
+    monkeypatch.delenv("RADAR_THESIS", raising=False)
+    import app
+    return TestClient(app.app)
+
+
+def _is_link(u) -> bool:
+    return isinstance(u, str) and u.startswith(("http://", "https://"))
+
+
+def test_index_lists_endpoints_and_theses(client):
+    r = client.get("/api")
+    assert r.status_code == 200 and r.headers["content-type"].startswith("application/json")
+    d = r.json()
+    assert d["read_only"] is True and "redstone_apelago_blue" in d["theses"]
+    assert {"/api/companies", "/api/company/{company_key}", "/api/feed", "/api/backtest"} <= {e["path"].split("?")[0] for e in d["endpoints"]}
+
+
+def test_companies_search_and_list(client):
+    d = client.get("/api/companies", params={"q": "kelluu"}).json()
+    assert d["thesis"]["id"] == "redstone_apelago_blue"
+    assert [c["company_key"] for c in d["companies"]] == [KELLUU]
+    c = d["companies"][0]
+    assert c["name"] == "Kelluu Oy" and _is_link(c["source_url"]) and c["links"]["page"] == f"/c/{KELLUU}"
+    d = client.get("/api/companies", params={"limit": 3}).json()
+    assert d["count"] == 3 and d["total"] >= 3
+    assert [c["name"] for c in d["companies"]] == sorted((c["name"] for c in d["companies"]))
+
+
+def test_company_has_facts_sourced_signals_levels_and_next(client):
+    d = client.get(f"/api/company/{KELLUU}").json()
+    assert d["company"]["y_tunnus"] == KELLUU and d["company"]["founded"] == "2018-03-09"
+    assert d["signals"] and all(_is_link(s["source_url"]) and s["confidence"] in ("high", "medium", "low") for s in d["signals"])
+    assert {s["signal_type"] for s in d["signals"]} >= {"register_entry", "eu_project"}
+    tech = d["readiness"]["technology"]
+    assert tech["level"] == 4 and tech["because"] and all(_is_link(e["source_url"]) for e in tech["evidence"])
+    assert tech["rules"] and _is_link(tech["framework_url"])
+    nxt = d["who_comes_next"]
+    assert set(nxt) >= {"investors", "funding", "partners", "rank_rule"}
+    for k in ("investors", "funding", "partners"):
+        for i, row in enumerate(nxt[k], 1):
+            assert row["rank"] == i and row["reason"] and row["name"] and _is_link(row["source_url"])
+    assert 1 <= d["next_step"]["rule"] <= 5 and d["next_step"]["sentence"]
+    assert d["connector_slots"]["status"] == "not connected"
+
+
+def test_unknown_company_is_json_404(client):
+    r = client.get("/api/company/name:no-such-company")
+    assert r.status_code == 404 and r.headers["content-type"].startswith("application/json")
+    assert "no company with key" in r.json()["error"]
+
+
+def test_feed_rows_carry_their_reason(client):
+    d = client.get("/api/feed").json()
+    assert d["rule"] and d["count"] == len(d["rows"]) == d["counts"]["companies"]
+    assert d["rows"], "the snapshot feed has rows"
+    for r in d["rows"]:
+        assert r["strength"] in ("strong", "weak") and r["why"] and set(r["reasons"]) <= set(store.REASON_IDS)
+        assert _is_link(r["source_url"]) and r["links"]["page"] == f"/c/{r['company_key']}"
+    dates = [r["date"] for r in d["rows"]]
+    assert dates == sorted(dates, reverse=True)
+
+
+def test_feed_window_and_type(client):
+    d = client.get("/api/feed", params={"window": 30}).json()
+    assert d["counts"]["window_days"] == 30
+    assert all(d["counts"]["window_start"] <= r["date"] <= d["counts"]["window_end"] for r in d["rows"])
+    assert len(d["rows"]) <= len(client.get("/api/feed").json()["rows"])
+    d = client.get("/api/feed", params={"type": "register_entry"}).json()
+    assert all(r["signal_type"] == "register_entry" for r in d["rows"])
+
+
+def test_bad_parameters_are_json_errors(client):
+    r = client.get("/api/feed", params={"thesis": "no_such_thesis"})
+    assert r.status_code == 400 and "redstone_apelago_blue" in r.json()["available"]
+    assert client.get("/api/feed", params={"type": "made_up"}).status_code == 400
+    assert client.get("/api/feed", params={"window": 0}).status_code == 422
+    r = client.get("/api/no/such/endpoint")
+    assert r.status_code == 404 and r.headers["content-type"].startswith("application/json") and r.json()["endpoints"]
+
+
+def test_second_thesis(client):
+    d = client.get("/api/feed", params={"thesis": "health_tech_turku"}).json()
+    assert d["thesis"]["id"] == "health_tech_turku"
+
+
+def test_backtest_shape(client):
+    d = client.get("/api/backtest").json()
+    assert d["total"] == 19 and d["headline"] and d["rule"]
+    assert d["earlier"] + d["declared"] + d["later"] + d["none"] == d["total"]
+    assert all(r["group"] in earliness.GROUP_ORDER for r in d["rows"])
+    assert all(_is_link(r["first_signal"]["source_url"]) for r in d["rows"] if r["first_signal"] and "source_url" in r["first_signal"])
+
+
+def test_read_only(client):
+    files = sorted(SNAP.glob("*.sqlite"))
+    before = [hashlib.sha256(f.read_bytes()).hexdigest() for f in files]
+    for u in ("/api", "/api/companies?q=oy", f"/api/company/{KELLUU}", "/api/feed", "/api/backtest"):
+        assert client.get(u).status_code == 200
+    assert client.post("/api/feed").status_code == 405
+    assert client.delete(f"/api/company/{KELLUU}").status_code == 405
+    assert [hashlib.sha256(f.read_bytes()).hexdigest() for f in files] == before
+    assert "access-control-allow-origin" not in client.get("/api/feed", headers={"Origin": "https://example.test"}).headers
+
+
+def test_each_endpoint_answers_under_500_ms(client):
+    for u in ("/api/companies?q=oy", f"/api/company/{KELLUU}", "/api/feed", "/api/backtest"):
+        client.get(u)
+        best = 9.0
+        for _ in range(3):
+            t = time.perf_counter()
+            assert client.get(u).status_code == 200
+            best = min(best, time.perf_counter() - t)
+        assert best < 0.5, f"{u} took {best:.3f} s"

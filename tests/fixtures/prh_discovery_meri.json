@@ -1,0 +1,1065 @@
+{
+ "totalResults": 5,
+ "companies": [
+  {
+   "businessId": {
+    "value": "3547102-1",
+    "registrationDate": "2025-06-25",
+    "source": "3"
+   },
+   "euId": {
+    "value": "FIFPRO.3547102-1",
+    "source": "1"
+   },
+   "names": [
+    {
+     "name": "Meribom Oy",
+     "type": "1",
+     "registrationDate": "2026-01-01",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "mainBusinessLine": {
+    "type": "49410",
+    "descriptions": [
+     {
+      "languageCode": "3",
+      "description": "Freight transport by road"
+     },
+     {
+      "languageCode": "1",
+      "description": "Tieliikenteen tavarankuljetus"
+     },
+     {
+      "languageCode": "2",
+      "description": "Vägtransport, godstrafik"
+     }
+    ],
+    "typeCodeSet": "TOIMI4",
+    "registrationDate": "2026-01-01",
+    "source": "2"
+   },
+   "companyForms": [
+    {
+     "type": "16",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Aktiebolag"
+      },
+      {
+       "languageCode": "3",
+       "description": "Limited company"
+      },
+      {
+       "languageCode": "1",
+       "description": "Osakeyhtiö"
+      }
+     ],
+     "registrationDate": "2026-01-01",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "companySituations": [],
+   "registeredEntries": [
+    {
+     "type": "0",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Oregistrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisteröimätön"
+      },
+      {
+       "languageCode": "3",
+       "description": "Unregistered"
+      }
+     ],
+     "registrationDate": "2025-06-25",
+     "endDate": "2025-12-31",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-01-01",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-01-02",
+     "register": "4",
+     "authority": "1"
+    },
+    {
+     "type": "55",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-01-01",
+     "register": "5",
+     "authority": "1"
+    },
+    {
+     "type": "80",
+     "descriptions": [
+      {
+       "languageCode": "1",
+       "description": "Liiketoiminnasta arvonlisäverovelvollinen"
+      },
+      {
+       "languageCode": "2",
+       "description": "Momsskyldig för rörelseverksamhet"
+      },
+      {
+       "languageCode": "3",
+       "description": "VAT-liable for business activity"
+      }
+     ],
+     "registrationDate": "2026-01-01",
+     "register": "6",
+     "authority": "1"
+    },
+    {
+     "type": "41",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-01-01",
+     "register": "7",
+     "authority": "1"
+    }
+   ],
+   "addresses": [
+    {
+     "type": 2,
+     "street": "Varastokatu",
+     "postCode": "05800",
+     "postOffices": [
+      {
+       "city": "HYVINKÄÄ",
+       "languageCode": "1",
+       "municipalityCode": "106"
+      },
+      {
+       "city": "HYVINKÄÄ",
+       "languageCode": "2",
+       "municipalityCode": "106"
+      }
+     ],
+     "postOfficeBox": "",
+     "buildingNumber": "12",
+     "entrance": "C",
+     "apartmentNumber": "",
+     "apartmentIdSuffix": "",
+     "co": "",
+     "registrationDate": "2025-06-25",
+     "source": "0"
+    }
+   ],
+   "tradeRegisterStatus": "1",
+   "status": "2",
+   "registrationDate": "2026-01-01",
+   "lastModified": "2026-02-09T15:55:46"
+  },
+  {
+   "businessId": {
+    "value": "3574284-8",
+    "registrationDate": "2025-10-23",
+    "source": "3"
+   },
+   "euId": {
+    "value": "FIFPRO.3574284-8",
+    "source": "1"
+   },
+   "names": [
+    {
+     "name": "SavEco",
+     "type": "3",
+     "registrationDate": "2026-05-10",
+     "version": 1,
+     "source": "1"
+    },
+    {
+     "name": "SavTech",
+     "type": "3",
+     "registrationDate": "2026-05-10",
+     "version": 1,
+     "source": "1"
+    },
+    {
+     "name": "SavLog",
+     "type": "3",
+     "registrationDate": "2026-05-10",
+     "version": 1,
+     "source": "1"
+    },
+    {
+     "name": "SavSea",
+     "type": "3",
+     "registrationDate": "2026-05-10",
+     "version": 1,
+     "source": "1"
+    },
+    {
+     "name": "Saariston Meritie Oy",
+     "type": "1",
+     "registrationDate": "2026-03-31",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "mainBusinessLine": {
+    "type": "52229",
+    "descriptions": [
+     {
+      "languageCode": "1",
+      "description": "Muu vesiliikennettä palveleva toiminta"
+     },
+     {
+      "languageCode": "3",
+      "description": "Other service activities incidental to water transportation"
+     },
+     {
+      "languageCode": "2",
+      "description": "Övrig stödverksamhet avseende sjötransport"
+     }
+    ],
+    "typeCodeSet": "TOIMI4",
+    "registrationDate": "2026-03-31",
+    "source": "2"
+   },
+   "companyForms": [
+    {
+     "type": "16",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Aktiebolag"
+      },
+      {
+       "languageCode": "3",
+       "description": "Limited company"
+      },
+      {
+       "languageCode": "1",
+       "description": "Osakeyhtiö"
+      }
+     ],
+     "registrationDate": "2026-03-31",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "companySituations": [],
+   "registeredEntries": [
+    {
+     "type": "0",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Oregistrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisteröimätön"
+      },
+      {
+       "languageCode": "3",
+       "description": "Unregistered"
+      }
+     ],
+     "registrationDate": "2025-10-23",
+     "endDate": "2026-03-30",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-03-31",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "55",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-04-02",
+     "register": "5",
+     "authority": "1"
+    },
+    {
+     "type": "80",
+     "descriptions": [
+      {
+       "languageCode": "1",
+       "description": "Liiketoiminnasta arvonlisäverovelvollinen"
+      },
+      {
+       "languageCode": "2",
+       "description": "Momsskyldig för rörelseverksamhet"
+      },
+      {
+       "languageCode": "3",
+       "description": "VAT-liable for business activity"
+      }
+     ],
+     "registrationDate": "2026-04-01",
+     "register": "6",
+     "authority": "1"
+    },
+    {
+     "type": "41",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-04-01",
+     "register": "7",
+     "authority": "1"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-04-01",
+     "register": "4",
+     "authority": "1"
+    }
+   ],
+   "addresses": [
+    {
+     "type": 2,
+     "street": "Rouhuntie",
+     "postCode": "23310",
+     "postOffices": [
+      {
+       "city": "TAIVASSALO",
+       "languageCode": "1",
+       "municipalityCode": "833"
+      },
+      {
+       "city": "TAIVASSALO",
+       "languageCode": "2",
+       "municipalityCode": "833"
+      }
+     ],
+     "postOfficeBox": "",
+     "buildingNumber": "47",
+     "entrance": "",
+     "apartmentNumber": "",
+     "apartmentIdSuffix": "",
+     "co": "",
+     "registrationDate": "2025-10-23",
+     "source": "0"
+    }
+   ],
+   "tradeRegisterStatus": "1",
+   "status": "2",
+   "registrationDate": "2026-03-31",
+   "lastModified": "2026-10-13T09:43:58"
+  },
+  {
+   "businessId": {
+    "value": "3585588-5",
+    "registrationDate": "2025-12-09",
+    "source": "3"
+   },
+   "euId": {
+    "value": "FIFPRO.3585588-5",
+    "source": "1"
+   },
+   "names": [
+    {
+     "name": "MeriTekno Oy",
+     "type": "1",
+     "registrationDate": "2025-12-10",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "mainBusinessLine": {
+    "type": "30110",
+    "descriptions": [
+     {
+      "languageCode": "3",
+      "description": "Building of civilian ships and floating structures"
+     },
+     {
+      "languageCode": "2",
+      "description": "Byggande av civila fartyg och flytande materiel"
+     },
+     {
+      "languageCode": "1",
+      "description": "Siviilikäyttöön tarkoitettujen laivojen ja kelluvien rakenteiden rakentaminen"
+     }
+    ],
+    "typeCodeSet": "TOIMI4",
+    "registrationDate": "2026-01-01",
+    "source": "2"
+   },
+   "companyForms": [
+    {
+     "type": "16",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Aktiebolag"
+      },
+      {
+       "languageCode": "3",
+       "description": "Limited company"
+      },
+      {
+       "languageCode": "1",
+       "description": "Osakeyhtiö"
+      }
+     ],
+     "registrationDate": "2025-12-10",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "companySituations": [],
+   "registeredEntries": [
+    {
+     "type": "0",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Oregistrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisteröimätön"
+      },
+      {
+       "languageCode": "3",
+       "description": "Unregistered"
+      }
+     ],
+     "registrationDate": "2025-12-09",
+     "endDate": "2025-12-09",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2025-12-10",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2025-12-10",
+     "register": "4",
+     "authority": "1"
+    },
+    {
+     "type": "55",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2025-12-09",
+     "endDate": "2026-08-31",
+     "register": "5",
+     "authority": "1"
+    },
+    {
+     "type": "80",
+     "descriptions": [
+      {
+       "languageCode": "1",
+       "description": "Liiketoiminnasta arvonlisäverovelvollinen"
+      },
+      {
+       "languageCode": "2",
+       "description": "Momsskyldig för rörelseverksamhet"
+      },
+      {
+       "languageCode": "3",
+       "description": "VAT-liable for business activity"
+      }
+     ],
+     "registrationDate": "2025-12-09",
+     "endDate": "2026-08-31",
+     "register": "6",
+     "authority": "1"
+    },
+    {
+     "type": "41",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2025-12-09",
+     "endDate": "2026-08-31",
+     "register": "7",
+     "authority": "1"
+    }
+   ],
+   "addresses": [
+    {
+     "type": 1,
+     "street": "Vieruntie",
+     "postCode": "21420",
+     "postOffices": [
+      {
+       "city": "LIETO",
+       "languageCode": "1",
+       "municipalityCode": "423"
+      },
+      {
+       "city": "LIETO",
+       "languageCode": "2",
+       "municipalityCode": "423"
+      }
+     ],
+     "buildingNumber": "10",
+     "entrance": "",
+     "apartmentNumber": "",
+     "apartmentIdSuffix": "",
+     "co": "",
+     "registrationDate": "2026-06-08",
+     "source": "0"
+    },
+    {
+     "type": 2,
+     "street": "Vieruntie",
+     "postCode": "21420",
+     "postOffices": [
+      {
+       "city": "LIETO",
+       "languageCode": "1",
+       "municipalityCode": "423"
+      },
+      {
+       "city": "LIETO",
+       "languageCode": "2",
+       "municipalityCode": "423"
+      }
+     ],
+     "postOfficeBox": "",
+     "buildingNumber": "10",
+     "entrance": "",
+     "apartmentNumber": "",
+     "apartmentIdSuffix": "",
+     "co": "",
+     "registrationDate": "2026-06-08",
+     "source": "0"
+    }
+   ],
+   "tradeRegisterStatus": "1",
+   "status": "2",
+   "registrationDate": "2025-12-10",
+   "lastModified": "2026-07-29T11:33:53"
+  },
+  {
+   "businessId": {
+    "value": "3613838-6",
+    "registrationDate": "2026-04-01",
+    "source": "3"
+   },
+   "euId": {
+    "value": "FIFPRO.3613838-6",
+    "source": "1"
+   },
+   "names": [
+    {
+     "name": "Meridian Consulting Oy",
+     "type": "1",
+     "registrationDate": "2026-04-08",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "mainBusinessLine": {
+    "type": "71123",
+    "descriptions": [
+     {
+      "languageCode": "2",
+      "description": "Konstruktionstekniska tjänster"
+     },
+     {
+      "languageCode": "1",
+      "description": "Rakennetekninen palvelu"
+     },
+     {
+      "languageCode": "3",
+      "description": "Structural engineering design and technical consultancy"
+     }
+    ],
+    "typeCodeSet": "TOIMI4",
+    "registrationDate": "2026-04-01",
+    "source": "2"
+   },
+   "companyForms": [
+    {
+     "type": "16",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Aktiebolag"
+      },
+      {
+       "languageCode": "3",
+       "description": "Limited company"
+      },
+      {
+       "languageCode": "1",
+       "description": "Osakeyhtiö"
+      }
+     ],
+     "registrationDate": "2026-04-08",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "companySituations": [],
+   "registeredEntries": [
+    {
+     "type": "0",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Oregistrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisteröimätön"
+      },
+      {
+       "languageCode": "3",
+       "description": "Unregistered"
+      }
+     ],
+     "registrationDate": "2026-04-01",
+     "endDate": "2026-04-07",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-04-08",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-04-08",
+     "register": "4",
+     "authority": "1"
+    },
+    {
+     "type": "55",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-04-01",
+     "register": "5",
+     "authority": "1"
+    },
+    {
+     "type": "80",
+     "descriptions": [
+      {
+       "languageCode": "1",
+       "description": "Liiketoiminnasta arvonlisäverovelvollinen"
+      },
+      {
+       "languageCode": "2",
+       "description": "Momsskyldig för rörelseverksamhet"
+      },
+      {
+       "languageCode": "3",
+       "description": "VAT-liable for business activity"
+      }
+     ],
+     "registrationDate": "2026-04-01",
+     "register": "6",
+     "authority": "1"
+    }
+   ],
+   "addresses": [
+    {
+     "type": 2,
+     "street": "bonettipolku",
+     "postCode": "20730",
+     "postOffices": [
+      {
+       "city": "TURKU",
+       "languageCode": "1",
+       "municipalityCode": "853"
+      },
+      {
+       "city": "ÅBO",
+       "languageCode": "2",
+       "municipalityCode": "853"
+      }
+     ],
+     "postOfficeBox": "",
+     "buildingNumber": "4",
+     "entrance": "A",
+     "apartmentNumber": "20",
+     "apartmentIdSuffix": "",
+     "co": "",
+     "registrationDate": "2026-04-01",
+     "source": "0"
+    }
+   ],
+   "tradeRegisterStatus": "1",
+   "status": "2",
+   "registrationDate": "2026-04-08",
+   "lastModified": "2026-04-10T07:26:02"
+  },
+  {
+   "businessId": {
+    "value": "3656787-7",
+    "registrationDate": "2026-09-21",
+    "source": "3"
+   },
+   "euId": {
+    "value": "FIFPRO.3656787-7",
+    "source": "1"
+   },
+   "names": [
+    {
+     "name": "Fastighets Ab Amerika",
+     "type": "1",
+     "registrationDate": "2026-09-29",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "mainBusinessLine": {
+    "type": "68202",
+    "descriptions": [
+     {
+      "languageCode": "1",
+      "description": "Asuntojen ja asuinkiinteistöjen hallinta"
+     },
+     {
+      "languageCode": "2",
+      "description": "Förvaltning av bostäder och bostadsfastigheter"
+     },
+     {
+      "languageCode": "3",
+      "description": "Operating of own or leased dwellings and residential real estate"
+     }
+    ],
+    "typeCodeSet": "TOIMI4",
+    "registrationDate": "2026-09-21",
+    "source": "2"
+   },
+   "companyForms": [
+    {
+     "type": "16",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Aktiebolag"
+      },
+      {
+       "languageCode": "3",
+       "description": "Limited company"
+      },
+      {
+       "languageCode": "1",
+       "description": "Osakeyhtiö"
+      }
+     ],
+     "registrationDate": "2026-09-29",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "companySituations": [],
+   "registeredEntries": [
+    {
+     "type": "0",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Oregistrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisteröimätön"
+      },
+      {
+       "languageCode": "3",
+       "description": "Unregistered"
+      }
+     ],
+     "registrationDate": "2026-09-21",
+     "endDate": "2026-09-28",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-09-29",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2026-09-30",
+     "register": "4",
+     "authority": "1"
+    }
+   ],
+   "addresses": [
+    {
+     "type": 2,
+     "street": "Briggvägen",
+     "postCode": "68620",
+     "postOffices": [
+      {
+       "city": "JAKOBSTAD",
+       "languageCode": "2",
+       "municipalityCode": "598"
+      },
+      {
+       "city": "PIETARSAARI",
+       "languageCode": "1",
+       "municipalityCode": "598"
+      }
+     ],
+     "postOfficeBox": "",
+     "buildingNumber": "16",
+     "entrance": "",
+     "apartmentNumber": "",
+     "apartmentIdSuffix": "",
+     "co": "c/o Frank Mäenpää",
+     "registrationDate": "2026-09-21",
+     "source": "0"
+    }
+   ],
+   "tradeRegisterStatus": "1",
+   "status": "2",
+   "registrationDate": "2026-09-29",
+   "lastModified": "2026-09-30T10:15:29"
+  }
+ ]
+}

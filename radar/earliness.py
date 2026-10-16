@@ -9,7 +9,7 @@ import sqlite3
 from datetime import date
 from pathlib import Path
 
-from radar import blueinvest, store, thesis as thesis_mod
+from radar import blueinvest, intake as intake_mod, store, thesis as thesis_mod
 
 ROOT = Path(__file__).resolve().parent.parent
 # The cohort programme started in January 2026. This is the team's declaration, not a published entry date.
@@ -144,7 +144,7 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
     types = set(th.get("feed_signal_types") or [])
     group = (th.get("backtest") or {}).get("cohort_group") or "cohort"
     entries = _entry_dates(entry_dates_path)
-    cohort = conn.execute("SELECT company_key, name, country, industry_code, industry_desc FROM companies WHERE group_tag=? ORDER BY name", (group,)).fetchall()
+    cohort = conn.execute("SELECT company_key, name, country, industry_code, industry_desc, founded FROM companies WHERE group_tag=? ORDER BY name", (group,)).fetchall()
     rows = []
     for c in cohort:
         key = c["company_key"]
@@ -215,7 +215,9 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
             trl = prof.get("trl")
             notes.append({"text": "listed in the BlueInvest pipeline, " + (f"TRL {trl}" if trl is not None else "no TRL stated") + ", no date stated, not counted",
                           "source_url": prof.get("url")})
-        rows.append({"company_key": key, "name": c["name"], "country": c["country"], "first_signal": first, "months": months, "timing": timing,
+        live_dates = sorted(o["counted_date"] for o in live)
+        wide = intake_mod.cohort_row(conn, th, c, eff_iso, live_dates[0] if live_dates else None)
+        rows.append({"company_key": key, "name": c["name"], "country": c["country"], "first_signal": first, "months": months, "timing": timing, "intake": wide,
                      "group": grp, "others": others, "notes": notes, "reference_date": eff_iso, "reference_source": eff_source,
                      "reference_from_csv": bool(hit)})
     rows.sort(key=lambda r: (r["months"] is None, -(r["months"] or 0), r["name"].casefold()))
@@ -223,6 +225,11 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
     res = {"rows": rows, "earlier": tot["earlier"], "declared": tot["declared"], "later": tot["later"], "none": tot["none"], "total": len(rows),
            "reference_date": ref_iso, "reference_source": ref_source, "reference_label": reference_label(ref_iso), "age_cut_years": cut}
     res["headline"] = headline(res)
+    if intake_mod.settings(th) is not None:
+        s = intake_mod.summary([r["intake"] for r in rows])
+        res["intake"] = {**s, "headline": intake_mod.headline(s), "rule": intake_mod.rule_text(th)}
+    else:
+        res["intake"] = None
     return res
 
 

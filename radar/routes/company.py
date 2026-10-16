@@ -9,7 +9,7 @@ import sqlite3
 
 from markupsafe import Markup, escape
 
-from radar import blueinvest, fit as fit_mod, frameworks, lifeline, matching, store
+from radar import blueinvest, fit as fit_mod, frameworks, intake as intake_mod, lifeline, matching, store
 from radar.routes.home import _has_route, templates
 
 
@@ -131,6 +131,7 @@ def company_page(request: Request, company_key: str):
         n = store.cohort_count(conn)
         profile = blueinvest.profile_for(conn, company_key)
         speed = lifeline.speed(conn, company_key, c.get("founded"))
+        wide = intake_mod.company_view(conn, thesis, c, sigs)
         rule_sigs = [x for x in sigs if x["adapter"] != "ecosystem"]  # declared research is shown beside a level, never inside the rule
         fw = frameworks.assess(c, rule_sigs)
         if profile and profile.get("trl") is not None:
@@ -143,7 +144,7 @@ def company_page(request: Request, company_key: str):
     reasons = fit_mod.fit(c, sigs, thesis)
     entered = sorted({s["evidence"]["label"] for s in sigs}) or [store.evidence(c)["label"]]
     return _page(request, "company.html", c=c, signals=sigs, counts=data["counts"], thesis=thesis,
-                 register=register_rows(c), reasons=reasons, fit_rule=fit_mod.RULE_LINE, entered_via=", ".join(entered),
+                 register=register_rows(c), reasons=reasons, intake=wide, fit_rule=fit_mod.RULE_LINE, entered_via=", ".join(entered),
                  readiness=readiness_rows(thesis, sigs), sources=sources(c, sigs), connectors=CONNECTORS,
                  cohort_n=n, radar_exists=_has_route(request)("/radar"),
                  fw=fw, connections=frameworks.connections(rule_sigs),

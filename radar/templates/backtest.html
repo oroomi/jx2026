@@ -13,6 +13,36 @@
   <li>Found later: <strong>{{ res.later }}</strong></li>
   <li>No public signal: <strong>{{ res.none }}</strong></li>
 </ul>
+{% if res.intake %}
+<section aria-labelledby="intake-h" id="intake">
+  <h2 id="intake-h">Wide intake: two dates per company, with rank and intake size</h2>
+  <p class="answer" id="intake-verdict">{{ res.intake.headline }}</p>
+  <p class="rule">{{ res.intake.rule }} Rank counts only companies of the same registration year and the same two-digit code family that had entered intake by the cohort company's entry date, strongest first by startup signals up to that date, then earliest intake date. The pool holds only companies the intake import has stored, and other sources (EU projects, Business Finland, notices) are matched for cohort companies first, so the rank is generous to the cohort company: read it as an upper bound on how findable it was.</p>
+  <div class="srcwrap">
+  <table class="srctable bt-table" id="intake-table">
+    <thead><tr><th>Company</th><th>Entered intake</th><th>Rank and intake size</th><th>First thesis evidence</th></tr></thead>
+    <tbody>
+    {% for r in res.rows %}{% set w = r.intake %}
+    <tr class="bt-intake-{{ w.state }}">
+      <td><a href="/c/{{ r.company_key }}">{{ r.name }}</a></td>
+      {% if w.state == 'entered' %}
+      <td><time datetime="{{ w.intake_date }}">{{ w.signal.date_label or w.intake_date }}</time>, {{ w.signal.label | lower }}
+        (<a href="{{ w.signal.source_url }}" target="_blank" rel="noopener">{{ w.signal.source_label }}</a>)
+        <div class="muted">{% if w.before_entry %}before cohort entry {{ r.reference_date }}{% else %}after cohort entry {{ r.reference_date }}{% endif %}</div></td>
+      <td>{% if w.rank and w.size %}rank {{ w.rank }} of {{ w.size }} new {{ w.year }} companies in code family {{ w.family }}{% else %}<span class="hatch">rank not computed: no same-year intake pool stored</span>{% endif %}</td>
+      {% else %}
+      <td><span class="hatch">not in intake</span> <span class="muted">{{ w.reason }}</span></td>
+      <td><span class="muted">none</span></td>
+      {% endif %}
+      <td>{% if w.first_evidence %}<time datetime="{{ w.first_evidence }}">{{ w.first_evidence }}</time>{% else %}<span class="hatch">no thesis evidence yet</span>{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endif %}
+
 <section aria-labelledby="rule-h">
   <h2 id="rule-h">The rule</h2>
   <ol class="rulebox bt-rule">{% for l in rule %}<li>{{ l }}</li>

@@ -23,8 +23,8 @@ themes:                          # Redstone Blue's four areas plus A'Pelago's wo
 
 # TOL 2008 (NACE) codes. A code match alone is only LOW confidence (codes are coarse: Emission-Eye is 62100).
 industry_codes:
-  - {code: "03211", note: "Marine aquaculture"}
-  - {code: "03111", note: "Marine fishing"}
+  - {code: "03210", note: "Marine aquaculture (TOL 2025)"}
+  - {code: "03110", note: "Marine fishing (TOL 2025)"}
   - {code: "30110", note: "Building of ships and floating structures"}
   - {code: "30120", note: "Building of pleasure and sporting boats"}
   - {code: "33150", note: "Repair and maintenance of ships and boats"}
@@ -36,7 +36,6 @@ industry_codes:
   - {code: "39000", note: "Remediation activities"}
   - {code: "71121", note: "Engineering and technical consulting"}
   - {code: "71200", note: "Technical testing and analysis"}
-  - {code: "72190", note: "R&D in natural sciences and engineering"}
 
 # Name and description keywords (word-start match, case-insensitive). A keyword in the legal name is MEDIUM.
 name_keywords:

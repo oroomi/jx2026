@@ -1,5 +1,5 @@
 """Read-only JSON API over the same stores the pages read: GET /api, /api/companies, /api/company/{key}, /api/feed, /api/backtest.
-No auth, no CORS, no writes. The thesis comes only from the `thesis` query parameter (an id from config/thesis*.yaml), never a cookie.
+No auth, no CORS, no writes. Listings leave out legal names shaped like a person's name (companies only). The thesis comes only from the `thesis` query parameter (an id from config/thesis*.yaml), never a cookie.
 Data only through radar.store, radar.frameworks, radar.earliness and radar.matching; this module only shapes JSON."""
 from __future__ import annotations
 
@@ -118,11 +118,12 @@ def api_companies(q: str = "", thesis: str | None = None, limit: int = Query(50,
         conn = _open(th)
         try:
             if q.strip():
-                rows = store.search(conn, q, limit + offset)[offset:]
+                rows = [r for r in store.search(conn, q, limit + offset) if not fit_mod.looks_like_person(r["name"] or "", th)][offset:]
                 total = None
             else:
-                rows = [dict(r) for r in conn.execute("SELECT * FROM companies ORDER BY name, company_key LIMIT ? OFFSET ?", (limit, offset))]
-                total = conn.execute("SELECT COUNT(*) FROM companies").fetchone()[0]
+                allr = [dict(r) for r in conn.execute("SELECT * FROM companies ORDER BY name, company_key")]
+                allr = [r for r in allr if not fit_mod.looks_like_person(r["name"] or "", th)]
+                rows, total = allr[offset:offset + limit], len(allr)
         finally:
             conn.close()
         return {"thesis": _head(th), "q": q, "limit": limit, "offset": offset, "total": total, "count": len(rows),

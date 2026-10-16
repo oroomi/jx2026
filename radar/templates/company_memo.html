@@ -1,0 +1,27 @@
+{% from "_chip.html" import missing %}
+{% set m = memo_for(c.company_key, thesis) %}
+{% if m %}
+<link rel="stylesheet" href="/static/memo.css?v={{ asset_v }}">
+<section id="memo" class="q memo" aria-labelledby="memo-h">
+  <div class="memo-head"><h2 id="memo-h">Memo for the fund</h2><a class="memo-print no-print" href="#memo" onclick="window.print();return false">Print memo</a></div>
+  {% set r = m.recommendation %}
+  <p class="memo-decision"><span class="memo-label">Recommendation</span> <strong class="memo-verdict">{{ r.decision }}</strong></p>
+  <p class="plain">because: {% for x in r.because_labels %}{{ x.label }} <strong>{{ x.band }}</strong>{% if not loop.last %} / {% endif %}{% endfor %}
+    {% if r.row_id %}(decision row {{ r.row_id }}){% endif %}</p>
+  {% if r.table_action %}<p class="plain">{{ r.table_action }}</p>{% endif %}
+  {% if r.note %}<p class="plain">{{ r.note[0]|upper }}{{ r.note[1:] }}</p>{% endif %}
+
+  <h3>Why</h3>
+  {% if m.why %}<ul class="memo-list">{% for w in m.why %}<li>{{ w.text }} <a class="ev-chip" href="{{ w.url }}" target="_blank" rel="noopener"><span class="ev-src">source</span></a></li>{% endfor %}</ul>
+  {% else %}<p>{{ missing("no linked evidence yet") }}</p>{% endif %}
+
+  <h3>Risks</h3>
+  {% if m.risks %}<ul class="memo-list">{% for k in m.risks %}<li>{{ k.text }}{% if k.url %} <a class="ev-chip" href="{{ k.url }}" target="_blank" rel="noopener"><span class="ev-src">source</span></a>{% else %} {{ missing("evidence gap") }}{% endif %}</li>{% endfor %}</ul>
+  {% else %}<p>No evidence gaps against the levels this thesis reads.</p>{% endif %}
+
+  <h3>Recommended actions for the fund</h3>
+  {% if m.actions %}<ol class="memo-list">{% for a in m.actions %}<li>{{ a.text }} <a class="ev-chip" href="{{ a.url }}" target="_blank" rel="noopener"><span class="ev-src">{{ a.source }}</span></a></li>{% endfor %}</ol>
+  {% else %}<p>{{ missing("no action supported by a source row") }}</p>{% endif %}
+  <p class="rule">Decision table: first matching row wins, no match is WATCHLIST, a level with no public evidence is unknown and never Low. {{ r.table_source }}</p>
+</section>
+{% endif %}

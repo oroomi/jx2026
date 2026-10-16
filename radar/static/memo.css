@@ -1,0 +1,19 @@
+/* Fund memo at the top of the company page (jx31). Existing tokens only; the visual session polishes. */
+.memo{border:1px solid var(--hairline);background:var(--surface);border-radius:8px;padding:16px 20px}
+.memo-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.memo-head h2{margin:0 0 8px}
+.memo-print{font-size:.875rem;color:var(--accent)}
+.memo-label{color:var(--muted);font-size:.8125rem;text-transform:uppercase;letter-spacing:.04em}
+.memo-verdict{font-size:1.5rem;margin-left:8px}
+.memo h3{margin:16px 0 6px;font-size:1rem}
+.memo-list{margin:0;padding-left:1.25rem}
+.memo-list li{margin:0 0 6px}
+@media print{
+  header.top,footer.foot,.co-rail,.co-sources,.co-bar,.connectors,#lifeline,#signals,.no-print,.why-box,#theme-toggle{display:none!important}
+  body{background:#fff!important;color:#000!important;padding-bottom:0}
+  .co-layout{display:block}
+  .memo{border:1px solid #999;background:#fff;break-inside:avoid}
+  .q{margin-top:14px;break-inside:avoid}
+  a{color:#000;text-decoration:none}
+  details>*:not(summary){display:none}
+}

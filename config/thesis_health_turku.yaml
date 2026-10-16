@@ -41,21 +41,21 @@ matching:
   corporates: data/declared/corporates_clients.csv
   programmes: data/declared/programmes_grants.csv
 
-# The fund memo (radar/memo.py). Rules only. Every sentence below is addressed to the fund or accelerator, never to the company.
+# The fund memo (radar/memo.py). Rules only. Addressed to the fund or programme team, never to the company.
 memo:
-  min_gap: 2                      # levels apart before a gap is called out
-  verdict:
-    min_records: 2                # linked public records before any verdict beyond "Not enough evidence yet"
-    min_levels: 2                 # readiness levels with evidence before "Meet now"
-    min_fit_reasons: 1            # medium or high confidence fit reasons before "Meet now"
-    deadline_days: 90             # an open deadline this close counts as a reason to act now
-    recent_days: 180              # a dated public record this recent counts as a reason to act now
-    stale_days: 365               # a declared company silent for this long gets "Check in"
-  labels: {technology: Technology, business: Business validation, investment: Investment readiness}
-  gaps:                           # ahead -> behind; text is the diagnosis, action is addressed to the fund
-    - {ahead: technology, behind: business, text: "Technology is ahead of business validation.", action: "Ask who the first paying customer could be, and revisit when a public contract or named customer appears; the radar flags it."}
-    - {ahead: technology, behind: investment, text: "Technology is ahead of investment readiness.", action: "Meet to judge whether a grant or a first raise is the next step."}
-    - {ahead: business, behind: technology, text: "Business traction is ahead of technology proof.", action: "Ask what technical validation stands behind the contracts."}
-    - {ahead: business, behind: investment, text: "Business validation is ahead of investment readiness.", action: "Ask what funding is already in place and what a first round would need to prove."}
-    - {ahead: investment, behind: technology, text: "Funding history is ahead of technology proof.", action: "Ask what the funding has produced so far and what is still unproven."}
-    - {ahead: investment, behind: business, text: "Funding history is ahead of business validation.", action: "Ask what the funding has produced in customers and revisit when a public contract appears."}
+  labels: {impact: Clinical impact, business: Commercial readiness, investment: Investment readiness, fit: Thesis fit, technology: Technology readiness}
+  bands:
+    business: {low_max: 3, high_min: 7}
+    investment: {low_max: 3, high_min: 7}
+    technology: {low_max: 3, high_min: 7}
+    impact: {category_band: Medium, dataset_low_max: 1, dataset_high_min: 4}
+    fit: {high_min_reasons: 2, medium_min_reasons: 1}
+  decisions:
+    source: "PROVISIONAL draft by the build session for the health-technology thesis; replace with the team's table. First match wins; no match = WATCHLIST."
+    rows:
+      - {id: 1, impact: any, business: High, investment: High, fit: High, decision: INVEST, action: "Open an investment conversation now."}
+      - {id: 2, impact: any, business: [High, Medium], investment: [High, Medium], fit: [High, Medium], decision: DUE DILIGENCE, action: "Start due diligence with the investors listed below."}
+      - {id: 3, impact: any, business: High, investment: Low, fit: [High, Medium], decision: DUE DILIGENCE, action: "Commercial traction without funding history: check the traction, then introduce an investor."}
+      - {id: 4, impact: any, business: Medium, investment: Low, fit: [High, Medium], decision: ACCELERATOR, action: "Offer a place in a health-technology programme with investor preparation."}
+      - {id: 5, impact: any, business: Low, investment: [Low, Medium], fit: [High, Medium], decision: GRANT SUPPORT, action: "Point to the open grants and calls below before any equity."}
+      - {id: 6, impact: any, business: [High, Medium], investment: any, fit: Low, decision: REJECT / LOW FIT, action: "Low fit on public evidence: no action."}

@@ -121,3 +121,44 @@ def test_partner_organisations_are_excluded_from_the_feed(tmp_path):
     names = {r["name"] for r in store.feed(conn, th, today=TODAY, limit=100)}
     assert names == {"Fixture Marine Oy"}
     assert store.is_partner_org("Tesi") and not store.is_partner_org("Fixture Marine Oy")
+
+
+def _names(conn, th, key="9100001-1", kind="funding"):
+    return [r["name"] for r in matching.who_comes_next(key, th, limit=20, conn=conn, today=TODAY)[kind]]
+
+
+def test_row_without_a_reason_is_hidden(world):
+    conn, th = world
+    assert "Fixture Angels" in _names(conn, th, kind="investors")
+    conn.execute("UPDATE eco_match SET why='' WHERE target_id=(SELECT entity_id FROM eco_entity WHERE name='Fixture Angels')")
+    names = _names(conn, th, kind="investors")
+    assert "Fixture Angels" not in names and "Fixture Capital" in names
+    assert all(r["reason"].strip() for k in ("investors", "funding", "partners") for r in matching.who_comes_next("9100001-1", th, conn=conn, today=TODAY)[k])
+
+
+def test_trl_window_applies_to_a_dataset_funding_row(world, tmp_path):
+    conn, th = world
+    assert "Fixture Fund" in _names(conn, th)
+    prog = tmp_path / "p2.csv"
+    fx.write_programmes(prog, [{"name": "Fixture Fund", "type": "grant", "TRL_window_if_stated": "TRL 7-9", "next_deadline": "rolling", "source_url": "https://prog.example.test/fund"}])
+    assert "Fixture Fund" not in _names(conn, dict(th, matching={"programmes": str(prog)}))     # company TRL 6 is outside the window
+    fx.write_programmes(prog, [{"name": "Fixture Fund", "type": "grant", "TRL_window_if_stated": "TRL 4-6", "next_deadline": "rolling", "source_url": "https://prog.example.test/fund"}])
+    row = next(r for r in matching.who_comes_next("9100001-1", dict(th, matching={"programmes": str(prog)}), limit=20, conn=conn, today=TODAY)["funding"] if r["name"] == "Fixture Fund")
+    assert "inside the stated window 4 to 6" in row["reason"]
+
+
+def test_stage_check_is_two_way(world, tmp_path):
+    conn, th = world
+    prog = tmp_path / "p3.csv"
+    fx.write_programmes(prog, [
+        {"name": "Fixture Studio", "type": "accelerator", "stage_window": "pre-seed, seed or early-stage with an MVP", "next_deadline": "2027-01-01", "source_url": "https://prog.example.test/studio"},
+        {"name": "Fixture Scale Programme", "type": "accelerator", "stage_window": "growth and scale-up companies", "next_deadline": "2027-01-01", "source_url": "https://prog.example.test/scale"},
+        {"name": "Fixture Both", "type": "accelerator", "stage_window": "seed to growth", "next_deadline": "2027-01-01", "source_url": "https://prog.example.test/both"}])
+    th2 = dict(th, matching={"programmes": str(prog)})
+    assert matching.stage_mismatch("series_a", "pre-seed, seed or early-stage") and matching.stage_mismatch("seed", "growth and scale-up companies")
+    assert matching.stage_mismatch("seed", "seed to growth") is None and matching.stage_mismatch(None, "growth") is None
+    names = _names(conn, th2)                                   # S1 is seed
+    assert "Fixture Studio" in names and "Fixture Both" in names and "Fixture Scale Programme" not in names
+    conn.execute("UPDATE eco_entity SET stage='series_a' WHERE business_id='9100001-1' OR company_key='9100001-1'")
+    names = _names(conn, th2)
+    assert "Fixture Studio" not in names and "Fixture Scale Programme" in names and "Fixture Both" in names

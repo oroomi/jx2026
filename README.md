@@ -1,4 +1,4 @@
-# <Name in the partner's own words>: <one line, who it is for and what it does>
+# Ocean Opportunity Radar: decision-ready venture intelligence for the European Tech Renaissance (Redstone x A'Pelago)
 
 <!-- JUDGE FIRST SCREEN: this block must show what it does, the live URL, the 3-command run and the diagram without scrolling. Mirror the partner brief's words in the H1, the one-liner and the headings (JUDGE_LEVERS B2, C1). -->
 

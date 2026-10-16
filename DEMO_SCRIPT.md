@@ -5,6 +5,19 @@ Partners pick their own track winner against their own criterion -- lead with th
 
 ---
 
+## 90-second script (drive and narrate)
+| Time | Driver does | Narrator says |
+|---|---|---|
+| 0-10 s | Feed `/` already loaded: companies surfaced in the last 90 days | The opener sentence. These are the companies your pipeline has not seen yet. |
+| 10-30 s | Tap the top row, source chip opens the register record | Every line is a public filing with a link. |
+| 30-60 s | Type one of THEIR cohort companies, the four-question page appears | Your four questions, in your order, ten seconds, rules printed under each level. |
+| 60-80 s | `/radar`: earliness chart, point at a blank | We would have flagged these N months before Nordic Blue; blanks stay blank. |
+| 80-90 s | Swap the thesis file to health-tech Turku | Same code, different file: transferable. Takeaway line. |
+
+If the moment needs data we do not have, change the moment, not the data.
+
+---
+
 ## First ten seconds (the hook, all versions share it)
 
 **0-4 s:** one sentence -- "We [do X] for [named user] so that [outcome]." Use the partner's own words. No team
@@ -24,7 +37,9 @@ judge sees something working before they hear any architecture.
 | 10-50 s | Core flow: one drives, one narrates; point at source rows, never the terminal |
 | 50-60 s | Takeaway line -- one sentence the judge can repeat at the next table |
 
-Takeaway line: "<what the team built, who it is for, what it gives them>" -- write and rehearse it.
+Opener (partner words): "We find promising blue-economy startups as early as possible for accelerator and fund teams, so that you see the companies your pipeline has not seen yet, with the public record behind every line."
+Takeaway line: "Ocean Opportunity Radar finds blue-economy startups from public records before they reach your pipeline, and answers your four questions with a link under every fact."
+Closing number (fill from EVAL.md only when measured): "<N> of 19 cohort companies had a public signal <median> months before they entered Nordic Blue. Scan this and try it on your own company."
 
 ---
 
@@ -66,7 +81,7 @@ Jump straight to the first visible action. Never finish the flow you were in.
 ## Three hard questions with answer slots
 
 **1. Who exactly is it for?**
-Answer: <one named role at one named kind of organisation -- fill in from TASKS.md>
+Answer: the accelerator lead (A'Pelago screens 160 applications for 21 places) and the VC associate (Redstone Blue, pre-seed and seed). Monday decision: which five do I call this week, and about what.
 
 **2. What was built this weekend versus pre-existing?**
 Answer: see DISCLOSURE.md. Short version: "<the one-line statement from DISCLOSURE.md>". No hedging.

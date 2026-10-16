@@ -107,7 +107,7 @@ def _signals(conn, key: str) -> list[dict]:
 def _other(s: dict, counted: bool, reason: str | None) -> dict:
     return {"date": s["date"], "date_label": s["date_label"], "year_only": s["date_precision"] == "year", "type": s["signal_type"],
             "label": store.TYPE_LABELS.get(s["signal_type"], s["signal_type"]), "source_url": s["source_url"],
-            "confidence": s["confidence"], "source_label": store.evidence(s)["label"], "counted": counted, "reason": reason}
+            "confidence": s["confidence"], "source_label": store.evidence(s)["label"], "adapter": s["adapter"], "counted": counted, "reason": reason}
 
 
 _CONF = {"high": 0, "medium": 1, "low": 2}
@@ -116,7 +116,11 @@ GROUP_ORDER = ("earlier", "declared", "later", "none")
 
 
 def is_research(s: dict) -> bool:
-    return s["signal_type"] in RESEARCH_TYPES or "declared research" in (s.get("detail") or "").casefold()
+    """Declared research = anything the ecosystem adapter imported, or a research-type signal whose detail says so. A live register
+    signal that shares a type name (tax_registers first_hire) stays live."""
+    if s.get("adapter") == "ecosystem" or "declared research" in (s.get("detail") or "").casefold():
+        return True
+    return s["signal_type"] in RESEARCH_TYPES and s.get("adapter") != "tax_registers"
 
 
 def headline(res: dict) -> str:

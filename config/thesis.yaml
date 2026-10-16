@@ -52,7 +52,7 @@ keyword_stop_words: [have, blueprint, blueprints, biography, aaltonen, aaltola, 
 non_person_words: [infra, design, partners, group, solutions, technologies, systems, finland, nordic, software, energy, ventures, properties, real, estate, advisory, management, services, trading, engineering, global]
 
 # Signals the feed counts. A company enters the feed on its FIRST signal inside the window.
-feed_signal_types: [register_entry, bf_funding, eu_project, blueinvest, patent, public_contract, job_ad, first_sales, first_hire]
+feed_signal_types: [register_entry, bf_funding, eu_project, blueinvest, patent, public_contract, job_ad, first_sales, first_hire, pilot_named, certification, programme_entry, exhibitor, award, funding_round, product_launch, public_funding]
 
 # Hilma (public contracts): categories where a young company's first win is a signal. CPV divisions.
 hilma_cpv_divisions: ["71", "73", "90", "45", "34", "35", "65", "77", "03", "98"]
@@ -70,6 +70,11 @@ matching:
   investors: data/declared/investors.csv
   corporates: data/declared/corporates_clients.csv
   programmes: data/declared/programmes_grants.csv
+  buyer_keywords:                # Finnish title stems per frameworks category, for public buyers in the same category
+    ocean data: [merikartoit, hydrograf, kaukokartoit, luotaus, syvyysmittaus, meriympäristö, vesistömittaus]
+    aquatech: [kalankasvat, kalastus, kalatalous, vesiviljely, levä]
+    emissions: [päästö, sähköist, vetyvoima, akku]
+    water quality: [vedenlaatu, jätevesi, vedenpuhdist, painolastivesi, mikromuov, rehevöit]
   ticket_eur: {min: 200000, max: 2000000, source: "https://redstone.vc/strategies/blue-economy"}
   grants_next_dates:
     - {name: "EIC Accelerator 2026 cut-off", date: "2026-11-04", trl_window: "TRL 6-8 (5 completed)", source: "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"}

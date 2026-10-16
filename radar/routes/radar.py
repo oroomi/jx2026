@@ -55,6 +55,8 @@ def radar_rows(conn: sqlite3.Connection, thesis: dict, group: str) -> list[dict]
     comps = conn.execute("SELECT company_key, name, country, group_tag, register_status FROM companies WHERE group_tag=?", (group,)).fetchall()
     rows = []
     for c in comps:
+        if store.is_partner_org(c["name"]):
+            continue
         ev = _events(conn, c["company_key"])
         latest = ev[0] if ev else None
         types = []

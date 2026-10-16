@@ -36,6 +36,21 @@
 </ul>
 <h2>Kinds of public record</h2>
 <ul>{% for t in kinds %}<li>{{ t }}</li>{% endfor %}</ul>
+<h2 id="ecosystem">Declared ecosystem dataset</h2>
+{% if eco %}
+<p>A research dataset of Finnish startups, their investors and their buyers, built on this server and last verified {{ eco.built }}, is imported as <strong>declared data</strong>
+(<code>data/declared/ecosystem/</code>, source <code>ecosystem</code>). It holds {{ eco.entities }} entities ({{ eco.supply }} companies, {{ eco.capital }} capital sources, {{ eco.demand }} buyers and partners),
+{{ eco.matches_in_dataset }} scored company-to-investor and company-to-buyer pairs, each with a reason string, and readiness evidence for {{ eco.readiness_in_dataset }} companies.
+Its own confidence words: {{ eco.conf_high }} high, {{ eco.conf_medium }} medium, {{ eco.conf_low }} low. Low-confidence rows are leads, not facts.</p>
+<p>Imported here: {{ eco.imported_companies }} companies (matched to the register by business id, then by name, then by website; new ones are tagged <code>ecosystem</code> and are not part of the feed),
+{{ eco.imported_targets }} capital sources and buyers, {{ eco.imported_matches }} matches covering {{ eco.companies_with_matches }} companies, {{ eco.imported_readiness }} readiness rows and {{ eco.signals }} dated events.
+Events and job ads without a day are stored as the last day of the month, or 1 January for a year-only date, and labelled; rows without a date stay as evidence text, never as signals.
+The dataset's free-text summaries are not imported because they name private individuals. The dataset can add evidence beside a readiness level; it never changes a level.
+On company pages a defunct company gets no leads, and defunct targets are never listed.</p>
+{% else %}<p><span class="hatch">no data</span> The ecosystem dataset has not been imported into this database. Run <code>python3 -m radar.build --adapters ecosystem</code>.</p>{% endif %}
+<h2 id="partners">Partner organisations left out of the feed and the radar</h2>
+<p>These organisations are the partners and the capital sources of this product, so they are never shown as discovered startups: any legal name starting with
+{% for p in partners.prefixes %}<code>{{ p }}</code>{% if not loop.last %}, {% endif %}{% endfor %}, and every organisation on the declared investor and programme lists ({{ partners.names | length }} names). They are left out so the radar never presents its own partners or funders as discoveries.</p>
 <h2>Sources</h2>
 {% if no_db %}<p class="answer">No data is loaded for {{ thesis.title }} in this build.</p>{% endif %}
 <p>Business Finland publishes its funding decisions only as a dashboard, so our figures come from an export of that dashboard. The export has no link for each row; every Business Finland line links to the public dashboard page, and its date is the year only.</p>

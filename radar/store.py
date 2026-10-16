@@ -25,6 +25,7 @@ SOURCE_LABELS = {
     "tax_registers": "PRH/YTJ tax registers",
     "openalex": "OpenAlex",
     "webarchive": "Internet Archive",
+    "ecosystem": "declared research",
 }
 TYPE_LABELS = {
     "register_entry": "New register entry",
@@ -42,6 +43,15 @@ TYPE_LABELS = {
     "research_output": "Research output",
     "website_first_seen": "Website first seen",
     "website_milestone": "Website milestone",
+    "pilot_named": "First customer or pilot named",
+    "certification": "Certification or type approval",
+    "programme_entry": "Accelerator or programme entry",
+    "exhibitor": "Exhibitor or demo",
+    "award": "Award or pitch win",
+    "funding_round": "Funding round",
+    "product_launch": "Product launch",
+    "public_funding": "Grant or public funding",
+    "ecosystem_event": "Other dated event",
 }
 # Wording follows the docstring of radar/emit.py.
 CONFIDENCE_RULES = {
@@ -341,6 +351,8 @@ def _feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500
     out, hidden = [], 0
     from radar import fit
     for key, rs in per.items():
+        if is_partner_org(rs[0]["name"]):
+            continue
         if fit.looks_like_person(rs[0]["name"], thesis) and all(o["signal_type"] == "register_entry" for o in others[key]):
             hidden += 1
             continue
@@ -401,6 +413,49 @@ def feed_counts(conn, thesis, *, today=None) -> dict:
 
 def _fold(s: str) -> str:
     return "".join(ch for ch in unicodedata.normalize("NFKD", s or "") if not unicodedata.combining(ch)).casefold()
+
+
+# ---- partner organisations: never shown as discovered startups ---------------------------------------------------------
+PARTNER_PREFIXES = ("A'Pelago", "APelago", "Redstone", "Turku Science Park")
+PARTNER_LISTS = ("data/declared/investors.csv", "data/declared/programmes_grants.csv")
+_LEGAL_SUFFIX = re.compile(r"\b(oy|oyj|ab|abp|as|asa|ltd|ky|gmbh|inc|llc|aps)\b", re.I)
+_partner_cache: dict = {}
+
+
+def name_key(name: str) -> str:
+    """Folded name for comparisons: diacritics, case, legal-form words, punctuation and spaces removed."""
+    return re.sub(r"[^a-z0-9]+", "", _LEGAL_SUFFIX.sub(" ", _fold(name)))
+
+
+def partner_orgs() -> dict:
+    """{'prefixes': [...], 'names': [...]}: the organisations excluded from the feed and the radar. The names come from the
+    declared investor and programme lists, read here once per file version."""
+    import csv
+    root = Path(__file__).resolve().parent.parent
+    sig = tuple((rel, (root / rel).stat().st_mtime_ns if (root / rel).is_file() else 0) for rel in PARTNER_LISTS)
+    hit = _partner_cache.get(sig)
+    if hit is None:
+        names: list[str] = []
+        for rel in PARTNER_LISTS:
+            p = root / rel
+            if p.is_file():
+                with p.open(encoding="utf-8", newline="") as f:
+                    names += [r["name"].strip() for r in csv.DictReader(f) if (r.get("name") or "").strip()]
+        hit = {"prefixes": list(PARTNER_PREFIXES), "names": sorted(set(names), key=str.casefold)}
+        _partner_cache.clear()
+        _partner_cache[sig] = hit
+    return hit
+
+
+def is_partner_org(name: str) -> bool:
+    po = partner_orgs()
+    key = name_key(name)
+    if any(key.startswith(name_key(p)) for p in po["prefixes"]):
+        return True
+    for n in po["names"]:
+        if key == name_key(n) or key == name_key(re.sub(r"\s*\([^)]*\)", "", n)):
+            return True
+    return False
 
 
 def search(conn, q, limit=20) -> list[dict]:

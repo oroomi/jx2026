@@ -25,7 +25,7 @@ name_keywords:
 keyword_stop_words: [have, caretaker, careers, carefree, biography, biodiversity]
 # Words that make a legal name a business, never a private person (policy: personal-name holding companies are hidden).
 non_person_words: [infra, design, partners, group, solutions, technologies, systems, finland, nordic, software, energy, ventures, properties, real, estate, advisory, management, services, trading, engineering, global]
-feed_signal_types: [register_entry, bf_funding, eu_project, patent, public_contract, job_ad, first_sales, first_hire]
+feed_signal_types: [register_entry, bf_funding, eu_project, patent, public_contract, job_ad, first_sales, first_hire, pilot_named, certification, programme_entry, exhibitor, award, funding_round, product_launch, public_funding]
 hilma_cpv_divisions: ["33", "85", "73"]
 hilma_keywords: [terveys, lääke, laboratorio, diagnost, potilas, hoiva]
 readiness:

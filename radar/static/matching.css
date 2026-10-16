@@ -1,0 +1,14 @@
+/* Company page questions 02 (dataset evidence), 03 and 04. Uses the tokens from app.css. */
+.eco-ev{margin:10px 0 0;padding:8px 12px;border-left:3px solid var(--hairline);background:var(--surface);font-size:.875rem}
+.eco-ev p{margin:0 0 6px}
+.eco-h{color:var(--muted);font-size:.8125rem}
+.eco-diff{font-weight:600}
+.eco-miss,.eco-src,.eco-status{color:var(--muted);font-size:.8125rem}
+.nx-grid{display:grid;gap:24px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.nx-list h3{margin:0 0 8px;font-size:1rem}
+.nx-list ol{margin:0;padding-left:1.25rem}
+.nx-list li{margin:0 0 12px}
+.nx-name{font-weight:600}
+.nx-kind{color:var(--muted);font-size:.8125rem;margin-left:6px}
+.nx-why,.nx-meta{display:block;font-size:.8125rem;color:var(--muted);overflow-wrap:anywhere}
+.step-sentence{font-size:1.25rem;font-weight:600;margin:0 0 8px}

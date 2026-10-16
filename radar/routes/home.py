@@ -1,4 +1,4 @@
-"""GET / : early-signal feed shell. Reads the signals table; empty is shown as empty."""
+"""Shared template environment and helpers for page routes. The feed itself is served by radar/routes/feed.py."""
 from __future__ import annotations
 
 import subprocess
@@ -56,14 +56,3 @@ def feed_rows(conn, th: dict) -> list[dict]:
 
 def _has_route(request: Request):
     return lambda path: any(getattr(r, "path", None) == path for r in request.app.routes)
-
-
-@router.get("/")
-def home(request: Request):
-    th = thesis_mod.load()
-    conn = db.connect()
-    try:
-        rows = feed_rows(conn, th)
-    finally:
-        conn.close()
-    return templates.TemplateResponse(request, "home.html", {"thesis": th, "rows": rows, "days": th["geography"]["feed_window_days"], "active": "feed", "has_route": _has_route(request)})

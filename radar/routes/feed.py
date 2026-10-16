@@ -32,7 +32,8 @@ def _view(request: Request, signal_type: str | None):
     pills = [{"key": t, "label": store.TYPE_LABELS.get(t, t), "count": by_type.get(t, 0), "href": f"/?type={quote(t)}"} for t in types]
     total = (counts or {}).get("companies", 0)
     return {
-        "thesis": th, "rows": rows, "counts": counts, "pills": pills, "selected": signal_type, "total": total,
+        "thesis": th, "rows": rows, "main_rows": [r for r in rows if r["strength"] == "strong"],
+        "weak_rows": [r for r in rows if r["strength"] == "weak"], "counts": counts, "pills": pills, "selected": signal_type, "total": total,
         "selected_label": store.TYPE_LABELS.get(signal_type, signal_type) if signal_type else None,
         "rule": store.rule_text(th), "no_db": conn is None, "truncated": total > ROW_LIMIT and signal_type is None,
         "matches": matches, "q": None, "active": "feed", "has_route": _has_route(request),

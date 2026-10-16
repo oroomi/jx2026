@@ -65,6 +65,7 @@ def method(request: Request):
         from radar import build
         names = sorted({n for n, _ in build.discover()})
         src = sources(conn, names)
+        counts = store.feed_counts(conn, th) if conn is not None else None
     finally:
         if conn is not None:
             conn.close()
@@ -74,5 +75,6 @@ def method(request: Request):
     return templates.TemplateResponse(request, "method.html", {
         "thesis": th, "rule_lines": rule, "signal_types": emit.SIGNAL_TYPES, "feed_rule": store.rule_text(th),
         "window_days": geo["feed_window_days"], "age_cut": geo.get("stage_max_company_age_years"),
+        "counts": counts, "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
         "declared": declared, "sources": src, "no_db": conn is None, "connectors": CONNECTOR_SLOTS,
         "active": "method", "has_route": _has_route(request)})

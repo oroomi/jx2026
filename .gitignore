@@ -10,3 +10,6 @@ data/radar*.sqlite
 data/cache/
 data/fetched/
 .local/
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm

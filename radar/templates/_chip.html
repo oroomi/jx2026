@@ -1,0 +1,17 @@
+{# Receipts evidence chip. ev comes from radar.store.evidence(). #}
+{% macro chip(ev, show_confidence=False) -%}
+<span class="ev">
+  <a class="ev-chip" href="{{ ev.url }}" target="_blank" rel="noopener">
+    <span class="ev-src">{{ ev.label }}</span>
+    <time class="ev-date" datetime="{{ ev.event_date }}">{{ ev.event_date }}</time>
+    <span class="ev-fetched">fetched {{ (ev.fetched_at or "")[:10] }}</span>
+  </a>
+  {%- if show_confidence and ev.confidence %}
+  <span class="ev-conf" title="{{ ev.confidence_rule }}">{{ ev.confidence }} confidence</span>
+  {%- endif %}
+</span>
+{%- endmacro %}
+
+{% macro missing(text="not in public records") -%}
+<span class="ev-missing">{{ text }}</span>
+{%- endmacro %}

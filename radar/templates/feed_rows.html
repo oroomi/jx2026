@@ -4,7 +4,7 @@
     <a class="co" href="/c/{{ r.company_key }}">{{ r.name }}</a>
     <p class="meta">{{ r.type_label }} <span class="sep">/</span> <time datetime="{{ r.date }}">{{ r.date_label }}</time>{% if r.earlier_count %} <span class="sep">/</span> {{ r.earlier_count }} earlier signal{{ "s" if r.earlier_count != 1 }}{% endif %}</p>
     <p class="why{% if r.strength == 'weak' %} why-weak{% endif %}">{{ r.why }}</p>
-    {% if r.detail %}<p class="detail">{{ r.detail }}</p>{% endif %}
+    {% if r.detail and r.signal_type != 'register_entry' %}<p class="detail">{{ r.detail }}</p>{% endif %}
     <div class="proof">
       {{ chip(r.evidence) }}
       {% if r.amount_eur is not none %}<a class="amt" href="{{ r.evidence.url }}" target="_blank" rel="noopener">{{ "{:,.0f}".format(r.amount_eur).replace(",", " ") }} EUR <span class="amt-src">per {{ r.evidence.label }}</span></a>{% endif %}

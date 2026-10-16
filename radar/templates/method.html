@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}Method | Ocean Opportunity Radar{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/feed.css?v={{ asset_v }}">{% endblock %}
 {% block content %}
 <h1>Method</h1>
 <h2>Thesis</h2>
@@ -13,7 +14,7 @@
 <h2 id="precision">Feed precision</h2>
 <p>{{ feed_rule }}</p>
 <dl class="reasons">
-{% for rid, meaning in reasons %}<dt>{{ rid }}{% if counts %}: {{ counts.by_reason[rid] }} companies{% endif %}</dt><dd>{{ meaning }}</dd>
+{% for rid, meaning in reasons %}<dt><strong>{{ rid }}</strong>{% if counts %} ({{ counts.by_reason[rid] }}){% endif %}</dt><dd>{{ meaning }}</dd>
 {% endfor %}</dl>
 {% if counts %}<p>Now: {{ counts.main }} companies in the main list, {{ counts.weak }} weak matches, {{ counts.year_only_not_entry }} year-only Business Finland records not used as entry dates. A company can have more than one reason.</p>
 {% else %}<p><span class="hatch">no data</span> No database for this thesis yet.</p>{% endif %}

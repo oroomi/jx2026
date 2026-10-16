@@ -60,3 +60,8 @@ Rule: no two tasks edit the same file. Each task owns the files named in its row
 | 4 Data or APIs we can use | | |
 | 5 Who visits tables Sunday? | | |
 | 6 Saturday midday check? | | |
+
+## AMENDMENT 16.10 20:50Z (official written brief, overrides rows 17-19 where they differ)
+- Row 17 readiness MUST use the sponsor's named frameworks: TRL 1-9 per Aalto; Business Readiness Level 1-9 per KTH Innovation Readiness Level (not 1-5); Ocean Impact Readiness per the Ocean Impact Navigator (1000 Ocean Startups) levels; Investment readiness shown across the sponsor's 10 Investment Potential dimensions (Market, Product, Team, Business Model, Competition, Marketing & Distribution, Financials, Tech, Deal Dynamics, Impact), each "evidence / no public evidence". Name and link the framework next to every level on the page.
+- Judges' stated insight: value = DISCOVERING CONNECTIONS otherwise hard to see (not scoring, not deck summaries). Feed + matching should surface links: same public buyer, same grant programme, shared EU project consortium, shared investor.
+- Full text: /root/hack/brief/REDSTONE_APELAGO_BRIEF.md "OFFICIAL WRITTEN BRIEF".

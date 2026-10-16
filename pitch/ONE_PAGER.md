@@ -18,7 +18,7 @@ Connections across records: received a Business Finland funding decision in 2018
 Life-line (from the live page, build c13bf41; not in the snapshot):
 - Formation: trade register entry 2018-03-09 (PRH/YTJ).
 - First money: Business Finland funding 2018, 2019, 2022, 2025, 2026 (each year only).
-- First team: no public evidence. First salary: no employer-register entry in public records.
+- First team: no public evidence. First salary: no employer-register entry in public records. (Tax-register rows were not loaded on c13bf41; they go live with the 03/04 merge, so re-read this line on Sunday: first sales is the day the company first registered for VAT, first hire the day it first registered as an employer.)
 - Validation: registered equity events 2023-06-28, 2024-04-03, 2025-05-22; EU project 2024-09-01; registered board changes 2024-12-10, 2025-06-19, 2025-08-26, 2025-09-02, 2026-02-10, 2026-09-24 (PRH registered notices, https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2; CORDIS).
 
 ### 01 Who is most promising
@@ -81,7 +81,7 @@ Source: <register link> (read <date>)
 
 Connections across records: <the sentence from the page, with its sources>
 
-Life-line: Formation <dated records> · First money <dated records> · First team <dated records or "no public evidence"> · Validation <dated records>
+Life-line: Formation <dated records> · First money <dated records> · First sales <date it first registered for VAT, or "no public evidence"> · First hire <date it first registered as an employer, or "no public evidence"> · Validation <dated records>
 
 01 Who is most promising
 <N> public records tie it to the sector. No score and no ranking.

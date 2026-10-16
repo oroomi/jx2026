@@ -4,11 +4,12 @@ Presenter: Dayo. One live demo moment: a judge names one of their own Nordic Blu
 
 The pitch does not claim that we would have found the cohort first. Our own test says the cohort was invisible to public registers until after it was picked; the radar's job is the companies that are visible now, each with a dated public record.
 
-Spoken lines are in quote blocks. Everything else is a stage direction and is not said. The superscript numbers point to the source list at the end. Three numbers are still open and are written `<N1>`, `<N2>`, `<N3>`: read them off the live pages on Sunday, never from memory.
+Spoken lines are in quote blocks. Everything else is a stage direction and is not said. The superscript numbers point to the source list at the end. Four numbers are still open and are written `<N1>`, `<N2>`, `<N3>`, `<N4>`: read them off the live pages on Sunday, never from memory.
 
 ## Before you go on (Sunday, by 13:30)
 
 - Fill `<N1>`, `<N2>` from https://jx.hankintaviikko.fi/backtest and `<N3>` from the footer of https://jx.hankintaviikko.fi/ (sources 3, 7, 8). Declared-research events are being imported, so the /backtest numbers can still move.
+- Fill `<N4>` from the tax-register row of the Sources table on https://jx.hankintaviikko.fi/method (source 14); the chief sets the final count at deploy.
 - If `<N1>` is above 0 on Sunday, the "invisible" sentence in the earliness part is no longer true: use the replacement line given there.
 - Laptop: start page full screen, brightness at 100 percent, on power. Second tab ready on /backtest. Selection in the header: "Blue economy, Finland and Nordics".
 - Open any company page and look at sections 03 and 04. If they still say "not yet scored", use line 4B below, not 4A.
@@ -29,11 +30,11 @@ On screen: the start page, heading "New this quarter" (slide 1 is the live app).
 
 On screen: the start page list. Point at the first rows.
 
-> This is the start page: <N3>³ companies that appeared in public records in the last 90 days² and fit the blue-economy rules. Each line says why and links to the record.
+> This is the start page: <N3>³ companies that appeared in public records in the last 90 days² and fit the blue-economy rules. Each line says why, with a link.
 
 Turn to the judges.
 
-> You know your companies best. Name one from Nordic Blue.
+> Name one of your Nordic Blue companies.
 
 Type the name into "Find a startup" and press "Find this startup". On screen: the company page. At the top: Y-tunnus, Founded, Industry, each with a small source chip.
 
@@ -43,9 +44,9 @@ Tap the chip under Founded. The trade register record opens in a new tab. Hold i
 
 > That chip opens the trade register record itself. Every fact here comes from a record like that.
 
-Point at the "Life-line" block under the register facts: Formation, First money, First team, Validation.
+Point at the "Life-line" block under the register facts: Formation, First money, First team, Validation. If this company's first-sales or first-hire row is hatched, point at the row anyway: the sentence explains what a date there would mean.
 
-> Below, its life-line: formed, first money, first team, validation, each dated and linked.
+> Below, its life-line. First sales is the day it first registered for VAT; first hire, the day it first registered as an employer: exact dates from the national tax registers, <N4>¹⁴ of them in the radar.
 
 Scroll to "01 Who is most promising".
 
@@ -71,7 +72,7 @@ Only if the company is outside Finland and the page is mostly hatched:
 
 Tap "Earliness test" in the top menu. On screen: "Earliness test: would we have found them first?", one lane per company, a vertical line at the reference date, most lanes hatched.
 
-> And this is the test we ran on ourselves: your 19 Nordic Blue companies⁵ against January 2026⁶, the programme start month as we declared it. On its own feed rule, the radar would have shown <N1>⁷ of them before that line; <N2>⁸ have no public signal. Your cohort was invisible to public registers until after you picked them. This radar shows the companies that are visible now, each with a dated public record.
+> This is the test we ran on ourselves: your 19 Nordic Blue companies⁵ against January 2026⁶, the programme start month as we declared it. On its own feed rule, the radar would have shown <N1>⁷ of them before that line; <N2>⁸ have no public signal. Your cohort was invisible to public registers until after you picked them. This radar shows the companies that are visible now, each with a dated public record.
 
 Point at one hatched lane. If `<N1>` is above 0 on Sunday, replace "Your cohort was invisible to public registers until after you picked them." with "<N1> of them were visible in public registers before you picked them."
 
@@ -81,11 +82,11 @@ Point at one hatched lane. If `<N1>` is above 0 on Sunday, replace "Your cohort 
 
 ## 2:25 to 2:45. What it does not do
 
-> What it does not do: no score we cannot source. Five of your ten dimensions have no public source, so they always say "not in public records"¹⁰. LinkedIn, Dealroom, Crunchbase, PitchBook and Tracxn are connector slots, not connected. And it covers companies, never private people.
+> What it does not do: no score we cannot source. Five of your ten dimensions have no public source, so they say "not in public records"¹⁰. LinkedIn, Dealroom, Crunchbase, PitchBook and Tracxn are connector slots, not connected. And it covers companies, never private people.
 
 ## 2:45 to 3:00. The ask
 
-> Our ask: run it on your pipeline for a month¹¹. Note the date each company reaches you; we show what the public record held that day. Sector and region live in one file; the Baltic switch loads eight countries¹². Right now <N3> companies are visible, each with a dated record. Scan the code and try your own company.
+> Our ask: run it on your pipeline for a month¹¹. Note the date each company reaches you; we show what the public record held that day. Sector and region live in one file; the Baltic switch loads eight countries¹². Right now <N3> are visible. Scan the code and try your own company.
 
 ## Sources for every number in the script
 
@@ -106,9 +107,10 @@ Values today are from the live site on 16 Oct 2026, 22:27Z, build c13bf41.
 | 11 | a month | 1 month | the ask set in tasks/cloud/pitch.md; not a measured number. PILOT.md (8 weeks) is still a template: the chief aligns the two | if PILOT.md is filled |
 | 12 | one file; eight countries | 1; 8 | /method "lives in one sector file"; https://jx.hankintaviikko.fi/method?thesis=baltic_blue "Countries: FI, SE, EE, LV, LT, DK, DE, PL" and "National register depth exists only where we built it: Finland (PRH, Hilma) and Estonia (e-Business Register)"; config/thesis_baltic_blue.yaml on main | no |
 | 13 | Emission-Eye, register entry 2025-06-13 (stage note, not spoken unless typed) | 2025-06-13 | https://jx.hankintaviikko.fi/c/3543918-7 "Founded 2025-06-13", chip to PRH/YTJ | no |
+| 14 | `<N4>` tax-register dates in the radar | not on the live site yet | /method Sources table, tax-register row ("PRH/YTJ tax registers"; on c13bf41 it read "not loaded in this build"). Chief, 22:45Z: the adapter ran on a copy of the store with 1,068 first-traction signals across 717 companies (first sales and first hire with exact dates, plus sales ended and employer ended as negatives); it goes live with the 03/04 merge and the final number is set at deploy | yes: read the /method row on Sunday and quote that number, not the 22:45Z one |
 
 The sentence "Your cohort was invisible to public registers until after you picked them; this radar shows the companies that are visible now, each with a dated public record" is the chief's wording (message of 16 Oct, 22:40Z). It holds only while `<N1>` is 0.
 
-The life-line rows "first team" and "first sales" come from the tax registers; on build c13bf41 the /method sources table lists "PRH/YTJ tax registers: not loaded in this build", so on most pages those rows read "no public evidence". The script line names the rows, not their content, so it stays true either way.
+The life-line rows mean, in plain words: first sales is the day a company first registered for VAT, first hire is the day it first registered as an employer, both exact dates from the national tax registers (PRH/YTJ open data; research/CREATIVE_SIGNALS.md section 7). "Sales ended" and "employer ended" are the same registers closing, shown as negatives. The registers say a company is selling or paying someone, never how much. Wording and loading per the chief's message of 16 Oct, 22:45Z.
 
-Spoken length: 449 words on the main path (line 4A, without the non-Finnish line and without the row read aloud from section 03), about 3 minutes at a calm pace including the typing.
+Spoken length: 459 words on the main path (line 4A, without the non-Finnish line and without the row read aloud from section 03), about 3 minutes at a calm pace including the typing.

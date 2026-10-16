@@ -1,6 +1,6 @@
 # Slides (8 at most, for the 3-minute pitch)
 
-Slide 1 is the live app, not a title card. Slides 2 and 3 are the live app too; their screenshots are the fallback only if the network fails. Slides 4 to 8 are static and show while Dayo speaks the last minute of PITCH_3MIN.md. Numbers written `<N1>`, `<N2>`, `<N3>` come from the live pages on Sunday (sources in PITCH_3MIN.md).
+Slide 1 is the live app, not a title card. Slides 2 and 3 are the live app too; their screenshots are the fallback only if the network fails. Slides 4 to 8 are static and show while Dayo speaks the last minute of PITCH_3MIN.md. Numbers written `<N1>`, `<N2>`, `<N3>`, `<N4>` come from the live pages on Sunday (sources in PITCH_3MIN.md).
 
 ## Visual notes (all slides, from DESIGN.md "Receipts")
 
@@ -22,7 +22,7 @@ LIVE: the company page of the name a judge gives (fallback Emission-Eye, /c/3543
 Sections 01 to 04 in the partner's order, a chip under every fact.
 Fallback screenshot: the same page captured Sunday morning, not an older build.
 
-Speaker note: tap one chip so the trade register record opens, point at the life-line, then walk 01, 02, 03, 04 in order.
+Speaker note: tap one chip so the trade register record opens, point at the life-line (first VAT and first employer registration dates), then walk 01, 02, 03, 04 in order.
 
 ## 3. Your cohort was invisible to public registers until after you picked them
 
@@ -34,7 +34,7 @@ Speaker note: point at one hatched lane; if `<N1>` is above 0 on Sunday, retitle
 
 ## 4. Every line is a public record
 
-Trade register, public contracts, Business Finland funding, EU projects.
+Trade and tax registers, public contracts, Business Finland funding, EU projects.
 Each line: what was found, the date the source states, a link that opens the record.
 Visual: one real feed row with its chip, enlarged; no diagram.
 

@@ -8,9 +8,9 @@ Never from us: our rules only give TRL 3, 4, 5 or 7, each from a record type pri
 
 ## 2. You have no revenue data. How can you judge anything?
 
-Right, we have no revenue: it sits in filed financial statements and paid databases, and our Financials dimension shows only public grants and contracts. Instead each company page carries a life-line of the traces a company leaves before its first statement (register entry, Business Finland and EU funding, registered share issues and board changes, and first sales and first hire from the tax registers), each dated and linked.
+Right, we have no revenue: it sits in filed financial statements and paid databases, and our Financials dimension shows only public grants and contracts. Instead each company page carries a life-line of the traces a company leaves before its first statement (register entry, Business Finland and EU funding, registered share issues and board changes, the day it first registered for VAT and the day it first registered as an employer, from the national tax registers), each dated and linked.
 
-Check Sunday: on build c13bf41 the /method sources table says "PRH/YTJ tax registers: not loaded in this build", so the first-sales and first-hire rows read "no public evidence" on most pages. If they are still not loaded, say "once the tax-register rows are loaded" after "first hire".
+Check Sunday: the chief confirmed (16 Oct, 22:45Z) that the tax-register rows go live with the 03/04 merge; "sales ended" and "employer ended" appear as negatives. The registers say a company is selling or paying someone, not how much: add that if pressed. Read the count, `<N4>`, from the tax-register row of the /method sources table; if that row still says "not loaded in this build", say "once the tax-register rows are loaded".
 
 ## 3. How is this different from Dealroom?
 

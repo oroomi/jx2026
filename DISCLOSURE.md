@@ -69,3 +69,7 @@ No code from any earlier project. No private or scraped personal data. No named 
 ## Feed precision (jx20b)
 
 Built during the event: whole-word keyword matching (`radar/fit.py`), a stop list and a non-person word list in the thesis files, the `signal_text` table (`radar/schema/011_signal_text.sql`) that keeps the CORDIS project title, objective and keywords apart from our own `detail` annotation, and a rule that hides legal names shaped like a private person plus Holding, Invest, Capital, Consulting or Tmi when the company has no signal beyond a register entry. No new external data or library.
+
+## Declared ecosystem dataset (jx23)
+
+`data/declared/ecosystem/blue_economy_fi.sqlite` (with SCHEMA.md and API_SOURCES.md) is a research dataset built on this server on 16 Oct 2026, during the event, with a source URL per record: 215 entities (95 companies, 120 capital sources and buyers), 2,931 scored company-to-target pairs each with a reason string, readiness evidence for 73 companies, dated events and job ads. It is declared data, read-only; `radar/adapters/ecosystem.py` imports it (tables in `radar/schema/006_ecosystem.sql`). Its own confidence words are shown as given and low-confidence rows are leads, not facts. Not imported: the dataset's free-text summaries and key-people fields (they name private individuals), links to personal profiles, and rows without a date (they stay evidence text, never signals). The dataset never sets a readiness level; it is printed beside the register rule's level.

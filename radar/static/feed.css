@@ -20,8 +20,8 @@
 .pill:hover{border-color:var(--accent)}
 
 .feed{list-style:none;margin:0;padding:0}
-.feed-row{padding:16px 0 16px 12px;border-top:1px solid var(--hairline);border-left:3px solid transparent;margin-left:-15px;padding-left:12px}
-.feed-row.low{border-left:3px dashed var(--muted)}
+.feed-row{padding:16px 0;border-top:1px solid var(--hairline)}
+.feed-row.low{padding-left:12px;border-left:3px dashed var(--muted)}
 .feed-row .co{font-family:var(--serif);font-size:1.25rem;font-weight:600;overflow-wrap:anywhere}
 .meta{margin:2px 0 0;color:var(--muted);font-size:.875rem}
 .meta time{font-variant-numeric:tabular-nums}

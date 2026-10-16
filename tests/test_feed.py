@@ -104,4 +104,4 @@ def test_no_absolute_asset_urls(client):
     t = client.get("/").text
     for m in re.finditer(r'<(?:link|script|img)[^>]+(?:href|src)="([^"]+)"', t):
         assert not m.group(1).startswith(("http:", "https:", "//")), m.group(1)
-    assert "@import" not in t and "—" not in t
+    assert "@import" not in t and "\u2014" not in t

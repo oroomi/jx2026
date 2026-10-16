@@ -20,3 +20,10 @@
 .bt-table .ev-chip{margin-right:6px}
 .bt-other{margin-top:4px}
 .bt-months{white-space:nowrap}
+@media (max-width:640px){
+  .bt-table thead{position:absolute;left:-9999px}
+  .bt-table,.bt-table tbody,.bt-table tr,.bt-table td{display:block;width:100%}
+  .bt-table tr{padding:10px 0;border-bottom:1px solid var(--hairline)}
+  .bt-table td{border:0;padding:2px 0;white-space:normal}
+  .bt-table td:nth-child(3),.bt-table td:nth-child(4){display:inline-block;width:auto;margin-right:12px}
+}

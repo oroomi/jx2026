@@ -101,4 +101,4 @@ def test_rule_text_has_every_clause(res):
                    "1 January", "year only", "30.44", "rounded down", "N months before", "N months after", "strictly before",
                    "on or after", "later or same", "No public signal", "add up to the cohort size", "BlueInvest", "never moves", "Confidence", "never proof"):
         assert clause in t, clause
-    assert "—" not in t
+    assert chr(0x2014) not in t

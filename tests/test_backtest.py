@@ -67,4 +67,4 @@ def test_health_thesis_shows_empty_state(tmp_path, monkeypatch):
 
 
 def test_no_em_dash_in_page(client):
-    assert "—" not in client[0].get("/backtest").text
+    assert chr(0x2014) not in client[0].get("/backtest").text

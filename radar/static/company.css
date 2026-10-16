@@ -1,0 +1,56 @@
+/* Company page. Tokens from app.css only. Mobile first: one column; rail and sources appear at 1100px+. */
+main.wrap{max-width:1360px}
+.co-layout{display:block}
+.co-rail{display:none}
+.co-main{min-width:0;padding-bottom:72px}
+.co-group{margin:24px 0 0;color:var(--muted);font-size:.8125rem;text-transform:uppercase;letter-spacing:.08em}
+.co-head h1{margin-top:4px;font-size:2.25rem;overflow-wrap:anywhere}
+.facts{margin:16px 0 0}
+.fact{display:grid;grid-template-columns:8.5rem 1fr;gap:4px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--hairline)}
+.fact dt{color:var(--muted);font-size:.875rem}
+.fact dd{margin:0;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;min-width:0;overflow-wrap:anywhere}
+.url{font-size:.8125rem;color:var(--muted);overflow-wrap:anywhere}
+.status{font-weight:600}
+.status-bankrupt,.status-ended{color:var(--text);border-bottom:2px solid var(--accent)}
+.q{margin-top:40px;scroll-margin-top:16px}
+.q h2{margin-top:0;display:flex;gap:12px;align-items:baseline}
+.num{color:var(--accent);font-variant-numeric:tabular-nums}
+.reasons{padding-left:0;list-style:none;margin:0}
+.reasons li{padding:12px 0;border-bottom:1px solid var(--hairline);display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center}
+.reason-text{flex:1 1 16rem}
+.ready{width:100%;border-collapse:collapse}
+.ready th{text-align:left;font-weight:500;color:var(--muted);vertical-align:top;padding:12px 12px 12px 0;width:8.5rem;border-bottom:1px solid var(--hairline)}
+.ready td{padding:12px 0;border-bottom:1px solid var(--hairline)}
+.lvl{margin:0 0 8px;color:var(--muted);font-size:.875rem}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.notscored{color:var(--muted);margin:0;padding:12px 0 0;border-top:1px dashed var(--hairline)}
+.siglist,.connectors{list-style:none;padding:0;margin:0}
+.siglist li{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--hairline)}
+.s-type{font-weight:600}
+.s-detail{flex:1 1 100%;color:var(--muted);font-size:.875rem}
+.s-conf{color:var(--muted);font-size:.8125rem}
+.connectors{margin-top:24px}
+.connectors li{display:flex;gap:12px;align-items:center;padding:6px 0;color:var(--muted);font-size:.875rem}
+.connectors button{min-width:7rem;min-height:36px;background:transparent;color:var(--muted);border:1px dashed var(--hairline);border-radius:6px;font:inherit;cursor:not-allowed}
+.co-sources{margin-top:40px;border-top:1px solid var(--hairline)}
+.co-sources h2{font-size:1rem;margin-top:16px}
+.co-sources ul{list-style:none;padding:0;margin:0}
+.co-sources li{padding:8px 0;border-bottom:1px solid var(--hairline);font-size:.875rem;overflow-wrap:anywhere}
+.fetched{color:var(--muted)}
+.co-bar{position:fixed;left:0;right:0;bottom:0;z-index:5;min-height:52px;display:flex;align-items:center;justify-content:center;background:var(--surface);border-top:1px solid var(--hairline);padding:0 16px}
+.co-bar a,.co-bar span{font-weight:600;color:var(--text)}
+.co-bar a{color:var(--accent)}
+.search{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0}
+.search label{flex:1 1 100%;color:var(--muted);font-size:.875rem}
+.search input{flex:1 1 14rem;min-height:44px;padding:0 12px;background:var(--surface);color:var(--text);border:1px solid var(--hairline);border-radius:6px;font:inherit}
+.search button{min-height:44px;padding:0 16px;background:var(--surface);color:var(--text);border:1px solid var(--accent);border-radius:6px;font:inherit;cursor:pointer}
+@media (min-width:1100px){
+  .co-layout{display:grid;grid-template-columns:240px minmax(0,720px) 360px;gap:32px;justify-content:center;align-items:start}
+  .co-rail{display:flex;flex-direction:column;position:sticky;top:16px;margin-top:32px}
+  .co-rail a{display:block;padding:10px 0;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--hairline)}
+  .co-rail a:hover,.co-rail a:focus-visible{color:var(--accent)}
+  .co-sources{margin-top:32px;border-top:0}
+  .co-bar{display:none}
+  .co-main{padding-bottom:0}
+}
+@media (max-width:480px){.fact{grid-template-columns:1fr}.co-head h1{font-size:1.75rem}}

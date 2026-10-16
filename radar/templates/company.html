@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% from "_chip.html" import chip, missing %}
+{% block title %}{{ c.name }} | Ocean Opportunity Radar{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/company.css?v={{ asset_v }}">{% endblock %}
+{% block content %}
+<div class="co-layout">
+<nav class="co-rail" aria-label="Four questions">
+  <a href="#q1">01 Who is most promising</a>
+  <a href="#q2">02 How ready are they</a>
+  <a href="#q3">03 Who comes next</a>
+  <a href="#q4">04 What should happen next</a>
+</nav>
+<div class="co-main">
+<header class="co-head">
+  <p class="co-group">{{ c.group_tag }}</p>
+  <h1>{{ c.name }}</h1>
+  <dl class="facts">
+  {% for r in register %}
+    <div class="fact"><dt>{{ r.label }}</dt>
+      <dd>{% if r.value %}
+        {% if r.label == "Register status" %}<strong class="status status-{{ r.value }}">{{ r.value }}</strong>
+        {% elif r.label == "Website" %}<a href="{{ r.value }}" rel="noopener nofollow">{{ r.value }}</a>
+        {% elif r.label == "Source page" %}<a class="url" href="{{ r.value }}" target="_blank" rel="noopener">{{ r.value }}</a>
+        {% else %}<span>{{ r.value }}</span>{% endif %}
+        {{ chip(r.ev) }}
+      {% else %}{{ missing(r.missing) }}{% endif %}</dd></div>
+  {% endfor %}
+  </dl>
+</header>
+
+<section id="q1" class="q q-fit">
+  <h2><span class="num">01</span> Who is most promising</h2>
+  {% if reasons %}
+  <ol class="reasons">
+    {% for r in reasons %}
+    <li><span class="reason-text">{{ r.text }}</span> {{ chip(r.evidence, True) }}</li>
+    {% endfor %}
+  </ol>
+  {% else %}
+  <p>no thesis match found in public records; this company entered through {{ entered_via }}.</p>
+  {% endif %}
+  <p class="rule">{{ fit_rule }}</p>
+</section>
+
+<section id="q2" class="q q-ready">
+  <h2><span class="num">02</span> How ready are they</h2>
+  <table class="ready">
+    <tbody>
+    {% for d in readiness %}
+    <tr><th scope="row">{{ d.label }}</th>
+      <td>
+      {% if not d.defined %}{{ missing("not defined in this thesis") }}
+      {% elif not d.signals %}{{ missing("no public evidence") }}
+      {% else %}
+        <p class="lvl">level: not scored yet, rule table lands Saturday</p>
+        <div class="chips">{% for s in d.signals %}{{ chip(s.evidence, True) }}{% endfor %}</div>
+      {% endif %}
+      </td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section id="q3" class="q q-next">
+  <h2><span class="num">03</span> Who comes next</h2>
+  {% if matching_ready %}<p class="notscored">matching module present, not yet wired into this page</p>
+  {% else %}<p class="notscored">not yet scored: matching rules land Saturday</p>{% endif %}
+</section>
+
+<section id="q4" class="q q-step">
+  <h2><span class="num">04</span> What should happen next</h2>
+  {% if nextstep_ready %}<p class="notscored">next-step module present, not yet wired into this page</p>
+  {% else %}<p class="notscored">not yet scored: next-step rules land Saturday</p>{% endif %}
+</section>
+
+<section class="q signals" id="signals">
+  <h2>Signals</h2>
+  {% if signals %}
+  <ul class="siglist">
+    {% for s in signals %}
+    <li><span class="s-type">{{ s.type_label }}</span> <time datetime="{{ s.date }}">{{ s.date }}</time>
+      <span class="s-detail">{% if s.detail %}{{ s.detail }}{% else %}{{ missing("no detail in source") }}{% endif %}</span>
+      {{ chip(s.evidence) }} <span class="s-conf">{{ s.confidence }} confidence</span></li>
+    {% endfor %}
+  </ul>
+  {% else %}<p>{{ missing("no public evidence") }} No signals recorded for this company.</p>{% endif %}
+  <ul class="connectors">
+    {% for n in connectors %}<li><button type="button" disabled>{{ n }}</button> <span>connector slot, not connected</span></li>{% endfor %}
+  </ul>
+</section>
+</div>
+
+<aside class="co-sources" aria-labelledby="src-h">
+  <h2 id="src-h">Sources on this page</h2>
+  <ul>
+  {% for s in sources %}
+    <li><a href="{{ s.url }}" target="_blank" rel="noopener">{{ s.label }}</a><br><span class="url">{{ s.url }}</span><br>
+      <span class="fetched">fetched {{ s.fetched or "date not recorded" }}</span></li>
+  {% endfor %}
+  </ul>
+</aside>
+</div>
+
+<div class="co-bar">
+  {% if radar_exists %}<a href="/radar">Radar{% if cohort_n %} of {{ cohort_n }}{% endif %}</a>
+  {% else %}<span>Radar{% if cohort_n %} of {{ cohort_n }}{% endif %}, opens Saturday</span>{% endif %}
+</div>
+{% endblock %}

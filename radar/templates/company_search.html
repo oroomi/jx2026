@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Company search | Ocean Opportunity Radar{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/company.css?v={{ asset_v }}">{% endblock %}
+{% block content %}
+<section class="q notfound">
+  <h1>Search companies</h1>
+  <form action="/company-search" method="get" class="search" role="search">
+    <label for="q">Name or Y-tunnus</label>
+    <input id="q" name="q" type="search" value="{{ q }}" autocomplete="off"> <button type="submit">Search</button>
+  </form>
+  {% if not db_ok %}<p>no signals yet. Run python3 -m radar.build</p>
+  {% elif q and not hits %}<p>no company matching {{ q }} in this radar</p>{% endif %}
+  <ul class="siglist">{% for h in hits %}<li><a href="/c/{{ h.company_key }}">{{ h.name }}</a> <span class="s-conf">{{ h.group_tag }}, {{ h.company_key }}</span></li>{% endfor %}</ul>
+</section>
+{% endblock %}

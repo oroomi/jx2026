@@ -48,6 +48,7 @@ Named by the official Redstone x A'Pelago brief; levels on the company page are 
 | KTH Innovation Readiness Level, BRL 1-9 | Business Readiness Level labels and evidence-class mapping | https://kthinnovationreadinesslevel.com/wp-content/uploads/sites/9/2018/10/Business-readiness-Level.pdf | public PDF, text saved in data/declared/frameworks/ |
 | Aalto University TRL 1-9 | Technology Readiness Level labels and evidence-class mapping | https://www.aalto.fi/en/services/technology-readiness-level-trl | public page, text saved in data/declared/frameworks/ |
 | Investment Potential dimensions (ten) | Market, Product, Team, Business Model, Competition, Marketing & Distribution, Financials, Tech, Deal Dynamics, Impact | official brief | five have no source here and show "not in public records" |
+| PRH registered notices API v3 | Dated equity events, board changes, capital losses and start-up notices | https://avoindata.prh.fi/opendata-registerednotices-api/v3/ | CC BY 4.0, no key; fetched by radar/adapters/prh_notices.py, cached in data/cache/prh_notices/ |
 
 ## Third-party services
 | Service | Purpose | Account pre-existed? |

@@ -65,11 +65,11 @@ def test_unknown_key_404_escaped(client):
     assert "no company with key" in r.text and 'href="/"' in r.text and 'type="search"' in r.text
 
 
-def test_sticky_bar_n_from_db_and_plain_text_without_radar(client):
+def test_sticky_bar_n_from_db_links_radar(client):
     t = client.get("/c/9000001-1").text
     assert "Radar of 2" in t
-    assert 'href="/radar"' not in t.split('class="co-bar"')[1]
-    assert "opens Saturday" in t
+    assert 'href="/radar"' in t.split('class="co-bar"')[1]
+    assert "opens Saturday" not in t
 
 
 def test_sticky_bar_links_when_radar_route_exists(client):

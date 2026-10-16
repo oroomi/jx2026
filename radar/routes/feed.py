@@ -7,7 +7,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 
-from radar import store, thesis as thesis_mod
+from radar import intake as intake_mod, store, thesis as thesis_mod
 from radar.routes.home import _has_route, templates
 
 router = APIRouter()
@@ -36,11 +36,13 @@ def _view(request: Request, signal_type: str | None):
     types = list(th["feed_signal_types"])
     if signal_type not in types:
         signal_type = None
-    rows, counts, matches = [], None, None
+    rows, counts, matches, intake_rows = [], None, None, []
     if conn is not None:
         try:
             counts = store.feed_counts(conn, th)
             rows = store.feed(conn, th, signal_type=signal_type, limit=ROW_LIMIT)
+            if signal_type is None:  # the third tier is part of the unfiltered feed only
+                intake_rows = intake_mod.tier(conn, th, exclude={r["company_key"] for r in rows})
         finally:
             conn.close()
     for r in rows:
@@ -54,6 +56,7 @@ def _view(request: Request, signal_type: str | None):
         "selected_label": store.TYPE_LABELS.get(signal_type, signal_type) if signal_type else None,
         "rule": store.rule_text(th), "no_db": conn is None, "truncated": total > ROW_LIMIT and signal_type is None,
         "matches": matches, "q": None, "active": "feed", "has_route": _has_route(request),
+        "intake_rows": intake_rows, "intake_rule": intake_mod.rule_text(th),
     }
 
 

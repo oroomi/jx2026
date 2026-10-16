@@ -68,8 +68,37 @@ def _parse(p: Path) -> dict:
         raise ThesisError(f"thesis file {p}: 'countries' must be a non-empty list of two-letter ISO country codes")
     if "country_depth" in data and not isinstance(data["country_depth"], dict):
         raise ThesisError(f"thesis file {p}: 'country_depth' must be a mapping of country code to a depth text")
+    if "intake" in data:
+        _check_intake(p, data["intake"])
     data["_path"] = str(p)
     return data
+
+
+def _check_intake(p: Path, it) -> None:
+    if not isinstance(it, dict):
+        raise ThesisError(f"thesis file {p}: 'intake' must be a mapping")
+    forms = it.get("company_forms")
+    if not (isinstance(forms, list) and forms and all(isinstance(f, dict) and str(f.get("code") or "").strip() for f in forms)):
+        raise ThesisError(f"thesis file {p}: intake.company_forms must be a non-empty list of {{code, note}} mappings")
+    for key in ("code_prefixes", "startup_signals"):
+        v = it.get(key)
+        if not (isinstance(v, list) and v and all(isinstance(x, (str, int)) and str(x).strip() for x in v)):
+            raise ThesisError(f"thesis file {p}: intake.{key} must be a non-empty list")
+    n = it.get("min_signals", 1)
+    if not isinstance(n, int) or isinstance(n, bool) or n < 1:
+        raise ThesisError(f"thesis file {p}: intake.min_signals must be a positive integer")
+
+
+def intake(th: dict) -> dict | None:
+    """The normalised intake section, or None when the thesis defines none. Codes and prefixes are strings."""
+    it = th.get("intake")
+    if not it:
+        return None
+    return {"company_forms": {str(f["code"]).strip(): str(f.get("note") or "") for f in it["company_forms"]},
+            "code_prefixes": [str(x).strip() for x in it["code_prefixes"]],
+            "startup_signals": [str(x).strip() for x in it["startup_signals"]],
+            "min_signals": int(it.get("min_signals", 1)),
+            "thesis_codes": [str(c.get("code")) for c in th.get("industry_codes") or []]}
 
 
 DEFAULT_DEPTH = "EU sources only"

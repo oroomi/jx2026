@@ -1,6 +1,7 @@
 """python3 -m radar.build : run every adapter in radar/adapters (modules with NAME and run(conn, thesis))."""
 from __future__ import annotations
 
+import argparse
 import importlib
 import pkgutil
 import sys
@@ -21,29 +22,49 @@ def discover() -> list:
     return found
 
 
-def build(conn, thesis: dict) -> list[tuple[str, str, str]]:
+def build(conn, thesis: dict, only: list[str] | None = None) -> list[tuple[str, str, str]]:
     rows = []
     for name, mod in discover():
+        if only is not None and name not in only:
+            continue
         if isinstance(mod, Exception):
             rows.append((name, "ERROR", f"import failed: {mod}"))
             continue
         try:
             res = mod.run(conn, thesis)
             conn.commit()
-            rows.append((name, "ok", ", ".join(f"{k}={v}" for k, v in (res or {}).items())))
+            rows.append((name, "ok", ", ".join(f"{k}={v}" for k, v in (res or {}).items() if not isinstance(v, (list, dict)))))
         except Exception as e:
             conn.rollback()
             rows.append((name, "ERROR", f"{type(e).__name__}: {e}"))
     return rows
 
 
-def main() -> int:
-    th = thesis_mod.load()
-    conn = db.connect()
-    rows = build(conn, th)
+def _thesis_arg(value: str | None) -> dict:
+    """--thesis takes a path to a yaml file or a thesis id from thesis.available()."""
+    if not value:
+        return thesis_mod.load()
+    av = thesis_mod.available()
+    if value in av:
+        return thesis_mod.load(av[value])
+    return thesis_mod.load(value)
+
+
+def main(argv: list[str] | None = None) -> int:
+    """argv=None means no options (the default build); the command line passes sys.argv[1:]."""
+    ap = argparse.ArgumentParser(prog="python3 -m radar.build")
+    ap.add_argument("--thesis", help="thesis yaml path or thesis id (default: RADAR_THESIS or config/thesis.yaml)")
+    ap.add_argument("--adapters", help="comma separated adapter names; default is every adapter")
+    args = ap.parse_args(argv or [])
+    th = _thesis_arg(args.thesis)
+    only = [a.strip() for a in args.adapters.split(",") if a.strip()] if args.adapters else None
+    path = thesis_mod.db_path(th)
+    conn = db.connect(path)
+    rows = build(conn, th, only)
     print(f"thesis: {th['id']}")
+    print(f"database: {path}")
     if not rows:
-        print("no adapters found in radar/adapters")
+        print("no adapters ran")
     else:
         w = max(len(r[0]) for r in rows)
         print(f"{'adapter'.ljust(w)}  status  counts")
@@ -55,4 +76,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

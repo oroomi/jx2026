@@ -5,10 +5,34 @@
 <h2>Thesis</h2>
 <p><code>{{ thesis.id }}</code></p>
 <p class="answer">{{ thesis.title }}</p>
-<p class="rule">Everything sector-specific lives in the thesis file. Swap it with the RADAR_THESIS environment variable.</p>
+<p class="rule">Everything sector-specific lives in the thesis file. Switch it in the header, or set the RADAR_THESIS environment variable. Each thesis has its own database.</p>
+<ul>
+  <li>Feed window: {{ window_days }} days</li>
+  <li>Young-company age cut: {% if age_cut is not none %}{{ age_cut }} years{% else %}no data{% endif %}</li>
+</ul>
+<h2>Feed rule</h2>
+<p>{{ feed_rule }}</p>
 <h2>Confidence rule</h2>
 <pre class="rulebox">{% for l in rule_lines %}{{ l }}
 {% endfor %}</pre>
 <h2>Signal types</h2>
 <ul>{% for t in signal_types %}<li><code>{{ t }}</code></li>{% endfor %}</ul>
+<h2>Sources</h2>
+{% if no_db %}<p class="answer">no signals yet for {{ thesis.title }}. Run <code>python3 -m radar.build --thesis {{ thesis._path }}</code></p>{% endif %}
+<div class="srcwrap">
+<table class="srctable">
+  <thead><tr><th scope="col">Adapter</th><th scope="col">Signals</th><th scope="col">Last fetched</th></tr></thead>
+  <tbody>
+  {% for s in sources %}
+  <tr><th scope="row">{{ s.label }} <code>{{ s.name }}</code></th>
+    <td>{% if s.note %}{{ s.note }}{% else %}{{ s.signals }}{% endif %}</td>
+    <td>{{ s.last_fetched or "no data" }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<h2>Declared datasets</h2>
+<ul>{% for f in declared %}<li><code>{{ f }}</code></li>{% else %}<li>no data</li>{% endfor %}</ul>
+<h2>Connector slots</h2>
+<ul>{% for c in connectors %}<li>{{ c }}: connector slot, not connected</li>{% endfor %}</ul>
 {% endblock %}

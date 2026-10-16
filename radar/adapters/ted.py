@@ -58,6 +58,22 @@ def fold(s) -> str:
     return re.sub(r"\s+", " ", _SUFFIX.sub(" ", s)).strip()
 
 
+FORM_TOKENS = {"oy", "oyj", "ab", "abp", "as", "a/s", "aps", "gmbh", "ug", "ag", "kg", "ltd", "limited", "llc", "inc", "sia", "uab", "ou", "oü",
+               "sp", "zoo", "z", "o.o.", "sa", "s.a.", "sl", "bv", "nv", "se", "ky", "ekonomisk", "förening", "kommanditbolag", "mbh", "co", "&"}
+
+
+def looks_like_company(name: str, thesis: dict) -> bool:
+    """False for a bare two or three word name with no legal form and no business word: a sole trader named after a private
+    person. Such winners are skipped (the radar lists companies only)."""
+    from radar.fit import matched_keywords
+    parts = re.sub(r"[,()]", " ", name or "").split()
+    low = {p.casefold().strip(".") for p in parts} | {p.casefold() for p in parts}
+    biz = {str(w).casefold() for w in thesis.get("non_person_words") or []}
+    if len(parts) >= 4 or low & {t.strip(".") for t in FORM_TOKENS} or low & biz or any(c.isdigit() for c in name or ""):
+        return True
+    return bool(matched_keywords(name or "", thesis))
+
+
 def active_countries(thesis: dict) -> tuple[list[str], list[str]]:
     """(countries TED queries, countries skipped because a national contract archive covers them)."""
     use, skip = [], []
@@ -153,7 +169,7 @@ def run(conn: sqlite3.Connection, thesis: dict, client: httpx.Client | None = No
     cache = cache or thesis_mod.data_dir() / "cache" / NAME
     use, skip = active_countries(thesis)
     res = {"companies": 0, "signals": 0, "skipped": 0, "notices": 0, "requests": 0, "blocked": "",
-           "by_country": {}, "skipped_countries": ",".join(skip), "skipped_large": 0}
+           "by_country": {}, "skipped_countries": ",".join(skip), "skipped_large": 0, "skipped_person": 0}
     q = build_query(thesis, use, since)
     if q is None:
         res["note"] = "no ted_cpv in the thesis, or every country is covered by a national contract archive"
@@ -182,6 +198,9 @@ def run(conn: sqlite3.Connection, thesis: dict, client: httpx.Client | None = No
                     if key is None:
                         if w["size"] not in SMALL:
                             res["skipped_large"] += 1
+                            continue
+                        if not looks_like_company(w["name"], thesis):
+                            res["skipped_person"] += 1
                             continue
                         key = slug(cc, w["name"])
                         emit.upsert_company(conn, company_key=key, name=w["name"], source_url=NOTICE_URL.format(p["pub"]),

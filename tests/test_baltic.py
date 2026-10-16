@@ -128,6 +128,13 @@ def test_ted_run_emits_winner_signals_by_country(tmp_path):
     assert again["signals"] == 0 and again["requests"] == 0
 
 
+def test_ted_skips_sole_traders_named_like_a_person(tmp_path):
+    conn = db.connect(":memory:")
+    res = ted.run(conn, {**BALTIC, "countries": ["EE", "LV", "SE", "PL"]}, client=_Client(tedfx.HITS), cache=tmp_path)
+    assert res["skipped_person"] == 1 and "PL" not in res["by_country"]
+    assert ted.looks_like_company("Fixture Laivas SIA", BALTIC) and not ted.looks_like_company("Fixture Person", BALTIC)
+
+
 def test_ted_stops_on_429(tmp_path):
     class Blocked:
         def post(self, url, json=None):

@@ -17,4 +17,5 @@ HITS = [
     hit("3-2026", "2026-02-05", "Sweden - Ships - Fixture hull", ["Fixture Large AB"], ["SWE"], ["large"], 5000000),
     hit("4-2026", "2026-02-06", "Mixed - Fish - Fixture", ["Fixture Fish AB", "Fixture Fish Ltd"], ["SWE"] + ["FIN", "DNK"], ["small", "small"]),
     hit("5-2026", "2026-02-07", "Finland - Harbour - Fixture", ["Fixture Suomi Oy"], ["FIN"], ["small"]),
+    hit("6-2026", "2026-02-08", "Poland - Boats - Fixture", ["Fixture Person"], ["POL"], ["micro"]),
 ]

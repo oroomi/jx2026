@@ -2,6 +2,8 @@
 # Sources are the same adapters; only filters change. Declared lists for investors are reused where relevant.
 id: health_tech_turku
 title: Health technology, Turku region (swap demo)
+sector_label: health-tech
+cohort_label: Cohort radar
 owner_note: Demonstration thesis for transferability. Keywords and codes below are filters, not claims about any company.
 geography: {countries: [FI], feed_window_days: 90, stage_max_company_age_years: 5, city_filter: [TURKU, TURUN, LIETO, RAISIO, NAANTALI]}
 themes:

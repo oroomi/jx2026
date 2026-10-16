@@ -66,7 +66,7 @@ def test_not_found_pages_are_styled_plain_words(dbpath):
     r = c.get("/c/nope-0")
     assert r.status_code == 404 and "No public record found for this name yet." in r.text and "ending in Oy" in r.text
     r = c.get("/search?q=zzzz")
-    assert "No public record found for this name yet." in r.text
+    assert "No public record found for zzzz in" in r.text
     assert c.get("/healthz").json() == {"ok": True}
 
 

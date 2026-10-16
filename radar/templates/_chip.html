@@ -2,7 +2,7 @@
 {% macro chip(ev, show_confidence=False) -%}
 <span class="ev">
   <a class="ev-chip" href="{{ ev.url }}" target="_blank" rel="noopener">
-    <span class="ev-src">{{ ev.label }}</span>
+    <span class="ev-src">{{ "Business Finland funding export (year only), dashboard" if ev.label == "Business Finland export" else ev.label }}</span>
     <time class="ev-date" datetime="{{ (ev.event_date or "")[:4] if ev.date_precision == "year" else ev.event_date }}">{{ ev.date_label or ev.event_date }}</time>
     <span class="ev-fetched">fetched {{ (ev.fetched_at or "")[:10] }}</span>
   </a>

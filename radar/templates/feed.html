@@ -2,7 +2,7 @@
 {% block title %}Early signals | Ocean Opportunity Radar{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/feed.css?v={{ asset_v }}">{% endblock %}
 {% block content %}
-<h1 class="hero">Early signals of blue-economy startups, for fund and accelerator teams.</h1>
+<h1 class="hero">Early signals of {{ thesis.sector_label or "new" }} startups, for fund and accelerator teams.</h1>
 <p class="lede">Every line links to the public record. {% if counts %}Window: {{ counts.window_start }} to {{ counts.window_end }} ({{ counts.window_days }} days), newest first.{% else %}Window: last {{ thesis.geography.feed_window_days }} days.{% endif %}</p>
 
 <form class="search bigsearch" action="/search" method="get" role="search">
@@ -16,7 +16,7 @@
 {% if q is none %}<div class="tiles" role="group" aria-label="Three screens">
   <a class="tile" href="#new-this-quarter"><strong>New this quarter</strong><span>Startups that appeared in public records lately</span></a>
   <a class="tile" href="#q"><strong>Judge one startup</strong><span>Type a name above, then open its page</span></a>
-  <a class="tile" href="/radar"><strong>The Nordic Blue 19</strong><span>Were they visible before they joined?</span></a>
+  <a class="tile" href="/radar"><strong>{{ thesis.cohort_label or "Cohort radar" }}</strong><span>Were they visible before they joined?</span></a>
 </div>{% endif %}
 
 {% if q is not none %}
@@ -27,14 +27,22 @@
     {% for m in matches %}<li><a class="co" href="/c/{{ m.company_key }}">{{ m.name }}</a>{% if m.y_tunnus %} <span class="meta">{{ m.y_tunnus }}</span>{% endif %}</li>{% endfor %}
   </ul>
   {% else %}
-  <p class="answer">No public record found for this name yet. Try the registered company name (ending in Oy).</p>
-  <p class="meta">no company matches '{{ q }}' in this radar</p>
+  <p class="answer">No public record found for {{ q or "this name" }} in {{ countries }}.</p>
+  <ul class="next-steps">
+    <li><strong>Try the registered legal name.</strong> Trade names often differ from the register, for example a name ending in Oy, Ab or Ltd.</li>
+    <li><strong>Switch sector.</strong> {% for tid, t in other_sectors %}<a href="/search?q={{ q | urlencode }}&amp;thesis={{ tid }}">Search '{{ q }}' in {{ t.sector_label or t.title }}</a>{% if not loop.last %}, {% endif %}{% else %}No other sector is configured.{% endfor %}</li>
+    <li><strong>See what appeared recently.</strong> <a href="/">Companies that appeared in public records in the last {{ thesis.geography.feed_window_days }} days</a>.</li>
+  </ul>
   {% endif %}
 </section>
 {% endif %}
 
+{% if q is none %}
 <h2 id="new-this-quarter">New this quarter</h2>
 <div id="feed-rows" class="feed-wrap">
 {% include "feed_rows.html" %}
 </div>
+{% else %}
+<p><a class="btnlink" href="/">Back to the full list of new companies</a></p>
+{% endif %}
 {% endblock %}

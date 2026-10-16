@@ -5,9 +5,8 @@
 <h1>Rules</h1>
 <p class="plain">How the list is built, in full. For the 60-second version, <a href="/how">read this first</a>.</p>
 <h2>Sector</h2>
-<p><code>{{ thesis.id }}</code></p>
 <p class="answer">{{ thesis.title }}</p>
-<p class="rule">Everything sector-specific lives in one sector file. Switch sector in the header.</p>
+<p class="rule">Everything that depends on the sector, such as which industry codes and words count, lives in one sector file. You can switch sector in the header.</p>
 <ul>
   <li>Feed window: {{ window_days }} days</li>
   <li>Young-company age cut: {% if age_cut is not none %}{{ age_cut }} years{% else %}no data{% endif %}</li>
@@ -20,28 +19,33 @@
 {% if counts %}<p>Now: {{ counts.main }} companies in the main list, {{ counts.weak }} weak matches, {{ counts.year_only_not_entry }} year-only Business Finland records not used as entry dates. A company can have more than one reason.</p>
 {% else %}<p><span class="hatch">no data</span> No database for this thesis yet.</p>{% endif %}
 <p>Matching rule: {{ match_rule }} Own text is read only from {{ own_text_sources }}; Business Finland, patent and job records have no stored source text, so they never give an own-text reason. A thesis word in the legal name alone never admits a company to the main list. A legal name shaped like a private person's name followed by Holding, Invest, Capital, Consulting or Tmi is hidden from both lists unless the company has a non-register signal; the feed footer prints how many.</p>
-<p>Limit: industry codes are coarse; a code on the list is a hint, not proof of a blue business.</p>
+<p>Limit: industry codes are coarse; a code on the list is a hint, not proof of a {{ thesis.sector_label or 'matching' }} business.</p>
 <h2>Confidence rule</h2>
-<pre class="rulebox">{% for l in rule_lines %}{{ l | replace("signal_type", "kind of record") | replace("adapter", "source") }}
-{% endfor %}</pre>
+<p>Every line in the list carries a "How sure" word, set by how the company was matched.</p>
+<ul>
+  <li><strong>High:</strong> {{ confidence_rules.high }}</li>
+  <li><strong>Medium:</strong> {{ confidence_rules.medium }}</li>
+  <li><strong>Low:</strong> {{ confidence_rules.low }}</li>
+</ul>
 <h2>Kinds of public record</h2>
-<ul>{% for t in signal_types %}<li><code>{{ t }}</code></li>{% endfor %}</ul>
+<ul>{% for t in kinds %}<li>{{ t }}</li>{% endfor %}</ul>
 <h2>Sources</h2>
-{% if no_db %}<p class="answer">no signals yet for {{ thesis.title }}. Run <code>python3 -m radar.build --thesis {{ thesis._path }}</code></p>{% endif %}
+{% if no_db %}<p class="answer">No data is loaded for {{ thesis.title }} in this build.</p>{% endif %}
+<p>Business Finland publishes its funding decisions only as a dashboard, so our figures come from an export of that dashboard. The export has no link for each row; every Business Finland line links to the public dashboard page, and its date is the year only.</p>
 <div class="srcwrap">
 <table class="srctable">
-  <thead><tr><th scope="col">Source</th><th scope="col">Signals</th><th scope="col">Last fetched</th></tr></thead>
+  <thead><tr><th scope="col">Source</th><th scope="col">What we hold</th><th scope="col">Last fetched</th></tr></thead>
   <tbody>
   {% for s in sources %}
   <tr><th scope="row">{{ s.label }}</th>
-    <td>{% if s.note %}{{ s.note }}{% else %}{{ s.signals }}{% endif %}</td>
+    <td>{{ s.text }}</td>
     <td>{{ s.last_fetched or "no data" }}</td></tr>
   {% endfor %}
   </tbody>
 </table>
 </div>
 <h2>Declared datasets</h2>
-<ul>{% for f in declared %}<li><code>{{ f }}</code></li>{% else %}<li>no data</li>{% endfor %}</ul>
+<ul>{% for f in declared %}<li>{{ f }}</li>{% else %}<li>no data</li>{% endfor %}</ul>
 <h2 id="frameworks">Frameworks</h2>
 <p>Named in the official Redstone x A'Pelago brief. Levels on the company page are evidence-class rules over public records, never a judgement; a class with no signal gives no level.</p>
 <ul>

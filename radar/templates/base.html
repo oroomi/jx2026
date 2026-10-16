@@ -20,7 +20,7 @@
     {% set cur = current_thesis(request) %}
     <nav aria-label="Main">
       <a href="/" {% if active == "feed" %}aria-current="page"{% endif %}>New this quarter</a>
-      <a href="/radar" {% if active == "radar" %}aria-current="page"{% endif %}>The Nordic Blue 19</a>
+      <a href="/radar" {% if active == "radar" %}aria-current="page"{% endif %}>{{ cur.cohort_label or "Cohort radar" }}</a>
       <a href="/backtest" {% if active == "backtest" %}aria-current="page"{% endif %}>Earliness test</a>
       <a href="/method" {% if active == "method" %}aria-current="page"{% endif %}>Rules</a>
     </nav>

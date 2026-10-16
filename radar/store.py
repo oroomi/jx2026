@@ -20,6 +20,7 @@ SOURCE_LABELS = {
     "hilma": "Hilma notice",
     "businessfinland": "Business Finland export",
     "cordis": "CORDIS",
+    "blueinvest": "BlueInvest pipeline",
     "declared": "declared list",
 }
 TYPE_LABELS = {
@@ -203,8 +204,35 @@ def explain(row: dict, others: list, thesis: dict) -> dict:
     return {"reasons": [], "strength": "weak", "why": why}
 
 
+def _date_fields(date_str, precision) -> tuple[str, str]:
+    """(precision, label). A year-only signal never prints a day-level date."""
+    if precision == "year" and date_str:
+        return "year", f"{str(date_str)[:4]} (year only)"
+    return "day", date_str
+
+
+def with_precision(conn, rows):
+    """Add date_precision and date_label to row dicts (and their evidence dict). 'day' when signal_meta has no row or no table."""
+    ids = [r.get("signal_id", r.get("id")) for r in rows]
+    prec: dict = {}
+    ids = [i for i in ids if i is not None]
+    if ids:
+        try:
+            q = ",".join("?" * len(ids))
+            prec = {m[0]: m[1] for m in conn.execute(f"SELECT signal_id, date_precision FROM signal_meta WHERE signal_id IN ({q})", ids)}
+        except sqlite3.OperationalError:
+            prec = {}
+    for r in rows:
+        p, label = _date_fields(r.get("date"), prec.get(r.get("signal_id", r.get("id")), "day"))
+        r["date_precision"], r["date_label"] = p, label
+        if isinstance(r.get("evidence"), dict):
+            r["evidence"].update(date_precision=p, date_label=label)
+    return rows
+
+
 def evidence(row) -> dict:
     r = dict(row)
+    p, dlabel = _date_fields(r.get("date"), r.get("date_precision", "day"))
     adapter = r.get("adapter")
     url = r.get("source_url") or r.get("url")
     label = SOURCE_LABELS.get(adapter)
@@ -215,6 +243,8 @@ def evidence(row) -> dict:
     return {
         "label": label,
         "event_date": r.get("date"),
+        "date_precision": p,
+        "date_label": dlabel,
         "fetched_at": r.get("fetched_at"),
         "url": url,
         "confidence": conf,
@@ -288,7 +318,7 @@ def feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500)
         d.update(explain(d, [o for o in others[key] if o["id"] != best["signal_id"]], thesis))
         out.append(d)
     out.sort(key=lambda d: (d["date"], d["signal_id"]), reverse=True)
-    return out[:limit]
+    return with_precision(conn, out[:limit])
 
 
 def feed_counts(conn, thesis, *, today=None) -> dict:
@@ -353,6 +383,7 @@ def company(conn, key) -> dict | None:
         d["type_label"] = TYPE_LABELS.get(d["signal_type"], d["signal_type"])
         d["evidence"] = evidence(d)
         sigs.append(d)
+    with_precision(conn, sigs)
     by_type: dict[str, int] = {}
     for s in sigs:
         by_type[s["signal_type"]] = by_type.get(s["signal_type"], 0) + 1

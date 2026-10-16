@@ -22,6 +22,9 @@ SOURCE_LABELS = {
     "cordis": "CORDIS",
     "blueinvest": "BlueInvest pipeline",
     "declared": "declared list",
+    "tax_registers": "PRH/YTJ tax registers",
+    "openalex": "OpenAlex",
+    "webarchive": "Internet Archive",
 }
 TYPE_LABELS = {
     "register_entry": "New register entry",
@@ -32,6 +35,13 @@ TYPE_LABELS = {
     "public_contract": "Public contract",
     "job_ad": "Open job ad",
     "site_customer": "Customer on own site",
+    "first_sales": "First sales",
+    "first_hire": "First hire",
+    "sales_ended": "Sales ended",
+    "employer_ended": "Employer register ended",
+    "research_output": "Research output",
+    "website_first_seen": "Website first seen",
+    "website_milestone": "Website milestone",
 }
 # Wording follows the docstring of radar/emit.py.
 CONFIDENCE_RULES = {

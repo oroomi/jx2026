@@ -77,3 +77,26 @@ matching:
 backtest:
   cohort_group: cohort
   entry_event: "entered Nordic Blue 2026 cohort"
+
+# Countries (jx24). `countries` drives every EU-wide adapter (TED, CORDIS, EU grants, BlueInvest) and the feed country column.
+# `country_depth` is printed on /method and above the feed: it says where we hold national-register depth and where only EU sources reach.
+countries: [FI]
+country_depth:
+  FI: registers+contracts+grants
+
+# TED (EU contract award notices): CPV prefixes of marine, port, water and aquaculture work. A prefix matches every code that starts with it.
+# A country whose depth lists "contracts" (a national procurement archive, for example Hilma) is skipped by TED so no award is counted twice.
+ted_cpv:
+  - {prefix: "45241", note: "Harbour construction works"}
+  - {prefix: "45242", note: "Hydraulic engineering works for leisure and marine facilities"}
+  - {prefix: "45243", note: "Coastal-defence works"}
+  - {prefix: "45244", note: "Marine construction works"}
+  - {prefix: "45248", note: "Hydro-mechanical structures"}
+  - {prefix: "34510", note: "Ships"}
+  - {prefix: "34520", note: "Boats"}
+  - {prefix: "6372", note: "Water transport services"}
+  - {prefix: "65100", note: "Water distribution and related services"}
+  - {prefix: "03311", note: "Fish"}
+  - {prefix: "77700", note: "Services incidental to fishing"}
+  - {prefix: "98360", note: "Marine services"}
+  - {prefix: "98361", note: "Aquatic-related services"}

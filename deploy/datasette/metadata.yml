@@ -1,0 +1,160 @@
+# Datasette metadata for the read-only database browser (start command in deploy/datasette/README.md).
+# Companies only: every ecosystem table or view that holds a person's name, an email address or a LinkedIn link is denied
+# (allow: false, hidden), and its company columns are reachable only through the canned queries below. Arbitrary SQL is off.
+title: "Ocean Opportunity Radar: database browser (read-only)"
+description_html: >-
+  <p>The stores behind <a href="https://jx.hankintaviikko.fi/">jx.hankintaviikko.fi</a>, opened read-only. Two radar stores
+  (one per thesis, rebuilt by <code>python3 -m radar.build</code> from public sources) and the declared ecosystem research
+  dataset. Every signal row carries a <code>source_url</code> a human can open. Arbitrary SQL is switched off; tables and
+  columns that name private individuals are not served.</p>
+license: "Public sources as listed per row; declared research as described"
+source: "Ocean Opportunity Radar, JunctionX Turku 2026 (team Old Hackers)"
+source_url: "https://jx.hankintaviikko.fi/method"
+allow_sql: false
+
+databases:
+  radar_redstone_apelago_blue:
+    title: "Radar store: blue economy, Finland and Nordics (thesis redstone_apelago_blue)"
+    description: >-
+      Built by python3 -m radar.build with config/thesis.yaml. Public sources: PRH/YTJ register and tax registers, Hilma and
+      TED notices, the Business Finland funding export, CORDIS, BlueInvest pipeline, OpenAlex, Internet Archive; plus the
+      declared cohort and portfolio list and the declared ecosystem dataset (eco_* tables, labelled declared research).
+      Written only through radar/emit.py. Schema: radar/schema/*.sql.
+    source: "radar adapters, radar/adapters/*.py"
+    source_url: "https://jx.hankintaviikko.fi/method"
+    tables: &radar_tables
+      companies:
+        description: "One row per company. company_key is the Y-tunnus when known. NULL means not in public records, never a guess."
+        sort: name
+        columns:
+          group_tag: "cohort | portfolio | feed | ecosystem"
+          founded: "ISO date from a register, NULL when unknown"
+          source_url: "the page a human opens to check the row"
+      signals:
+        description: "One public event per row: company, signal_type, event date, source_url, confidence (rule in radar/emit.py)."
+        sort_desc: date
+        columns:
+          date: "the date the event happened, not the fetch date"
+          confidence: "high = source names the company and states the date; medium = exact name or domain; low = keyword or code only"
+          detail: "one sentence of facts written by the adapter"
+          amount_eur: "only when the source states an amount"
+      signal_meta:
+        description: "Extra facts per signal: date precision (day or year), Business Finland funding types and rows aggregated."
+      signal_text:
+        description: "The source's own words for a signal (project title, objective), kept apart from our detail text."
+      blueinvest_profiles:
+        description: "BlueInvest Project Pipeline profiles as printed on the public pages (TRL only when the page states one)."
+      company_traction:
+        description: "First-hire facts derived from the employer register by radar/adapters/tax_registers.py."
+      eco_entity:
+        description: "Declared ecosystem dataset: capital sources and buyers (organisations), with the dataset's status and confidence."
+      eco_match:
+        description: "Declared ecosystem dataset: scored company-to-target pairs; why is the dataset's reason string, verbatim."
+      eco_readiness:
+        description: "Declared ecosystem dataset: readiness reading per company, shown beside the rule levels, never replacing them."
+      eco_meta:
+        description: "Declared ecosystem dataset: build date, label and counts as imported."
+    queries: &radar_queries
+      signal_counts:
+        title: "Signals per type: count, first and last event date"
+        sql: |-
+          SELECT signal_type, COUNT(*) AS signals, COUNT(DISTINCT company_key) AS companies, MIN(date) AS first_date, MAX(date) AS last_date
+          FROM signals GROUP BY signal_type ORDER BY signals DESC
+      company_signals:
+        title: "Every signal of one company (parameter: company_key, for example 2902007-2)"
+        sql: |-
+          SELECT s.date, s.signal_type, s.confidence, s.detail, s.amount_eur, s.source_url, s.adapter
+          FROM signals s WHERE s.company_key = :company_key ORDER BY s.date DESC, s.id DESC
+
+  radar_health_tech_turku:
+    title: "Radar store: health tech, Turku (thesis health_tech_turku)"
+    description: >-
+      The transferability demo: the same code built with config/thesis_health_turku.yaml. Same schema and sources as the
+      blue-economy store; only the thesis file differs.
+    source: "radar adapters, radar/adapters/*.py"
+    source_url: "https://jx.hankintaviikko.fi/method"
+    tables: *radar_tables
+    queries: *radar_queries
+
+  blue_economy_fi:
+    title: "Declared ecosystem dataset (team research, 16 Oct 2026)"
+    description: >-
+      Research output built on the team VPS on 16 Oct 2026 and declared in DISCLOSURE.md: organisations (startups, capital
+      sources, buyers), scored matches with a reason string, readiness and impact readings, dated events. Declared research,
+      not live public records: a low-confidence row is a lead, not a fact. Schema: data/declared/ecosystem/SCHEMA.md.
+      Tables with people in them are not served; use the queries below for their company columns.
+    source: "data/declared/ecosystem/blue_economy_fi.sqlite (API_SOURCES.md lists the sources)"
+    source_url: "https://jx.hankintaviikko.fi/method"
+    tables:
+      # Denied: named individuals, emails or LinkedIn links in at least one column.
+      person: {hidden: true, allow: false}               # 87 named individuals: name, role, linkedin
+      entity: {hidden: true, allow: false}               # linkedin_url, raw_json (key people, emails), description, inv_how_to_apply (emails)
+      readiness: {hidden: true, allow: false}            # team (names, LinkedIn), board (names), sources (LinkedIn profiles)
+      cohort_member: {hidden: true, allow: false}        # description names founders
+      event: {hidden: true, allow: false}                # summary and counterparty name individuals
+      entity_investor: {hidden: true, allow: false}      # investor_name includes private angel investors
+      impact: {hidden: true, allow: false}               # sources include a LinkedIn profile; free-text claims
+      source: {hidden: true, allow: false}               # url includes LinkedIn profiles (served filtered by a query below)
+      github_repo: {hidden: true, allow: false}          # owner and url can be a personal account
+      prh: {hidden: true, allow: false}                  # raw_json register record (empty today)
+      public_funding: {hidden: true, allow: false}       # beneficiary_name can be a sole trader (empty today)
+      enrich_log: {hidden: true, allow: false}           # free-text log (empty today)
+      v_startups: {hidden: true, allow: false}           # SELECT e.* of entity
+      v_investors: {hidden: true, allow: false}          # SELECT e.* of entity
+      v_demand: {hidden: true, allow: false}             # SELECT e.* of entity
+      # Served: organisation names, codes, scores and job-ad links only.
+      match:
+        description: "Scored startup-to-target pairs; why is the dataset's reason string (caps = shared capability codes, kw = shared keywords)."
+        sort_desc: score
+      capability: {description: "Capability codes C1 to C10 and their labels."}
+      entity_capability: {description: "Capability codes per organisation id."}
+      entity_keyword: {description: "Keywords per organisation id."}
+      entity_segment: {description: "Segments per organisation id."}
+      investor_portfolio: {description: "Portfolio companies an investor lists (company names as printed)."}
+      job_signal: {description: "Job-ad pages per organisation (role text and careers link)."}
+      v_capability_counts: {description: "Organisations per capability code and side."}
+    queries:
+      organisations:
+        title: "Organisations: public columns only (no people, no LinkedIn, no free text)"
+        sql: |-
+          SELECT id, name, entity_type, side, business_id, country, city, region, founded,
+                 CASE WHEN website LIKE '%linkedin.com%' THEN NULL ELSE website END AS website,
+                 size_employees, stage, funding_total_eur, last_round_type, last_round_amount_eur, last_round_date,
+                 inv_stages, inv_ticket_eur, inv_geography, inv_fund_size_eur, status, confidence, last_verified,
+                 (SELECT group_concat(code, ', ') FROM entity_capability c WHERE c.entity_id = entity.id) AS capabilities
+          FROM entity ORDER BY side, name
+      cohort_roster:
+        title: "Nordic Blue 2026 cohort and Redstone Blue portfolio roster (no description column)"
+        sql: |-
+          SELECT entity_id, name, cohort, country, city, business_id,
+                 CASE WHEN website LIKE '%linkedin.com%' THEN NULL ELSE website END AS website,
+                 CASE WHEN source_url LIKE '%linkedin.com%' THEN NULL ELSE source_url END AS source_url
+          FROM cohort_member ORDER BY cohort, name
+      dated_events:
+        title: "Dated events: date, company, type, amount, sources (summary and counterparty withheld: they name individuals)"
+        sql: |-
+          SELECT id, date, date_precision, company, entity_id, event_type, amount_eur, cohort, confidence,
+                 CASE WHEN sources LIKE '%linkedin.com%' THEN NULL ELSE sources END AS sources
+          FROM event ORDER BY date DESC, id
+      readiness_levels:
+        title: "Readiness readings: levels and scores only (team, board and evidence text withheld)"
+        sql: |-
+          SELECT entity_id, name, trl, stage, oi_score, oi_grade, oir_score, br_score, ir_score, sustainability_class,
+                 confidence, last_verified
+          FROM readiness ORDER BY name
+      impact_scores:
+        title: "Impact readings: themes, SDG 14 targets, grade and score"
+        sql: |-
+          SELECT entity_id, name, impact_themes, sdg14_targets, other_sdgs, eu_taxonomy_objectives, evidence_grade,
+                 certifications_labels, baltic_sea_relevance, impact_score, confidence, last_verified
+          FROM impact ORDER BY impact_score DESC, name
+      public_sources:
+        title: "Source links per organisation (LinkedIn links withheld)"
+        sql: |-
+          SELECT s.entity_id, e.name, s.url FROM source s LEFT JOIN entity e ON e.id = s.entity_id
+          WHERE s.url NOT LIKE '%linkedin.com%' ORDER BY s.entity_id, s.id
+      matches_for_company:
+        title: "Scored matches for one company (parameter: company, part of the name, for example Kelluu)"
+        sql: |-
+          SELECT supply_name, target_name, target_side, target_type, score, why FROM match
+          WHERE supply_name LIKE '%' || :company || '%' ORDER BY score DESC, target_name

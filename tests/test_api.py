@@ -131,3 +131,41 @@ def test_each_endpoint_answers_under_500_ms(client):
             assert client.get(u).status_code == 200
             best = min(best, time.perf_counter() - t)
         assert best < 0.5, f"{u} took {best:.3f} s"
+
+
+# ---- database browser config (deploy/datasette/metadata.yml) --------------------------------------------------------
+ECO = ROOT / "data" / "declared" / "ecosystem" / "blue_economy_fi.sqlite"
+META = ROOT / "deploy" / "datasette" / "metadata.yml"
+
+
+def _person_marks(conn) -> list:
+    import re
+    names = [r[0] for r in conn.execute("SELECT name FROM person") if r[0] and len(r[0]) > 5]
+    email = re.compile(r"[\w.+-]+@[\w-]+\.[a-z]{2,}", re.I)
+    return [lambda v, n=n: n in v for n in names] + [lambda v: "linkedin.com" in v.casefold(), lambda v: bool(email.search(v))]
+
+
+def _leaks(conn, sql: str, marks, params=()) -> bool:
+    return any(isinstance(v, str) and any(m(v) for m in marks) for row in conn.execute(sql, params) for v in row)
+
+
+@pytest.mark.skipif(not ECO.is_file(), reason="ecosystem dataset not in this checkout")
+def test_datasette_hides_every_table_that_names_a_person():
+    import sqlite3
+
+    import yaml
+    meta = yaml.safe_load(META.read_text(encoding="utf-8"))
+    assert meta["allow_sql"] is False
+    tables = meta["databases"]["blue_economy_fi"]["tables"]
+    assert tables["person"]["allow"] is False and tables["person"]["hidden"] is True
+    conn = sqlite3.connect(f"file:{ECO}?mode=ro", uri=True)
+    marks = _person_marks(conn)
+    for (t,) in conn.execute("SELECT name FROM sqlite_master WHERE type IN ('table','view') AND name NOT LIKE 'sqlite_%'").fetchall():
+        if _leaks(conn, f'SELECT * FROM "{t}"', marks):
+            assert (tables.get(t) or {}).get("allow") is False, f"{t} holds a person's name, an email or a LinkedIn link but is served"
+    for name, q in meta["databases"]["blue_economy_fi"]["queries"].items():
+        assert not _leaks(conn, q["sql"], marks, {"company": "Oy"}), f"canned query {name} returns a person's name, email or LinkedIn link"
+    for f in sorted(SNAP.glob("radar_*.sqlite")):
+        radar = sqlite3.connect(f"file:{f}?mode=ro", uri=True)
+        for (t,) in radar.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall():
+            assert not _leaks(radar, f'SELECT * FROM "{t}"', marks), f"{f.name}:{t} holds a person's name, email or LinkedIn link"

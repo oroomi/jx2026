@@ -33,7 +33,7 @@ def build(conn, thesis: dict, only: list[str] | None = None) -> list[tuple[str, 
         try:
             res = mod.run(conn, thesis)
             conn.commit()
-            rows.append((name, "ok", ", ".join(f"{k}={v}" for k, v in (res or {}).items())))
+            rows.append((name, "ok", ", ".join(f"{k}={v}" for k, v in (res or {}).items() if not isinstance(v, (list, dict)))))
         except Exception as e:
             conn.rollback()
             rows.append((name, "ERROR", f"{type(e).__name__}: {e}"))

@@ -46,6 +46,10 @@ def feed_rows(conn, th: dict) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def _has_route(request: Request):
+    return lambda path: any(getattr(r, "path", None) == path for r in request.app.routes)
+
+
 @router.get("/")
 def home(request: Request):
     th = thesis_mod.load()
@@ -54,4 +58,4 @@ def home(request: Request):
         rows = feed_rows(conn, th)
     finally:
         conn.close()
-    return templates.TemplateResponse(request, "home.html", {"thesis": th, "rows": rows, "days": th["geography"]["feed_window_days"], "active": "feed"})
+    return templates.TemplateResponse(request, "home.html", {"thesis": th, "rows": rows, "days": th["geography"]["feed_window_days"], "active": "feed", "has_route": _has_route(request)})

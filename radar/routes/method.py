@@ -6,7 +6,7 @@ import inspect
 from fastapi import APIRouter, Request
 
 from radar import emit, thesis as thesis_mod
-from radar.routes.home import templates
+from radar.routes.home import _has_route, templates
 
 router = APIRouter()
 
@@ -15,4 +15,4 @@ router = APIRouter()
 def method(request: Request):
     th = thesis_mod.load()
     rule = [ln.strip() for ln in inspect.cleandoc(emit.__doc__).splitlines()]
-    return templates.TemplateResponse(request, "method.html", {"thesis": th, "rule_lines": rule, "signal_types": emit.SIGNAL_TYPES, "active": "method"})
+    return templates.TemplateResponse(request, "method.html", {"thesis": th, "rule_lines": rule, "signal_types": emit.SIGNAL_TYPES, "active": "method", "has_route": _has_route(request)})

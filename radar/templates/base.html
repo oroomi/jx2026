@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Ocean Opportunity Radar{% endblock %}</title>
+<script>try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}</script>
+<link rel="preload" href="/static/fonts/newsreader-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/app.css?v={{ asset_v }}">
+<script src="/static/vendor/htmx.min.js" defer></script>
+<link rel="stylesheet" href="/static/chip.css?v={{ asset_v }}">
+<script src="/static/theme.js?v={{ asset_v }}" defer></script>
+{% block head %}{% endblock %}
+</head>
+<body>
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="/">Ocean Opportunity Radar</a>
+    <nav aria-label="Main">
+      <a href="/" {% if active == "feed" %}aria-current="page"{% endif %}>Feed</a>
+      {% if has_route("/radar") %}<a href="/radar" {% if active == "radar" %}aria-current="page"{% endif %}>Radar</a>{% else %}<span class="soon" title="Lands with the radar task">Radar</span>{% endif %}
+      <a href="/method" {% if active == "method" %}aria-current="page"{% endif %}>Method</a>
+    </nav>
+    <button id="theme-toggle" type="button" aria-label="Switch theme">Theme</button>
+  </div>
+</header>
+<main class="wrap">
+{% block content %}{% endblock %}
+</main>
+<footer class="wrap foot">
+  <span>{{ build_line }}</span>
+  <span>Public records only. Companies only.</span>
+</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

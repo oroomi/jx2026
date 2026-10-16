@@ -5,7 +5,7 @@ import re
 
 from fastapi import APIRouter, Request
 
-from radar import fit as fit_mod, store
+from radar import fit as fit_mod, lifeline, store
 from radar.routes.home import _has_route, templates
 
 try:  # built Saturday on another branch; not wired until its signatures are read
@@ -90,6 +90,7 @@ def company_page(request: Request, company_key: str):
                          message=f"no company with key {company_key} in this radar", hits=store.search(conn, company_key, 5))
         c, sigs = data["company"], data["signals"]
         n = store.cohort_count(conn)
+        speed = lifeline.speed(conn, company_key, c.get("founded"))
     finally:
         conn.close()
     reasons = fit_mod.fit(c, sigs, thesis)
@@ -99,7 +100,7 @@ def company_page(request: Request, company_key: str):
                  readiness=readiness_rows(thesis, sigs), sources=sources(c, sigs), connectors=CONNECTORS,
                  cohort_n=n, radar_exists=_has_route(request)("/radar"),
                  matching_ready=matching_mod is not None, nextstep_ready=nextstep_mod is not None,
-                 type_labels=store.TYPE_LABELS)
+                 type_labels=store.TYPE_LABELS, lifeline=lifeline.build(c, sigs), speed=speed, min_sample=lifeline.MIN_SAMPLE)
 
 
 @router.get("/company-search")

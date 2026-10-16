@@ -57,3 +57,17 @@ nav .soon{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;
 .srctable{border-collapse:collapse;width:100%;font-size:.875rem}
 .srctable th,.srctable td{overflow-wrap:anywhere;text-align:left;padding:8px 10px;border-bottom:1px solid var(--hairline);vertical-align:top}
 .srctable td:last-child{white-space:nowrap;overflow-wrap:normal}
+
+/* Company life-line (jx26): one dated axis, four stage lanes, every dot a link to its source */
+.lifeline .ll-axis{color:var(--muted);font-size:.875rem;margin:0 0 8px}
+.ll-lane{display:grid;grid-template-columns:7.5rem 1fr;align-items:center;gap:12px;min-height:44px;border-top:1px solid var(--hairline)}
+.ll-name{font-size:.875rem;color:var(--muted)}
+.ll-track{position:relative;height:44px;margin-right:10px}
+.ll-track::before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px solid var(--hairline)}
+.ll-dot{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:var(--accent);border:2px solid var(--bg);box-sizing:content-box}
+.ll-dot::after{content:"";position:absolute;inset:-15px}
+.ll-neg{background:transparent;border:2px solid var(--muted);width:10px;height:10px;margin:-7px 0 0 -7px}
+.ll-none{position:absolute;left:0;top:50%;transform:translateY(-50%);font-size:.875rem}
+.ll-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ll-speed{margin:12px 0 0}
+@media (max-width:480px){.ll-lane{grid-template-columns:5.5rem 1fr;gap:8px}}

@@ -20,6 +20,13 @@ SIGNAL_TYPES = (
     "public_contract",     # public contract awarded (Hilma)
     "job_ad",              # open job posting (Finnish open-jobs API)
     "site_customer",       # customer or partner named on the company's own site
+    "first_sales",         # earliest VAT-liability or prepayment register entry (tax_registers)
+    "first_hire",          # employer register entry: first salary could be paid (tax_registers)
+    "sales_ended",         # VAT-liability and prepayment entries all ended (negative)
+    "employer_ended",      # employer register entry ended (negative)
+    "research_output",     # OpenAlex work whose author affiliation names the company
+    "website_first_seen",  # first 200 capture of the company website in the web archive
+    "website_milestone",   # first archived capture of a customers, careers or pricing page
 )
 CONFIDENCE = ("high", "medium", "low")
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")

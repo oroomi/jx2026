@@ -37,6 +37,9 @@ Declared datasets are copied unchanged into `data/declared/` with their `source_
 | CORDIS Horizon Europe and H2020 bulk CSV (fetched by radar/adapters/cordis.py) | live | https://cordis.europa.eu/data/ | EU open data, CC BY 4.0 | fetch date stored |
 | Business Finland funding decisions, manual Excel export from the public dashboard (data/declared/businessfinland.xlsx, when present) | export | https://tietopankki.businessfinland.fi | public dashboard export | export date in data/declared/README.md |
 | EIC Accelerator call date and BlueInvest pages | 1 official date | EC topic JSON, blueinvest-community.converve.io | public | 2026-10-16 |
+| PRH/YTJ registeredEntries: VAT liability, prepayment and employer register dates (radar/adapters/tax_registers.py, same API as above, cached) | live | https://avoindata.prh.fi/opendata-ytj-api/v3 and https://tietopalvelu.ytj.fi | CC BY 4.0, attribution to PRH | fetch date stored per row |
+| OpenAlex works by affiliation string (radar/adapters/openalex.py, cohort, portfolio and ecosystem companies only) | live | https://api.openalex.org/works | CC0 | fetch date stored per row |
+| Internet Archive Wayback CDX captures of company websites (radar/adapters/webarchive.py) | live | https://web.archive.org/cdx/search/cdx | public archive index, links to captures only | fetch date stored per row |
 
 Not connected, shown only as "connector slot": LinkedIn, Dealroom, Crunchbase, PitchBook, Tracxn. Nothing from them is in this repo.
 

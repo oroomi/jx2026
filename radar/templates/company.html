@@ -28,6 +28,30 @@
   </dl>
 </header>
 
+<section id="lifeline" class="q lifeline" aria-labelledby="ll-h">
+  <h2 id="ll-h">Life-line</h2>
+  {% if lifeline %}
+  <p class="ll-axis"><time>{{ lifeline.start }}</time> to <time>{{ lifeline.end }}</time>{% if lifeline.founded_left is not none %}, founded {{ c.founded }}{% endif %}</p>
+  <div class="ll-lanes">
+  {% for lane in lifeline.lanes %}
+    <div class="ll-lane"><span class="ll-name">{{ lane.label }}</span>
+      <div class="ll-track">
+      {% for d in lane.dots %}<a class="ll-dot{% if d.negative %} ll-neg{% endif %}" style="left:{{ d.left }}%" href="{{ d.url }}" target="_blank" rel="noopener" title="{{ d.title }}"><span class="ll-sr">{{ d.title }}</span></a>{% endfor %}
+      {% if not lane.dots %}<span class="ll-none">{{ missing("no public evidence") }}</span>{% endif %}
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+  {% else %}<p>{{ missing("no public evidence") }} No dated events for this company.</p>{% endif %}
+  <p class="ll-speed">
+  {% if speed.months is not none %}First salary paid {{ speed.months }} month{{ "s" if speed.months != 1 }} after founding;
+  {% else %}First salary: {{ missing("no employer-register entry in public records") }};
+  {% endif %}
+  {% if not speed.year %}median for companies founded in the same year: {{ missing("founding year not in public records") }}
+  {% elif speed.median is not none %}median for Finnish companies founded in {{ speed.year }} in our sample: {{ "%g"|format(speed.median) }} months (sample size {{ speed.sample }}).
+  {% else %}median for Finnish companies founded in {{ speed.year }} in our sample: {{ missing("not shown, sample size " ~ speed.sample ~ " is under " ~ min_sample) }}{% endif %}</p>
+</section>
+
 <section id="q1" class="q q-fit">
   <h2><span class="num">01</span> Who is most promising</h2>
   {% if reasons %}

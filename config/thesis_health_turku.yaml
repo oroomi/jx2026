@@ -18,7 +18,7 @@ name_keywords:
   fi: [terveys, lääke, hoiva, diagnost, bio, geeni, kuntoutus]
   sv: [hälsa, läkemedel, vård, bio]
   en: [health, medical, medtech, diagnostic, biotech, bio, pharma, clinical, care, therapy]
-feed_signal_types: [register_entry, bf_funding, eu_project, patent, public_contract, job_ad]
+feed_signal_types: [register_entry, bf_funding, eu_project, patent, public_contract, job_ad, first_sales, first_hire]
 hilma_cpv_divisions: ["33", "85", "73"]
 hilma_keywords: [terveys, lääke, laboratorio, diagnost, potilas, hoiva]
 readiness:

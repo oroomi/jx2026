@@ -659,6 +659,81 @@ def emit_events(conn: sqlite3.Connection, run_id: str, company: dict, kept: list
     return stats
 
 
+# ---------------------------------------------------------------- read side: the company page block
+
+REASON_TEXT = {
+    "source_not_allowed": "source behind a login or a paywall, not used",
+    "date_in_future": "the proposed date is in the future",
+    "fetch_failed": "the page could not be read",
+    "company_not_on_page": "the page does not name the company",
+    "date_not_on_page": "the page does not print the date",
+    "name_and_date_not_on_page": "the page names neither the company nor the date",
+    "refetch_failed": "the page could not be read again",
+    "quote_not_on_page": "the quote is not on the page word for word",
+    "company_not_near_quote": "the company is not named next to the quote",
+    "type_not_in_quote": "the quote does not state an event of that type",
+    "nomination_not_award": "a finalist or nomination place, not a win",
+    "year_not_near_quote": "the year is not printed next to the quote",
+    "no_quote": "no quote to check",
+    "type_not_emittable": "type not emittable",
+}
+_PREC_LABEL = {"day": lambda d: d[:10], "month": lambda d: d[:7], "year": lambda d: f"{d[:4]} (year only)"}
+
+
+def _reason_text(reason: str | None) -> str:
+    code = (reason or "").split(":")[0].strip()
+    return REASON_TEXT.get(code, code.replace("_", " ") or "no reason logged")
+
+
+def page_view(conn: sqlite3.Connection, company_key: str) -> dict | None:
+    """The latest stitcher run for one company, as the company page shows it: the step counts, what was dropped and why,
+    and each event that passed both checks. None when the company has no run (or the store has no stitch_log)."""
+    from radar import store
+    try:
+        r = conn.execute("SELECT run_id FROM stitch_log WHERE company_key=? AND run_id<>'print-prompt' ORDER BY run_id DESC LIMIT 1",
+                         (company_key,)).fetchone()
+    except sqlite3.OperationalError:
+        return None
+    if r is None:
+        return None
+    run_id = r[0]
+    rows = [dict(x) for x in conn.execute("SELECT * FROM stitch_log WHERE run_id=? AND company_key=? ORDER BY id", (run_id, company_key))]
+    by = lambda step, *outcomes: [x for x in rows if x["step"] == step and x["outcome"] in outcomes]  # noqa: E731
+    rechecked = bool(by("verify", "confirmed", "refuted"))
+    final = by("verify", "confirmed") if rechecked else by("verify", "kept")
+    emit_of = {(x["source_url"], x["date"], x["signal_type"]): x["outcome"] for x in by("emit", "emitted", "duplicate", "not_emitted")}
+    events = []
+    for x in final:
+        unmapped = x["signal_type"] not in EMITTABLE
+        out = emit_of.get((x["source_url"], x["date"], x["signal_type"]))
+        prec = x["date_precision"] if x["date_precision"] in _PREC_LABEL else "day"
+        events.append({
+            "date": stored_date(x["date"], prec), "date_label": _PREC_LABEL[prec](x["date"]), "date_precision": prec,
+            "type_label": (f"{(x['suggested_type'] or 'unlabelled').replace('_', ' ')} (not a radar signal type)" if unmapped
+                           else store.TYPE_LABELS.get(x["signal_type"], x["signal_type"])),
+            "quote": " ".join((x["quote"] or "").split()[:MAX_QUOTE_WORDS]) or None,
+            "source_url": x["source_url"], "host": (urlparse(x["source_url"]).hostname or "").removeprefix("www."),
+            "public_since": x["public_since"], "archive_url": x["archive_url"], "confidence": x["confidence"],
+            "signal": "counted as a signal" if out in ("emitted", "duplicate") else "kept in the log only" if out == "not_emitted" else None,
+        })
+    events.sort(key=lambda e: (e["date"], e["source_url"]))
+    drops = []
+    for x in by("verify", "dropped", "refuted"):
+        drops.append({"pass": "second check" if x["outcome"] == "refuted" else "first check", "why": _reason_text(x["reason"]),
+                      "source_url": x["source_url"], "host": (urlparse(x["source_url"] or "").hostname or "").removeprefix("www.")})
+    fetched = {x["source_url"] for x in by("verify", "kept", "dropped")
+               if not (x["outcome"] == "dropped" and (x["reason"] or "").split(":")[0] in ("source_not_allowed", "date_in_future"))}
+    return {
+        "run_id": run_id, "run_date": run_id[:10],
+        "queries": [x["query"] for x in by("search", "query")], "llm_queries": [x["query"] for x in by("search", "llm_query")],
+        "read_failed": bool(by("read", "read_failed")),
+        "proposed": len(by("read", "proposed")), "rejected": len(by("read", "rejected")), "pages_read": len(fetched),
+        "kept": len(by("verify", "kept")), "dropped": len(by("verify", "dropped")),
+        "rechecked": rechecked, "confirmed": len(by("verify", "confirmed")), "refuted": len(by("verify", "refuted")),
+        "drops": drops, "events": events,
+    }
+
+
 # ---------------------------------------------------------------- orchestration and report
 
 def stitch_company(conn: sqlite3.Connection, company_key: str, *, run_id: str | None = None, runner=claude_runner,

@@ -1,0 +1,16 @@
+/* Company page: the AI stitcher block (company_stitch.html). Tokens from app.css only. */
+.st-steps{margin:16px 0 0;padding-left:1.25rem}
+.st-steps li{padding:4px 0}
+.st-n{font-weight:600;font-variant-numeric:tabular-nums}
+.st-steps details{margin-top:4px}
+.st-queries{margin:6px 0 0;padding-left:1rem;font-size:.8125rem;color:var(--muted);overflow-wrap:anywhere}
+.st-by{color:var(--muted);font-size:.8125rem}
+.st-drops{margin:12px 0 0;font-size:.875rem}
+.st-drops ul{margin:6px 0 0;padding-left:1rem}
+.st-drops li{padding:4px 0;overflow-wrap:anywhere}
+.st-events{list-style:none;padding:0;margin:16px 0 0}
+.st-events li{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;padding:10px 0;border-bottom:1px solid var(--hairline)}
+.st-type{font-weight:600}
+.st-events time{font-variant-numeric:tabular-nums}
+.st-quote{flex:1 1 100%;font-family:var(--serif);font-style:italic}
+.st-meta{flex:1 1 100%;display:flex;flex-wrap:wrap;gap:4px 12px;color:var(--muted);font-size:.8125rem;overflow-wrap:anywhere}

@@ -257,3 +257,48 @@ def test_recheck_run_over_an_older_run_logs_under_that_run(conn):
     assert res == {"company": KELLUU, "kept": 5, "confirmed": 4}
     assert stitcher.report(conn, "t1")["refuted"] == {"refetch_failed": 1}
     assert stitcher.recheck_run(conn, "t1", KELLUU, refetch=gone)["skipped"] == "already rechecked"
+
+
+# ---- company page block -----------------------------------------------------------------------------------------------
+def _page(path, monkeypatch, key=KELLUU):
+    from fastapi.testclient import TestClient
+    monkeypatch.setenv("RADAR_DB", str(path))
+    import app
+    return TestClient(app.app).get(f"/c/{key}")
+
+
+def test_company_page_shows_the_checked_run(conn, tmp_path, monkeypatch):
+    def refetch(url):  # the award page changed after the first read: refuted on the second check
+        return "Moved. Kelluu Oy, 2022." if "award" in url else fake_fetch(url)
+    stitcher.stitch_company(conn, KELLUU, run_id="2026-10-17T01:00:00Z", runner=lambda p: json.dumps(LLM), fetch=fake_fetch,
+                            capture=fake_capture, refetch=refetch, today="2026-10-16")
+    path = conn.execute("PRAGMA database_list").fetchone()[2]
+    r = _page(path, monkeypatch)
+    assert r.status_code == 200
+    t = r.text
+    assert "Found by the AI stitcher, checked by code" in t
+    block = t.split('id="stitch"')[1].split("</section>")[0]
+    assert "2026-10-17" in block and "pages read by code" in block
+    assert "Kelluu Oy (2902007-2) received Business Finland funding for airship trials." in block
+    assert "public since" in block and "2021-05-20" in block and "web.archive.org" in block
+    assert "not in the Internet Archive" in block
+    assert "2020 (year only)" in block
+    assert "partnership (not a radar signal type)" in block and "kept in the log only" in block
+    assert "the quote is not on the page word for word" in block and "the page does not name the company" in block
+    assert "The award went to Kelluu Oy" not in block  # refuted: never shown as a fact
+    assert "won a contract" not in block  # dropped claims show the reason only
+    assert "Jane" not in t and "Doe" not in t
+    for q in block.split('<q class="st-quote">')[1:]:
+        assert len(q.split("</q>")[0].split()) <= stitcher.MAX_QUOTE_WORDS
+
+
+def test_company_page_without_a_run_shows_nothing(conn, monkeypatch):
+    path = conn.execute("PRAGMA database_list").fetchone()[2]
+    t = _page(path, monkeypatch).text
+    assert "AI stitcher" not in t and 'id="stitch"' not in t
+
+
+def test_page_view_without_stitch_log_table(tmp_path):
+    import sqlite3
+    c = sqlite3.connect(tmp_path / "bare.sqlite")
+    assert stitcher.page_view(c, KELLUU) is None

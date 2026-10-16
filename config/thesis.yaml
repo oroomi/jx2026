@@ -52,7 +52,10 @@ keyword_stop_words: [have, blueprint, blueprints, biography, aaltonen, aaltola, 
 non_person_words: [infra, design, partners, group, solutions, technologies, systems, finland, nordic, software, energy, ventures, properties, real, estate, advisory, management, services, trading, engineering, global]
 
 # Signals the feed counts. A company enters the feed on its FIRST signal inside the window.
-feed_signal_types: [register_entry, bf_funding, eu_project, blueinvest, patent, public_contract, job_ad, first_sales, first_hire, pilot_named, certification, programme_entry, exhibitor, award, funding_round, product_launch, public_funding]
+# Counted types are dated public records a scout could have seen on that date (audit: EARLINESS_AUDIT.md section 2).
+# Deliberately NOT counted: board_change (routine filing), capital_loss, sales_ended, employer_ended (negative),
+# website_first_seen (a site existing says nothing about traction; the archive date is only an upper bound).
+feed_signal_types: [register_entry, bf_funding, eu_project, blueinvest, patent, public_contract, job_ad, first_sales, first_hire, pilot_named, certification, programme_entry, exhibitor, award, funding_round, product_launch, public_funding, startup_notice, equity_event, research_output, website_milestone, eu_grant]
 
 # Hilma (public contracts): categories where a young company's first win is a signal. CPV divisions.
 hilma_cpv_divisions: ["71", "73", "90", "45", "34", "35", "65", "77", "03", "98"]

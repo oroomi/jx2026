@@ -140,3 +140,64 @@ def test_headline_is_built_from_the_counts(res):
     for n in (r["total"], r["earlier"], r["declared"], r["later"], r["none"]):
         assert str(n) in h
     assert "live public records" in h and "eclared research" in h and "January 2026" in h
+
+
+# ---- audit of the counted types (EARLINESS_AUDIT.md section 2) ----
+COUNTED = ("startup_notice", "equity_event", "first_sales", "first_hire", "research_output", "website_milestone", "eu_grant")
+REFUSED = ("board_change", "capital_loss", "sales_ended", "employer_ended", "website_first_seen")
+
+
+@pytest.fixture()
+def typed(tmp_path):
+    from radar import db, emit
+    from radar.adapters import prh_notices, tax_registers, openalex, webarchive  # noqa: F401  (they register their signal types)
+    conn = db.connect(tmp_path / "t.sqlite")
+    th = thesis.load(thesis.resolve(None))
+    n = 0
+    for typ in COUNTED + REFUSED:
+        key = f"T-{typ}"
+        emit.upsert_company(conn, company_key=key, name=f"Fixture {typ} Oy", group_tag="cohort", country="FI", industry_code="03211",
+                            source_url=f"https://example.test/fixture/{key}")
+        if typ in emit.SIGNAL_TYPES:
+            n += 1
+            emit.emit_signal(conn, company_key=key, signal_type=typ, date="2025-08-01", confidence="high",
+                             adapter="tax_registers" if typ in ("first_sales", "first_hire") else "fixture",
+                             source_url=f"https://example.test/fixture/{key}/{typ}", detail="synthetic fixture row")
+    emit.upsert_company(conn, company_key="T-after", name="Fixture After Oy", group_tag="cohort", country="FI", industry_code="03211",
+                        source_url="https://example.test/fixture/T-after")
+    emit.emit_signal(conn, company_key="T-after", signal_type="equity_event", date="2026-03-01", confidence="high", adapter="fixture",
+                     source_url="https://example.test/fixture/T-after/e", detail="synthetic fixture row")
+    conn.commit()
+    return earliness.backtest(conn, th, entry_dates_path=tmp_path / "absent.csv"), th
+
+
+def test_thesis_lists_the_audited_types(typed):
+    types = set(typed[1]["feed_signal_types"])
+    assert set(COUNTED) <= types and not (set(REFUSED) & types)
+    for p in ("config/thesis.yaml", "config/thesis_health_turku.yaml"):
+        t = thesis.load(p)["feed_signal_types"]
+        assert set(COUNTED) <= set(t) and not (set(REFUSED) & set(t)), p
+
+
+def test_counted_types_find_early_and_refused_types_do_not(typed):
+    by_key = {r["company_key"]: r for r in typed[0]["rows"]}
+    for typ in COUNTED:
+        if typ == "eu_grant":  # not yet a registered signal type in radar/emit.py: the adapter falls back to eu_project
+            continue
+        r = by_key[f"T-{typ}"]
+        assert r["group"] == "earlier" and r["first_signal"]["type"] == typ, typ
+    for typ in REFUSED:
+        r = by_key[f"T-{typ}"]
+        assert r["group"] == "none" and r["first_signal"] is None, typ
+        if r["others"]:
+            assert "2025-08-01" in r["others"][0]["reason"] and r["others"][0]["counted"] is False
+
+
+def test_signal_after_the_reference_is_found_later_not_earlier(typed):
+    r = {x["company_key"]: x for x in typed[0]["rows"]}["T-after"]
+    assert r["group"] == "later" and "months after" in r["timing"]
+
+
+def test_website_first_seen_alone_never_counts(typed):
+    r = {x["company_key"]: x for x in typed[0]["rows"]}["T-website_first_seen"]
+    assert r["group"] == "none" and "upper bound" in r["others"][0]["reason"]

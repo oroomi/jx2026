@@ -37,7 +37,7 @@ Signal-based sourcing vendors (Harmonic, Specter, Crustdata; Dealroom and Crunch
 ## 6. Do we need a database?
 We have two and the product is their join. The radar store (SQLite, signals per company with source URLs: 639 register, 295 contracts, 42 Business Finland, 82 EU projects, more tonight) answers "who surfaced and when". The ecosystem store (/root/blue_economy, entities, capital sources, buyers, scored matches, readiness evidence) answers "fit and who next". jx23 copies the second into the first as declared data so the live app reads one file. After the weekend, the same SQLite grows nightly from the adapters; a server database is not needed until there are users.
 
-## 7. Reverse timeline: what a startup leaves in public before it has a financial statement (added 17 Oct 00:05Z after Dayo's pushback: "share issues are not the earliest; think from the startup outward")
+## 7. Reverse timeline: what a startup leaves in public before it has a financial statement (added 16 Oct 21:05Z, 00:05 Helsinki, after Dayo's pushback: "share issues are not the earliest; think from the startup outward")
 
 Dayo is right: a share issue means investors already found the company. It is a validation signal, not a discovery signal. Thinking from the founder's first 18 months outward, these traces appear in this order, and the ones in bold are free, dated and tested tonight.
 

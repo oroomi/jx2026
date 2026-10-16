@@ -111,6 +111,14 @@ def _other(s: dict, counted: bool, reason: str | None) -> dict:
 
 
 _CONF = {"high": 0, "medium": 1, "low": 2}
+# Why a stored type is listed but never counted. Shown on /backtest beside the dated signal, so a judge sees the reason.
+NOT_COUNTED = {
+    "board_change": "routine filing, not evidence of traction or discovery",
+    "capital_loss": "a negative record (loss of share capital), shown but never counted as a find",
+    "sales_ended": "a negative record, shown but never counted as a find",
+    "employer_ended": "a negative record, shown but never counted as a find",
+    "website_first_seen": "a website existing is not traction, and the archive date is only an upper bound",
+}
 RESEARCH_TYPES = ("pilot_named", "first_hire", "certification", "programme_entry", "exhibitor", "award", "funding_round", "product_launch")
 GROUP_ORDER = ("earlier", "declared", "later", "none")
 
@@ -164,7 +172,7 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
                 else:
                     others.append(_other(s, False, f"declared research with {s['confidence']} confidence, not counted"))
             elif s["signal_type"] not in types:
-                others.append(_other(s, False, f"type {s['signal_type']} is not a feed signal type in this thesis"))
+                others.append(_other(s, False, f"{label.lower()} {s['date_label']}: {NOT_COUNTED.get(s['signal_type'], 'not a counted signal type in this thesis')}"))
             elif s["signal_type"] == "register_entry" and date.fromisoformat(d) < cutoff:
                 others.append(_other(s, False, f"registered {s['date']}, older than the radar's {cut}-year cut, not counted"))
             else:

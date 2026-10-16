@@ -19,7 +19,8 @@ CDX = "https://web.archive.org/cdx/search/cdx"
 MILESTONES = ("customers", "asiakkaat", "references", "referenssit", "cases", "careers", "rekry", "jobs", "pricing", "hinnat")
 NOT_A_COMPANY_SITE = ("linkedin.com", "facebook.com", "instagram.com", "twitter.com", "x.com", "youtube.com", "github.com")
 MAX_CAPTURES = 5000
-MAX_CONSECUTIVE_FAILURES = 2
+MAX_CONSECUTIVE_FAILURES = 4
+MAX_REQUESTS = 250  # per build; cached answers do not count, so a second build continues where the first stopped
 
 
 def domain_of(website: str | None) -> str | None:
@@ -75,9 +76,12 @@ def derive(caps: list[tuple[str, str]]) -> list[tuple[str, str, str, str]]:
 
 def run(conn: sqlite3.Connection, thesis: dict) -> dict:
     stats = {"companies": 0, "signals": 0, "skipped": 0, "requests": 0, "blocked": 0}
-    rows = conn.execute("SELECT company_key, website FROM companies WHERE website IS NOT NULL ORDER BY company_key").fetchall()
+    rows = conn.execute("""SELECT company_key, website FROM companies WHERE website IS NOT NULL
+           ORDER BY CASE group_tag WHEN 'cohort' THEN 0 WHEN 'portfolio' THEN 1 WHEN 'ecosystem' THEN 2 ELSE 3 END, company_key""").fetchall()
     failures = 0
     for r in rows:
+        if stats["requests"] >= MAX_REQUESTS:
+            break
         host = domain_of(r["website"])
         if host is None:
             continue

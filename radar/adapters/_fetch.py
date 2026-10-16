@@ -27,7 +27,7 @@ def cached_get(adapter: str, url: str, *, interval: float = 2.0, retries: int = 
     if f.exists():
         return json.loads(f.read_text(encoding="utf-8")), False
     own = client is None
-    client = client or httpx.Client(headers={"User-Agent": UA}, timeout=30, follow_redirects=True)
+    client = client or httpx.Client(headers={"User-Agent": UA}, timeout=90, follow_redirects=True)
     last: Exception | None = None
     try:
         for attempt in range(retries):

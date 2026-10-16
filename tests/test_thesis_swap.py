@@ -104,7 +104,7 @@ def test_method_page(client):
     t = client.get(f"/method?thesis={HEALTH_ID}").text
     assert HEALTH_ID in t and "Health technology" in t
     assert "Confidence rule" in t and store.rule_text(thesis.load(thesis.resolve(HEALTH_ID))) in t
-    assert "connector slot, not connected" in t and "LinkedIn" in t
+    assert "connector slot: not connected, no data shown" in t and "LinkedIn" in t
     assert "awaiting export (data/declared/businessfinland.xlsx not present)" in t or "businessfinland" in t
     assert "cohort_portfolio_companies.csv" in t
 

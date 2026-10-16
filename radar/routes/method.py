@@ -7,7 +7,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Request
 
-from radar import emit, fit, frameworks, store, thesis as thesis_mod
+from radar import emit, fit, frameworks, matching, store, thesis as thesis_mod
 from radar.routes.home import ROOT, _has_route, templates
 
 router = APIRouter()
@@ -66,6 +66,7 @@ def method(request: Request):
         names = sorted({n for n, _ in build.discover()})
         src = sources(conn, names)
         counts = store.feed_counts(conn, th) if conn is not None else None
+        eco = matching.dataset_summary(conn) if conn is not None else None
     finally:
         if conn is not None:
             conn.close()
@@ -75,6 +76,6 @@ def method(request: Request):
     return templates.TemplateResponse(request, "method.html", {
         "thesis": th, "rule_lines": rule, "signal_types": emit.SIGNAL_TYPES, "feed_rule": store.rule_text(th), "match_rule": fit.MATCH_RULE, "own_text_sources": ", ".join(store.OWN_TEXT_SOURCES),
         "window_days": geo["feed_window_days"], "age_cut": geo.get("stage_max_company_age_years"),
-        "counts": counts, "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
+        "counts": counts, "eco": eco, "partners": store.partner_orgs(), "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
         "declared": declared, "sources": src, "no_db": conn is None, "connectors": CONNECTOR_SLOTS, "fw": frameworks.assess({}, []),
         "active": "method", "has_route": _has_route(request)})

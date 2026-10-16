@@ -7,6 +7,7 @@
 <section class="empty" aria-label="Empty state"><p class="answer">{{ reason }}</p></section>
 {% else %}
 <p class="answer" id="verdict">We would have flagged <strong>{{ res.earlier }}</strong> of {{ res.total }} before {{ res.reference_label }}; <strong>{{ res.later }}</strong> only after; <strong>{{ res.none }}</strong> have no public signal at all.</p>
+<p class="lede" id="provenance">{{ res.from_declared }} of the counted first signals come from declared research events; {{ res.from_live }} from live adapters.</p>
 <section aria-labelledby="rule-h">
   <h2 id="rule-h">The rule</h2>
   <ol class="rulebox bt-rule">{% for l in rule %}<li>{{ l }}</li>

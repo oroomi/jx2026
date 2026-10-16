@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% from "_chip.html" import chip, missing %}
 {% block title %}{{ c.name }} | Ocean Opportunity Radar{% endblock %}
-{% block head %}<link rel="stylesheet" href="/static/company.css?v={{ asset_v }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/company.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/matching.css?v={{ asset_v }}">{% endblock %}
 {% block content %}
 <div class="co-layout">
 <nav class="co-rail" aria-label="The four questions">
@@ -59,6 +59,17 @@
     <div class="chips">{% for s in r.evidence[:4] %}{{ chip(s.evidence, True) }}{% endfor %}</div>
     {% else %}{{ missing("no public evidence") }}{% endif %}
   {%- endmacro %}
+  {% macro dsev(note, score, text, missing_text, scale_note) -%}
+    {% if eco and eco.ready and (text or score is not none) %}
+    <div class="eco-ev"><p class="eco-h">Dataset evidence ({{ eco.label | replace("declared research (", "") | replace(")", "") }}), declared research, not a rule level{% if eco.confidence %}; dataset confidence {{ eco.confidence }}{% endif %}</p>
+      {% if score is not none %}<p>Dataset score {{ score }}{{ scale_note or "" }}.</p>{% endif %}
+      {% if note %}<p class="eco-diff">{{ note }}</p>{% endif %}
+      {% if text %}<p>{{ text | linkify }}</p>{% endif %}
+      {% if missing_text %}<p class="eco-miss">Dataset says still missing: {{ missing_text | linkify }}</p>{% endif %}
+    </div>
+    {% endif %}
+  {%- endmacro %}
+  {% if eco and eco.status and eco.status != "active" %}<p class="eco-status">Dataset status: <strong>{{ eco.status | replace("_", " ") }}</strong> (declared research).</p>{% endif %}
   <p class="plain">Levels are read from public records only. A level appears only when a record backs it; otherwise the row says so.</p>
   <details class="why-box" open><summary>See why</summary>
   <table class="ready">
@@ -71,16 +82,21 @@
       {% else %}{{ missing("no public evidence") }} <span class="lvl">Navigator category: not in public records</span>{% endif %}
       <p class="lvl">measured outcome published: {{ missing("no public evidence") }}</p>
       <p class="rule">No numeric score. The Navigator is login-walled, so it is cited by name and link; categories follow the four A'Pelago themes.</p>
+      {% if eco and eco.ready %}{{ dsev(none, eco.ready.oi_score, eco.ready.oir_evidence, none, " on the dataset's own scale; the rule above gives no numeric score") }}{% endif %}
       </td></tr>
     <tr><th scope="row"><a href="{{ fw.urls.brl }}" target="_blank" rel="noopener">{{ fw.labels.business }}</a></th>
       <td>{{ lvl(fw.brl, "9") }}
-      <p class="rule">Rule: highest satisfied class. {% for m in fw.brl_map %}BRL {{ m.level }} = {{ m.rule }}{% if not loop.last %}; {% endif %}{% endfor %}.</p></td></tr>
+      <p class="rule">Rule: highest satisfied class. {% for m in fw.brl_map %}BRL {{ m.level }} = {{ m.rule }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>
+      {% if eco and eco.ready %}{{ dsev("The dataset's business score and the rule's level use different scales, so both are printed and neither changes the other." if eco.ready.br_score is not none else none, eco.ready.br_score, ((eco.ready.br_evidence or "") ~ (" Customers: " ~ eco.ready.customer_evidence if eco.ready.customer_evidence else "")) or none, eco.ready.br_missing) }}{% endif %}</td></tr>
     <tr><th scope="row"><a href="{{ fw.urls.trl }}" target="_blank" rel="noopener">{{ fw.labels.technology }}</a></th>
       <td>{{ lvl(fw.trl, "9") }}
-      <p class="rule">Rule: highest satisfied class, a hint from public records, not an assessment. {% for m in fw.trl_map %}TRL {{ m.level }} = {{ m.rule }}{% if not loop.last %}; {% endif %}{% endfor %}.</p></td></tr>
+      <p class="rule">Rule: highest satisfied class, a hint from public records, not an assessment. {% for m in fw.trl_map %}TRL {{ m.level }} = {{ m.rule }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>
+      {% if eco and eco.ready and eco.ready.trl is not none %}<div class="eco-ev"><p class="eco-h">Dataset evidence ({{ eco.label | replace("declared research (", "") | replace(")", "") }}), declared research, not a rule level{% if eco.confidence %}; dataset confidence {{ eco.confidence }}{% endif %}</p><p class="eco-diff">{{ eco.trl_note }}</p></div>{% endif %}</td></tr>
     <tr><th scope="row">{{ fw.labels.investment }}</th>
       <td>{{ lvl(fw.irl, "9") }}
       <p class="rule">Rule: highest satisfied class. {% for m in fw.irl_map %}IRL {{ m.level }} = {{ m.rule }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>
+      {% if eco and eco.ready %}{{ dsev("The dataset's investment score and the rule's level use different scales, so both are printed and neither changes the other." if eco.ready.ir_score is not none else none, eco.ready.ir_score, eco.ready.ir_evidence, eco.ready.ir_missing) }}
+      {% if eco.sources %}<p class="eco-src">Dataset sources: {% for u in eco.sources %}<a href="{{ u }}" target="_blank" rel="noopener">{{ u.split("//")[1].split("/")[0] }}</a>{% if not loop.last %}, {% endif %}{% endfor %}</p>{% endif %}{% endif %}
       <ul class="dims">
       {% for d in fw.dimensions %}
         <li class="dim">
@@ -96,14 +112,35 @@
 
 <section id="q3" class="q q-next">
   <h2><span class="num">03</span> Who comes next</h2>
-  {% if matching_ready %}<p class="notscored">matching module present, not yet wired into this page</p>
-  {% else %}<p class="notscored">not yet scored: matching rules land Saturday</p>{% endif %}
+  <p class="plain">Investors, funding and partners to approach, in priority order. Scored matches come from the declared ecosystem dataset{% if eco and eco.label %}: {{ eco.label }}{% endif %}; low-confidence rows are leads, not facts.</p>
+  <div class="nx-grid">
+  {% for title, k in (("Investors", "investors"), ("Funding and programmes", "funding"), ("Partners and clients", "partners")) %}
+    <div class="nx-list">
+      <h3>{{ title }}</h3>
+      {% if nxt[k] %}
+      <ol>
+        {% for r in nxt[k] %}
+        <li><span class="nx-name"><a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.name }}</a></span> <span class="nx-kind">{{ r.kind }}</span>
+          <span class="nx-why">{{ r.reason }}</span>
+          <span class="nx-meta">{% if r.score is not none %}dataset score {{ r.score }}{% else %}{{ r.origin or "declared list" }}{% endif %}{% if r.confidence %}, confidence {{ r.confidence }}{% endif %}{% if r.deadline %}, deadline {{ r.deadline }}{% endif %}</span>
+          {% if r.facts %}<span class="nx-meta">{{ r.facts }}</span>{% endif %}</li>
+        {% endfor %}
+      </ol>
+      {% else %}{{ missing("no match in the dataset yet") }}{% endif %}
+    </div>
+  {% endfor %}
+  </div>
+  <p class="rule">{{ rank_rule }} The reason text is the dataset's own: caps = capability codes the two share, kw = shared keywords, stage = stage fit from 0 to 1, impact = impact score.</p>
 </section>
 
 <section id="q4" class="q q-step">
   <h2><span class="num">04</span> What should happen next</h2>
-  {% if nextstep_ready %}<p class="notscored">next-step module present, not yet wired into this page</p>
-  {% else %}<p class="notscored">not yet scored: next-step rules land Saturday</p>{% endif %}
+  <p class="step-sentence">{{ step.sentence }}</p>
+  <p class="plain">Because: {{ step.because }}{% if step.source_url %} <a class="ev-chip" href="{{ step.source_url }}" target="_blank" rel="noopener"><span class="ev-src">evidence</span></a>{% endif %}</p>
+  <p class="rule">Rule used: {{ step_rule }}</p>
+  <details class="why-box"><summary>The whole decision table</summary>
+    <ol class="reasons">{% for r in step_rules %}<li>{{ r[3:] }}</li>{% endfor %}</ol>
+  </details>
 </section>
 
 <section class="q signals" id="signals">

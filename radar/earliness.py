@@ -100,7 +100,7 @@ def _signals(conn, key: str) -> list[dict]:
 def _other(s: dict, counted: bool, reason: str | None) -> dict:
     return {"date": s["date"], "date_label": s["date_label"], "year_only": s["date_precision"] == "year", "type": s["signal_type"],
             "label": store.TYPE_LABELS.get(s["signal_type"], s["signal_type"]), "source_url": s["source_url"],
-            "confidence": s["confidence"], "source_label": store.evidence(s)["label"], "counted": counted, "reason": reason}
+            "confidence": s["confidence"], "source_label": store.evidence(s)["label"], "adapter": s["adapter"], "counted": counted, "reason": reason}
 
 
 _CONF = {"high": 0, "medium": 1, "low": 2}
@@ -159,7 +159,9 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
                      "reference_from_csv": bool(hit)})
     rows.sort(key=lambda r: (r["months"] is None, -(r["months"] or 0), r["name"].casefold()))
     tot = {g: sum(1 for r in rows if r["group"] == g) for g in ("earlier", "later", "none")}
-    return {"rows": rows, "earlier": tot["earlier"], "later": tot["later"], "none": tot["none"], "total": len(rows),
+    firsts = [r["first_signal"] for r in rows if r["first_signal"]]
+    from_declared = sum(1 for f in firsts if f["adapter"] == "ecosystem")
+    return {"rows": rows, "from_declared": from_declared, "from_live": len(firsts) - from_declared, "earlier": tot["earlier"], "later": tot["later"], "none": tot["none"], "total": len(rows),
             "reference_date": ref_iso, "reference_source": ref_source, "reference_label": reference_label(ref_iso), "age_cut_years": cut}
 
 

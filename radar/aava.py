@@ -14,7 +14,7 @@ MONTHS = ("January", "February", "March", "April", "May", "June", "July", "Augus
 MAX_SIGNALS_SPOKEN = 8
 MAX_DETAIL = 220
 LEVEL_MAX = 9
-_DASHES = re.compile(r"\s*[–—]\s*")
+_DASHES = re.compile(r"\s*[\u2013\u2014]\s*")
 
 
 def clean(text: str) -> str:

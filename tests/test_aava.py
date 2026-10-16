@@ -23,7 +23,7 @@ def db_path(tmp_path):
     conn = fx.build(path)
     for i, (k, d) in enumerate([("bf_funding", "2025-09-01"), ("public_contract", "2025-11-20")]):
         emit.emit_signal(conn, company_key=RICH, signal_type=k, date=d, source_url=f"https://example.test/{k}", confidence="high",
-                         adapter="hilma", detail=f"Synthetic {k} record — with a long dash.")
+                         adapter="hilma", detail=f"Synthetic {k} record \u2014 with a long dash.")
     emit.upsert_company(conn, company_key="9000005-5", name="Meri Fixture Oy", y_tunnus="9000005-5", country="FI", founded="2026-08-01",
                         industry_code="30110", industry_desc="Building of ships", source_url=fx.PRH + "9000005-5")
     emit.emit_signal(conn, company_key="9000005-5", signal_type="register_entry", date="2026-09-01", source_url=fx.PRH + "9000005-5",
@@ -99,7 +99,7 @@ def test_no_long_dash_and_numbers_are_on_the_page(client):
         page = client.get("/c/" + key).text
         page_numbers = {int(n) for n in re.findall(r"\d+", re.sub(r"<[^>]+>", " ", page))}
         for s in script(client, key)["segments"]:
-            assert "—" not in s["text"] and "–" not in s["text"]
+            assert "\u2014" not in s["text"] and "\u2013" not in s["text"]
             spoken = re.sub(r"\b\d{1,2} (%s) \d{4}\b" % "|".join(months), lambda m: "", s["text"])  # dates are checked below
             for d, mon, y in re.findall(r"\b(\d{1,2}) (%s) (\d{4})\b" % "|".join(months), s["text"]):
                 assert f"{y}-{months[mon]:02d}-{int(d):02d}" in page, (key, s["text"])
@@ -137,7 +137,7 @@ def test_empty_feed_is_spoken_as_empty():
 
 
 def test_clean_and_dates():
-    assert aava.clean("a — b–c") == "a, b, c"
+    assert aava.clean("a \u2014 b\u2013c") == "a, b, c"
     assert aava.say_date("2025-06-13") == "13 June 2025" and aava.say_date("2025-06-13", True) == "2025, year only"
     assert aava.say_date(None) is None and aava.say_date("2025-13-45") is None
 

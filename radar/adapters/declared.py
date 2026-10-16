@@ -9,6 +9,7 @@ from pathlib import Path
 
 from radar import emit
 
+PHASE = 0
 NAME = "declared"
 CSV_PATH = Path(__file__).resolve().parents[2] / "data" / "declared" / "cohort_portfolio_companies.csv"
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")

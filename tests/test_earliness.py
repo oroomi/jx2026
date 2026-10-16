@@ -17,7 +17,7 @@ def by(res):
 
 def test_population_is_cohort_only(res):
     r = res[0]
-    assert r["total"] == 10 and "F-feed" not in by(r)
+    assert r["total"] == 15 and "F-feed" not in by(r)
 
 
 def test_earlier_and_months(res):
@@ -57,8 +57,8 @@ def test_blank_has_no_months_and_totals_sum(res):
     r = res[0]
     blank = by(r)["F-none"]
     assert blank["group"] == "none" and blank["months"] is None and blank["first_signal"] is None
-    assert r["earlier"] + r["later"] + r["none"] == r["total"]
-    assert (r["earlier"], r["later"], r["none"]) == (4, 3, 3)
+    assert r["earlier"] + r["declared"] + r["later"] + r["none"] == r["total"]
+    assert (r["earlier"], r["declared"], r["later"], r["none"]) == (5, 1, 3, 6)
 
 
 def test_ordering_months_desc_blanks_last(res):
@@ -98,7 +98,45 @@ def test_thesis_reference_key_wins(res):
 def test_rule_text_has_every_clause(res):
     t = earliness.rule_text(res[2])
     for clause in ("group_tag cohort", "2026-01-01", "programme start month", "feed signal types", "no more than 5 years", "not counted",
+                   "outside the thesis rule", "declared research", "medium or high", "four groups",
                    "1 January", "year only", "30.44", "rounded down", "N months before", "N months after", "strictly before",
-                   "on or after", "later or same", "No public signal", "add up to the cohort size", "BlueInvest", "never moves", "Confidence", "never proof"):
+                   "later or same", "No public signal", "add up to the cohort size", "BlueInvest", "never moves", "Confidence", "never proof"):
         assert clause in t, clause
     assert chr(0x2014) not in t
+
+
+def test_register_entry_outside_the_thesis_rule_is_not_counted(res):
+    r = by(res[0])["F-outside"]          # code 62100 is not on the thesis list, no thesis word anywhere
+    assert r["group"] == "none" and r["first_signal"] is None
+    assert [o["reason"] for o in r["others"]] == ["registered 2025-06-01, outside the thesis rule"] and not r["others"][0]["counted"]
+
+
+def test_name_word_needs_a_second_source(res):
+    b = by(res[0])
+    assert b["F-name-only"]["group"] == "none"           # 'marine' in the legal name alone never admits
+    c = b["F-corrob"]                                    # the register entry fails, the later CORDIS record is backed by the name word
+    assert c["group"] == "earlier" and c["first_signal"]["type"] == "eu_project" and c["first_signal"]["date"] == "2025-07-01"
+    assert "'marin'" in c["first_signal"]["rule"] and "register record" in c["first_signal"]["rule"]
+    assert any(o["reason"] == "registered 2025-05-01, outside the thesis rule" for o in c["others"])
+
+
+def test_first_signal_carries_the_admitting_rule(res):
+    f = by(res[0])["F-early"]["first_signal"]
+    assert "Industry code 03211" in f["rule"] and f["source_url"].startswith("https://example.test/")
+
+
+def test_declared_research_is_a_separate_group(res):
+    b = by(res[0])
+    r = b["F-research"]       # declared research in March 2025, live CORDIS signal only after the reference date
+    assert r["group"] == "declared" and r["first_signal"]["research"] is True and r["months"] == 10
+    assert b["F-research-low"]["group"] == "none"        # low confidence research is not counted
+    assert b["F-research-low"]["others"][0]["reason"] == "declared research with low confidence, not counted"
+
+
+def test_headline_is_built_from_the_counts(res):
+    r = res[0]
+    h = r["headline"]
+    assert h == earliness.headline(r)
+    for n in (r["total"], r["earlier"], r["declared"], r["later"], r["none"]):
+        assert str(n) in h
+    assert "live public records" in h and "eclared research" in h and "January 2026" in h

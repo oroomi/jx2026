@@ -6,7 +6,13 @@
 {% if not res %}
 <section class="empty" aria-label="Empty state"><p class="answer">{{ reason }}</p></section>
 {% else %}
-<p class="answer" id="verdict">We would have flagged <strong>{{ res.earlier }}</strong> of {{ res.total }} before {{ res.reference_label }}; <strong>{{ res.later }}</strong> only after; <strong>{{ res.none }}</strong> have no public signal at all.</p>
+<p class="answer" id="verdict">{{ res.headline }}</p>
+<ul class="bt-groups" aria-label="The four groups">
+  <li>Found earlier by live public records: <strong>{{ res.earlier }}</strong></li>
+  <li>Found earlier only by declared research: <strong>{{ res.declared }}</strong></li>
+  <li>Found later: <strong>{{ res.later }}</strong></li>
+  <li>No public signal: <strong>{{ res.none }}</strong></li>
+</ul>
 <section aria-labelledby="rule-h">
   <h2 id="rule-h">The rule</h2>
   <ol class="rulebox bt-rule">{% for l in rule %}<li>{{ l }}</li>
@@ -19,7 +25,7 @@
   <p class="lede">Time runs left to right. Filled circle: first counted signal with a stated day. Hollow circle: year only, counted as 1 January. Hatched lane: no public signal, drawn blank.</p>
   <svg class="bt-chart" viewBox="0 0 {{ chart.w }} {{ chart.h }}" role="img" aria-labelledby="bt-t bt-d">
     <title id="bt-t">First public signal date per cohort company against the reference date {{ chart.ref_label }}</title>
-    <desc id="bt-d">{{ res.earlier }} of {{ res.total }} companies have a first signal before the reference date, {{ res.later }} after, {{ res.none }} have none.</desc>
+    <desc id="bt-d">{{ res.earlier + res.declared }} of {{ res.total }} companies have a first counted signal before the reference date ({{ res.declared }} of them only from declared research), {{ res.later }} after, {{ res.none }} have none.</desc>
     <defs><pattern id="bt-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="bt-hatchline"/></pattern></defs>
     {% for t in chart.ticks %}<g class="bt-tick"><line x1="{{ t.x }}" x2="{{ t.x }}" y1="{{ chart.top - 4 }}" y2="{{ chart.h - 4 }}"/><text x="{{ t.x + 3 }}" y="{{ chart.top - 8 }}">{{ t.label }}</text></g>
     {% endfor %}
@@ -44,7 +50,7 @@
   <h2 id="tbl-h">All {{ res.total }} companies</h2>
   <div class="srcwrap">
   <table class="srctable bt-table">
-    <thead><tr><th>Company</th><th>First public signal</th><th>Timing</th><th>Group</th></tr></thead>
+    <thead><tr><th>Company</th><th>First counted signal and the rule that admitted it</th><th>Timing</th><th>Group</th></tr></thead>
     <tbody>
     {% for r in res.rows %}
     {% set f = r.first_signal %}
@@ -55,12 +61,13 @@
         {% if f %}
         <a class="ev-chip" href="{{ f.source_url }}" target="_blank" rel="noopener"><span class="ev-src">{{ f.label }}</span> <time datetime="{{ f.date }}">{{ f.date_label }}</time></a>
         <span class="muted">{{ f.source_label }}, confidence: {{ f.confidence }}</span>
+        <div class="muted bt-rulewhy">admitted by: {{ f.rule }}</div>
         {% else %}<span class="hatch">no public signal</span>{% endif %}
         {% for o in r.others %}<div class="muted bt-other">{% if o.counted %}also counted: {{ o.label }}, {{ o.date_label }}, <a href="{{ o.source_url }}" target="_blank" rel="noopener">{{ o.source_label }}</a>{% else %}{{ o.reason }} (<a href="{{ o.source_url }}" target="_blank" rel="noopener">{{ o.source_label }}</a>){% endif %}</div>{% endfor %}
         {% for n in r.notes %}<div class="muted bt-other">{{ n.text }}{% if n.source_url %} (<a href="{{ n.source_url }}" target="_blank" rel="noopener">profile</a>){% endif %}</div>{% endfor %}
       </td>
       <td class="bt-months">{% if r.timing %}{{ r.timing }}{% else %}<span class="muted">no data</span>{% endif %}</td>
-      <td>{% if r.group == 'earlier' %}found earlier{% elif r.group == 'later' %}found later{% else %}no public signal{% endif %}</td>
+      <td>{% if r.group == 'earlier' %}found earlier by live public records{% elif r.group == 'declared' %}found earlier only by declared research{% elif r.group == 'later' %}found later{% else %}no public signal{% endif %}</td>
     </tr>
     {% endfor %}
     </tbody>

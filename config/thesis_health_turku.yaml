@@ -40,3 +40,6 @@ matching:
   investors: data/declared/investors.csv
   corporates: data/declared/corporates_clients.csv
   programmes: data/declared/programmes_grants.csv
+
+# Sources the /data page's Refresh button re-reads (names from radar/refresh.py STEPS): the fast live ones only.
+refresh_adapters: [prh_notices, prh_recent]

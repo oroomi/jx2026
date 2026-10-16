@@ -1,0 +1,9 @@
+/* /data page only; additive, tokens come from app.css */
+.totals { margin: .5rem 0 1rem; }
+.views { display: flex; gap: 1rem; margin: .5rem 0; }
+.views a[aria-current="page"] { font-weight: 600; text-decoration: underline; }
+.filters { display: flex; flex-wrap: wrap; gap: .75rem; align-items: end; margin: .5rem 0; }
+.srcwrap { overflow-x: auto; }
+.pager a { margin-right: 1rem; }
+.newco { columns: 2; padding-left: 1.1rem; }
+@media (max-width: 640px) { .newco { columns: 1; } }

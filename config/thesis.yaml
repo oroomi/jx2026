@@ -109,3 +109,6 @@ ted_cpv:
   - {prefix: "77700", note: "Services incidental to fishing"}
   - {prefix: "98360", note: "Marine services"}
   - {prefix: "98361", note: "Aquatic-related services"}
+
+# Sources the /data page's Refresh button re-reads (names from radar/refresh.py STEPS): the fast live ones only.
+refresh_adapters: [prh_notices, prh_recent]

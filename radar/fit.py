@@ -54,7 +54,7 @@ def fit(company: dict, signals: list[dict], thesis: dict) -> list[dict]:
     for s in signals:
         if s.get("signal_type") in feed_types:
             label = s.get("type_label") or store.TYPE_LABELS.get(s["signal_type"], s["signal_type"])
-            text = f"{label} on {s.get('date')}" + (f": {s['detail']}" if s.get("detail") else ".")
+            text = f"{label} on {s.get('date_label') or s.get('date')}" + (f": {s['detail']}" if s.get("detail") else ".")
             reasons.append({"kind": "signal", "confidence": s.get("confidence"), "text": text,
                             "evidence": s.get("evidence") or store.evidence(s)})
     reasons.sort(key=lambda r: (_KIND_ORDER[r["kind"]], _CONF_ORDER.get(r["confidence"], 3)))

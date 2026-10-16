@@ -309,7 +309,9 @@ def feed_counts(conn, thesis, *, today=None) -> dict:
     excluded = 0
     future = 0
     if types:
-        year_only = sum(1 for r in _in_window_rows(conn, thesis, today, types, "feed") if is_year_only(r))
+        year_only = sum(1 for r in conn.execute(
+            """SELECT s.signal_type, s.date, s.detail FROM signals s JOIN companies c USING (company_key)
+               WHERE s.signal_type = 'bf_funding' AND c.group_tag = 'feed'""") if is_year_only(r))
         q = ",".join("?" * len(types))
         excluded = conn.execute(
             f"""SELECT COUNT(DISTINCT c.company_key) FROM signals s JOIN companies c USING (company_key)

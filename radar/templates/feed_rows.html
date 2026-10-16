@@ -53,7 +53,7 @@
 
 <footer class="chiprule">
   {% if counts %}
-  <p>{{ main_rows | length }} main matches and {{ weak_rows | length }} weak matches{% if truncated %} (first {{ rows | length }} of {{ total }}){% endif %}, {{ rows | sum(attribute="signal_count") }} signals in the window {{ counts.window_start }} to {{ counts.window_end }}.
+  <p>{{ rows | length }} companies{% if truncated %} (first {{ rows | length }} of {{ total }}){% endif %}: <span class="n-main">{{ main_rows | length }}</span> main matches and <span class="n-weak">{{ weak_rows | length }}</span> weak matches, {{ rows | sum(attribute="signal_count") }} signals in the window {{ counts.window_start }} to {{ counts.window_end }}.
   Rule: {{ rule }}
   Data fetched {{ (counts.last_fetched or "no data")[:10] }}.
   Main matches by reason: industry code {{ counts.by_reason.industry_code }}, line of business {{ counts.by_reason.line_of_business }}, own text {{ counts.by_reason.own_text }}, corroborated name {{ counts.by_reason.corroborated_keyword }}. Year-only Business Finland records not used as entry dates: {{ counts.year_only_not_entry }}.

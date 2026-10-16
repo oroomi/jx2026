@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Method | Ocean Opportunity Radar{% endblock %}
+{% block content %}
+<h1>Method</h1>
+<h2>Thesis</h2>
+<p><code>{{ thesis.id }}</code></p>
+<p class="answer">{{ thesis.title }}</p>
+<p class="rule">Everything sector-specific lives in the thesis file. Swap it with the RADAR_THESIS environment variable.</p>
+<h2>Confidence rule</h2>
+<pre class="rulebox">{% for l in rule_lines %}{{ l }}
+{% endfor %}</pre>
+<h2>Signal types</h2>
+<ul>{% for t in signal_types %}<li><code>{{ t }}</code></li>{% endfor %}</ul>
+{% endblock %}

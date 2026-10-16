@@ -7,12 +7,12 @@ from pathlib import Path
 
 from fastapi import APIRouter, Request
 
-from radar import emit, store, thesis as thesis_mod
+from radar import emit, frameworks, store, thesis as thesis_mod
 from radar.routes.home import ROOT, _has_route, templates
 
 router = APIRouter()
 
-CONNECTOR_SLOTS = ("LinkedIn", "Dealroom", "Crunchbase", "PitchBook", "Tracxn")
+CONNECTOR_SLOTS = ("LinkedIn", "Dealroom", "Tracxn", "PitchBook", "Crunchbase")
 BF_EXPORT = "data/declared/businessfinland.xlsx"
 COOKIE_MAX_AGE = 86400
 
@@ -76,5 +76,5 @@ def method(request: Request):
         "thesis": th, "rule_lines": rule, "signal_types": emit.SIGNAL_TYPES, "feed_rule": store.rule_text(th),
         "window_days": geo["feed_window_days"], "age_cut": geo.get("stage_max_company_age_years"),
         "counts": counts, "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
-        "declared": declared, "sources": src, "no_db": conn is None, "connectors": CONNECTOR_SLOTS,
+        "declared": declared, "sources": src, "no_db": conn is None, "connectors": CONNECTOR_SLOTS, "fw": frameworks.assess({}, []),
         "active": "method", "has_route": _has_route(request)})

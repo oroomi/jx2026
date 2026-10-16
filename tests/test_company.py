@@ -43,13 +43,10 @@ def test_bankrupt_status_word_with_source(client):
     assert "status-bankrupt" in t and "bankrupt" in t
 
 
-def test_readiness_without_module(client):
+def test_readiness_without_signals_is_empty(client):
     t = client.get("/c/name:sparse").text
     assert t.count("no public evidence") >= 4
-    assert not re.search(r"\b(TRL|IRL)\s*\d", t)
-    rich = client.get("/c/9000001-1").text
-    assert "level: not scored yet, rule table lands Saturday" in rich
-    assert not re.search(r"\b(TRL|IRL)\s*\d", rich)
+    assert not re.search(r"level \d of 9", t)
 
 
 def test_later_sections_are_honest_lines(client):

@@ -44,19 +44,45 @@
 
 <section id="q2" class="q q-ready">
   <h2><span class="num">02</span> How ready are they</h2>
+  {% if connections %}
+  <div class="connect">
+    <h3>Connections across records</h3>
+    <p>{% for k in connections %}{{ k.text }} (<a href="{{ k.url }}" target="_blank" rel="noopener">{{ k.source }}</a>){% if not loop.last %}; {% else %}.{% endif %}{% endfor %}</p>
+  </div>
+  {% endif %}
+  {% macro lvl(r, scale) -%}
+    {% if r.level %}<p class="lvl"><strong>level {{ r.level }} of {{ scale }}</strong>: {{ r.because }}</p>
+    <div class="chips">{% for s in r.evidence[:4] %}{{ chip(s.evidence, True) }}{% endfor %}</div>
+    {% else %}{{ missing("no public evidence") }}{% endif %}
+  {%- endmacro %}
   <table class="ready">
     <tbody>
-    {% for d in readiness %}
-    <tr><th scope="row">{{ d.label }}</th>
+    <tr><th scope="row"><a href="{{ fw.urls.navigator }}" target="_blank" rel="noopener">{{ fw.labels.ocean_impact }}</a></th>
       <td>
-      {% if not d.defined %}{{ missing("not defined in this thesis") }}
-      {% elif not d.signals %}{{ missing("no public evidence") }}
-      {% else %}
-        <p class="lvl">level: not scored yet, rule table lands Saturday</p>
-        <div class="chips">{% for s in d.signals %}{{ chip(s.evidence, True) }}{% endfor %}</div>
-      {% endif %}
+      {% if fw.category.category %}
+        <p class="lvl">Navigator category: <strong>{{ fw.category.category }}</strong> (categories per A'Pelago themes; keyword "{{ fw.category.keyword }}"{% if fw.category.industry %} in the register industry text "{{ fw.category.industry }}"{% endif %})</p>
+        {% if fw.category.evidence %}<div class="chips">{{ chip(fw.category.evidence, True) }}</div>{% endif %}
+      {% else %}{{ missing("no public evidence") }} <span class="lvl">Navigator category: not in public records</span>{% endif %}
+      <p class="lvl">measured outcome published: {{ missing("no public evidence") }}</p>
+      <p class="rule">No numeric score. The Navigator is login-walled, so it is cited by name and link; categories follow the four A'Pelago themes.</p>
       </td></tr>
-    {% endfor %}
+    <tr><th scope="row"><a href="{{ fw.urls.brl }}" target="_blank" rel="noopener">{{ fw.labels.business }}</a></th>
+      <td>{{ lvl(fw.brl, "9") }}
+      <p class="rule">Rule: highest satisfied class. {% for m in fw.brl_map %}BRL {{ m.level }} = {{ m.rule }}{% if not loop.last %}; {% endif %}{% endfor %}.</p></td></tr>
+    <tr><th scope="row"><a href="{{ fw.urls.trl }}" target="_blank" rel="noopener">{{ fw.labels.technology }}</a></th>
+      <td>{{ lvl(fw.trl, "9") }}
+      <p class="rule">Rule: highest satisfied class, a hint from public records, not an assessment. {% for m in fw.trl_map %}TRL {{ m.level }} = {{ m.rule }}{% if not loop.last %}; {% endif %}{% endfor %}.</p></td></tr>
+    <tr><th scope="row">{{ fw.labels.investment }}</th>
+      <td>{{ lvl(fw.irl, "9") }}
+      <p class="rule">Rule: highest satisfied class. {% for m in fw.irl_map %}IRL {{ m.level }} = {{ m.rule }}{% if not loop.last %}; {% endif %}{% endfor %}.</p>
+      <ul class="dims">
+      {% for d in fw.dimensions %}
+        <li class="dim">
+        {% if d.evidence %}<span class="dim-name">{{ d.name }}</span> {% for e in d.evidence %}{{ chip(e) }}{% endfor %}{% if d.n > d.evidence|length %} <span class="lvl">and {{ d.n - d.evidence|length }} more</span>{% endif %}
+        {% else %}<span class="dim-name">{{ d.name }}</span> {{ missing("not in public records") }}{% endif %}
+        </li>
+      {% endfor %}
+      </ul></td></tr>
     </tbody>
   </table>
 </section>

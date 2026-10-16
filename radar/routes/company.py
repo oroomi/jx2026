@@ -5,7 +5,7 @@ import re
 
 from fastapi import APIRouter, Request
 
-from radar import fit as fit_mod, store
+from radar import fit as fit_mod, frameworks, store
 from radar.routes.home import _has_route, templates
 
 try:  # built Saturday on another branch; not wired until its signatures are read
@@ -98,6 +98,7 @@ def company_page(request: Request, company_key: str):
                  register=register_rows(c), reasons=reasons, fit_rule=fit_mod.RULE_LINE, entered_via=", ".join(entered),
                  readiness=readiness_rows(thesis, sigs), sources=sources(c, sigs), connectors=CONNECTORS,
                  cohort_n=n, radar_exists=_has_route(request)("/radar"),
+                 fw=frameworks.assess(c, sigs), connections=frameworks.connections(sigs),
                  matching_ready=matching_mod is not None, nextstep_ready=nextstep_mod is not None,
                  type_labels=store.TYPE_LABELS)
 

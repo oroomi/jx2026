@@ -143,7 +143,7 @@ def test_context_is_single_seam(tmp_path, conn, monkeypatch):
 
 
 def test_rule_text(th):
-    assert "90 days" in store.rule_text(th) and "—" not in store.rule_text(th)
+    assert "90 days" in store.rule_text(th) and chr(0x2014) not in store.rule_text(th)
 
 
 def test_chip_macros_render():

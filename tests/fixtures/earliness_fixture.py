@@ -5,15 +5,20 @@ from __future__ import annotations
 from radar import db, emit
 
 
+NO_CODE = {"F-outside", "F-corrob", "F-name-only"}
+
+
 def build(path):
     conn = db.connect(path)
 
     def co(key, name, group="cohort", **kw):
+        if group == "cohort" and "industry_code" not in kw and key not in NO_CODE:
+            kw["industry_code"] = "03211"  # on the thesis list, so the live signals of these fixture companies pass the feed rule
         emit.upsert_company(conn, company_key=key, name=name, group_tag=group, country="FI", source_url=f"https://example.test/fixture/{key}", **kw)
 
-    def sig(key, typ, d, adapter="prh", conf="high", year_only=False):
+    def sig(key, typ, d, adapter="prh", conf="high", year_only=False, detail="synthetic fixture row"):
         emit.emit_signal(conn, company_key=key, signal_type=typ, date=d, confidence=conf, adapter=adapter,
-                         source_url=f"https://example.test/fixture/{key}/{typ}/{d}", detail="synthetic fixture row")
+                         source_url=f"https://example.test/fixture/{key}/{typ}/{d}", detail=detail)
         if year_only:
             sid = conn.execute("SELECT id FROM signals WHERE company_key=? AND signal_type=? AND date=?", (key, typ, d)).fetchone()[0]
             conn.execute("INSERT INTO signal_meta (signal_id, date_precision) VALUES (?, 'year')", (sid,))
@@ -39,6 +44,19 @@ def build(path):
                  "'https://example.test/fixture/bi',5,'2026-10-16T00:00:00Z')")
     co("F-csv", "Fixture Csv Oy")
     sig("F-csv", "eu_project", "2025-11-01", adapter="cordis", conf="medium")
+    # thesis-test cases: registered facts decide, not the register date alone
+    co("F-outside", "Fixture Outside Oy", industry_code="62100", industry_desc="Computer programming activities")
+    sig("F-outside", "register_entry", "2025-06-01")            # early register entry, code not on the thesis list: outside the rule
+    co("F-corrob", "Fixture Marine Works Oy")
+    sig("F-corrob", "register_entry", "2025-05-01")             # name word 'marine' alone is not enough ...
+    sig("F-corrob", "eu_project", "2025-07-01", adapter="cordis", conf="medium")  # ... a second source on the later date backs it
+    co("F-name-only", "Fixture Marine Only Oy")
+    sig("F-name-only", "register_entry", "2025-05-01")          # name word only, no second source: outside the rule
+    co("F-research", "Fixture Research Oy", industry_code="03211")
+    sig("F-research", "site_customer", "2025-03-01", adapter="declared", conf="medium", detail="declared research: pilot with a named harbour")
+    sig("F-research", "eu_project", "2026-03-01", adapter="cordis", conf="medium")
+    co("F-research-low", "Fixture Research Low Oy", industry_code="03211")
+    sig("F-research-low", "site_customer", "2025-03-01", adapter="declared", conf="low", detail="declared research: unverified pilot")
     co("F-feed", "Fixture Not Cohort Oy", group="feed")
     sig("F-feed", "register_entry", "2025-01-01")
     conn.commit()

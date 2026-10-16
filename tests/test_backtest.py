@@ -26,15 +26,17 @@ def client(tmp_path, monkeypatch):
 def test_counts_equal_module_totals(client):
     c, t = client
     html = c.get("/backtest").text
-    m = re.search(r"flagged <strong>(\d+)</strong> of (\d+) before January 2026; <strong>(\d+)</strong> only after; <strong>(\d+)</strong> have no public signal", html)
-    assert m and tuple(map(int, m.groups())) == (t["earlier"], t["total"], t["later"], t["none"])
+    assert t["headline"] in html
+    for label, n in (("Found earlier by live public records", t["earlier"]), ("Found earlier only by declared research", t["declared"]),
+                     ("Found later", t["later"]), ("No public signal", t["none"])):
+        assert f"{label}: <strong>{n}</strong>" in html
     assert earliness.rule_lines(thesis.load(thesis.resolve(None)))[0].split(":")[0] in html
 
 
 def test_one_lane_per_cohort_company(client):
     c, t = client
     html = c.get("/backtest").text
-    assert len(re.findall(r'class="bt-lane', html)) == t["total"] == 10
+    assert len(re.findall(r'class="bt-lane', html)) == t["total"] == 15
     assert html.count('href="/c/') >= 2 * t["total"]  # lane name and table row both link to the company page
 
 
@@ -42,7 +44,7 @@ def test_blank_lane_has_words_and_no_marker(client):
     c, t = client
     html = c.get("/backtest").text
     lanes = re.findall(r'<g class="bt-lane blank".*?</g>', html, flags=re.S)
-    assert len(lanes) == t["none"] == 3
+    assert len(lanes) == t["none"] == 6
     for lane in lanes:
         assert "no public signal" in lane and 'class="mk' not in lane and "<circle" not in lane
 
@@ -52,7 +54,7 @@ def test_year_only_marker_is_hollow_and_labelled(client):
     html = c.get("/backtest").text
     hollow = re.findall(r'<circle class="mk hollow".*?</g>', html, flags=re.S)
     assert len(hollow) == 2 and all("year only" in h for h in hollow)
-    assert len(re.findall(r'<circle class="mk"', html)) == 5
+    assert len(re.findall(r'<circle class="mk"', html)) == 7
 
 
 def test_health_thesis_shows_empty_state(tmp_path, monkeypatch):

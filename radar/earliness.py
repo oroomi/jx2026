@@ -44,13 +44,20 @@ def rule_lines(th: dict) -> list[str]:
         f"Population: companies in the cohort group (group_tag cohort). The number comes from the database.",
         f"Reference date: {ref} ({reference_label(ref)}, the programme start month, declared by the team). Individual pipeline entry dates are not public; "
         "a per-company entry date from data/declared/cohort_entry_dates.csv replaces the reference for that company and is labelled with its source.",
-        f"A public signal is any stored signal of the company whose type is one of the thesis feed signal types ({types}), with its stored date.",
-        f"A register entry counts only if the company was registered no more than {cut} years before the reference date: the radar flags new registrations, "
-        f"so the registration of an older company is not a discovery signal. It is still listed, in muted text, as not counted.",
+        f"A live public signal is a stored signal of the company whose type is one of the thesis feed signal types ({types}), with its stored date, "
+        "and it counts only if the radar's own feed rule would have shown that company: the same test the feed uses (radar/store.py explain), "
+        "applied to the company's registered facts and to the signals dated no later than that signal. That means the industry code is on the thesis list, "
+        "or a thesis word is in the registered line of business, or a thesis word is in the source's own text, or a thesis word in the legal name is backed by a second, independent source. "
+        "A signal that fails the test is listed in muted text as outside the thesis rule and is not counted.",
+        f"A register entry also counts only if the company was registered no more than {cut} years before the reference date: the radar flags new registrations, "
+        f"so the registration of an older company is not a discovery signal.",
+        "Declared research events (a signal whose detail says declared research, or a pilot, first hire, certification, programme entry, exhibitor, award, funding round or product launch) "
+        "count only with medium or high confidence and form a separate group, never mixed into the live count.",
         "Year-only dates (Business Finland funding) count as 1 January of that year and are labelled year only.",
-        f"First public signal = the earliest counted signal date. Months = days between that date and the reference date, divided by {DAYS_PER_MONTH}, rounded down, shown as N months before or N months after.",
-        "Found earlier = first counted signal strictly before the reference date. Found later = first counted signal on or after the reference date "
-        "(a year-only date in the reference year is later or same). No public signal = no counted signal at all, shown blank. The three groups always add up to the cohort size.",
+        f"First counted signal = the earliest counted signal date. Months = days between that date and the reference date, divided by {DAYS_PER_MONTH}, rounded down, shown as N months before or N months after.",
+        "Found earlier by live public records = a live counted signal strictly before the reference date. Found earlier only by declared research = no such live signal, but a counted declared research event strictly before it. "
+        "Found later = counted signals exist but none is before the reference date (a year-only date in the reference year is later or same). No public signal = no counted signal at all, shown blank. "
+        "The four groups always add up to the cohort size.",
         "Undated profile evidence (a BlueInvest profile with a TRL and no listing date) is shown as a note and never moves a company between groups.",
         "Confidence is printed beside the signal that set the first date. A low confidence keyword match is shown but is never proof.",
     ]
@@ -104,6 +111,19 @@ def _other(s: dict, counted: bool, reason: str | None) -> dict:
 
 
 _CONF = {"high": 0, "medium": 1, "low": 2}
+RESEARCH_TYPES = ("pilot_named", "first_hire", "certification", "programme_entry", "exhibitor", "award", "funding_round", "product_launch")
+GROUP_ORDER = ("earlier", "declared", "later", "none")
+
+
+def is_research(s: dict) -> bool:
+    return s["signal_type"] in RESEARCH_TYPES or "declared research" in (s.get("detail") or "").casefold()
+
+
+def headline(res: dict) -> str:
+    """The verdict sentence, built only from the computed counts."""
+    return (f"Of {res['total']} cohort companies, the radar, applying its own feed rule, would have shown {res['earlier']} before {res['reference_label']} "
+            f"using live public records. Declared research alone finds {res['declared']} earlier; {res['later']} are found only after; "
+            f"{res['none']} have no public signal.")
 
 
 def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES_CSV) -> dict:
@@ -112,7 +132,7 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
     types = set(th.get("feed_signal_types") or [])
     group = (th.get("backtest") or {}).get("cohort_group") or "cohort"
     entries = _entry_dates(entry_dates_path)
-    cohort = conn.execute("SELECT company_key, name, country FROM companies WHERE group_tag=? ORDER BY name", (group,)).fetchall()
+    cohort = conn.execute("SELECT company_key, name, country, industry_code, industry_desc FROM companies WHERE group_tag=? ORDER BY name", (group,)).fetchall()
     rows = []
     for c in cohort:
         key = c["company_key"]
@@ -123,30 +143,59 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
             eff_source = f"data/declared/cohort_entry_dates.csv: {hit[1] or 'no source stated'}"
         eff = date.fromisoformat(eff_iso)
         cutoff = _minus_years(eff, cut)
+        sigs = _signals(conn, key)
+        for s in sigs:
+            s["id"], s["company_key"] = s["signal_id"], key
+        texts = store.source_texts(conn, sigs)
+        company = {"name": c["name"], "industry_code": c["industry_code"], "industry_desc": c["industry_desc"]}
         counted, others = [], []
-        for s in _signals(conn, key):
+        for s in sigs:
             d = f"{s['date'][:4]}-01-01" if s["date_precision"] == "year" else s["date"]
-            if s["signal_type"] not in types:
+            label = store.TYPE_LABELS.get(s["signal_type"], s["signal_type"])
+            if is_research(s):
+                if s["confidence"] in ("medium", "high"):
+                    o = _other(s, True, None)
+                    o.update(counted_date=d, research=True, rule="declared research event with " + s["confidence"] + " confidence")
+                    counted.append(o)
+                else:
+                    others.append(_other(s, False, f"declared research with {s['confidence']} confidence, not counted"))
+            elif s["signal_type"] not in types:
                 others.append(_other(s, False, f"type {s['signal_type']} is not a feed signal type in this thesis"))
             elif s["signal_type"] == "register_entry" and date.fromisoformat(d) < cutoff:
                 others.append(_other(s, False, f"registered {s['date']}, older than the radar's {cut}-year cut, not counted"))
             else:
-                o = _other(s, True, None)
-                o["counted_date"] = d
-                counted.append(o)
+                earlier_sigs = [o for o in sigs if o["id"] != s["id"] and o["date"] <= s["date"]]
+                ex = store.explain({**company, **s}, earlier_sigs, th, texts)
+                if ex["strength"] == "strong":
+                    o = _other(s, True, None)
+                    o.update(counted_date=d, research=False, rule=ex["why"].removeprefix("Why: "))
+                    counted.append(o)
+                else:
+                    what = f"registered {s['date']}" if s["signal_type"] == "register_entry" else f"{label.lower()} {s['date_label']}"
+                    others.append(_other(s, False, f"{what}, outside the thesis rule"))
         counted.sort(key=lambda o: (o["counted_date"], _CONF.get(o["confidence"], 3), o["type"]))
-        first = counted[0] if counted else None
-        months, grp, timing = None, "none", None
+        live = [o for o in counted if not o["research"]]
+        research = [o for o in counted if o["research"]]
+        fd_of = lambda o: date.fromisoformat(o["counted_date"])  # noqa: E731
+        if live and fd_of(live[0]) < eff:
+            grp, first = "earlier", live[0]
+        elif research and fd_of(research[0]) < eff:
+            grp, first = "declared", research[0]
+        elif counted:
+            grp, first = "later", counted[0]
+        else:
+            grp, first = "none", None
+        months, timing = None, None
+        rest = [o for o in counted if o is not first]
         if first:
-            fd = date.fromisoformat(first["counted_date"])
-            n = _months(eff, fd)
-            if fd < eff:
-                grp, months, timing = "earlier", n, f"{n} months before"
+            n = _months(eff, fd_of(first))
+            if fd_of(first) < eff:
+                months, timing = n, f"{n} months before"
             else:
-                grp, months = "later", -n
-                timing = f"{n} months after" + (" (later or same, year only)" if first["year_only"] and fd.year == eff.year else "")
+                months = -n
+                timing = f"{n} months after" + (" (later or same, year only)" if first["year_only"] and fd_of(first).year == eff.year else "")
             first = dict(first, date=first["counted_date"])
-        others = counted[1:] + others
+        others = rest + others
         others.sort(key=lambda o: o["date"])
         notes = []
         prof = blueinvest.profile_for(conn, key)
@@ -158,9 +207,11 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
                      "group": grp, "others": others, "notes": notes, "reference_date": eff_iso, "reference_source": eff_source,
                      "reference_from_csv": bool(hit)})
     rows.sort(key=lambda r: (r["months"] is None, -(r["months"] or 0), r["name"].casefold()))
-    tot = {g: sum(1 for r in rows if r["group"] == g) for g in ("earlier", "later", "none")}
-    return {"rows": rows, "earlier": tot["earlier"], "later": tot["later"], "none": tot["none"], "total": len(rows),
-            "reference_date": ref_iso, "reference_source": ref_source, "reference_label": reference_label(ref_iso), "age_cut_years": cut}
+    tot = {g: sum(1 for r in rows if r["group"] == g) for g in GROUP_ORDER}
+    res = {"rows": rows, "earlier": tot["earlier"], "declared": tot["declared"], "later": tot["later"], "none": tot["none"], "total": len(rows),
+           "reference_date": ref_iso, "reference_source": ref_source, "reference_label": reference_label(ref_iso), "age_cut_years": cut}
+    res["headline"] = headline(res)
+    return res
 
 
 def not_connected(conn, th: dict) -> list[str]:
@@ -192,7 +243,7 @@ def _main(argv=None) -> int:
         f = r["first_signal"]
         print(f"{r['name']:34} {r['group']:8} {r['timing'] or 'no public signal':24} "
               + (f"{f['date']} {f['type']} ({f['confidence']}) {f['source_url']}" if f else ""))
-    print(f"earlier {res['earlier']}, later {res['later']}, none {res['none']}, total {res['total']}")
+    print(f"earlier {res['earlier']}, declared {res['declared']}, later {res['later']}, none {res['none']}, total {res['total']}")
     return 0
 
 

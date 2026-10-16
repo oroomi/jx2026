@@ -1,7 +1,7 @@
 {% from "_chip.html" import chip %}
-{% macro row(r) %}
+{% macro row(r, multi) %}
   <li class="feed-row{% if r.confidence == 'low' %} low{% endif %}">
-    <a class="co" href="/c/{{ r.company_key }}">{{ r.name }}</a>
+    <a class="co" href="/c/{{ r.company_key }}">{{ r.name }}</a>{% if multi %} <span class="cc" title="Country of the company, from the source record">{{ r.country or "no data" }}</span>{% endif %}
     <p class="meta">{{ r.type_label }} <span class="sep">/</span> <time datetime="{{ r.date[:4] if r.date_precision == "year" else r.date }}">{{ r.date_label or r.date }}</time>{% if r.earlier_count %} <span class="sep">/</span> {{ r.earlier_count }} earlier signal{{ "s" if r.earlier_count != 1 }}{% endif %}</p>
     <p class="why{% if r.strength == 'weak' %} why-weak{% endif %}">{{ r.why }}</p>
     {% if r.detail and r.signal_type != 'register_entry' %}<p class="detail">{{ r.detail }}</p>{% endif %}
@@ -26,7 +26,7 @@
 {% if rows %}
 {% if main_rows %}
 <ol class="feed" aria-label="Companies we can explain, newest first">
-{% for r in main_rows %}{{ row(r) }}{% endfor %}
+{% for r in main_rows %}{{ row(r, country_info(thesis).multi) }}{% endfor %}
 </ol>
 {% else %}
 <section class="empty" aria-label="No explained matches"><p class="answer">no company in this window has a reason we can show</p></section>
@@ -35,7 +35,7 @@
 <details class="weak">
   <summary>Weak matches ({{ weak_rows | length }}): only the company name contains a sector word, nothing else supports it</summary>
   <ol class="feed" aria-label="Weak matches, newest first">
-  {% for r in weak_rows %}{{ row(r) }}{% endfor %}
+  {% for r in weak_rows %}{{ row(r, country_info(thesis).multi) }}{% endfor %}
   </ol>
 </details>
 {% endif %}

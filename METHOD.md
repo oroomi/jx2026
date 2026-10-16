@@ -17,7 +17,7 @@ The core name is the folded name without the legal form (`openalex.core_name`). 
 - Preferred sources are the company's own site, press releases, EU sources (CORDIS, BlueInvest), Business Finland, patent offices and news.
 - Refused, and also dropped by code: LinkedIn, Facebook, Instagram, X, Crunchbase, Dealroom, PitchBook, Tracxn, CB Insights, Nordic9.
 - The quote is at most 20 verbatim words and names the company. A sentence that names a private person is never used. Code also redacts person-shaped names to `[name]`.
-- The signal type must be one of the existing types in `radar/emit.py`. Anything else is `unmapped` plus a suggested label, which is reported and never added.
+- The signal type must be one of the emittable types: the existing types in `radar/emit.py` that a web page can show, plus `programme_entry`, `award` and `funding_round` (the chief's decision on 17 Oct: the thesis feed already counts them; registered in the stitcher the way `ecosystem.py` registers its types). Anything else is `unmapped` plus a suggested label: it stays in `stitch_log` as `not_emitted` and is never a signal. A saved answer that says `unmapped` with one of the three as its label is read as that type.
 
 The answer is cached under `data/cache/stitcher/llm/` by prompt hash. A saved answer can be replayed with `--proposals DIR`.
 

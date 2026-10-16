@@ -19,6 +19,7 @@ PAGES = {
     "https://example.org/kelluu-award-2022": "The award went to Kelluu Oy on 3 June 2022 for persistent aerial monitoring.",
     "https://example.org/kelluu-year-only": "Kelluu flew its first commercial pilot with a utility company in 2020.",
     "https://example.org/kelluu-person": "CEO Jane Doe said on 1 March 2023 that Kelluu Oy signed a pilot with a grid operator.",
+    "https://example.org/kelluu-partner": "On 10 October 2023 Kelluu Oy announced a partnership with a grid company.",
 }
 LLM = {"queries_run": ['"Kelluu Oy"'], "events": [
     {"signal_type": "bf_funding", "date": "2021-05-12", "date_precision": "day", "source_url": "https://example.org/kelluu-funding",
@@ -35,6 +36,8 @@ LLM = {"queries_run": ['"Kelluu Oy"'], "events": [
      "quote": "Kelluu flew its first commercial pilot with a utility company in 2020.", "confidence": "medium"},
     {"signal_type": "site_customer", "date": "2023-03-01", "date_precision": "day", "source_url": "https://example.org/kelluu-person",
      "quote": "CEO Jane Doe said on 1 March 2023 that Kelluu Oy signed a pilot", "confidence": "high"},
+    {"signal_type": "unmapped", "suggested_type": "partnership", "date": "2023-10-10", "date_precision": "day",
+     "source_url": "https://example.org/kelluu-partner", "quote": "Kelluu Oy announced a partnership with a grid company", "confidence": "high"},
 ]}
 
 
@@ -65,15 +68,15 @@ def run(conn, payload=LLM):
 
 def test_pipeline_keeps_only_page_checked_events(conn):
     res = run(conn)
-    assert res["proposed"] == 7 and res["kept"] == 4
-    assert res["emitted"] == 3 and res["not_emitted"] == 1
+    assert res["proposed"] == 8 and res["kept"] == 5
+    assert res["emitted"] == 4 and res["not_emitted"] == 1
     rep = stitcher.report(conn, "t1", ("2026-01-01", "test reference"))
     assert rep["rejected_shape"] == 1
     assert rep["dropped"] == {"company_not_on_page": 1, "source_not_allowed": 1, "fetch_failed": 1}
-    assert rep["not_emitted_types"] == {"award": 1}
-    assert rep["kept_before_entry"] == 4 and rep["kept_before_entry_and_archived_before_entry"] == 1
+    assert rep["not_emitted_types"] == {"partnership": 1}  # kept in stitch_log only, never a signal
+    assert rep["kept_before_entry"] == 5 and rep["kept_before_entry_and_archived_before_entry"] == 1
     sig = {r["signal_type"]: dict(r) for r in conn.execute("SELECT * FROM signals WHERE adapter='stitcher'")}
-    assert set(sig) == {"bf_funding", "site_customer"}
+    assert set(sig) == {"bf_funding", "site_customer", "award"}
     assert sig["bf_funding"]["confidence"] == "high" and sig["bf_funding"]["date"] == "2021-05-12"
     assert "first archived 2021-05-20" in sig["bf_funding"]["detail"]
 
@@ -106,7 +109,7 @@ def test_every_query_logged_and_rerun_is_idempotent(conn):
     assert '"Kelluu Oy"' in qs and '"2902007-2"' in qs and '"kelluu.com"' in qs
     res = stitcher.stitch_company(conn, KELLUU, run_id="t2", runner=lambda p: (_ for _ in ()).throw(AssertionError("LLM re-called")),
                                   fetch=fake_fetch, capture=fake_capture, today="2026-10-16")
-    assert res["duplicate"] == 3 and res["emitted"] == 0  # cached LLM answer, same signals, nothing new
+    assert res["duplicate"] == 4 and res["emitted"] == 0  # cached LLM answer, same signals, nothing new
     assert conn.execute("SELECT count(*) FROM signals").fetchone()[0] == n
 
 
@@ -162,9 +165,21 @@ def test_stored_date():
 
 
 def test_emittable_types_exist_and_build_skips_stitcher():
-    from radar import emit
+    from radar import emit, store, thesis
     assert set(stitcher.EMITTABLE) <= set(emit.SIGNAL_TYPES)
+    assert {"programme_entry", "award", "funding_round"} <= set(stitcher.EMITTABLE)
+    assert {"programme_entry", "award", "funding_round"} <= set(thesis.load()["feed_signal_types"])
+    assert all(t in store.TYPE_LABELS for t in stitcher.EMITTABLE)
     assert "stitcher" not in [n for n, _ in build.discover()]
+
+
+def test_saved_unmapped_answer_takes_a_newly_emittable_type():
+    p, _ = stitcher.normalise_proposal({"signal_type": "unmapped", "suggested_type": "funding_round", "date": "2024-05",
+                                        "source_url": "https://example.org/x"})
+    assert p["signal_type"] == "funding_round" and p["suggested_type"] is None
+    p, _ = stitcher.normalise_proposal({"signal_type": "unmapped", "suggested_type": "partnership", "date": "2024",
+                                        "source_url": "https://example.org/x"})
+    assert p["signal_type"] == "unmapped" and p["suggested_type"] == "partnership"
 
 
 def test_default_store_refused(monkeypatch):

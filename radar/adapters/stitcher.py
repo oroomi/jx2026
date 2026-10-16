@@ -8,8 +8,9 @@ Four steps, each its own function, every step written to the stitch_log table (r
           business ID, core name or website domain) AND shows the date or at least its year. The precision kept is the
           one the page supports, never more than proposed. The Internet Archive's first capture of the page is stored as
           public_since: the earliest day anyone could have read it. Every drop is logged with its reason.
-  emit    radar.emit.emit_signal only, adapter "stitcher". Types outside radar.emit.SIGNAL_TYPES are logged as
-          not_emitted with the LLM's label; they are reported, never added.
+  emit    radar.emit.emit_signal only, adapter "stitcher". Emittable: the existing radar.emit types in EMITTABLE plus
+          programme_entry, award and funding_round (chief's decision 17 Oct: the thesis already counts them). Every other
+          kept type is logged as not_emitted with the LLM's label and stays in stitch_log only, never a signal.
 
 Not run by `python3 -m radar.build`: the module has no run(), because one LLM session per company is minutes, not
 seconds. CLI:  python3 -m radar.adapters.stitcher --company <key> | --batch <file>  [--proposals DIR] [--print-prompt]
@@ -61,6 +62,15 @@ EMITTABLE = {
     "research_output": "publication or report co-authored by the company as an organisation",
     "website_milestone": "launch of the company's product, customers, pricing or careers page",
 }
+# Chief's decision (17 Oct): these three become emittable because the thesis feed already counts them. They are registered
+# the way radar/adapters/ecosystem.py registers its types (emit.py stays the chief's file). No other new type, ever.
+THESIS_TYPES = {
+    "programme_entry": "the company was selected into or joined an accelerator, incubator or programme cohort",
+    "award": "the company won an award, prize or pitch competition (a win, not a nomination or a finalist place)",
+    "funding_round": "the company raised an equity, convertible or crowdfunding round from investors",
+}
+emit.SIGNAL_TYPES = tuple(dict.fromkeys((*emit.SIGNAL_TYPES, *THESIS_TYPES)))
+EMITTABLE.update(THESIS_TYPES)
 assert all(t in emit.SIGNAL_TYPES for t in EMITTABLE), "EMITTABLE must stay a subset of radar.emit.SIGNAL_TYPES"
 
 # Sources behind logins or paid walls: the honesty lines say connector slot only, never scraped.
@@ -152,8 +162,8 @@ Return ONLY one JSON object, no prose, no code fence:
 {{"queries_run": ["..."], "events": [{{"signal_type": "...", "suggested_type": null, "date": "YYYY-MM-DD or YYYY-MM or YYYY",
   "date_precision": "day|month|year", "source_url": "https://...", "quote": "...", "confidence": "high|medium|low"}}]}}
 
-signal_type must be one of these, or "unmapped" with a short snake_case suggested_type (e.g. funding_round, award,
-programme_entry, product_launch, exhibitor, partnership, incorporation):
+signal_type must be one of these, or "unmapped" with a short snake_case suggested_type (e.g. product_launch, exhibitor,
+partnership, incorporation):
 {types}
 
 Rules, all mandatory:
@@ -215,6 +225,8 @@ def normalise_proposal(ev: dict) -> tuple[dict | None, str | None]:
         return None, "bad_date"
     st = str(ev.get("signal_type") or "").strip()
     sug = (str(ev.get("suggested_type") or "").strip() or None)
+    if st == "unmapped" and sug in EMITTABLE:  # an answer saved before a type became emittable: take the type it named
+        st, sug = sug, None
     if st not in EMITTABLE:
         sug = sug or st or "unlabelled"
         st = "unmapped"
@@ -467,7 +479,7 @@ def emit_events(conn: sqlite3.Connection, run_id: str, company: dict, kept: list
         if k["signal_type"] not in EMITTABLE:
             stats["not_emitted"] += 1
             _log(conn, run_id, company["company_key"], "emit", "not_emitted",
-                 reason=f"type not in radar.emit.SIGNAL_TYPES: {k['suggested_type']}", **base)
+                 reason=f"type not emittable, kept in stitch_log only: {k['suggested_type']}", **base)
             continue
         day = stored_date(k["date"], k["date_precision"])
         host = urlparse(k["source_url"]).hostname or "the source"

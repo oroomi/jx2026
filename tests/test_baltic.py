@@ -135,3 +135,59 @@ def test_ted_stops_on_429(tmp_path):
     conn = db.connect(":memory:")
     res = ted.run(conn, BALTIC, client=Blocked(), cache=tmp_path)
     assert "429" in res["blocked"] and res["signals"] == 0
+
+
+# ---- Estonia ---------------------------------------------------------------------------------------------------------
+
+from datetime import date, timedelta  # noqa: E402
+
+from radar.adapters import estonia_register as ee  # noqa: E402
+
+eefx = _fx("estonia_fixture")
+EE_THESIS = {"countries": ["FI", "EE"], "industry_codes": [{"code": "03211"}],
+             "name_keywords": {"et": ["mere", "laev"], "en": ["marine"]}}
+
+
+def _ee_file(tmp_path, delimiter_rows=None):
+    f = tmp_path / "ee.csv"
+    f.write_text("\n".join(delimiter_rows or eefx.rows(lambda n: (date.today() - timedelta(days=n)).isoformat())), encoding="utf-8")
+    return f
+
+
+def test_estonia_parse_date_both_formats():
+    assert ee.parse_date("2026-03-04T00:00:00") == "2026-03-04" and ee.parse_date("04.03.2026") == "2026-03-04"
+    assert ee.parse_date("") is None and ee.parse_date("March 2026") is None
+
+
+def test_estonia_fixture_rows(tmp_path):
+    conn = db.connect(":memory:")
+    res = ee.run(conn, EE_THESIS, path=_ee_file(tmp_path))
+    assert res["blocked"] == "" and res["bad_header"] == "" and res["signals"] == 3
+    rows = {r["name"]: r for r in conn.execute("SELECT c.name, c.country, c.industry_code, s.* FROM signals s JOIN companies c USING (company_key)")}
+    assert set(rows) == {"Fixture Mere OÜ", "Fixture Kood OÜ", "Fixture Laev AS"}
+    assert rows["Fixture Mere OÜ"]["confidence"] == "medium" and rows["Fixture Kood OÜ"]["confidence"] == "low"
+    assert all(r["country"] == "EE" and r["signal_type"] == "register_entry" for r in rows.values())
+    assert rows["Fixture Mere OÜ"]["source_url"] == "https://ariregister.rik.ee/eng/company/90000001"
+    assert rows["Fixture Laev AS"]["industry_code"] is None            # not stated stays NULL
+    assert ee.run(conn, EE_THESIS, path=_ee_file(tmp_path))["signals"] == 0   # idempotent
+
+
+def test_estonia_inactive_without_the_country(tmp_path):
+    conn = db.connect(":memory:")
+    res = ee.run(conn, {**EE_THESIS, "countries": ["FI"]}, path=_ee_file(tmp_path))
+    assert res["signals"] == 0 and "not an active country" in res["note"]
+
+
+def test_estonia_bad_header_is_reported_not_guessed(tmp_path):
+    conn = db.connect(":memory:")
+    res = ee.run(conn, EE_THESIS, path=_ee_file(tmp_path, ["a;b;c", "1;2;3"]))
+    assert res["bad_header"] and res["signals"] == 0
+
+
+def test_estonia_blocked_on_429(tmp_path, monkeypatch):
+    class C:
+        def get(self, url):
+            return type("R", (), {"status_code": 429})()
+    monkeypatch.setattr(ee, "download", lambda *a, **k: (_ for _ in ()).throw(ee.Blocked("HTTP 429")))
+    res = ee.run(db.connect(":memory:"), EE_THESIS)
+    assert "429" in res["blocked"]

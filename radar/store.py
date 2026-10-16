@@ -116,12 +116,14 @@ REASON_IDS = ("industry_code", "line_of_business", "own_text", "corroborated_key
 REASON_MEANING = {
     "industry_code": "the PRH industry code is on the thesis list (exact match).",
     "line_of_business": "a thesis word starts a word in the registered line-of-business text.",
-    "own_text": "the signal's own stored text (a contract or project title) contains a thesis word.",
+    "own_text": "the source's own text (Hilma notice title, CORDIS project title and objective, BlueInvest profile text) contains a thesis word. Our own annotations are never read.",
     "corroborated_keyword": "a thesis word is in the legal name and a second, independent source also has a record of the company.",
 }
 _WHY_ORDER = ("industry_code", "line_of_business", "own_text", "corroborated_keyword")
-# Signal types whose stored detail is the source's own text (title, project, job). register_entry is excluded: its text is the register's.
-_OWN_TEXT_TYPES = ("public_contract", "eu_project", "blueinvest", "patent", "job_ad", "bf_funding")
+# Signal types whose SOURCE text is stored: Hilma notice title (inside detail), CORDIS title and objective (signal_text),
+# BlueInvest profile title and description. Other types (Business Finland, patent, job ad) have no stored source text: no own_text path.
+_OWN_TEXT_TYPES = ("public_contract", "eu_project", "blueinvest")
+OWN_TEXT_SOURCES = ("the Hilma notice title", "the CORDIS project title and objective", "the BlueInvest profile text")
 
 
 def is_year_only(sig) -> bool:
@@ -144,22 +146,42 @@ def _title_part(detail: str | None) -> str:
     return re.sub(r"\s*\(EUR [^)]*\)\s*$", "", d)
 
 
-def _own_text_hit(sig, company_name: str, thesis: dict) -> str | None:
-    """The thesis word found in a non-register signal's own text, or None when the stored text does not show one."""
+def source_texts(conn, sigs) -> dict:
+    """signal id -> list of the source's own text fields. Never the `detail` annotation our adapters write (except Hilma, whose
+    detail embeds the notice title, taken apart by _title_part). Missing table or row means no text."""
+    out: dict = {}
+    ids = [s["id"] for s in sigs if s["signal_type"] == "eu_project"]
+    for i in range(0, len(ids), 500):
+        chunk = ids[i:i + 500]
+        q = ",".join("?" * len(chunk))
+        try:
+            for r in conn.execute(f"SELECT signal_id, text FROM signal_text WHERE field IN ('title','objective') AND signal_id IN ({q})", chunk):
+                out.setdefault(r[0], []).append(r[1])
+        except sqlite3.OperationalError:
+            break
+    keys = {s["company_key"]: s["id"] for s in sigs if s["signal_type"] == "blueinvest"}
+    for key, sid in keys.items():
+        try:
+            for r in conn.execute("SELECT title, description FROM blueinvest_profiles WHERE company_key=?", (key,)):
+                out.setdefault(sid, []).extend(t for t in r if t)
+        except sqlite3.OperationalError:
+            break
+    return out
+
+
+def _own_text_hit(sig, thesis: dict, texts: dict | None = None) -> str | None:
+    """The thesis word found in a signal's SOURCE text, or None when no source text is stored."""
     from radar import fit
     if sig["signal_type"] not in _OWN_TEXT_TYPES:
         return None
     if sig["signal_type"] == "public_contract":
         title = _title_part(sig["detail"]).casefold()
         return next((k for k in thesis.get("hilma_keywords", []) if k.casefold() in title), None)
-    text = sig["detail"] or ""
-    if company_name:
-        text = re.sub(re.escape(company_name), " ", text, flags=re.I)
-    hits = fit.matched_keywords(text, thesis)
+    hits = fit.matched_keywords(" . ".join((texts or {}).get(sig["id"], [])), thesis)
     return hits[0] if hits else None
 
 
-def explain(row: dict, others: list, thesis: dict) -> dict:
+def explain(row: dict, others: list, thesis: dict, texts: dict | None = None) -> dict:
     """reasons (ids, strongest first), strength and the one-line why for one feed row. Built only from stored values."""
     from radar import fit
     code = (row.get("industry_code") or "").strip()
@@ -177,7 +199,7 @@ def explain(row: dict, others: list, thesis: dict) -> dict:
     for sig in [row, *others]:
         if sig is row and row["signal_type"] == "register_entry":
             continue
-        hit = _own_text_hit(sig, row["name"], thesis)
+        hit = _own_text_hit(sig, thesis, texts)
         if hit:
             reasons.append("own_text")
             parts["own_text"] = f"the {TYPE_LABELS.get(sig['signal_type'], sig['signal_type']).lower()} text contains '{hit}'"
@@ -289,7 +311,12 @@ def _others_by_company(conn, keys) -> dict[str, list]:
 
 
 def feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500) -> list[dict]:
-    """One row per company: its earliest in-window feed signal (ties: confidence, then lowest id), newest first.
+    return _feed(conn, thesis, today=today, signal_type=signal_type, group=group, limit=limit)[0]
+
+
+def _feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500) -> tuple[list[dict], int]:
+    """(rows, hidden). Hidden = companies left out because the legal name looks like a private person and the company has no
+    signal other than a register entry. One row per company: its earliest in-window feed signal (ties: confidence, then lowest id), newest first.
     Year-only Business Finland records are never the entry signal. Each row carries reasons, strength and why."""
     start, _, _ = _window(thesis, today)
     all_types = _feed_types(thesis)
@@ -300,8 +327,13 @@ def feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500)
             continue
         per.setdefault(r["company_key"], []).append(r)
     others = _others_by_company(conn, per.keys())
-    out = []
+    texts = source_texts(conn, [o for k in per for o in others[k]])
+    out, hidden = [], 0
+    from radar import fit
     for key, rs in per.items():
+        if fit.looks_like_person(rs[0]["name"], thesis) and all(o["signal_type"] == "register_entry" for o in others[key]):
+            hidden += 1
+            continue
         best = min(rs, key=lambda r: (r["date"], _CONF_ORDER.get(r["confidence"], 3), r["signal_id"]))
         if signal_type is not None and best["signal_type"] != signal_type:
             continue
@@ -315,16 +347,17 @@ def feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500)
         d["signal_count"] = len(rs)
         d["evidence"] = evidence(d)
         d["date_label"] = date_label(d)
-        d.update(explain(d, [o for o in others[key] if o["id"] != best["signal_id"]], thesis))
+        d["id"] = d["signal_id"]
+        d.update(explain(d, [o for o in others[key] if o["id"] != best["signal_id"]], thesis, texts))
         out.append(d)
     out.sort(key=lambda d: (d["date"], d["signal_id"]), reverse=True)
-    return with_precision(conn, out[:limit])
+    return with_precision(conn, out[:limit]), hidden
 
 
 def feed_counts(conn, thesis, *, today=None) -> dict:
     start, end, days = _window(thesis, today)
     types = list(thesis["feed_signal_types"])
-    rows = feed(conn, thesis, today=today, limit=10**9)
+    rows, hidden = _feed(conn, thesis, today=today, limit=10**9)
     by_type = {t: 0 for t in types}
     by_conf = {c: 0 for c in ("high", "medium", "low")}
     for r in rows:
@@ -351,7 +384,7 @@ def feed_counts(conn, thesis, *, today=None) -> dict:
             f"SELECT COUNT(*) FROM signals WHERE signal_type IN ({q}) AND date > ?", [*types, end.isoformat()]).fetchone()[0]
     last = conn.execute("SELECT MAX(fetched_at) FROM signals").fetchone()[0]
     return {"window_start": start.isoformat(), "window_end": end.isoformat(), "window_days": days,
-            "companies": len(rows), "main": main, "weak": len(rows) - main, "by_reason": by_reason,
+            "companies": len(rows), "hidden_personal": hidden, "main": main, "weak": len(rows) - main, "by_reason": by_reason,
             "year_only_not_entry": year_only, "by_type": by_type, "by_confidence": by_conf,
             "excluded_declared": excluded, "future_dated": future, "last_fetched": last}
 

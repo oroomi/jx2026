@@ -58,7 +58,8 @@
   Data fetched {{ (counts.last_fetched or "no data")[:10] }}.
   Main matches by reason: industry code {{ counts.by_reason.industry_code }}, line of business {{ counts.by_reason.line_of_business }}, own text {{ counts.by_reason.own_text }}, corroborated name {{ counts.by_reason.corroborated_keyword }}. Year-only Business Finland records not used as entry dates: {{ counts.year_only_not_entry }}.
   By confidence: high {{ counts.by_confidence.high }}, medium {{ counts.by_confidence.medium }}, low {{ counts.by_confidence.low }}.
-  Declared cohort and portfolio companies are excluded ({{ counts.excluded_declared }}).</p>
+  Declared cohort and portfolio companies are excluded ({{ counts.excluded_declared }}).
+  <span class="n-hidden">{{ counts.hidden_personal }}</span> companies hidden: personal-name holding companies.</p>
   {% else %}
   <p>Rule: {{ rule }}</p>
   {% endif %}

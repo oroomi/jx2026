@@ -64,3 +64,7 @@ No code from any earlier project. No private or scraped personal data. No named 
 - data/declared/businessfinland.xlsx (2.4 MB) is tracked on main on purpose, against the earlier "keep it untracked" rule: it is the public Business Finland funding export as downloaded by the team on 16 Oct, and a judge must be able to rebuild the bf_funding signals from the repo alone. It is declared data, not fetched data.
 - BlueInvest public pipeline profiles stored: 21 in total, 18 with country Finland (earlier notes said 19 Finnish; the stored count is the truth).
 - Feed precision defect D-N1 (own-text reasons from our own annotations, short keywords hitting common words) is acknowledged and fixed by task jx20b; until it is merged, main-list rows whose reason reads "eu project text contains '<short word>'" are over-inclusive.
+
+## Feed precision (jx20b)
+
+Built during the event: whole-word keyword matching (`radar/fit.py`), a stop list and a non-person word list in the thesis files, the `signal_text` table (`radar/schema/011_signal_text.sql`) that keeps the CORDIS project title, objective and keywords apart from our own `detail` annotation, and a rule that hides legal names shaped like a private person plus Holding, Invest, Capital, Consulting or Tmi when the company has no signal beyond a register entry. No new external data or library.

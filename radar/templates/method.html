@@ -19,6 +19,7 @@
 {% endfor %}</dl>
 {% if counts %}<p>Now: {{ counts.main }} companies in the main list, {{ counts.weak }} weak matches, {{ counts.year_only_not_entry }} year-only Business Finland records not used as entry dates. A company can have more than one reason.</p>
 {% else %}<p><span class="hatch">no data</span> No database for this thesis yet.</p>{% endif %}
+<p>Matching rule: {{ match_rule }} Own text is read only from {{ own_text_sources }}; Business Finland, patent and job records have no stored source text, so they never give an own-text reason. A thesis word in the legal name alone never admits a company to the main list. A legal name shaped like a private person's name followed by Holding, Invest, Capital, Consulting or Tmi is hidden from both lists unless the company has a non-register signal; the feed footer prints how many.</p>
 <p>Limit: industry codes are coarse; a code on the list is a hint, not proof of a blue business.</p>
 <h2>Confidence rule</h2>
 <pre class="rulebox">{% for l in rule_lines %}{{ l | replace("signal_type", "kind of record") | replace("adapter", "source") }}

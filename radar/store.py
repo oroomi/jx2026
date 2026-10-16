@@ -41,10 +41,12 @@ _CONF_ORDER = {"high": 0, "medium": 1, "low": 2}
 NO_DB_MESSAGE = "no signals yet. Run python3 -m radar.build"
 
 
-def open_db(path=None, readonly: bool = True):
-    """Open the radar database. Path defaults to env RADAR_DB, else radar.db.DB_PATH.
+def open_db(path=None, readonly: bool = True, thesis: dict | None = None):
+    """Open the radar database. Path defaults to the thesis database (thesis.db_path; env RADAR_DB for the default thesis).
     Read-only returns None when the file does not exist."""
-    p = Path(path or os.environ.get("RADAR_DB") or db_mod.DB_PATH)
+    if path is None:
+        path = thesis_mod.db_path(thesis or thesis_mod.load())
+    p = Path(path)
     if not readonly:
         return db_mod.connect(p)
     if not p.is_file():
@@ -54,11 +56,38 @@ def open_db(path=None, readonly: bool = True):
     return conn
 
 
+COOKIE = "radar_thesis"
+
+
+def _requested_thesis(request) -> tuple[str | None, bool]:
+    """(thesis id, from_query). Only ids that exist in thesis.available() survive; nothing else is ever used."""
+    if request is None:
+        return None, False
+    av = thesis_mod.available()
+    q = request.query_params.get("thesis")
+    if q in av:
+        return q, True
+    c = request.cookies.get(COOKIE)
+    if c in av:
+        return c, False
+    return None, False
+
+
 def context(request=None):
     """The ONLY way a route gets its thesis and database: `thesis, conn = store.context(request)`.
-    conn is None when no database exists (show the empty state). Routes must call nothing else:
-    the thesis task will change this one function to pick the thesis per request."""
-    return thesis_mod.load(), open_db()
+    The thesis is picked per request (query `thesis`, then cookie `radar_thesis`, then the default); conn is None
+    when that thesis has no database yet (show the empty state)."""
+    tid, from_query = _requested_thesis(request)
+    th = thesis_mod.load(thesis_mod.resolve(tid))
+    if request is not None:
+        request.state.thesis = th
+        if from_query:
+            request.state.set_thesis_cookie = th["id"]
+    return th, open_db(thesis=th)
+
+
+def empty_state_text(thesis: dict) -> str:
+    return f"no signals yet for {thesis['title']}. Run python3 -m radar.build --thesis {thesis['_path']}"
 
 
 def _today(today) -> date:

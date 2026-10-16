@@ -26,7 +26,7 @@
 </ol>
 {% elif no_db or (not selected and total == 0) %}
 <section class="empty" aria-label="Empty state">
-  <p class="answer">no signals yet{% if no_db %}. Run <code>python3 -m radar.build</code>{% endif %}</p>
+  <p class="answer">no signals yet{% if no_db %} for {{ thesis.title }}. Run <code>python3 -m radar.build --thesis {{ thesis._path }}</code>{% endif %}</p>
   <p><span class="hatch">not in public records</span></p>
 </section>
 {% else %}

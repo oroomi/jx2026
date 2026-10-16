@@ -71,7 +71,7 @@ def test_defunct_company_gets_no_leads(world):
 def test_next_step_rule_1_open_programme(world):
     conn, th = world
     s = matching.next_step("9100001-1", th, conn=conn, today=TODAY)
-    assert s["rule"] == 1 and s["sentence"] == "Apply to Fixture Open Grant before 2026-12-01"
+    assert s["rule"] == 1 and s["sentence"] == "Introduce them to Fixture Open Grant before 2026-12-01"
     assert s["source_url"] == "https://prog.example.test/open" and "TRL 6" in s["because"]
 
 
@@ -86,7 +86,7 @@ def test_next_step_rule_2_public_buyer(world):
     c = matching.company_context(conn, "9100001-1")
     assert c["category"] == "water quality"
     s = matching.next_step("9100001-1", th2, conn=conn, today=TODAY)
-    assert s["rule"] == 2 and s["sentence"] == "Contact Fixture Buyer Oy, which bought water quality on 2026-05-02"
+    assert s["rule"] == 2 and s["sentence"] == "Ask about their water quality contract with Fixture Buyer Oy (2026-05-02)"
     assert s["source_url"] == "https://hilma.example.test/1"
 
 
@@ -97,7 +97,7 @@ def test_next_step_rule_3_raise(world):
     emit.emit_signal(conn, company_key="9100001-1", signal_type="bf_funding", date="2026-04-01", source_url="https://bf.example.test/1", confidence="high",
                      adapter="businessfinland", detail="grant")
     s = matching.next_step("9100001-1", th, conn=conn, today=TODAY)
-    assert s["rule"] == 3 and s["sentence"] == "Raise: start with Fixture Angels"
+    assert s["rule"] == 3 and s["sentence"] == "Meet now: judge a raise, and introduce them to Fixture Angels"
 
 
 def test_next_step_rule_4_check_in_and_rule_5(world):
@@ -108,7 +108,7 @@ def test_next_step_rule_4_check_in_and_rule_5(world):
     assert s["rule"] == 4 and s["sentence"] == "Check in: no public signal since 2024-05-01"
     assert matching.next_step("name:lonely", th, conn=conn, today=TODAY)["sentence"].startswith("Check in: no dated public signal")
     five = matching.next_step("9100002-2", th, conn=conn, today=TODAY)
-    assert five["rule"] == 5 and five["sentence"] == "Not enough public evidence for a next step yet" and five["source_url"] is None
+    assert five["rule"] == 5 and five["sentence"] == "Watch: not enough public evidence for a next step yet" and five["source_url"] is None
 
 
 def test_partner_organisations_are_excluded_from_the_feed(tmp_path):

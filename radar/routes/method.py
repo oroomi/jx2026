@@ -2,7 +2,6 @@
 Also owns two cross-page hooks: the thesis switcher helpers for base.html and the radar_thesis cookie."""
 from __future__ import annotations
 
-import inspect
 from pathlib import Path
 
 from fastapi import APIRouter, Request
@@ -56,18 +55,57 @@ def _template_response(request, *args, **kwargs):
 templates.TemplateResponse = _template_response
 
 
+SOURCE_NAMES = {
+    "prh": "PRH/YTJ company register", "prh_notices": "PRH registered notices (share issues, board changes)",
+    "hilma": "Hilma public contracts", "businessfinland": "Business Finland funding export", "cordis": "CORDIS EU projects",
+    "blueinvest": "BlueInvest pipeline", "declared": "Declared cohort and portfolio list",
+}
+EXTRA_TYPE_LABELS = {"equity_event": "Share issue or capital increase", "board_change": "Board change",
+                     "capital_loss": "Loss of share capital", "startup_notice": "Start-up notification"}
+DATASET_NAMES = {
+    "cohort_portfolio_companies.csv": "Cohort and portfolio company list", "corporates_clients.csv": "Corporate buyers list",
+    "investors.csv": "Investor list", "programmes_grants.csv": "Programmes and grants list",
+    "startups_universe.csv": "Startup universe list", "businessfinland.xlsx": "Business Finland funding export",
+}
+
+
+def _table_count(conn, sql: str) -> int | None:
+    try:
+        return conn.execute(sql).fetchone()[0]
+    except Exception:
+        return None
+
+
 def sources(conn, adapter_names: list[str]) -> list[dict]:
+    """One plain sentence per source, from counts in the database. A source with nothing says it is not loaded in this build."""
     rows = []
     for name in adapter_names:
         n, last = (0, None)
         if conn is not None:
             n, last = conn.execute("SELECT COUNT(*), MAX(fetched_at) FROM signals WHERE adapter = ?", (name,)).fetchone()
-        note = None
-        if name == "businessfinland" and (not n or not (ROOT / BF_EXPORT).is_file()):
-            note = f"awaiting export ({BF_EXPORT} not present)"
-        rows.append({"name": name, "label": store.SOURCE_LABELS.get(name, name), "signals": n,
-                     "last_fetched": (last or "")[:10] or None, "note": note})
+        extra = None
+        if conn is not None and name == "blueinvest":
+            k = _table_count(conn, "SELECT COUNT(*) FROM blueinvest_profiles")
+            extra = f"{k} Finnish profiles, no dated events" if k else None
+        elif conn is not None and name == "declared":
+            k = _table_count(conn, "SELECT COUNT(*) FROM companies WHERE group_tag IN ('cohort','portfolio')")
+            extra = f"{k} declared companies, no dated events" if k else None
+        if n:
+            text = f"{n} signal{'s' if n != 1 else ''}"
+            if extra:
+                text = f"{extra}; {text}"
+        elif extra:
+            text = extra
+        else:
+            text = "not loaded in this build"
+        rows.append({"name": name, "label": SOURCE_NAMES.get(name, store.SOURCE_LABELS.get(name, name)), "signals": n,
+                     "text": text, "last_fetched": (last or "")[:10] or None})
     return rows
+
+
+def datasets() -> list[str]:
+    files = sorted(f.name for f in (ROOT / "data" / "declared").glob("*") if f.is_file())
+    return [DATASET_NAMES[f] for f in files if f in DATASET_NAMES]
 
 
 @router.get("/method")
@@ -81,11 +119,11 @@ def method(request: Request):
     finally:
         if conn is not None:
             conn.close()
-    declared = sorted(f.name for f in (ROOT / "data" / "declared").glob("*") if f.is_file())
-    rule = [ln.strip() for ln in inspect.cleandoc(emit.__doc__).splitlines()]
+    declared = datasets()
+    kinds = [store.TYPE_LABELS.get(t) or EXTRA_TYPE_LABELS.get(t) or t.replace("_", " ") for t in emit.SIGNAL_TYPES]
     geo = th["geography"]
     return templates.TemplateResponse(request, "method.html", {
-        "thesis": th, "rule_lines": rule, "signal_types": emit.SIGNAL_TYPES, "feed_rule": store.rule_text(th), "match_rule": fit.MATCH_RULE, "own_text_sources": ", ".join(store.OWN_TEXT_SOURCES),
+        "thesis": th, "confidence_rules": store.CONFIDENCE_RULES, "kinds": kinds, "feed_rule": store.rule_text(th), "match_rule": fit.MATCH_RULE, "own_text_sources": ", ".join(store.OWN_TEXT_SOURCES),
         "window_days": geo["feed_window_days"], "age_cut": geo.get("stage_max_company_age_years"),
         "counts": counts, "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
         "declared": declared, "sources": src, "no_db": conn is None, "connectors": CONNECTOR_SLOTS, "fw": frameworks.assess({}, []),

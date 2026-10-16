@@ -33,7 +33,7 @@ def test_rows_and_order(client):
     assert r.text.count('class="feed-row') == 3
     assert "250" in r.text and "EUR" in r.text
     assert "1 earlier signal" in r.text
-    assert "low: keyword or code match only" in r.text
+    assert "How sure: low, matched on" in r.text and "keyword or code match only" not in r.text
     assert 'class="feed-row low"' in r.text
 
 
@@ -75,7 +75,8 @@ def test_search_multiple_and_none(client):
     t = client.get("/search?q=synthetic").text
     assert "matches for" in t and "Synthetic Cohort" in t
     t = client.get("/search?q=zzzz").text
-    assert "no company matches 'zzzz' in this radar" in t
+    assert "No public record found for zzzz in Finland." in t and "Try the registered legal name" in t and "Switch sector" in t
+    assert 'class="feed-row' not in t
 
 
 def test_search_escapes(client):

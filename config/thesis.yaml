@@ -2,6 +2,8 @@
 # and the radar serve a different thesis (see config/thesis_*.yaml). No code reads sector words from anywhere else.
 id: redstone_apelago_blue
 title: Blue economy, Finland and Nordics (Redstone Blue x A'Pelago)
+sector_label: blue-economy   # display words used in headings and copy; no page names a sector any other way
+cohort_label: The Nordic Blue 19
 owner_note: >
   Built from Redstone Blue's four areas (redstone.vc/strategies/blue-economy) and A'Pelago's stated themes
   (apelago.fi). Edit here, never in code.

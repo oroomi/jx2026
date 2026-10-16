@@ -8,7 +8,7 @@
     <div class="proof">
       {{ chip(r.evidence) }}
       {% if r.amount_eur is not none %}<a class="amt" href="{{ r.evidence.url }}" target="_blank" rel="noopener">{{ "{:,.0f}".format(r.amount_eur).replace(",", " ") }} EUR <span class="amt-src">per {{ r.evidence.label }}</span></a>{% endif %}
-      <span class="conf conf-{{ r.confidence }}">How sure: {{ "low: keyword or code match only" if r.confidence == "low" else r.confidence }}</span>
+      <span class="conf conf-{{ r.confidence }}">How sure: {{ r.sure_text }}</span>
     </div>
   </li>
 {% endmacro %}

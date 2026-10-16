@@ -7,12 +7,27 @@ from urllib.parse import quote
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 
-from radar import store
+from radar import store, thesis as thesis_mod
 from radar.routes.home import _has_route, templates
 
 router = APIRouter()
 
 ROW_LIMIT = 500
+COUNTRY_NAMES = {"FI": "Finland", "SE": "Sweden", "NO": "Norway", "DK": "Denmark", "EE": "Estonia", "IS": "Iceland"}
+_CONF_ORDER = {"high": 0, "medium": 1, "low": 2}
+_BASIS = {"industry_code": "industry code", "line_of_business": "registered line of business",
+          "own_text": "the source text", "corroborated_keyword": "company name plus a second source"}
+
+
+def sure_text(r: dict) -> str:
+    """The confidence word in plain language, built from the stored confidence and reasons only."""
+    c = r["confidence"]
+    if c == "high":
+        return "high, the source names the company and states the date"
+    if c == "medium":
+        return "medium, matched on exact name or website, date stated by the source"
+    basis = [_BASIS[x] for x in r.get("reasons", []) if x in _BASIS]
+    return "low, matched on " + (" and ".join(basis[:2]) if basis else "company name") + " only"
 
 
 def _view(request: Request, signal_type: str | None):
@@ -28,11 +43,13 @@ def _view(request: Request, signal_type: str | None):
             rows = store.feed(conn, th, signal_type=signal_type, limit=ROW_LIMIT)
         finally:
             conn.close()
+    for r in rows:
+        r["sure_text"] = sure_text(r)
     by_type = (counts or {}).get("by_type", {})
     pills = [{"key": t, "label": store.TYPE_LABELS.get(t, t), "count": by_type.get(t, 0), "href": f"/?type={quote(t)}"} for t in types]
     total = (counts or {}).get("companies", 0)
     return {
-        "thesis": th, "rows": rows, "main_rows": [r for r in rows if r["strength"] == "strong"],
+        "thesis": th, "rows": rows, "main_rows": sorted((r for r in rows if r["strength"] == "strong"), key=lambda r: (_CONF_ORDER.get(r["confidence"], 3), -int(r["date"].replace("-", "")), r["name"])),
         "weak_rows": [r for r in rows if r["strength"] == "weak"], "counts": counts, "pills": pills, "selected": signal_type, "total": total,
         "selected_label": store.TYPE_LABELS.get(signal_type, signal_type) if signal_type else None,
         "rule": store.rule_text(th), "no_db": conn is None, "truncated": total > ROW_LIMIT and signal_type is None,
@@ -64,4 +81,7 @@ def search(request: Request, q: str = ""):
     ctx = _view(request, None)
     ctx["q"] = q.strip()
     ctx["matches"] = hits
+    ctx["searching"] = True
+    ctx["countries"] = ", ".join(COUNTRY_NAMES.get(c, c) for c in th["geography"].get("countries", [])) or "the active sector's countries"
+    ctx["other_sectors"] = [(tid, thesis_mod.load(path)) for tid, path in thesis_mod.available().items() if tid != th["id"]]
     return templates.TemplateResponse(request, "feed.html", ctx)

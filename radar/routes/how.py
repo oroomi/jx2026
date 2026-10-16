@@ -4,6 +4,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 
+from radar import store
 from radar.routes.home import _has_route, templates
 
 router = APIRouter()
@@ -11,7 +12,10 @@ router = APIRouter()
 
 @router.get("/how")
 def how(request: Request):
-    return templates.TemplateResponse(request, "how.html", {"active": "how", "has_route": _has_route(request)})
+    th, conn = store.context(request)
+    if conn is not None:
+        conn.close()
+    return templates.TemplateResponse(request, "how.html", {"thesis": th, "active": "how", "has_route": _has_route(request)})
 
 
 def error_page(request: Request, status: int, heading: str, body: str):

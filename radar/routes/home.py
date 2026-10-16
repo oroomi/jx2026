@@ -27,6 +27,14 @@ BUILD = _build_line()
 templates.env.globals["build_line"] = BUILD
 
 
+def asset_version() -> str:
+    """Cache-buster for /static links (the edge caches static files for hours)."""
+    return str(int(max((f.stat().st_mtime for f in (ROOT / "radar" / "static").rglob("*") if f.is_file()), default=0)))
+
+
+templates.env.globals["asset_v"] = asset_version()
+
+
 def feed_rows(conn, th: dict) -> list[dict]:
     """First feed-type signal per company, inside the window, newest first."""
     types = th["feed_signal_types"]

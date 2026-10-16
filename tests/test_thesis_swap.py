@@ -109,10 +109,10 @@ def test_method_page(client):
     assert "cohort_portfolio_companies.csv" in t
 
 
-def test_nav_hides_missing_route(client):
+def test_nav_has_radar_entry(client):
     t = client.get("/").text
     assert 'href="/method"' in t
-    assert 'href="/radar"' not in t
+    assert 'href="/radar"' in t
     assert "<select" in t and 'name="thesis"' in t
 
 

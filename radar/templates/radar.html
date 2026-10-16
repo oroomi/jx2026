@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% from "_chip.html" import chip, missing %}
+{% block title %}Cohort radar | Ocean Opportunity Radar{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/radar.css?v={{ asset_v }}">{% endblock %}
+{% macro table(rows, label) %}
+{% set live = rows | selectattr("event_count") | list %}
+{% set blank = rows | rejectattr("event_count") | list %}
+<div class="srcwrap">
+<table class="rd-table" data-block="{{ label }}">
+  <thead><tr><th>Company</th><th>Country</th><th class="num">Events</th><th>Latest event</th><th>Types</th><th>Timeline</th></tr></thead>
+  <tbody>
+  {% for r in live %}{{ row(r) }}{% endfor %}
+  {% if blank %}<tr class="rd-sub"><th colspan="6" scope="colgroup">No public event found ({{ blank | length }})</th></tr>
+  {% for r in blank %}{{ row(r) }}{% endfor %}{% endif %}
+  </tbody>
+</table>
+</div>
+{% endmacro %}
+{% macro row(r) %}
+<tr class="rd-row{% if not r.event_count %} rd-none{% endif %}" data-company="{{ r.company_key }}">
+  <td class="rd-name"><a href="/c/{{ r.company_key }}">{{ r.name }}</a>
+    {% if r.register_status and r.register_status != "unknown" and r.register_status != "active" %}<span class="muted">register: {{ r.register_status }}</span>{% endif %}
+    {% if r.profile and r.profile.trl is not none %}<span class="muted">BlueInvest TRL {{ r.profile.trl }}</span>{% endif %}</td>
+  <td class="rd-cc">{{ r.country or "no data" }}</td>
+  <td class="num rd-n">{% if r.event_count %}{{ r.event_count }}{% else %}{{ missing("no public events") }}{% endif %}</td>
+  <td class="rd-latest">{% if r.latest %}<span class="muted">{{ r.latest.type_label }}</span> {{ chip(r.latest.evidence, True) }}{% else %}<span class="muted">none</span>{% endif %}</td>
+  <td class="rd-types">{% for t in r.types %}<span class="rd-tag">{{ t }}</span>{% endfor %}</td>
+  <td class="rd-strip">{% if r.strip %}<svg viewBox="0 0 120 14" width="120" height="14" role="img" aria-label="{{ r.event_count }} dated events on a shared time axis"><line x1="4" x2="116" y1="7" y2="7" class="rd-axis"/>{% for t in r.strip %}<circle cx="{{ t.x }}" cy="7" r="3.5" class="rd-tick{% if t.hollow %} hollow{% endif %}"><title>{{ t.title }}</title></circle>{% endfor %}</svg>{% endif %}</td>
+</tr>
+{% endmacro %}
+{% block content %}
+<h1>Cohort radar</h1>
+{% if reason %}
+<section class="empty" aria-label="Empty state"><p class="answer">{{ reason }}</p></section>
+{% else %}
+<p class="answer" id="rd-head">{{ cohort | length }} cohort companies, {{ cohort_with }} with at least one dated public event.</p>
+<p class="rule rd-rule" id="rd-rule">{{ rule }}</p>
+<p><a href="/backtest">See the earliness backtest</a>. Year-only events are drawn as hollow ticks; filled ticks have a stated day.</p>
+{% if nonfi %}<p class="muted">Countries other than FI ({{ nonfi | join(", ") }}): the register adapters cover Finland only, so those rows are often empty by construction.</p>{% endif %}
+{% for tag, title, rows in blocks %}
+{% if rows %}
+<section aria-labelledby="rd-{{ tag }}-h" class="rd-block" data-group="{{ tag }}">
+  <h2 id="rd-{{ tag }}-h">{{ title }} ({{ rows | length }})</h2>
+  {{ table(rows, tag) }}
+</section>
+{% endif %}
+{% endfor %}
+<section aria-label="Connector slots" class="rd-slots">
+  <h2>Not connected</h2>
+  <p class="muted">Connector slot, not connected, never shown as data:</p>
+  <ul>{% for s in slots %}<li><button type="button" disabled>{{ s }}: connector slot, not connected</button></li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}

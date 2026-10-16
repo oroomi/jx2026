@@ -57,3 +57,38 @@ nav .soon{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;
 .srctable{border-collapse:collapse;width:100%;font-size:.875rem}
 .srctable th,.srctable td{overflow-wrap:anywhere;text-align:left;padding:8px 10px;border-bottom:1px solid var(--hairline);vertical-align:top}
 .srctable td:last-child{white-space:nowrap;overflow-wrap:normal}
+
+/* jx20: ease of use. Same tokens, larger type and tap targets, plain order. */
+@media (max-width:640px){body{font-size:17px}}
+.hero{font-size:1.5rem;margin:20px 0 8px}
+@media (min-width:640px){.hero{font-size:2rem}}
+.plain{font-size:1.0625rem;margin:0 0 12px}
+.btnlink{display:inline-flex;align-items:center;min-height:44px;padding:0 4px}
+.foot-link{display:inline-flex;align-items:center;min-height:44px}
+.foot{font-size:.9375rem}
+.sector>summary{display:inline-flex;align-items:center;min-height:44px;cursor:pointer;color:var(--muted);font-size:.9375rem}
+.sector{min-width:0}
+.tiles{display:grid;gap:12px;margin:8px 0 24px}
+@media (min-width:640px){.tiles{grid-template-columns:repeat(3,1fr)}}
+.tile{display:flex;flex-direction:column;gap:2px;min-height:44px;padding:14px 16px;border:1px solid var(--hairline);border-left:3px solid var(--accent);border-radius:8px;background:var(--surface);color:var(--text);text-decoration:none}
+.tile strong{font-family:var(--serif);font-size:1.25rem}
+.tile span{color:var(--muted);font-size:.9375rem}
+.bigsearch input{font-size:1.0625rem;min-height:52px}
+.bigsearch button{min-height:52px}
+.bigsearch label{font-size:1rem}
+details.why-box>summary{display:flex;align-items:center;min-height:44px;cursor:pointer;font-weight:600;color:var(--accent)}
+.notfound .plain{font-size:1.25rem}
+.how ol{padding-left:0;list-style:none;counter-reset:s;margin:0}
+.how li{counter-increment:s;padding:16px 0;border-bottom:1px solid var(--hairline)}
+.how li::before{content:counter(s);font-family:var(--serif);font-size:1.5rem;color:var(--accent);margin-right:10px}
+.how li p{display:inline;font-size:1.0625rem}
+.how img{display:block;width:100%;max-width:420px;height:auto;margin-top:12px;border:1px solid var(--hairline);border-radius:8px}
+.errpage .btnlink{border:1px solid var(--accent);padding:0 16px;border-radius:6px}
+.tiles .tile{display:flex;align-items:flex-start;text-align:left}
+@media (max-width:640px){
+  .bar{gap:0 12px}
+  .bar nav{justify-content:space-between}
+  nav a{padding:0 6px;font-size:.9375rem;line-height:1.25;text-align:left}
+  .bigsearch .searchrow{flex-direction:column}
+}
+.bar nav{flex:1 1 100%;order:3}

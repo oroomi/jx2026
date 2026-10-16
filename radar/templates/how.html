@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}How to read this | Ocean Opportunity Radar{% endblock %}
+{% block content %}
+<section class="how">
+<h1>How to read this in 60 seconds</h1>
+<p class="plain">Five short steps. Nothing here is a score from us: every line comes from a public record you can open.</p>
+<ol>
+  <li><p><strong>Start page.</strong> Startups that showed up in public records lately, newest first. Each line says what was found, when, and links to the record.</p>
+    <img src="/static/how/feed.png" alt="Start page: search box, three big buttons and the list of new startups" width="390" loading="lazy"></li>
+  <li><p><strong>Find one startup.</strong> Type a name in the box. If nothing is found, try the registered name ending in Oy.</p>
+    <img src="/static/how/search.png" alt="Search results for a startup name" width="390" loading="lazy"></li>
+  <li><p><strong>Open its page.</strong> Four questions in order: how well it fits, how ready it is, who to introduce it to, what should happen next. Tap See why to see the records behind each answer.</p>
+    <img src="/static/how/company.png" alt="A startup page with the four questions" width="390" loading="lazy"></li>
+  <li><p><strong>Empty means empty.</strong> A grey hatched label such as "not in public records" means we looked and found nothing. We never fill a gap.</p></li>
+  <li><p><strong>The Nordic Blue 19.</strong> A check on us: for startups already in a programme, did the public records show them before they joined?</p>
+    <img src="/static/how/radar.png" alt="The Nordic Blue 19 list with a timeline per startup" width="390" loading="lazy"></li>
+</ol>
+<p><a class="btnlink" href="/">Back to the start page</a> <a class="btnlink" href="/method">See the rules in full</a></p>
+</section>
+{% endblock %}

@@ -10,6 +10,7 @@
 <script src="/static/vendor/htmx.min.js" defer></script>
 <link rel="stylesheet" href="/static/chip.css?v={{ asset_v }}">
 <script src="/static/theme.js?v={{ asset_v }}" defer></script>
+<script src="/static/ease.js?v={{ asset_v }}" defer></script>
 {% block head %}{% endblock %}
 </head>
 <body>
@@ -18,28 +19,30 @@
     <a class="brand" href="/">Ocean Opportunity Radar</a>
     {% set cur = current_thesis(request) %}
     <nav aria-label="Main">
-      <a href="/" {% if active == "feed" %}aria-current="page"{% endif %}>Feed</a>
-      <a href="/radar" {% if active == "radar" %}aria-current="page"{% endif %}>Radar</a>
-      <a href="/backtest" {% if active == "backtest" %}aria-current="page"{% endif %}>Backtest</a>
-      <a href="/method" {% if active == "method" %}aria-current="page"{% endif %}>Method</a>
+      <a href="/" {% if active == "feed" %}aria-current="page"{% endif %}>New this quarter</a>
+      <a href="/radar" {% if active == "radar" %}aria-current="page"{% endif %}>The Nordic Blue 19</a>
+      <a href="/backtest" {% if active == "backtest" %}aria-current="page"{% endif %}>Earliness test</a>
+      <a href="/method" {% if active == "method" %}aria-current="page"{% endif %}>Rules</a>
     </nav>
+    <details class="sector"><summary>Change sector</summary>
     <form class="thesis-switch" action="{{ request.url.path }}" method="get">
-      <label for="thesis-select">Thesis</label>
+      <label for="thesis-select">Sector</label>
       <select id="thesis-select" name="thesis">
         {% for tid, title in thesis_options() %}<option value="{{ tid }}" {% if tid == cur.id %}selected{% endif %}>{{ title }}</option>{% endfor %}
       </select>
-      <button type="submit">Switch</button>
-    </form>
-    <button id="theme-toggle" type="button" aria-label="Switch theme">Theme</button>
+      <button type="submit">Show this sector</button>
+    </form></details>
+    <button id="theme-toggle" type="button" aria-label="Switch between light and dark">Light or dark</button>
   </div>
 </header>
-<p class="wrap thesis-now">Thesis: <strong>{{ cur.title }}</strong></p>
+<p class="wrap thesis-now">Sector: <strong>{{ cur.title }}</strong></p>
 <main class="wrap">
 {% block content %}{% endblock %}
 </main>
 <footer class="wrap foot">
   <span>{{ build_line }}</span>
   <span>Public records only. Companies only.</span>
+  <a class="foot-link" href="/how">How to read this (60 seconds)</a>
 </footer>
 {% block scripts %}{% endblock %}
 </body>

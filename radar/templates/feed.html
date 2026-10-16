@@ -2,16 +2,22 @@
 {% block title %}Early signals | Ocean Opportunity Radar{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/feed.css?v={{ asset_v }}">{% endblock %}
 {% block content %}
-<h1>Early signals: companies your pipeline has not seen yet</h1>
-<p class="lede">{% if counts %}Public sources, {{ counts.window_start }} to {{ counts.window_end }} ({{ counts.window_days }} days), newest first.{% else %}Window: last {{ thesis.geography.feed_window_days }} days.{% endif %}</p>
+<h1 class="hero">Early signals of blue-economy startups, for fund and accelerator teams.</h1>
+<p class="lede">Every line links to the public record. {% if counts %}Window: {{ counts.window_start }} to {{ counts.window_end }} ({{ counts.window_days }} days), newest first.{% else %}Window: last {{ thesis.geography.feed_window_days }} days.{% endif %}</p>
 
-<form class="search" action="/search" method="get" role="search">
-  <label for="q">Find a company</label>
+<form class="search bigsearch" action="/search" method="get" role="search">
+  <label for="q">Find a startup</label>
   <div class="searchrow">
-    <input id="q" name="q" type="search" value="{{ q or '' }}" autocomplete="off" placeholder="Name or business id">
-    <button type="submit">Search</button>
+    <input id="q" name="q" type="search" value="{{ q or '' }}" autocomplete="off" placeholder="Type a startup name, for example Kelluu">
+    <button type="submit">Find this startup</button>
   </div>
 </form>
+
+{% if q is none %}<div class="tiles" role="group" aria-label="Three screens">
+  <a class="tile" href="#new-this-quarter"><strong>New this quarter</strong><span>Startups that appeared in public records lately</span></a>
+  <a class="tile" href="#q"><strong>Judge one startup</strong><span>Type a name above, then open its page</span></a>
+  <a class="tile" href="/radar"><strong>The Nordic Blue 19</strong><span>Were they visible before they joined?</span></a>
+</div>{% endif %}
 
 {% if q is not none %}
 <section class="matches" aria-label="Search results">
@@ -21,11 +27,13 @@
     {% for m in matches %}<li><a class="co" href="/c/{{ m.company_key }}">{{ m.name }}</a>{% if m.y_tunnus %} <span class="meta">{{ m.y_tunnus }}</span>{% endif %}</li>{% endfor %}
   </ul>
   {% else %}
-  <p class="answer">no company matches '{{ q }}' in this radar</p>
+  <p class="answer">No public record found for this name yet. Try the registered company name (ending in Oy).</p>
+  <p class="meta">no company matches '{{ q }}' in this radar</p>
   {% endif %}
 </section>
 {% endif %}
 
+<h2 id="new-this-quarter">New this quarter</h2>
 <div id="feed-rows" class="feed-wrap">
 {% include "feed_rows.html" %}
 </div>

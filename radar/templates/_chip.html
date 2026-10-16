@@ -7,7 +7,7 @@
     <span class="ev-fetched">fetched {{ (ev.fetched_at or "")[:10] }}</span>
   </a>
   {%- if show_confidence and ev.confidence %}
-  <span class="ev-conf" title="{{ ev.confidence_rule }}">{{ ev.confidence }} confidence</span>
+  <span class="ev-conf">{{ ev.confidence }} confidence</span>
   {%- endif %}
 </span>
 {%- endmacro %}

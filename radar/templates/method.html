@@ -2,11 +2,12 @@
 {% block title %}Method | Ocean Opportunity Radar{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/feed.css?v={{ asset_v }}">{% endblock %}
 {% block content %}
-<h1>Method</h1>
-<h2>Thesis</h2>
+<h1>Rules</h1>
+<p class="plain">How the list is built, in full. For the 60-second version, <a href="/how">read this first</a>.</p>
+<h2>Sector</h2>
 <p><code>{{ thesis.id }}</code></p>
 <p class="answer">{{ thesis.title }}</p>
-<p class="rule">Everything sector-specific lives in the thesis file. Switch it in the header, or set the RADAR_THESIS environment variable. Each thesis has its own database.</p>
+<p class="rule">Everything sector-specific lives in one sector file. Switch sector in the header.</p>
 <ul>
   <li>Feed window: {{ window_days }} days</li>
   <li>Young-company age cut: {% if age_cut is not none %}{{ age_cut }} years{% else %}no data{% endif %}</li>
@@ -20,18 +21,18 @@
 {% else %}<p><span class="hatch">no data</span> No database for this thesis yet.</p>{% endif %}
 <p>Limit: industry codes are coarse; a code on the list is a hint, not proof of a blue business.</p>
 <h2>Confidence rule</h2>
-<pre class="rulebox">{% for l in rule_lines %}{{ l }}
+<pre class="rulebox">{% for l in rule_lines %}{{ l | replace("signal_type", "kind of record") | replace("adapter", "source") }}
 {% endfor %}</pre>
-<h2>Signal types</h2>
+<h2>Kinds of public record</h2>
 <ul>{% for t in signal_types %}<li><code>{{ t }}</code></li>{% endfor %}</ul>
 <h2>Sources</h2>
 {% if no_db %}<p class="answer">no signals yet for {{ thesis.title }}. Run <code>python3 -m radar.build --thesis {{ thesis._path }}</code></p>{% endif %}
 <div class="srcwrap">
 <table class="srctable">
-  <thead><tr><th scope="col">Adapter</th><th scope="col">Signals</th><th scope="col">Last fetched</th></tr></thead>
+  <thead><tr><th scope="col">Source</th><th scope="col">Signals</th><th scope="col">Last fetched</th></tr></thead>
   <tbody>
   {% for s in sources %}
-  <tr><th scope="row">{{ s.label }} <code>{{ s.name }}</code></th>
+  <tr><th scope="row">{{ s.label }}</th>
     <td>{% if s.note %}{{ s.note }}{% else %}{{ s.signals }}{% endif %}</td>
     <td>{{ s.last_fetched or "no data" }}</td></tr>
   {% endfor %}

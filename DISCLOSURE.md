@@ -59,3 +59,8 @@ Named by the official Redstone x A'Pelago brief; levels on the company page are 
 
 ## Not used
 No code from any earlier project. No private or scraped personal data. No named private individuals.
+
+## Chief notes after the night-two verification (16 Oct 2026, 21:30Z)
+- data/declared/businessfinland.xlsx (2.4 MB) is tracked on main on purpose, against the earlier "keep it untracked" rule: it is the public Business Finland funding export as downloaded by the team on 16 Oct, and a judge must be able to rebuild the bf_funding signals from the repo alone. It is declared data, not fetched data.
+- BlueInvest public pipeline profiles stored: 21 in total, 18 with country Finland (earlier notes said 19 Finnish; the stored count is the truth).
+- Feed precision defect D-N1 (own-text reasons from our own annotations, short keywords hitting common words) is acknowledged and fixed by task jx20b; until it is merged, main-list rows whose reason reads "eu project text contains '<short word>'" are over-inclusive.

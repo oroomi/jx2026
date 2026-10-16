@@ -141,3 +141,9 @@ def test_profile_for_row(conn, tmp_path):
     p = blueinvest.profile_for(conn, "name:row")
     assert p["trl"] == 5 and p["url"] == bi.detail_url("1")
     assert blueinvest.profile_for(conn, "nope") is None
+
+
+def test_too_short_company_name_not_inserted(conn, tmp_path):
+    res = bi.run(conn, THESIS, fetcher=make_fetcher(tmp_path, pages_for(("1", {"company": "Aa"}))), declared=[])
+    assert conn.execute("SELECT company_key FROM blueinvest_profiles").fetchone()[0] is None
+    assert conn.execute("SELECT COUNT(*) FROM companies").fetchone()[0] == 0 and res["skipped"] == 1

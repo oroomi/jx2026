@@ -253,7 +253,9 @@ def _store(conn, pid, d, declared_name, by_name, res, finnish):
         if key:
             how = "high"
             res["linked_declared"] += 1
-    if key is None and finnish and fold(d["company_name"]):
+    if key is None and finnish and len(fold(d["company_name"])) < 3 and d["company_name"]:
+        res["skipped"] += 1  # too short to be a trustworthy company name (the page title may hold the real one): profile kept, no company
+    elif key is None and finnish and fold(d["company_name"]):
         key = by_name.get(fold(d["company_name"]))
         if key:
             how = "medium"

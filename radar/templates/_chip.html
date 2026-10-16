@@ -3,7 +3,7 @@
 <span class="ev">
   <a class="ev-chip" href="{{ ev.url }}" target="_blank" rel="noopener">
     <span class="ev-src">{{ ev.label }}</span>
-    <time class="ev-date" datetime="{{ ev.event_date }}">{{ ev.event_date }}</time>
+    <time class="ev-date" datetime="{{ (ev.event_date or "")[:4] if ev.date_precision == "year" else ev.event_date }}">{{ ev.date_label or ev.event_date }}</time>
     <span class="ev-fetched">fetched {{ (ev.fetched_at or "")[:10] }}</span>
   </a>
   {%- if show_confidence and ev.confidence %}

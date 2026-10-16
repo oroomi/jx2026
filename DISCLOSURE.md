@@ -57,6 +57,7 @@ Named by the official Redstone x A'Pelago brief; levels on the company page are 
 | Cloudflare tunnel + VPS jx.hankintaviikko.fi | Public URL for the demo | yes |
 | GitHub (oroomi/jx2026) | Source hosting | account yes, repo created at the bell |
 | Claude Code cloud session (claude.ai) | Second builder | yes |
+| Browser SpeechSynthesis API (the visitor's own device voices; Aava, radar/static/aava.js) | Reads the page's records aloud; no audio or text is sent to any service by us, no microphone is used | built into the browser |
 
 ## Not used
 No code from any earlier project. No private or scraped personal data. No named private individuals.

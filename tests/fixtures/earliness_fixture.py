@@ -13,7 +13,7 @@ def build(path):
 
     def co(key, name, group="cohort", **kw):
         if group == "cohort" and "industry_code" not in kw and key not in NO_CODE:
-            kw["industry_code"] = "03211"  # on the thesis list, so the live signals of these fixture companies pass the feed rule
+            kw["industry_code"] = "03210"  # on the thesis list, so the live signals of these fixture companies pass the feed rule
         emit.upsert_company(conn, company_key=key, name=name, group_tag=group, country="FI", source_url=f"https://example.test/fixture/{key}", **kw)
 
     def sig(key, typ, d, adapter="prh", conf="high", year_only=False, detail="synthetic fixture row"):
@@ -52,10 +52,10 @@ def build(path):
     sig("F-corrob", "eu_project", "2025-07-01", adapter="cordis", conf="medium")  # ... a second source on the later date backs it
     co("F-name-only", "Fixture Marine Only Oy")
     sig("F-name-only", "register_entry", "2025-05-01")          # name word only, no second source: outside the rule
-    co("F-research", "Fixture Research Oy", industry_code="03211")
+    co("F-research", "Fixture Research Oy", industry_code="03210")
     sig("F-research", "site_customer", "2025-03-01", adapter="declared", conf="medium", detail="declared research: pilot with a named harbour")
     sig("F-research", "eu_project", "2026-03-01", adapter="cordis", conf="medium")
-    co("F-research-low", "Fixture Research Low Oy", industry_code="03211")
+    co("F-research-low", "Fixture Research Low Oy", industry_code="03210")
     sig("F-research-low", "site_customer", "2025-03-01", adapter="declared", conf="low", detail="declared research: unverified pilot")
     co("F-feed", "Fixture Not Cohort Oy", group="feed")
     sig("F-feed", "register_entry", "2025-01-01")

@@ -122,7 +122,7 @@ def test_name_word_needs_a_second_source(res):
 
 def test_first_signal_carries_the_admitting_rule(res):
     f = by(res[0])["F-early"]["first_signal"]
-    assert "Industry code 03211" in f["rule"] and f["source_url"].startswith("https://example.test/")
+    assert "Industry code 03210" in f["rule"] and f["source_url"].startswith("https://example.test/")
 
 
 def test_declared_research_is_a_separate_group(res):
@@ -156,14 +156,14 @@ def typed(tmp_path):
     n = 0
     for typ in COUNTED + REFUSED:
         key = f"T-{typ}"
-        emit.upsert_company(conn, company_key=key, name=f"Fixture {typ} Oy", group_tag="cohort", country="FI", industry_code="03211",
+        emit.upsert_company(conn, company_key=key, name=f"Fixture {typ} Oy", group_tag="cohort", country="FI", industry_code="03210",
                             source_url=f"https://example.test/fixture/{key}")
         if typ in emit.SIGNAL_TYPES:
             n += 1
             emit.emit_signal(conn, company_key=key, signal_type=typ, date="2025-08-01", confidence="high",
                              adapter="tax_registers" if typ in ("first_sales", "first_hire") else "fixture",
                              source_url=f"https://example.test/fixture/{key}/{typ}", detail="synthetic fixture row")
-    emit.upsert_company(conn, company_key="T-after", name="Fixture After Oy", group_tag="cohort", country="FI", industry_code="03211",
+    emit.upsert_company(conn, company_key="T-after", name="Fixture After Oy", group_tag="cohort", country="FI", industry_code="03210",
                         source_url="https://example.test/fixture/T-after")
     emit.emit_signal(conn, company_key="T-after", signal_type="equity_event", date="2026-03-01", confidence="high", adapter="fixture",
                      source_url="https://example.test/fixture/T-after/e", detail="synthetic fixture row")

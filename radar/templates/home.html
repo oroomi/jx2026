@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Early-signal feed | Ocean Opportunity Radar{% endblock %}
+{% block content %}
+<h1>Early-signal feed</h1>
+<p class="lede">Blue-economy companies that surfaced in the last {{ days }} days across public sources, newest first.</p>
+{% if rows %}
+<ol class="feed">
+{% for r in rows %}
+  <li>
+    <a class="co" href="/c/{{ r.company_key }}">{{ r.name }}</a>
+    <span class="sig">{{ r.signal_type }}</span>
+    <time datetime="{{ r.date }}">{{ r.date }}</time>
+    <a class="chip" href="{{ r.source_url }}" rel="noopener">{{ r.confidence }} source</a>
+  </li>
+{% endfor %}
+</ol>
+{% else %}
+<section class="empty" aria-label="Empty state">
+  <p class="answer">no signals yet. Run <code>python3 -m radar.build</code></p>
+  <p><span class="hatch">not in public records</span></p>
+</section>
+{% endif %}
+<p class="rule">Rule: a company enters this feed on its first signal ({{ thesis.feed_signal_types | join(", ") }}) dated inside the last {{ days }} days. Thesis: {{ thesis.id }}.</p>
+{% endblock %}

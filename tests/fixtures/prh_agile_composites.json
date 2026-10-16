@@ -1,0 +1,258 @@
+{
+ "totalResults": 1,
+ "companies": [
+  {
+   "businessId": {
+    "value": "3327328-3",
+    "registrationDate": "2022-11-24",
+    "source": "3"
+   },
+   "euId": {
+    "value": "FIFPRO.3327328-3",
+    "source": "1"
+   },
+   "names": [
+    {
+     "name": "Agile Composites Oy",
+     "type": "1",
+     "registrationDate": "2022-11-28",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "mainBusinessLine": {
+    "type": "68120",
+    "descriptions": [
+     {
+      "languageCode": "3",
+      "description": "Development of building projects"
+     },
+     {
+      "languageCode": "1",
+      "description": "Rakennuttaminen ja rakennushankkeiden kehittäminen"
+     },
+     {
+      "languageCode": "2",
+      "description": "Utformning av byggprojekt"
+     }
+    ],
+    "typeCodeSet": "TOIMI4",
+    "registrationDate": "2026-01-01",
+    "source": "2"
+   },
+   "website": {
+    "url": "www.agilecomposites.fi",
+    "registrationDate": "2022-11-24",
+    "source": "0"
+   },
+   "companyForms": [
+    {
+     "type": "16",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Aktiebolag"
+      },
+      {
+       "languageCode": "3",
+       "description": "Limited company"
+      },
+      {
+       "languageCode": "1",
+       "description": "Osakeyhtiö"
+      }
+     ],
+     "registrationDate": "2022-11-28",
+     "version": 1,
+     "source": "1"
+    }
+   ],
+   "companySituations": [
+    {
+     "type": "KONK",
+     "registrationDate": "2026-10-08",
+     "source": "1"
+    }
+   ],
+   "registeredEntries": [
+    {
+     "type": "0",
+     "descriptions": [
+      {
+       "languageCode": "2",
+       "description": "Oregistrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisteröimätön"
+      },
+      {
+       "languageCode": "3",
+       "description": "Unregistered"
+      }
+     ],
+     "registrationDate": "2022-11-24",
+     "endDate": "2022-11-27",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2022-11-28",
+     "register": "1",
+     "authority": "2"
+    },
+    {
+     "type": "1",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2022-11-28",
+     "register": "4",
+     "authority": "1"
+    },
+    {
+     "type": "55",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2023-01-01",
+     "endDate": "2026-05-31",
+     "register": "5",
+     "authority": "1"
+    },
+    {
+     "type": "80",
+     "descriptions": [
+      {
+       "languageCode": "1",
+       "description": "Liiketoiminnasta arvonlisäverovelvollinen"
+      },
+      {
+       "languageCode": "2",
+       "description": "Momsskyldig för rörelseverksamhet"
+      },
+      {
+       "languageCode": "3",
+       "description": "VAT-liable for business activity"
+      }
+     ],
+     "registrationDate": "2023-01-01",
+     "register": "6",
+     "authority": "1"
+    },
+    {
+     "type": "41",
+     "descriptions": [
+      {
+       "languageCode": "3",
+       "description": "Registered"
+      },
+      {
+       "languageCode": "2",
+       "description": "Registrerad"
+      },
+      {
+       "languageCode": "1",
+       "description": "Rekisterissä"
+      }
+     ],
+     "registrationDate": "2024-01-02",
+     "register": "7",
+     "authority": "1"
+    }
+   ],
+   "addresses": [
+    {
+     "type": 1,
+     "street": "Pullinlahdentie",
+     "postCode": "57810",
+     "postOffices": [
+      {
+       "city": "SAVONLINNA",
+       "languageCode": "1",
+       "municipalityCode": "740"
+      },
+      {
+       "city": "SAVONLINNA",
+       "languageCode": "2",
+       "municipalityCode": "740"
+      }
+     ],
+     "buildingNumber": "2",
+     "entrance": "",
+     "apartmentNumber": "",
+     "apartmentIdSuffix": "",
+     "co": "",
+     "registrationDate": "2022-11-24",
+     "source": "0"
+    },
+    {
+     "type": 2,
+     "street": "Pullinlahdentie",
+     "postCode": "57810",
+     "postOffices": [
+      {
+       "city": "SAVONLINNA",
+       "languageCode": "1",
+       "municipalityCode": "740"
+      },
+      {
+       "city": "SAVONLINNA",
+       "languageCode": "2",
+       "municipalityCode": "740"
+      }
+     ],
+     "postOfficeBox": "",
+     "buildingNumber": "2",
+     "entrance": "",
+     "apartmentNumber": "",
+     "apartmentIdSuffix": "",
+     "co": "",
+     "registrationDate": "2022-11-24",
+     "source": "0"
+    }
+   ],
+   "tradeRegisterStatus": "1",
+   "status": "2",
+   "registrationDate": "2022-11-28",
+   "lastModified": "2026-10-09T23:00:29"
+  }
+ ]
+}

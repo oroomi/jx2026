@@ -101,11 +101,17 @@ main.wrap{max-width:1360px}
 }
 /* the header and footer line up with the three-column layout on a laptop */
 body:has(.co-layout) .top .wrap,body:has(.co-layout) .foot{max-width:1360px}
-/* memo block from cloud/vc_memo: hero position, verdict at the answer size, then its four lines */
-.memo{order:0;margin:0 0 var(--s5);padding:var(--s4) var(--s4) var(--s3);border:1px solid var(--hairline);border-left:3px solid var(--accent);border-radius:var(--radius);background:var(--surface)}
-.memo h2{margin:0 0 var(--s2);font-size:var(--fs-small);font-family:var(--sans);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-.memo .answer,.memo .memo-verdict,.memo .verdict{font-family:var(--serif);font-size:var(--fs-answer);line-height:1.3;margin:0 0 var(--s3)}
-.memo dl,.memo ul{margin:0;padding:0;list-style:none}
-.memo dt{font-weight:600}
-.memo dd{margin:0 0 var(--s3)}
-.memo li{padding:var(--s2) 0;border-top:1px solid var(--hairline)}
+/* memo block from cloud/vc_memo (section.q.memo, its own memo.css is linked later in the body, so these rules carry
+   one more class): hero position under the name, the recommendation in Newsreader at the answer size, then its lines */
+.co-main .memo{order:0;margin:0 0 var(--s5);padding:var(--s4) var(--s5) var(--s3);border:1px solid var(--hairline);border-left:4px solid var(--accent);border-radius:var(--radius);background:var(--surface)}
+.memo .memo-head{display:flex;justify-content:space-between;align-items:center;gap:var(--s3)}
+.memo .memo-head h2{margin:0;font-family:var(--sans);font-size:var(--fs-small);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.memo .memo-print{display:inline-flex;align-items:center;min-height:var(--tap);font-size:var(--fs-small)}
+.memo .memo-decision{display:flex;flex-direction:column;gap:2px;margin:var(--s1) 0 var(--s2)}
+.memo .memo-label{font-size:var(--fs-small);color:var(--muted);text-transform:none;letter-spacing:0}
+.memo .memo-verdict{margin:0;font-family:var(--serif);font-size:var(--fs-answer);font-weight:600;line-height:1.25;color:var(--text)}
+.memo>.plain{margin:0 0 var(--s2)}
+.memo h3{margin:var(--s4) 0 var(--s1);font-size:var(--fs-small);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.memo .memo-list{margin:0;padding-left:1.25rem}
+.memo .memo-list li{margin:0 0 var(--s2)}
+.memo .rule{margin-top:var(--s3)}

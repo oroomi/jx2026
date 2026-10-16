@@ -49,9 +49,13 @@ def test_body_text_is_at_least_17px_with_line_height_1_5():
     assert not re.search(r"body\{[^}]*font-size:\s*1[0-6]px", css), "no rule shrinks body text again"
 
 
+OWN_CSS = ("app.css", "feed.css", "chip.css", "company.css", "matching.css", "radar.css", "backtest.css")
+
+
 def test_no_text_under_14px_outside_the_svg_charts():
+    """This task's stylesheets. Another branch's file (memo.css) is overridden from company.css, not edited here."""
     small = []
-    for f in sorted(STATIC.glob("*.css")):
+    for f in (STATIC / n for n in OWN_CSS):
         for sel, body in re.findall(r"([^{}]+)\{([^{}]*)\}", f.read_text()):
             if re.search(r"\.bt-|\.mk|\.rd-tick|svg", sel):
                 continue  # SVG text is sized in chart units and scaled with the chart

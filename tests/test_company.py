@@ -90,5 +90,5 @@ def test_sources_and_connectors(client):
 
 def test_no_em_dash_and_search(client):
     t = client.get("/c/9000001-1").text
-    assert "—" not in t
+    assert chr(0x2014) not in t
     assert "Synthetic Rich" in client.get("/company-search?q=rich").text

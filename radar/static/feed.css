@@ -1,6 +1,6 @@
 /* Early-signal feed. Tokens from app.css only. 390 px first; one 720 px column from .wrap. */
 .search{margin:0 0 16px}
-.search label{display:block;font-size:.8125rem;color:var(--muted);margin-bottom:4px}
+.search label{display:block;font-size:1rem;font-weight:600;color:var(--text);margin-bottom:var(--s1)}
 .searchrow{display:flex;gap:8px}
 .searchrow input{flex:1;min-width:0;min-height:44px;padding:0 12px;border:1px solid var(--hairline);border-radius:8px;background:var(--surface);color:var(--text);font:inherit}
 .searchrow button{min-height:44px;padding:0 16px;border:1px solid var(--accent);border-radius:8px;background:transparent;color:var(--accent);font:inherit;font-weight:600;cursor:pointer}
@@ -15,6 +15,12 @@
   color:var(--text);text-decoration:none;font-size:.875rem;background:var(--surface)}
 .pill .n{color:var(--muted);font-variant-numeric:tabular-nums}
 .pill.zero{color:var(--muted)}
+/* jx30: kinds of record with no signals wait in one closed disclosure */
+.more-filters{display:contents}
+.more-filters>summary{list-style:none;cursor:pointer;color:var(--accent);font-weight:600;border-style:dashed}
+.more-filters>summary::-webkit-details-marker{display:none}
+.more-filters>summary::after{content:"";width:7px;height:7px;margin-left:var(--s1);border:solid currentColor;border-width:0 2px 2px 0;transform:translateY(-2px) rotate(45deg)}
+.more-filters[open]>summary::after{transform:translateY(2px) rotate(-135deg)}
 .pill[aria-current="true"]{border-color:var(--accent);border-width:2px;font-weight:600}
 .pill[aria-current="true"]::before{content:"\2713";color:var(--accent)}
 .pill:hover{border-color:var(--accent)}
@@ -22,16 +28,16 @@
 .feed{list-style:none;margin:0;padding:0}
 .feed-row{padding:16px 0;border-top:1px solid var(--hairline)}
 .feed-row.low{padding-left:12px;border-left:3px dashed var(--muted)}
-.feed-row .co{font-family:var(--serif);font-size:1.25rem;font-weight:600;overflow-wrap:anywhere}
+.feed-row .co{display:inline-flex;align-items:center;min-height:var(--tap);font-family:var(--serif);font-size:1.3125rem;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
 .meta{margin:2px 0 0;color:var(--muted);font-size:.875rem}
 .meta time{font-variant-numeric:tabular-nums}
 .sep{padding:0 2px}
 .detail{margin:8px 0 8px;overflow-wrap:anywhere}
 .proof{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:8px}
 .amt{display:inline-flex;flex-wrap:wrap;align-items:center;gap:2px 8px;min-height:44px;padding:4px 12px;border:1px solid var(--hairline);border-radius:999px;
-  color:var(--text);text-decoration:none;font-size:.8125rem;font-variant-numeric:tabular-nums;font-weight:600}
+  color:var(--text);text-decoration:none;font-size:.875rem;font-variant-numeric:tabular-nums;font-weight:600}
 .amt-src{font-weight:400;color:var(--muted)}
-.conf{font-size:.8125rem;color:var(--muted)}
+.conf{font-size:.875rem;color:var(--muted)}
 .conf-low{color:var(--text);font-weight:600}
 .empty{padding:24px 0}
 .chiprule{margin-top:24px;padding-top:12px;border-top:1px solid var(--hairline);color:var(--muted);font-size:.875rem}
@@ -45,4 +51,4 @@
 details.weak{margin-top:32px;border-top:1px solid var(--hairline)}
 details.weak>summary{cursor:pointer;padding:16px 0;color:var(--muted);font-weight:600}
 .reasons dt{font-weight:600;margin-top:8px}.reasons dd{margin:0 0 0 16px;color:var(--muted)}
-.cc{display:inline-block;margin-left:6px;padding:0 6px;border:1px solid var(--hairline);border-radius:4px;font-size:.75rem;color:var(--muted);vertical-align:middle}
+.cc{display:inline-block;margin-left:6px;padding:0 6px;border:1px solid var(--hairline);border-radius:4px;font-size:.875rem;color:var(--muted);vertical-align:middle}

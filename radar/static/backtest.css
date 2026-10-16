@@ -1,5 +1,5 @@
 /* Backtest page. Tokens only (app.css): --bg --surface --text --muted --accent --hairline. */
-.muted{color:var(--muted);font-size:.8125rem}
+.muted{color:var(--muted);font-size:.875rem}
 .bt-rule{white-space:normal;padding-left:28px;margin:8px 0;font-size:.875rem}
 .bt-rule li{margin:4px 0}
 .bt-chart{display:block;width:100%;max-width:520px;height:auto;margin:8px 0 24px;font-family:var(--sans)}

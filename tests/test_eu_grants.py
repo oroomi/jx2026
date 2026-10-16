@@ -96,3 +96,12 @@ def test_blocked_download_returns_cleanly(conn, monkeypatch):
     monkeypatch.setattr(eg, "download", lambda: {"path": None, "blocked": "HTTP 403", "error": None})
     c = eg.run(conn, THESIS)
     assert c["blocked"] == "HTTP 403" and c["signals"] == 0
+
+
+def test_catalogue_without_beneficiaries_is_blocked_not_invented(conn, tmp_path):
+    f = tmp_path / "catalogue_fixture.json"
+    f.write_text(json.dumps({"fundingData": {"GrantTenderObj": [
+        {"type": 1, "identifier": "FIXTURE-2026-TOPIC", "title": "Fixture topic", "callIdentifier": "FIXTURE-2026",
+         "frameworkProgramme": {"abbreviation": "EMFAF"}, "publicationDateLong": 1611792000000}]}}))
+    c = eg.run(conn, {"keywords": []}, path=f)
+    assert c["grants"] == 1 and c["signals"] == 0 and "catalogue" in c["blocked"]

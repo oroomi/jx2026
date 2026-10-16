@@ -32,6 +32,7 @@ TYPE_LABELS = {
     "public_contract": "Public contract",
     "job_ad": "Open job ad",
     "site_customer": "Customer on own site",
+    "eu_grant": "EU grant",
 }
 # Wording follows the docstring of radar/emit.py.
 CONFIDENCE_RULES = {

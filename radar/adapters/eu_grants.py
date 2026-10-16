@@ -1,27 +1,33 @@
-"""EU Funding and Tenders reference data (grantsTenders.json) -> one grant signal per Finnish beneficiary per grant.
+"""EU Funding and Tenders reference data (grantsTenders.json) -> eu_grant signals per Finnish beneficiary per grant.
 
-STRUCTURE NOT YET INSPECTED. The source host (ec.europa.eu) was denied by the cloud builder's network policy on
-16 Oct (HTTP 403 on CONNECT), so the real file was never opened and no field name below is confirmed. Nothing is
-assumed silently: every field is looked up through an alias list (FIELDS) and a record that lacks a required field
-is counted in `skipped_*`, never guessed. Once the file can be downloaded, run `python3 -m radar.adapters.eu_grants
---inspect` to print the top-level shape and the keys of the first record, then edit FIELDS to match. The tests use a
-synthetic fixture built from the same aliases.
+INSPECTED 16 Oct 2026 (130 MB file, downloaded on the VPS). FINDING: the file is a CALL AND TOPIC CATALOGUE, not a grant
+register. Shape: {"fundingData": {"GrantTenderObj": [ ...11224 records ]}}. Record keys: type (1 = grant topic, 10225
+records; 0 = tender, 999), identifier (topic id, e.g. EMFAF-2021-PIA-FLAGSHIP-ATLANTIC), title, callIdentifier, callTitle,
+frameworkProgramme {id, abbreviation, description} (H2020 3855, HORIZON 3573, ERASMUS2027 283, CEF2027 262, LIFE2027 196
+...), programmeDivision, status, deadlineDatesLong, publicationDateLong / plannedOpeningDateLong (epoch ms), tags,
+keywords, destination, links, contractingAuthority (tenders only). There is NO beneficiary, participant, organisation,
+country, PIC, VAT, start date or amount field anywhere in the file (grep for beneficiar/participant/organisation/country
+finds only words inside descriptions). Nothing in it can be joined to a Finnish company. Probed alternatives
+(referenceData/projects.json, grants.json) return 404.
 
-What the adapter expects per grant record (aliases tried in order, see FIELDS): grant id, acronym, title, programme,
-call identifier, start (or signature) date, and a list of beneficiaries, each with name, country, optional PIC,
-VAT number and amount. Dates: a full ISO date is day precision; a bare year becomes YYYY-01-01 with signal_meta
-date_precision 'year', as jx11 did for Business Finland.
+So the live run emits zero eu_grant signals and reports `blocked` with this reason, rather than inventing beneficiaries.
+The grant-level join needs a source that lists beneficiaries (the Funding and Tenders project/grant search API or the
+Financial Transparency System export); neither was reachable as a static file. The matching code below is kept and is
+exercised by the synthetic fixture in tests/test_eu_grants.py: it applies unchanged once a file with a `participants`
+list (name, country, optional PIC, VAT, amount) per grant record is supplied, e.g. via `run(conn, thesis, path=...)`.
+
+Dates: a full ISO date is day precision; a bare year becomes YYYY-01-01 with signal_meta date_precision 'year', as
+jx11 did for Business Finland. Epoch-ms call dates are never used as a grant date (a call opening is not a grant start).
 
 Signals: one per Finnish beneficiary per grant. Confidence high when a VAT number maps to a Y-tunnus we hold,
-otherwise medium (exact folded legal name). source_url is the reference file URL plus '#<grant id>' (the file carries
-no verified page link); the grant id is also in the detail. Unmatched Finnish beneficiaries become discovery
-companies only when the grant sits in a blue-economy programme (BLUE_PROGRAMMES) AND the beneficiary name, grant
-title or acronym hits a thesis keyword; they need a usable VAT number for a Y-tunnus key, otherwise they are skipped.
-Dedupe: a company that already has a CORDIS eu_project signal for the same project acronym or id keeps that one and
-gets a note appended to its detail instead of a second signal.
+otherwise medium (exact folded legal name). source_url is the reference file URL plus '#<grant id>'; the grant id is
+also in the detail. Unmatched Finnish beneficiaries become discovery companies only when the grant sits in a blue-economy
+programme (BLUE_PROGRAMMES) AND the beneficiary name, grant title or acronym hits a thesis keyword; they need a usable
+VAT number for a Y-tunnus key, otherwise they are skipped. Dedupe: a company that already has a CORDIS eu_project signal
+for the same project acronym or id keeps that one and gets a note appended to its detail instead of a second signal.
 
-Download: data/cache/eu/grantsTenders.json (gitignored), resume-capable curl, never committed. 403/429 means
-BLOCKED: the adapter returns counts with `blocked` set and exits cleanly. Parsing streams with ijson when installed.
+Download: data/cache/eu/grantsTenders.json (gitignored), resume-capable curl, never committed. 403/429 means BLOCKED:
+the adapter returns counts with `blocked` set and exits cleanly. Parsing streams with ijson when installed.
 """
 from __future__ import annotations
 
@@ -38,16 +44,17 @@ from radar.adapters.cordis import fold, parse_amount, vat_to_ytunnus
 from radar.fit import matched_keywords
 
 NAME = "eu_grants"
-PHASE = 1
+PHASE = 2  # after cordis (phase 1) so the eu_project dedupe sees its rows
 ROOT = Path(__file__).resolve().parent.parent.parent
 CACHE = ROOT / "data" / "cache" / "eu"
 FILE_URL = "https://ec.europa.eu/info/funding-tenders/opportunities/data/referenceData/grantsTenders.json"
 UA = "OceanOpportunityRadar/0.1 (JunctionX Turku 2026; +https://jx.hankintaviikko.fi)"
-SIGNAL_TYPE = "eu_grant" if "eu_grant" in emit.SIGNAL_TYPES else "eu_project"  # eu_grant needs a one-line add in emit.py
+SIGNAL_TYPE = "eu_grant"
 BLUE_PROGRAMMES = ("emfaf", "blueinvest", "cl6", "cluster 6")
-RECORD_LISTS = ("grants", "projects", "items", "results", "data")
+RECORD_LISTS = ("fundingData.GrantTenderObj", "grants", "projects", "items", "results", "data")
 
-# Unverified aliases, tried in order. Edit after --inspect.
+# Aliases tried in order. The real file has "frameworkProgramme" (a dict) and "callIdentifier"/"identifier" only; the
+# participant aliases are for a beneficiary-level file (see docstring) and are not present in grantsTenders.json.
 FIELDS = {
     "id": ("identifier", "grantId", "grant_id", "id", "projectId", "projectNumber", "grantAgreementNumber"),
     "acronym": ("acronym", "projectAcronym"),
@@ -67,6 +74,8 @@ FIELDS = {
 def pick(rec: dict, key: str):
     for a in FIELDS[key]:
         v = rec.get(a)
+        if isinstance(v, dict):
+            v = v.get("abbreviation") or v.get("description")
         if v not in (None, "", []):
             return v
     return None
@@ -92,6 +101,12 @@ def is_blue(programme, call) -> bool:
     return any(k in text for k in BLUE_PROGRAMMES)
 
 
+def _dig(d, dotted: str):
+    for part in dotted.split("."):
+        d = d.get(part) if isinstance(d, dict) else None
+    return d
+
+
 def iter_grants(path: Path):
     """Yield grant dicts. Streams with ijson when available (top-level array or the first RECORD_LISTS key)."""
     try:
@@ -110,7 +125,7 @@ def iter_grants(path: Path):
     with open(path, encoding="utf-8") as f:
         data = json.load(f)
     if isinstance(data, dict):
-        data = next((data[k] for k in RECORD_LISTS if isinstance(data.get(k), list)), [])
+        data = next((v for k in RECORD_LISTS if isinstance(v := _dig(data, k), list)), [])
     yield from data
 
 
@@ -147,7 +162,7 @@ def _note_dedupe(conn, key: str, acronym: str | None, gid: str | None) -> bool:
 
 def run(conn: sqlite3.Connection, thesis: dict, path: Path | None = None) -> dict:
     t0 = time.time()
-    c = {"grants": 0, "finnish_beneficiaries": 0, "signals": 0, "signals_by_programme": {}, "discovery_companies": 0,
+    c = {"grants": 0, "grants_with_beneficiaries": 0, "finnish_beneficiaries": 0, "signals": 0, "signals_by_programme": {}, "discovery_companies": 0,
          "deduped_against_cordis": 0, "skipped_no_date": 0, "skipped_no_id": 0, "skipped_unmatched": 0, "blocked": None, "seconds": 0.0}
     if path is None:
         dl = download()
@@ -167,7 +182,9 @@ def run(conn: sqlite3.Connection, thesis: dict, path: Path | None = None) -> dic
         gid = pick(g, "id")
         prog, call = pick(g, "programme"), pick(g, "call")
         acr, title = pick(g, "acronym"), pick(g, "title")
-        for p in pick(g, "parts") or []:
+        parts = pick(g, "parts") or []
+        c["grants_with_beneficiaries"] += bool(parts)
+        for p in parts:
             if not isinstance(p, dict) or not is_finland(pick(p, "p_country")):
                 continue
             c["finnish_beneficiaries"] += 1
@@ -213,6 +230,9 @@ def run(conn: sqlite3.Connection, thesis: dict, path: Path | None = None) -> dic
             conn.execute("INSERT OR REPLACE INTO signal_meta (signal_id, date_precision) SELECT id, 'year' FROM signals "
                          "WHERE company_key=? AND signal_type=? AND date=? AND source_url=?", (key, SIGNAL_TYPE, date, url))
     c["discovery_companies"] = len(disc)
+    if c["grants"] and not c["grants_with_beneficiaries"]:
+        c["blocked"] = ("grantsTenders.json is a call and topic catalogue: none of its %d records lists beneficiaries, "
+                        "so no company can be joined to a grant (see module docstring)" % c["grants"])
     conn.commit()
     c["seconds"] = round(time.time() - t0, 1)
     return c

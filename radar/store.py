@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import sqlite3
 import sys
 import unicodedata
@@ -106,7 +107,101 @@ def _window(thesis, today):
 def rule_text(thesis: dict) -> str:
     days = thesis["geography"]["feed_window_days"]
     return (f"Companies from outside the declared cohort and portfolio whose earliest public signal in the last {days} days "
-            f"is shown, newest first. Each company appears once, with that earliest signal and its source link.")
+            f"is shown, newest first, once each. A company is listed as a match only when we can say why: its industry code "
+            f"or registered line of business fits the thesis, a contract or project text states the match, or a thesis word in "
+            f"its legal name is backed by a second source. Name-only matches are kept in a closed Weak matches list.")
+
+
+REASON_IDS = ("industry_code", "line_of_business", "own_text", "corroborated_keyword")
+REASON_MEANING = {
+    "industry_code": "the PRH industry code is on the thesis list (exact match).",
+    "line_of_business": "a thesis word starts a word in the registered line-of-business text.",
+    "own_text": "the signal's own stored text (a contract or project title) contains a thesis word.",
+    "corroborated_keyword": "a thesis word is in the legal name and a second, independent source also has a record of the company.",
+}
+_WHY_ORDER = ("industry_code", "line_of_business", "own_text", "corroborated_keyword")
+# Signal types whose stored detail is the source's own text (title, project, job). register_entry is excluded: its text is the register's.
+_OWN_TEXT_TYPES = ("public_contract", "eu_project", "blueinvest", "patent", "job_ad", "bf_funding")
+
+
+def is_year_only(sig) -> bool:
+    """A Business Finland record whose true date is only known to the year: never a feed entry date."""
+    if sig["signal_type"] != "bf_funding":
+        return False
+    detail = (sig["detail"] or "").casefold()
+    return "year only" in detail or "year-level" in detail or str(sig["date"] or "")[5:] == "01-01"
+
+
+def date_label(sig) -> str:
+    d = str(sig["date"] or "")
+    return f"{d[:4]} (year only)" if is_year_only(sig) else d
+
+
+def _title_part(detail: str | None) -> str:
+    """Hilma detail is 'buyer: title (EUR n)'; only the title is the notice's own wording about the work."""
+    d = detail or ""
+    d = d.split(": ", 1)[1] if ": " in d else ""
+    return re.sub(r"\s*\(EUR [^)]*\)\s*$", "", d)
+
+
+def _own_text_hit(sig, company_name: str, thesis: dict) -> str | None:
+    """The thesis word found in a non-register signal's own text, or None when the stored text does not show one."""
+    from radar import fit
+    if sig["signal_type"] not in _OWN_TEXT_TYPES:
+        return None
+    if sig["signal_type"] == "public_contract":
+        title = _title_part(sig["detail"]).casefold()
+        return next((k for k in thesis.get("hilma_keywords", []) if k.casefold() in title), None)
+    text = sig["detail"] or ""
+    if company_name:
+        text = re.sub(re.escape(company_name), " ", text, flags=re.I)
+    hits = fit.matched_keywords(text, thesis)
+    return hits[0] if hits else None
+
+
+def explain(row: dict, others: list, thesis: dict) -> dict:
+    """reasons (ids, strongest first), strength and the one-line why for one feed row. Built only from stored values."""
+    from radar import fit
+    code = (row.get("industry_code") or "").strip()
+    desc = (row.get("industry_desc") or "").strip()
+    notes = {str(c.get("code")): c.get("note") for c in thesis.get("industry_codes") or []}
+    name_hits = fit.matched_keywords(row["name"], thesis)
+    lob_hits = fit.matched_keywords(desc, thesis) if desc else []
+    reasons, parts = [], {}
+    if code and code in notes:
+        reasons.append("industry_code")
+        parts["industry_code"] = f"industry code {code} ({desc or notes[code]}, PRH) is on the thesis list"
+    if lob_hits:
+        reasons.append("line_of_business")
+        parts["line_of_business"] = f"the registered line of business '{desc}' contains '{lob_hits[0]}'"
+    for sig in [row, *others]:
+        if sig is row and row["signal_type"] == "register_entry":
+            continue
+        hit = _own_text_hit(sig, row["name"], thesis)
+        if hit:
+            reasons.append("own_text")
+            parts["own_text"] = f"the {TYPE_LABELS.get(sig['signal_type'], sig['signal_type']).lower()} text contains '{hit}'"
+            break
+    second = next((o for o in others if o["adapter"] != row["adapter"]), None)
+    if name_hits and second is not None:
+        reasons.append("corroborated_keyword")
+        src = SOURCE_LABELS.get(second["adapter"], second["adapter"])
+        parts["corroborated_keyword"] = (f"the legal name has '{name_hits[0]}' and a {src} record from "
+                                         f"{date_label(second)} supports it")
+    reasons.sort(key=_WHY_ORDER.index)
+    if reasons:
+        lead = parts[reasons[0]]
+        more = len(reasons) - 1
+        why = "Why: " + lead[0].upper() + lead[1:]
+        why += f"; {more} more reason{'s' if more != 1 else ''}." if more else "."
+        return {"reasons": reasons, "strength": "strong", "why": why}
+    lob = f"'{desc}' ({code})" if desc and code else (f"'{desc}'" if desc else (f"code {code}" if code else "not in public records"))
+    if name_hits:
+        why = (f"Weak: only the legal name ('{row['name']}') contains '{name_hits[0]}'; "
+               f"the registered line of business is {lob}.")
+    else:
+        why = f"Weak: the stored record does not show why it matched; the registered line of business is {lob}."
+    return {"reasons": [], "strength": "weak", "why": why}
 
 
 def _date_fields(date_str, precision) -> tuple[str, str]:
@@ -169,7 +264,7 @@ def _in_window_rows(conn, thesis, today, types, group):
     if not types:
         return []
     q = ",".join("?" * len(types))
-    sql = f"""SELECT c.company_key, c.name, c.y_tunnus, c.group_tag, c.country,
+    sql = f"""SELECT c.company_key, c.name, c.y_tunnus, c.group_tag, c.country, c.industry_code, c.industry_desc,
                      s.id AS signal_id, s.signal_type, s.date, s.confidence, s.detail, s.amount_eur,
                      s.source_url, s.adapter, s.fetched_at
               FROM signals s JOIN companies c USING (company_key)
@@ -181,14 +276,30 @@ def _in_window_rows(conn, thesis, today, types, group):
     return conn.execute(sql, args).fetchall()
 
 
+def _others_by_company(conn, keys) -> dict[str, list]:
+    out: dict[str, list] = {k: [] for k in keys}
+    keys = list(keys)
+    for i in range(0, len(keys), 500):
+        chunk = keys[i:i + 500]
+        q = ",".join("?" * len(chunk))
+        for r in conn.execute(f"""SELECT id, company_key, signal_type, date, adapter, detail, source_url
+                                  FROM signals WHERE company_key IN ({q}) ORDER BY date, id""", chunk):
+            out[r["company_key"]].append(r)
+    return out
+
+
 def feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500) -> list[dict]:
-    """One row per company: its earliest in-window feed signal (ties: confidence, then lowest id), newest first."""
+    """One row per company: its earliest in-window feed signal (ties: confidence, then lowest id), newest first.
+    Year-only Business Finland records are never the entry signal. Each row carries reasons, strength and why."""
     start, _, _ = _window(thesis, today)
     all_types = _feed_types(thesis)
     rows = _in_window_rows(conn, thesis, today, all_types, group)
     per: dict[str, list] = {}
     for r in rows:
+        if is_year_only(r):
+            continue
         per.setdefault(r["company_key"], []).append(r)
+    others = _others_by_company(conn, per.keys())
     out = []
     for key, rs in per.items():
         best = min(rs, key=lambda r: (r["date"], _CONF_ORDER.get(r["confidence"], 3), r["signal_id"]))
@@ -203,6 +314,8 @@ def feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500)
         d["earlier_count"] = earlier
         d["signal_count"] = len(rs)
         d["evidence"] = evidence(d)
+        d["date_label"] = date_label(d)
+        d.update(explain(d, [o for o in others[key] if o["id"] != best["signal_id"]], thesis))
         out.append(d)
     out.sort(key=lambda d: (d["date"], d["signal_id"]), reverse=True)
     return with_precision(conn, out[:limit])
@@ -217,9 +330,18 @@ def feed_counts(conn, thesis, *, today=None) -> dict:
     for r in rows:
         by_type[r["signal_type"]] = by_type.get(r["signal_type"], 0) + 1
         by_conf[r["confidence"]] = by_conf.get(r["confidence"], 0) + 1
+    by_reason = {r: 0 for r in REASON_IDS}
+    for r in rows:
+        for rid in r["reasons"]:
+            by_reason[rid] += 1
+    main = sum(1 for r in rows if r["strength"] == "strong")
+    year_only = 0
     excluded = 0
     future = 0
     if types:
+        year_only = sum(1 for r in conn.execute(
+            """SELECT s.signal_type, s.date, s.detail FROM signals s JOIN companies c USING (company_key)
+               WHERE s.signal_type = 'bf_funding' AND c.group_tag = 'feed'""") if is_year_only(r))
         q = ",".join("?" * len(types))
         excluded = conn.execute(
             f"""SELECT COUNT(DISTINCT c.company_key) FROM signals s JOIN companies c USING (company_key)
@@ -229,7 +351,8 @@ def feed_counts(conn, thesis, *, today=None) -> dict:
             f"SELECT COUNT(*) FROM signals WHERE signal_type IN ({q}) AND date > ?", [*types, end.isoformat()]).fetchone()[0]
     last = conn.execute("SELECT MAX(fetched_at) FROM signals").fetchone()[0]
     return {"window_start": start.isoformat(), "window_end": end.isoformat(), "window_days": days,
-            "companies": len(rows), "by_type": by_type, "by_confidence": by_conf,
+            "companies": len(rows), "main": main, "weak": len(rows) - main, "by_reason": by_reason,
+            "year_only_not_entry": year_only, "by_type": by_type, "by_confidence": by_conf,
             "excluded_declared": excluded, "future_dated": future, "last_fetched": last}
 
 

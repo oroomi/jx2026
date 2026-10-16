@@ -40,3 +40,8 @@
   .pill{min-height:44px}
   .amt{min-height:32px}
 }
+.why{margin:6px 0 0;font-size:.9375rem;overflow-wrap:anywhere}
+.why-weak{color:var(--muted)}
+details.weak{margin-top:32px;border-top:1px solid var(--hairline)}
+details.weak>summary{cursor:pointer;padding:16px 0;color:var(--muted);font-weight:600}
+.reasons dt{font-weight:600;margin-top:8px}.reasons dd{margin:0 0 0 16px;color:var(--muted)}

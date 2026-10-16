@@ -63,8 +63,28 @@ def _parse(p: Path) -> dict:
             raise ThesisError(f"thesis file {p}: '{key}' must be a list")
     if not isinstance(data.get("name_keywords"), (dict, list)):
         raise ThesisError(f"thesis file {p}: 'name_keywords' must be a mapping of language to words, or a list")
+    if "countries" in data and not (isinstance(data["countries"], list) and data["countries"]
+                                    and all(isinstance(c, str) and re.fullmatch(r"[A-Za-z]{2}", c) for c in data["countries"])):
+        raise ThesisError(f"thesis file {p}: 'countries' must be a non-empty list of two-letter ISO country codes")
+    if "country_depth" in data and not isinstance(data["country_depth"], dict):
+        raise ThesisError(f"thesis file {p}: 'country_depth' must be a mapping of country code to a depth text")
     data["_path"] = str(p)
     return data
+
+
+DEFAULT_DEPTH = "EU sources only"
+
+
+def countries(th: dict) -> list[str]:
+    """Active ISO country codes: top-level `countries`, else geography.countries, else FI. Upper case, no duplicates."""
+    raw = th.get("countries") or (th.get("geography") or {}).get("countries") or ["FI"]
+    return list(dict.fromkeys(str(c).strip().upper() for c in raw if str(c).strip()))
+
+
+def country_depth(th: dict) -> dict[str, str]:
+    """{country: depth text} for every active country; a country with no entry is 'EU sources only'."""
+    given = {str(k).upper(): str(v) for k, v in (th.get("country_depth") or {}).items()}
+    return {c: given.get(c, DEFAULT_DEPTH) for c in countries(th)}
 
 
 def available() -> dict[str, str]:

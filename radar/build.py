@@ -2,7 +2,7 @@
 
 Adapters run in phases, ordered by the optional module attribute PHASE (default 1), then by name:
   0  declared lists (the cohort and portfolio companies exist before anything else)
-  1  discoverers (register, procurement, projects: they find and insert companies)
+  1  discoverers (register, procurement, projects: they find and insert companies; includes ted and estonia_register)
   2  enrichers (only match companies that already exist, for example Business Finland funding)
 """
 from __future__ import annotations

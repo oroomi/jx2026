@@ -1,6 +1,6 @@
 """BlueInvest Project Pipeline (public HTML, no login) -> blueinvest_profiles, and blueinvest signals only when a page states a listing date.
 
-Crawl: robots.txt first, then the Finnish list (country filter params[co][]=FI), then the detail page of each Finnish
+Crawl: robots.txt first, then one list per thesis country (country filter params[co][]=FI by default), then the detail page of each Finnish
 profile plus the detail pages of the declared companies' blueinvest_url values. One request per 2 s, hard cap 150
 requests in total (cache hits are free), stop at once on HTTP 403 or 429 and keep what is stored.
 The pages state no listing date as of 16 Oct 2026, so no signal is emitted: the fetch date is not an event date.
@@ -210,18 +210,23 @@ def run(conn, thesis: dict, fetcher: Fetcher | None = None, declared: list[tuple
     for r in conn.execute("SELECT company_key, name FROM companies"):
         by_name.setdefault(fold(r["name"]), r["company_key"])
     fin: list[str] = []
+    cc_of: dict[str, str] = {}
     try:
         if not robots_allows(_robots(f)):
             res["blocked"] = "robots.txt disallows the pipeline path"
             res["requests"] = f.requests
             return res
-        page = 1
-        while True:
-            items = parse_list(f.get(list_url(page)))
-            fin += [i["profile_id"] for i in items if i["profile_id"] not in fin]
-            if len(items) < 20:
-                break
-            page += 1
+        for cc in thesis_mod.countries(thesis):  # one list per thesis country (FI only by default)
+            page = 1
+            while True:
+                items = parse_list(f.get(list_url(page, cc)))
+                for i in items:
+                    if i["profile_id"] not in fin:
+                        fin.append(i["profile_id"])
+                        cc_of[i["profile_id"]] = cc
+                if len(items) < 20:
+                    break
+                page += 1
         dname = {pid: name for name, pid in declared}
         for pid in fin + [p for p in dname if p not in fin]:
             try:
@@ -230,7 +235,7 @@ def run(conn, thesis: dict, fetcher: Fetcher | None = None, declared: list[tuple
                 _log.warning("profile %s skipped: %s", pid, e)
                 res["skipped"] += 1
                 continue
-            _store(conn, pid, d, dname.get(pid), by_name, res, finnish=pid in fin)
+            _store(conn, pid, d, dname.get(pid), by_name, res, finnish=pid in fin, country=cc_of.get(pid, "FI"))
     except Blocked as e:
         res["blocked"] = str(e)
         _log.warning("BLOCKED: %s", e)
@@ -245,7 +250,7 @@ def _robots(f: Fetcher) -> str:
         return ""  # 404 and similar: no restrictions published
 
 
-def _store(conn, pid, d, declared_name, by_name, res, finnish):
+def _store(conn, pid, d, declared_name, by_name, res, finnish, country="FI"):  # `finnish` = in the thesis countries
     url = detail_url(pid)
     key, how = None, None
     if declared_name:
@@ -261,7 +266,7 @@ def _store(conn, pid, d, declared_name, by_name, res, finnish):
             how = "medium"
         else:
             key, how = f"name:{slug(d['company_name'])}", "high"
-            emit.upsert_company(conn, company_key=key, name=d["company_name"], source_url=url, country="FI", group_tag="feed")
+            emit.upsert_company(conn, company_key=key, name=d["company_name"], source_url=url, country=country, group_tag="feed")
             by_name[fold(d["company_name"])] = key
             res["companies"] += 1
     if finnish:

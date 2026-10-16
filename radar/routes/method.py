@@ -26,6 +26,18 @@ def _thesis_options() -> list[tuple[str, str]]:
     return [(tid, thesis_mod.load(path)["title"]) for tid, path in thesis_mod.available().items()]
 
 
+def _country_info(th: dict) -> dict:
+    """Active countries and the depth we hold for each, for the header, the feed note and /method."""
+    depth = thesis_mod.country_depth(th)
+    eu_only = [c for c, d in depth.items() if d == thesis_mod.DEFAULT_DEPTH]
+    national = [(c, d) for c, d in depth.items() if d != thesis_mod.DEFAULT_DEPTH]
+    note = "; ".join(f"{c} {d}" for c, d in national)
+    if eu_only:
+        note += ("; " if note else "") + f"{', '.join(eu_only)} {thesis_mod.DEFAULT_DEPTH}"
+    return {"codes": list(depth), "multi": len(depth) > 1, "depth": list(depth.items()), "eu_only": eu_only, "note": note}
+
+
+templates.env.globals["country_info"] = _country_info
 templates.env.globals["current_thesis"] = _current_thesis
 templates.env.globals["thesis_options"] = _thesis_options
 

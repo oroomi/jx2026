@@ -2,9 +2,9 @@
 
 Two jobs. (1) Declared cohort and portfolio companies are matched to CORDIS organisation rows: by VAT number to
 Y-tunnus (high), by the project link in the team's recon CSV plus closest organisation name (medium, probable),
-or by exact folded name (medium). A declared company with no match gets nothing. (2) Discovery: Finnish private
-for-profit SMEs in projects starting on or after 2025-01-01 whose organisation name, or project title, keywords or
-objective, hits a thesis keyword. Those are low confidence (a keyword) and keyed by the Y-tunnus built from the VAT
+or by exact folded name (medium). A declared company with no match gets nothing. (2) Discovery: private
+for-profit SMEs of the thesis countries (`countries`, default FI) in projects starting on or after 2025-01-01 whose organisation name, or project title, keywords or
+objective, hits a thesis keyword. Those are low confidence (a keyword) and keyed by the Y-tunnus (FI) or 'cc-vat-<number>' built from the VAT
 number; organisations without a usable VAT number are skipped. Existing companies only get a signal, never an upsert.
 The two zips are downloaded once into data/cache/cordis/ (1 request per 2 s); HTTP 403/429 stops with BLOCKED.
 """
@@ -25,6 +25,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from radar import emit
+from radar import thesis as thesis_mod
 from radar.adapters.declared import slug
 from radar.fit import matched_keywords
 
@@ -55,6 +56,14 @@ def fold(s) -> str:
 def vat_to_ytunnus(vat) -> str | None:
     m = re.fullmatch(r"FI(\d{8})", re.sub(r"[\s.\-]", "", str(vat or "")).upper())
     return f"{m.group(1)[:7]}-{m.group(1)[7]}" if m else None
+
+
+def vat_key(vat, country: str) -> str | None:
+    """Company key from a VAT number: Y-tunnus for FI, 'xx-vat-<number>' for any other thesis country, None when unusable."""
+    if country == "FI":
+        return vat_to_ytunnus(vat)
+    m = re.fullmatch(re.escape(country) + r"([0-9A-Z]{6,12})", re.sub(r"[\s.\-]", "", str(vat or "")).upper())
+    return f"{country.lower()}-vat-{m.group(1)}" if m else None
 
 
 def parse_amount(v) -> float | None:
@@ -155,6 +164,7 @@ def _declared(conn) -> list[dict]:
 
 def run(conn: sqlite3.Connection, thesis: dict, zips: dict | None = None) -> dict:
     t0 = time.time()
+    countries = set(thesis_mod.countries(thesis))
     counts = {"projects_read": 0, "fi_org_rows": 0, "declared_matched": {"vat": 0, "recon_link": 0, "exact_name": 0},
               "discovery_companies": 0, "signals": 0, "signals_by_programme": {}, "skipped_no_vat": 0,
               "bytes_downloaded": 0, "blocked": None, "seconds": 0.0}
@@ -182,7 +192,7 @@ def run(conn: sqlite3.Connection, thesis: dict, zips: dict | None = None) -> dic
     for prog, zp in zips.items():
         for o in _rows(zp, "organization.csv"):
             ytj = vat_to_ytunnus(o.get("vatNumber"))
-            is_fi = (o.get("country") or "").strip().upper() == "FI"
+            is_fi = (o.get("country") or "").strip().upper() in countries  # fi_org_rows counts the thesis countries
             if is_fi:
                 counts["fi_org_rows"] += 1
             if is_fi or (ytj and ytj in by_y) or o.get("projectID") in recon_ids or fold(o.get("name")) in by_name:
@@ -266,7 +276,7 @@ def run(conn: sqlite3.Connection, thesis: dict, zips: dict | None = None) -> dic
         p = projects.get(o["projectID"])
         if not p or (p.get("startDate") or "") < DISCOVERY_FROM:
             continue
-        if (o.get("country") or "").strip().upper() != "FI" or (o.get("activityType") or "").strip().upper() != "PRC" \
+        if (o.get("country") or "").strip().upper() not in countries or (o.get("activityType") or "").strip().upper() != "PRC" \
                 or (o.get("SME") or "").strip().lower() not in ("true", "yes", "1"):
             continue
         field = kw = None
@@ -278,7 +288,8 @@ def run(conn: sqlite3.Connection, thesis: dict, zips: dict | None = None) -> dic
                 break
         if not field:
             continue
-        key = vat_to_ytunnus(o.get("vatNumber"))
+        cc = (o.get("country") or "").strip().upper()
+        key = vat_key(o.get("vatNumber"), cc)
         if not key:
             counts["skipped_no_vat"] += 1
             continue
@@ -286,7 +297,7 @@ def run(conn: sqlite3.Connection, thesis: dict, zips: dict | None = None) -> dic
             continue
         if key not in existing:
             emit.upsert_company(conn, company_key=key, name=o["name"], source_url=PROJECT_URL.format(p["id"]),
-                                y_tunnus=key, country="FI", group_tag="feed")
+                                y_tunnus=key if cc == "FI" else None, country=cc, group_tag="feed")
             existing.add(key)
         if emit_for(key, p, o, "low", f"Matched on {field}: '{kw}'"):
             disc.add(key)

@@ -12,6 +12,13 @@
   <li>Feed window: {{ window_days }} days</li>
   <li>Young-company age cut: {% if age_cut is not none %}{{ age_cut }} years{% else %}no data{% endif %}</li>
 </ul>
+{% set ci = country_info(thesis) %}
+<h2 id="countries">Countries and depth</h2>
+<p class="rule">Active countries come from the sector file. EU-wide sources (TED contract awards, CORDIS, EU grants, BlueInvest) work for every listed country. National register depth exists only where we built it: Finland (PRH, Hilma) and Estonia (e-Business Register).</p>
+<table class="srctable"><thead><tr><th scope="col">Country</th><th scope="col">What we read</th></tr></thead><tbody>
+{% for cc, d in ci.depth %}<tr><td>{{ cc }}</td><td>{{ d }}</td></tr>{% endfor %}
+</tbody></table>
+{% if ci.eu_only %}<p class="meta">EU sources only (no national register built): {{ ci.eu_only | join(", ") }}.</p>{% endif %}
 <h2 id="precision">Feed precision</h2>
 <p>{{ feed_rule }}</p>
 <dl class="reasons">

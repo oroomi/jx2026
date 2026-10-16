@@ -63,3 +63,10 @@ main.wrap{max-width:1040px}
   .rd-none td.rd-n{font-family:var(--sans);font-size:inherit}
   .rd-table td.rd-strip svg{width:100%;max-width:240px;height:18px}
 }
+/* jx30: on a laptop the table fits its column (the latest-record chip wraps instead of pushing Kinds and Timeline off screen),
+   and the header and footer line up with the 1040 px column */
+@media (min-width:641px){
+  .rd-table .ev-chip{white-space:normal;flex-wrap:wrap}
+  .rd-table td.rd-latest{min-width:14rem;max-width:22rem}
+}
+body:has(.rd-table) .top .wrap,body:has(.rd-table) .foot{max-width:1040px}

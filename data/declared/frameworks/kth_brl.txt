@@ -1,0 +1,95 @@
+                   Business Readiness Level – BRL
+
+             BRL                        Business model is final and is scaling with growing recurring revenues
+              9                         that results in a profitable and sustainable business
+
+
+
+             BRL                        Sales and metrics show business model holds and can scale
+              8                         Business model is fine-tuned to explore more revenue options
+
+
+                                        Product/market fit and customers payment willingness demonstrated
+             BRL                        Attractive revenue vs cost projections (validated by data and sales)
+              7
+
+             BRL                        Full business model incl. pricing verified on customers (by test sales)
+              6
+
+                                        Parts of business model tested on market and canvas updated
+             BRL                        First version of revenue model incl. pricing hypotheses
+              5                         Verified competitive position/uniqueness through market feedback
+
+
+             BRL                        First version of full business model in canvas (incl. revenues/costs)
+              4                         First projections to show economic viability and market potential
+
+
+
+             BRL                        Draft of business model in canvas (excl. revenues/costs)
+              3                         Described market potential and complete competitive overview
+
+
+
+             BRL                        First possible business concept described (e.g. NABC)
+              2                         Identified overall market and some competitors/alternatives
+
+
+
+             BRL                        Hypothesizing on possible business concept
+              1                         Little knowledge or insight into market and competition
+
+
+
+
+©KTH Innovation - All rights reserved      kthinnovationreadinesslevel.com   KTH Innovation Readiness Level TM
+Level      Description
+           - Business model is final and business is scaling with growing and recurring revenues.
+   9       - The business scales by growing in new markets, new geographies, new segments etc.
+           - There is a working business which is profitable and sustainable over time.
+           - Sales and other metrics show the business model holds and is profitable e.g. customer
+             acquisition is not costing too much.
+   8       - The business model shows it can scale (potentially globally). Sales channels and supply
+             chain are fully in place.
+           - Business model is set but is continuously fine-tuned to explore more revenue options.
+           - There is product/market fit meaning you can demonstrate significant customer interest and
+             use of products and sales where customers show clear payment willingness.
+   7       - Attractive revenue vs cost projections (being validated by sales and data) implying a
+             sustainable/ attractive business could be built.
+           - Preparations for scaling business with suppliers, sales channels etc (incl. agreements).
+           - A complete business model incl. the pricing is tested vs. customers by test sales or similar.
+           - The revenue model incl. pricing is updated and refined based on customer feedback.
+   6
+           - First more complete projections on revenue/costs (profit and loss projections or
+             similar) with more details and well-grounded assumptions/data (e.g. 1-3 years horizon)
+           - The business model (at least parts of it) is tested against customers for verifying hypotheses.
+           - The business model is updated and refined to new version based on customer feedback
+   5       - There is a first version of a more detailed revenue model incl. pricing hypotheses (what
+             revenue streams are there, from what, when, how and what prices are possible?)
+           - The competitive position and differentiation is verified by market feedback.
+           - There is a full business model in canvas format incl. details on possible revenues/costs.
+           - First economic projections with numbers to show the market potential and economic
+   4         viability (bottom-up calculations based on projections/guesstimates on volumes, prices etc)
+           - Assessed feasible Share Of Market based on e.g. barriers to entry incl. competition
+           - Made a competitive analysis on your position and uniqueness/differentiation vs them.
+           - There is draft of the business model in a canvas format (business model canvas/lean
+             canvas) but typically without the revenues/cost parts and details of these.
+           - The market description is getting more highly resolved with more specific market
+   4         applications and segments being identified. Target applications identified.
+           - The market potential and the market size is quantified with TAM and SAM-
+             Segmented/Served Available/Addressable Market (everyone you have decided/can reach)
+           - A more complete competitor overview with direct/indirect competitors and alternatives
+           - Described the proposed business concept in some structured form e.g. NABC
+           - One or several markets or applications are identified and described on overall level e.g.
+   2
+             user numbers, TAM- Total Available or Addressable Market (everyone you wish to reach)
+           - Some competitors and/or alternatives are identified and listed
+           - Vague and unspecific description of the potential business idea or business concept
+   1       - Little insight into the market and its potential/size-hypothesizing on possible applications
+           - Little knowledge or insight into competition and alternative solutions
+
+
+
+
+©KTH Innovation - All rights reserved   kthinnovationreadinesslevel.com    KTH Innovation Readiness Level TM
+

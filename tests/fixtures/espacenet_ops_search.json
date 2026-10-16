@@ -1,0 +1,127 @@
+{
+  "_comment": "TEST FIXTURE, synthetic, not EPO data. Shaped like EPO OPS 3.2 published-data/search/biblio JSON (Accept: application/json). Applicants are made-up names; numbers use year 9999 / EP999xxxx so they cannot be real filings. Keyed by the first pa= term of the query.",
+  "testimeri": {
+    "ops:world-patent-data": {
+      "@xmlns": {"ops": "http://ops.epo.org", "$": "http://www.epo.org/exchange"},
+      "ops:biblio-search": {
+        "@total-result-count": "6",
+        "ops:query": {"@syntax": "CQL", "$": "pa=\"testimeri\""},
+        "ops:range": {"@begin": "1", "@end": "6"},
+        "ops:search-result": {
+          "exchange-documents": [
+            {
+              "exchange-document": {
+                "@system": "ops.epo.org", "@family-id": "999000001", "@country": "EP", "@doc-number": "9990001", "@kind": "A1",
+                "bibliographic-data": {
+                  "publication-reference": {"document-id": [
+                    {"@document-id-type": "docdb", "country": {"$": "EP"}, "doc-number": {"$": "9990001"}, "kind": {"$": "A1"}, "date": {"$": "20240320"}},
+                    {"@document-id-type": "epodoc", "doc-number": {"$": "EP9990001"}, "date": {"$": "20240320"}}
+                  ]},
+                  "application-reference": {"@doc-id": "1", "document-id": [
+                    {"@document-id-type": "docdb", "country": {"$": "EP"}, "doc-number": {"$": "99990010"}, "kind": {"$": "A"}},
+                    {"@document-id-type": "epodoc", "doc-number": {"$": "EP99990010"}, "date": {"$": "20230310"}}
+                  ]},
+                  "priority-claims": {"priority-claim": [
+                    {"@sequence": "1", "@kind": "national", "document-id": [
+                      {"@document-id-type": "epodoc", "doc-number": {"$": "FI99990001"}, "date": {"$": "20220915"}},
+                      {"@document-id-type": "original", "doc-number": {"$": "99990001"}}
+                    ]}
+                  ]},
+                  "parties": {"applicants": {"applicant": [
+                    {"@sequence": "1", "@data-format": "epodoc", "applicant-name": {"name": {"$": "TESTIMERI OY [FI]"}}},
+                    {"@sequence": "1", "@data-format": "original", "applicant-name": {"name": {"$": "Testimeri Oy"}}}
+                  ]}},
+                  "invention-title": [
+                    {"@lang": "fi", "$": "Testilaite"},
+                    {"@lang": "en", "$": "TEST DEVICE FOR A FIXTURE"}
+                  ]
+                }
+              }
+            },
+            {
+              "exchange-document": {
+                "@system": "ops.epo.org", "@family-id": "999000001", "@country": "FI", "@doc-number": "99990001", "@kind": "A1",
+                "bibliographic-data": {
+                  "publication-reference": {"document-id": {"@document-id-type": "docdb", "country": {"$": "FI"}, "doc-number": {"$": "99990001"}, "kind": {"$": "A1"}, "date": {"$": "20240316"}}},
+                  "application-reference": {"document-id": {"@document-id-type": "epodoc", "doc-number": {"$": "FI99990001"}, "date": {"$": "20220915"}}},
+                  "parties": {"applicants": {"applicant": {"@sequence": "1", "@data-format": "epodoc", "applicant-name": {"name": {"$": "TESTIMERI OY [FI]"}}}}},
+                  "invention-title": {"@lang": "fi", "$": "Testilaite"}
+                }
+              }
+            },
+            {
+              "exchange-document": {
+                "@system": "ops.epo.org", "@family-id": "999000002", "@country": "EP", "@doc-number": "9990002", "@kind": "A1",
+                "bibliographic-data": {
+                  "publication-reference": {"document-id": [
+                    {"@document-id-type": "docdb", "country": {"$": "EP"}, "doc-number": {"$": "9990002"}, "kind": {"$": "A1"}, "date": {"$": "20260701"}}
+                  ]},
+                  "application-reference": {"document-id": [
+                    {"@document-id-type": "docdb", "country": {"$": "EP"}, "doc-number": {"$": "99990020"}, "kind": {"$": "A"}, "date": {"$": "20250102"}}
+                  ]},
+                  "parties": {"applicants": {"applicant": [
+                    {"@sequence": "1", "@data-format": "docdb", "applicant-name": {"name": {"$": "TESTIMERI OY"}}, "residence": {"country": {"$": "FI"}}},
+                    {"@sequence": "2", "@data-format": "docdb", "applicant-name": {"name": {"$": "KOEYLIOPISTO"}}, "residence": {"country": {"$": "FI"}}}
+                  ]}},
+                  "invention-title": {"@lang": "en", "$": "SECOND FIXTURE INVENTION"}
+                }
+              }
+            },
+            {
+              "exchange-document": {
+                "@system": "ops.epo.org", "@family-id": "999000003", "@country": "EP", "@doc-number": "9990003", "@kind": "A1",
+                "bibliographic-data": {
+                  "publication-reference": {"document-id": {"@document-id-type": "docdb", "country": {"$": "EP"}, "doc-number": {"$": "9990003"}, "kind": {"$": "A1"}, "date": {"$": "20250505"}}},
+                  "application-reference": {"document-id": {"@document-id-type": "epodoc", "doc-number": {"$": "EP99990030"}, "date": {"$": "20200101"}}},
+                  "parties": {"applicants": {"applicant": {"@sequence": "1", "@data-format": "epodoc", "applicant-name": {"name": {"$": "TESTIMERI AB [SE]"}}}}},
+                  "invention-title": {"@lang": "en", "$": "SAME NAME, SWEDISH APPLICANT, MUST NOT MATCH"}
+                }
+              }
+            },
+            {
+              "exchange-document": {
+                "@system": "ops.epo.org", "@family-id": "999000004", "@country": "EP", "@doc-number": "9990004", "@kind": "A1",
+                "bibliographic-data": {
+                  "publication-reference": {"document-id": {"@document-id-type": "docdb", "country": {"$": "EP"}, "doc-number": {"$": "9990004"}, "kind": {"$": "A1"}, "date": {"$": "20250505"}}},
+                  "application-reference": {"document-id": {"@document-id-type": "epodoc", "doc-number": {"$": "EP99990040"}, "date": {"$": "20190101"}}},
+                  "parties": {"applicants": {"applicant": {"@sequence": "1", "@data-format": "epodoc", "applicant-name": {"name": {"$": "TESTIMERI SOLUTIONS OY [FI]"}}}}},
+                  "invention-title": {"@lang": "en", "$": "LONGER NAME, MUST NOT MATCH"}
+                }
+              }
+            },
+            {
+              "exchange-document": {
+                "@system": "ops.epo.org", "@family-id": "999000005", "@country": "EP", "@doc-number": "9990005", "@kind": "A1",
+                "bibliographic-data": {
+                  "publication-reference": {"document-id": {"@document-id-type": "docdb", "country": {"$": "EP"}, "doc-number": {"$": "9990005"}, "kind": {"$": "A1"}}},
+                  "parties": {"applicants": {"applicant": {"@sequence": "1", "@data-format": "epodoc", "applicant-name": {"name": {"$": "TESTIMERI OY [FI]"}}}}},
+                  "invention-title": {"@lang": "en", "$": "NO DATES IN THE RECORD, MUST BE SKIPPED"}
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  "vesikoe": {
+    "ops:world-patent-data": {
+      "ops:biblio-search": {
+        "@total-result-count": "1",
+        "ops:search-result": {
+          "exchange-documents": {
+            "exchange-document": {
+              "@system": "ops.epo.org", "@family-id": "999000006", "@country": "FI", "@doc-number": "99990060", "@kind": "B",
+              "bibliographic-data": {
+                "publication-reference": {"document-id": {"@document-id-type": "docdb", "country": {"$": "FI"}, "doc-number": {"$": "99990060"}, "kind": {"$": "B"}, "date": {"$": "20230101"}}},
+                "application-reference": {"document-id": {"@document-id-type": "epodoc", "doc-number": {"$": "FI99990060"}, "date": {"$": "20210504"}}},
+                "parties": {"applicants": {"applicant": {"@sequence": "1", "@data-format": "epodoc", "applicant-name": {"name": {"$": "VESIKOE OY [FI]"}}}}},
+                "invention-title": {"@lang": "en", "$": "THIRD FIXTURE INVENTION"}
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -8,12 +8,17 @@ Four steps, each its own function, every step written to the stitch_log table (r
           business ID, core name or website domain) AND shows the date or at least its year. The precision kept is the
           one the page supports, never more than proposed. The Internet Archive's first capture of the page is stored as
           public_since: the earliest day anyone could have read it. Every drop is logged with its reason.
+  recheck adversarial second pass, plain Python: re-fetch every kept page fresh and confirm that the quote is on it
+          word for word, that the company is named in or next to the quote, that the quote states an event of the
+          proposed type, and that a year-only date is printed next to the quote (a copyright line dates nothing).
+          Anything that fails is logged as refuted with the reason and never emitted.
   emit    radar.emit.emit_signal only, adapter "stitcher". Emittable: the existing radar.emit types in EMITTABLE plus
           programme_entry, award and funding_round (chief's decision 17 Oct: the thesis already counts them). Every other
           kept type is logged as not_emitted with the LLM's label and stays in stitch_log only, never a signal.
 
 Not run by `python3 -m radar.build`: the module has no run(), because one LLM session per company is minutes, not
 seconds. CLI:  python3 -m radar.adapters.stitcher --company <key> | --batch <file>  [--proposals DIR] [--print-prompt]
+                                          [--recheck-run RUN_ID]  (second pass only, over that run's kept rows)
 Database: --db, else env RADAR_DB, else the thesis store (radar.thesis.db_path). The default data/radar.sqlite is refused.
 Companies only: quotes have person-shaped names redacted; the prompt forbids naming private individuals.
 """
@@ -312,10 +317,11 @@ def html_to_text(raw: str) -> str:
     return re.sub(r"\s+", " ", text + " " + html.unescape(keep)).strip()
 
 
-def fetch_page(url: str, client: httpx.Client | None = None) -> str:
-    """Page text, cached under data/cache/stitcher/pages/. Raises Blocked when unreachable or not readable."""
+def fetch_page(url: str, client: httpx.Client | None = None, *, fresh: bool = False) -> str:
+    """Page text, cached under data/cache/stitcher/pages/. fresh=True ignores the cache (the re-check's re-fetch) and
+    stores the new text. Raises Blocked when unreachable or not readable."""
     f = CACHE / "pages" / (hashlib.sha1(url.encode()).hexdigest()[:16] + ".txt")
-    if f.exists():
+    if f.exists() and not fresh:
         return f.read_text(encoding="utf-8")
     own = client is None
     client = client or httpx.Client(headers={"User-Agent": UA, "Accept-Language": "en,fi;q=0.8"}, timeout=60, follow_redirects=True)
@@ -392,17 +398,35 @@ def date_on_page(d: str, page_text: str) -> str | None:
     return None
 
 
+AVAILABLE = "https://archive.org/wayback/available"
+CDX_RETRIES = int(os.environ.get("STITCHER_CDX_RETRIES") or 3)
+
+
 def first_capture(url: str) -> tuple[str | None, str | None]:
-    """(YYYY-MM-DD, archived URL) of the earliest 200 capture of exactly this page, or (None, None)."""
+    """(YYYY-MM-DD, archived URL) of the earliest 200 capture of exactly this page, or (None, None). CDX first; when CDX
+    cannot be reached, the Wayback availability API asked for the capture closest to 1 January 1996, which is the earliest
+    one, kept only when that capture is a 200."""
     params = {"url": url, "output": "json", "fl": "timestamp,original,statuscode", "filter": "statuscode:200", "limit": "1"}
     try:
-        rows, _ = cached_get(NAME, CDX, interval=INTERVAL, params=params)
+        rows, _ = cached_get(NAME, CDX, interval=INTERVAL, params=params, retries=CDX_RETRIES)
     except Blocked:
-        return None, None
+        return _first_capture_available(url)
     if not rows or len(rows) < 2 or not re.match(r"^\d{14}$", str(rows[1][0])):
         return None, None
     ts, original = rows[1][0], rows[1][1]
     return f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}", archive_url(ts, original)
+
+
+def _first_capture_available(url: str) -> tuple[str | None, str | None]:
+    try:
+        data, _ = cached_get(NAME, AVAILABLE, interval=INTERVAL, params={"url": url, "timestamp": "19960101"})
+    except Blocked:
+        return None, None
+    snap = ((data or {}).get("archived_snapshots") or {}).get("closest") if isinstance(data, dict) else None
+    ts = str((snap or {}).get("timestamp") or "")
+    if not snap or str(snap.get("status")) != "200" or not re.match(r"^\d{14}$", ts):
+        return None, None
+    return f"{ts[:4]}-{ts[4:6]}-{ts[6:8]}", archive_url(ts, url)
 
 
 def verify(conn: sqlite3.Connection, run_id: str, company: dict, proposals: list[dict], *, fetch=fetch_page,
@@ -456,6 +480,140 @@ def verify(conn: sqlite3.Connection, run_id: str, company: dict, proposals: list
     return kept
 
 
+# ---------------------------------------------------------------- step 3b: recheck (adversarial second pass, plain code)
+
+NEAR = 200        # characters around the quote in which the company must be named (when the quote does not name it)
+YEAR_NEAR = 300   # characters around the quote in which a year-only date must be printed
+# Words a quote must contain to state an event of the type. Folded text; "word*" matches a word start, else a whole word.
+TYPE_WORDS = {
+    "bf_funding": ("business finland", "tekes"),
+    "eu_project": ("horizon*", "h2020", "interreg", "eic", "emfaf", "cordis", "life programme", "european union", "european commission",
+                   "eu funded", "eu project", "eu funding", "funded by the eu*", "co funded", "erdf", "eakr", "euroopan unioni*",
+                   "eu rahoit*", "eu hanke*", "eit"),
+    "blueinvest": ("blueinvest*",),
+    "patent": ("patent*",),
+    "public_contract": ("contract*", "tender*", "procurement*", "framework agreement*", "awarded", "hankin*", "sopimu*",
+                        "puitesopimu*", "kilpailut*", "tilau*", "order*"),
+    "job_ad": ("hiring", "hire*", "job*", "position*", "vacanc*", "recruit*", "join our team", "looking for", "career*",
+               "rekry*", "haemme", "tyopaik*"),
+    "site_customer": ("customer*", "client*", "pilot*", "partner*", "deliver*", "order*", "agreement*", "contract*", "deal*",
+                      "deploy*", "asiaka*", "asiakkaa*", "pilotti*", "kumppan*", "toimit*", "sopimu*", "tilau*", "kund*", "cliente*"),
+    "research_output": ("paper*", "publication*", "published", "article*", "study", "studies", "journal*", "report*",
+                        "conference*", "julkaisu*", "artikkel*", "tutkimu*"),
+    "website_milestone": ("launch*", "website*", "lanseera*", "verkkosivu*", "avasi*"),
+    "programme_entry": ("accelerator*", "programme*", "program*", "cohort*", "batch*", "incubat*", "selected", "joined", "bootcamp*",
+                        "kiihdyttamo*", "ohjelma*", "valittu*", "valittiin"),
+    "award": ("award*", "prize*", "winner*", "won", "win", "wins", "palkin*", "palkit*", "voitt*"),
+    "funding_round": ("raise*", "round*", "seed", "pre seed", "series", "invest*", "equity", "crowdfund*", "financing",
+                      "rahoituskierro*", "kerasi", "sijoit*", "paaomasijoit*", "joukkorahoit*"),
+}
+assert set(TYPE_WORDS) == set(EMITTABLE), "every emittable type needs its type words"
+_WIN = ("won", "win", "wins", "winner*", "voitti", "voittaj*", "palkittiin")
+_NOMINATION = ("finalist*", "nominat*", "shortlist*", "semi final*", "ehdok*", "finalisti*")
+
+
+def _hits(words: tuple[str, ...], folded: str) -> list[str]:
+    out = []
+    for w in words:
+        stem = fold(w.rstrip("*"))
+        pat = rf"(?<![a-z0-9]){re.escape(stem)}" + ("" if w.endswith("*") else r"(?![a-z0-9])")
+        if stem and re.search(pat, folded):
+            out.append(w.rstrip("*"))
+    return out
+
+
+def _quote_span(quote: str, folded_page: str) -> tuple[int, int] | None:
+    """(start, end) of the quote in the folded page. A redacted quote must have every unredacted fragment there, in order."""
+    parts = [fold(x) for x in (quote or "").split("[name]")]
+    parts = [x for x in parts if x]
+    if not parts:
+        return None
+    pos, start = 0, None
+    for part in parts:
+        i = folded_page.find(part, pos)
+        if i < 0:
+            return None
+        start = i if start is None else start
+        pos = i + len(part)
+    return start, pos
+
+
+def _named(company: dict, folded: str) -> str | None:
+    """How a folded text names the company: business id, legal name, core name or domain, as whole words."""
+    yt = company.get("y_tunnus")
+    if yt and (f" {fold(yt)} " in folded or f" fi{yt.replace('-', '')} " in folded):
+        return "business_id"
+    legal = fold(company["name"])
+    if " " in legal and f" {legal} " in folded:
+        return "legal_name"
+    core = core_name(company["name"])
+    if core and f" {core} " in folded:
+        return "core_name"
+    dom = domain_of(company.get("website"))
+    if dom and f" {fold(dom)} " in folded:
+        return "domain"
+    return None
+
+
+def recheck_event(company: dict, k: dict, page_text: str) -> tuple[bool, str]:
+    """The adversarial checks on one kept event against a freshly fetched page: (confirmed, reason)."""
+    folded = " " + fold(page_text) + " "
+    span = _quote_span(k.get("quote") or "", folded)
+    if not (k.get("quote") or "").strip():
+        return False, "no_quote: nothing to check the event against"
+    if span is None:
+        return False, "quote_not_on_page: the quote is not on the re-fetched page word for word"
+    q = " " + fold(k["quote"].replace("[name]", " ")) + " "
+    own_site = (domain_of(company.get("website")) or "~").removeprefix("www.") == \
+        (urlparse(k["source_url"]).hostname or "").lower().removeprefix("www.")
+    how = _named(company, q)
+    if how:
+        where = f"named in the quote by {how}"
+    else:
+        near = " " + folded[max(0, span[0] - NEAR):span[1] + NEAR] + " "
+        how = _named(company, near)
+        if how:
+            where = f"named within {NEAR} characters of the quote by {how}"
+        elif own_site and _named(company, folded):
+            where = "the company's own site, which names the company"
+        else:
+            return False, f"company_not_near_quote: not named in the quote or within {NEAR} characters of it"
+    t = k["signal_type"]
+    if t == "unmapped":  # never emitted; checked for quote and company so the reported labels are real events
+        return True, f"second pass: quote on the re-fetched page; {where}; type not checked (unmapped, never emitted)"
+    words = _hits(TYPE_WORDS.get(t, ()), q)
+    if t not in TYPE_WORDS:
+        return False, f"type_not_emittable: {t}"
+    if not words:
+        return False, f"type_not_in_quote: no {t} word in the quote ({', '.join(w.rstrip('*') for w in TYPE_WORDS[t][:6])} ...)"
+    if t == "award" and _hits(_NOMINATION, q) and not _hits(_WIN, q):
+        return False, "nomination_not_award: the quote names a finalist or nomination place, not a win"
+    if k["date_precision"] == "year":
+        y = k["date"][:4]
+        if not re.search(rf"(?<!\d){y}(?!\d)", folded[max(0, span[0] - YEAR_NEAR):span[1] + YEAR_NEAR]):
+            return False, f"year_not_near_quote: {y} is not printed within {YEAR_NEAR} characters of the quote"
+    return True, f"second pass: quote on the re-fetched page; {where}; type words: {', '.join(words[:3])}"
+
+
+def recheck(conn: sqlite3.Connection, run_id: str, company: dict, kept: list[dict], *, refetch=None) -> list[dict]:
+    """Adversarial second pass over every kept event. The page is fetched again, fresh. Logs verify/confirmed or
+    verify/refuted (step stays 'verify': the live table's CHECK allows no new step). Returns the confirmed events."""
+    refetch = refetch or (lambda url: fetch_page(url, fresh=True))
+    out = []
+    for k in kept:
+        try:
+            ok, why = recheck_event(company, k, refetch(k["source_url"]))
+        except Blocked as e:
+            ok, why = False, f"refetch_failed: {e}"
+        _log(conn, run_id, company["company_key"], "verify", "confirmed" if ok else "refuted", reason=why, signal_type=k["signal_type"],
+             suggested_type=k["suggested_type"], date=k["date"], date_precision=k["date_precision"], source_url=k["source_url"],
+             quote=k["quote"], confidence=k["confidence"], name_match=k["name_match"], public_since=k["public_since"],
+             archive_url=k["archive_url"])
+        if ok:
+            out.append(dict(k, recheck=why))
+    return out
+
+
 # ---------------------------------------------------------------- step 4: emit (only through radar.emit)
 
 def stored_date(d: str, precision: str) -> str:
@@ -504,15 +662,38 @@ def emit_events(conn: sqlite3.Connection, run_id: str, company: dict, kept: list
 # ---------------------------------------------------------------- orchestration and report
 
 def stitch_company(conn: sqlite3.Connection, company_key: str, *, run_id: str | None = None, runner=claude_runner,
-                   fetch=fetch_page, capture=first_capture, today: str | None = None) -> dict:
+                   fetch=fetch_page, capture=first_capture, refetch=None, today: str | None = None) -> dict:
     run_id = run_id or now_utc()
     company = company_row(conn, company_key)
     queries = search(conn, run_id, company)
     proposals = read(conn, run_id, company, queries, runner=runner)
     kept = verify(conn, run_id, company, proposals, fetch=fetch, capture=capture, today=today)
-    st = emit_events(conn, run_id, company, kept)
+    confirmed = recheck(conn, run_id, company, kept, refetch=refetch)
+    st = emit_events(conn, run_id, company, confirmed)
     conn.commit()
-    return {"company": company_key, "queries": len(queries), "proposed": len(proposals), "kept": len(kept), **st}
+    return {"company": company_key, "queries": len(queries), "proposed": len(proposals), "kept": len(kept),
+            "confirmed": len(confirmed), **st}
+
+
+def kept_rows(conn: sqlite3.Connection, run_id: str, company_key: str) -> list[dict]:
+    """The verify/kept rows of a past run, in the shape recheck() takes."""
+    rows = conn.execute("""SELECT signal_type, suggested_type, date, date_precision, source_url, quote, confidence, name_match,
+                                  public_since, archive_url FROM stitch_log
+                           WHERE run_id=? AND company_key=? AND step='verify' AND outcome='kept' ORDER BY id""", (run_id, company_key))
+    return [dict(r) for r in rows]
+
+
+def recheck_run(conn: sqlite3.Connection, run_id: str, company_key: str, *, refetch=None) -> dict:
+    """The second pass over a run made before it existed. Logged under that run_id; nothing is emitted or removed here."""
+    company = company_row(conn, company_key)
+    rows = kept_rows(conn, run_id, company_key)
+    done = conn.execute("SELECT count(*) FROM stitch_log WHERE run_id=? AND company_key=? AND outcome IN ('confirmed','refuted')",
+                        (run_id, company_key)).fetchone()[0]
+    if done:
+        return {"company": company_key, "kept": len(rows), "skipped": "already rechecked"}
+    confirmed = recheck(conn, run_id, company, rows, refetch=refetch)
+    conn.commit()
+    return {"company": company_key, "kept": len(rows), "confirmed": len(confirmed)}
 
 
 def file_runner(directory: str | Path, company_key: str):
@@ -535,6 +716,9 @@ def report(conn: sqlite3.Connection, run_id: str, entry: tuple[str, str] | None 
         "rejected_shape": one("SELECT count(*) FROM stitch_log WHERE run_id=? AND step='read' AND outcome='rejected'"),
         "read_failed": [tuple(r) for r in q("SELECT company_key, reason FROM stitch_log WHERE run_id=? AND outcome='read_failed'")],
         "kept": one("SELECT count(*) FROM stitch_log WHERE run_id=? AND step='verify' AND outcome='kept'"),
+        "confirmed": one("SELECT count(*) FROM stitch_log WHERE run_id=? AND step='verify' AND outcome='confirmed'"),
+        "refuted": {r[0]: r[1] for r in q("SELECT substr(reason,1,instr(reason||':',':')-1), count(*) FROM stitch_log WHERE run_id=? "
+                                         "AND step='verify' AND outcome='refuted' GROUP BY 1")},
         "dropped": {r[0].split(":")[0]: r[1] for r in q("SELECT reason, count(*) FROM stitch_log WHERE run_id=? AND step='verify' "
                                                        "AND outcome='dropped' GROUP BY substr(reason,1,instr(reason||':',':')-1)")},
         "emitted": one("SELECT count(*) FROM stitch_log WHERE run_id=? AND step='emit' AND outcome='emitted'"),
@@ -544,7 +728,7 @@ def report(conn: sqlite3.Connection, run_id: str, entry: tuple[str, str] | None 
     }
     if entry:
         ref = entry[0]
-        rows = q("SELECT company_key, date, date_precision, public_since FROM stitch_log WHERE run_id=? AND step='verify' AND outcome='kept'")
+        rows = q("SELECT company_key, date, date_precision, public_since FROM stitch_log WHERE run_id=? AND step='verify' AND outcome='confirmed'")
         out["entry_reference"] = f"{ref} ({entry[1]})"
         out["kept_before_entry"] = sum(1 for r in rows if stored_date(r[1], r[2]) < ref)
         out["kept_before_entry_and_archived_before_entry"] = sum(1 for r in rows if stored_date(r[1], r[2]) < ref and r[3] and r[3] < ref)
@@ -572,6 +756,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--thesis", help="thesis yaml path (default: radar.thesis.load())")
     ap.add_argument("--proposals", help="directory of saved LLM answers <company_key>.json instead of claude -p")
     ap.add_argument("--print-prompt", action="store_true", help="print the read-step prompt for each company and stop")
+    ap.add_argument("--recheck-run", help="run only the adversarial second pass over the kept rows of this past run_id")
     a = ap.parse_args(argv)
     th = thesis_mod.load(a.thesis) if a.thesis else thesis_mod.load()
     conn = db.connect(_resolve_db(a.db, th))
@@ -581,6 +766,14 @@ def main(argv: list[str] | None = None) -> int:
             c = company_row(conn, k)
             print(f"===== {k}\n{build_prompt(c, search(conn, 'print-prompt', c))}")
         conn.rollback()
+        return 0
+    if a.recheck_run:
+        for k in keys:
+            try:
+                print(json.dumps(recheck_run(conn, a.recheck_run, k), ensure_ascii=False), flush=True)
+            except KeyError as e:
+                print(json.dumps({"company": k, "error": str(e)}), flush=True)
+        print("RESULT " + json.dumps({"run_id": a.recheck_run, **report(conn, a.recheck_run, earliness.reference(th))}, ensure_ascii=False))
         return 0
     run_id = now_utc()
     for k in keys:

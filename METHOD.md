@@ -28,11 +28,21 @@ The answer is cached under `data/cache/stitcher/llm/` by prompt hash. A saved an
 - The stored precision is what the page supports and never more than proposed. A day the page does not print becomes month or year, and the log says so.
 - Stored dates: a month-only date is the last day of the month, as `ecosystem.py` does. A year-only date is 1 January with a `signal_meta` row of `year`.
 - Confidence follows the rule in `emit.py`. It is high when the business ID or legal name and a day or month are on the page. Otherwise it is medium.
-- **public_since** is the Internet Archive's first 200 capture of that exact URL, from CDX. It is the earliest day anyone could have read the event, and it is the honest number for earliness.
+- **public_since** is the Internet Archive's first 200 capture of that exact URL, from CDX. It is the earliest day anyone could have read the event, and it is the honest number for earliness. When CDX cannot be reached, the Wayback availability API is asked for the capture closest to 1 January 1996, which is the earliest. It is used only when that capture is a 200.
 - Drop reasons are `source_not_allowed`, `date_in_future`, `fetch_failed: …`, `company_not_on_page`, `date_not_on_page` and `name_and_date_not_on_page`.
 
+## 3b. Adversarial second pass (recheck step, no LLM)
+Every kept event is checked again before anything is emitted. The code fetches the page fresh (no cache) and confirms all of these; the first failure drops the event, logged as `verify` / `refuted` with its reason:
+- `quote_not_on_page`: the quote is on the re-fetched page word for word (case, accents and punctuation folded). A redacted quote must have each unredacted fragment there, in order.
+- `company_not_near_quote`: the company is named in the quote, or within 200 characters of it (business ID, legal name, core name or domain). On the company's own site, the site naming the company is enough.
+- `type_not_in_quote`: the quote states an event of the proposed type: it holds one of that type's words (`TYPE_WORDS` in the stitcher, English and Finnish, for example award, prize, won, palkinto for `award`; raised, round, seed, series, invest for `funding_round`; a grant is not a round).
+- `nomination_not_award`: a finalist, nomination or shortlist place without a win word is not an award.
+- `year_not_near_quote`: a year-only date must be printed within 300 characters of the quote, so a copyright line never dates an event.
+- `no_quote`, `refetch_failed: …`.
+Passed events are logged `verify` / `confirmed` with what matched. An `unmapped` event is checked for quote and company only and is never emitted. A past run can be rechecked alone with `--recheck-run RUN_ID`. That logs under the old run and emits or removes nothing.
+
 ## 4. Emit
-Writes go only through `radar.emit.emit_signal` with adapter `stitcher`. The verbatim quote goes into `signal_text` only when it appears word for word on the page and nothing was redacted. `build.py` does not run the stitcher because the module has no `run()`.
+Only confirmed events are emitted. Writes go only through `radar.emit.emit_signal` with adapter `stitcher`. The verbatim quote goes into `signal_text` only when it appears word for word on the page and nothing was redacted. `build.py` does not run the stitcher because the module has no `run()`.
 
 ## Run (VPS, 16 Oct 23:06Z, live thesis store, Sonnet answers replayed from files)
 `RESULT run 2026-10-16T23:06:54Z: 6 companies, 15 proposed, 14 kept, 1 dropped (date_not_on_page), 2 emitted, 12 not emitted (types not in SIGNAL_TYPES: programme_entry 2, award, funding_round, partnership, incorporation, crowdfunding_campaign, facility_expansion, first_international_client, research_collaboration, network_membership, supplier_selection), 8 kept events dated before the 2026-01-01 reference, 3 of them also archived before it, across 3 companies.`

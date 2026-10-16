@@ -63,12 +63,12 @@ def conn(tmp_path, monkeypatch):
 
 def run(conn, payload=LLM):
     return stitcher.stitch_company(conn, KELLUU, run_id="t1", runner=lambda prompt: json.dumps(payload),
-                                   fetch=fake_fetch, capture=fake_capture, today="2026-10-16")
+                                   fetch=fake_fetch, capture=fake_capture, refetch=fake_fetch, today="2026-10-16")
 
 
 def test_pipeline_keeps_only_page_checked_events(conn):
     res = run(conn)
-    assert res["proposed"] == 8 and res["kept"] == 5
+    assert res["proposed"] == 8 and res["kept"] == 5 and res["confirmed"] == 5
     assert res["emitted"] == 4 and res["not_emitted"] == 1
     rep = stitcher.report(conn, "t1", ("2026-01-01", "test reference"))
     assert rep["rejected_shape"] == 1
@@ -108,7 +108,7 @@ def test_every_query_logged_and_rerun_is_idempotent(conn):
     qs = [r[0] for r in conn.execute("SELECT query FROM stitch_log WHERE step='search' AND outcome='query'")]
     assert '"Kelluu Oy"' in qs and '"2902007-2"' in qs and '"kelluu.com"' in qs
     res = stitcher.stitch_company(conn, KELLUU, run_id="t2", runner=lambda p: (_ for _ in ()).throw(AssertionError("LLM re-called")),
-                                  fetch=fake_fetch, capture=fake_capture, today="2026-10-16")
+                                  fetch=fake_fetch, capture=fake_capture, refetch=fake_fetch, today="2026-10-16")
     assert res["duplicate"] == 4 and res["emitted"] == 0  # cached LLM answer, same signals, nothing new
     assert conn.execute("SELECT count(*) FROM signals").fetchone()[0] == n
 
@@ -186,3 +186,74 @@ def test_default_store_refused(monkeypatch):
     monkeypatch.delenv("RADAR_DB", raising=False)
     with pytest.raises(SystemExit):
         stitcher._resolve_db(str(db.ROOT / "data" / "radar.sqlite"), {"id": "x"})
+
+
+# ---- adversarial second pass ------------------------------------------------------------------------------------------
+COMPANY = {"company_key": KELLUU, "name": "Kelluu Oy", "y_tunnus": KELLUU, "website": "https://kelluu.com/"}
+
+
+def kept(signal_type, quote, url="https://example.org/p", date="2022-06-03", precision="day"):
+    return {"signal_type": signal_type, "suggested_type": None, "date": date, "date_precision": precision, "source_url": url,
+            "quote": quote, "confidence": "high", "name_match": "legal_name", "public_since": None, "archive_url": None}
+
+
+def test_recheck_drops_a_page_that_changed_since_the_first_read(conn):
+    changed = dict(PAGES)
+    changed["https://example.org/kelluu-award-2022"] = "This page has moved. Kelluu Oy news archive, 2022."
+
+    def refetch(url):
+        if url == "https://example.org/kelluu-year-only":
+            raise Blocked("HTTP 404")
+        return changed[url]
+    res = stitcher.stitch_company(conn, KELLUU, run_id="t9", runner=lambda p: json.dumps(LLM), fetch=fake_fetch,
+                                  capture=fake_capture, refetch=refetch, today="2026-10-16")
+    assert res["kept"] == 5 and res["confirmed"] == 3 and res["emitted"] == 2
+    rep = stitcher.report(conn, "t9")
+    assert rep["kept"] == 5 and rep["confirmed"] == 3
+    assert rep["refuted"] == {"quote_not_on_page": 1, "refetch_failed": 1}
+    assert {r[0] for r in conn.execute("SELECT signal_type FROM signals WHERE adapter='stitcher'")} == {"bf_funding", "site_customer"}
+    why = conn.execute("SELECT reason FROM stitch_log WHERE outcome='refuted' AND source_url LIKE '%award-2022'").fetchone()[0]
+    assert why.startswith("quote_not_on_page")
+
+
+@pytest.mark.parametrize("event,page,ok,reason", [
+    (kept("award", "Kelluu Oy won the Blue Prize 2022"), "Turku, 3 June 2022. Kelluu Oy won the Blue Prize 2022 for airships.", True, ""),
+    (kept("award", "Kelluu Oy won the Blue Prize"), "Kelluu Oy took home the Blue Prize on 3 June 2022.", False, "quote_not_on_page"),
+    (kept("award", "Kelluu Oy announced a partnership with a grid company"),
+     "3 June 2022: Kelluu Oy announced a partnership with a grid company.", False, "type_not_in_quote"),
+    (kept("award", "Kelluu Oy was a finalist for the Blue Award 2022"),
+     "3 June 2022. Kelluu Oy was a finalist for the Blue Award 2022.", False, "nomination_not_award"),
+    (kept("programme_entry", "was selected into the accelerator cohort"),
+     "Kelluu Oy " + "and many other words here " * 20 + "3 June 2022 a startup was selected into the accelerator cohort.",
+     False, "company_not_near_quote"),
+    (kept("programme_entry", "We were selected into the accelerator cohort", url="https://kelluu.com/news/1"),
+     "Kelluu news. 3 June 2022 We were selected into the accelerator cohort.", True, ""),
+    (kept("funding_round", "Kelluu Oy received a grant for airship trials"),
+     "3.6.2022 Kelluu Oy received a grant for airship trials.", False, "type_not_in_quote"),
+    (kept("funding_round", "Kelluu raised a EUR 15M Series A round", date="2026", precision="year"),
+     "Kelluu raised a EUR 15M Series A round. " + "Other text " * 60 + "(c) 2026 Example Media", False, "year_not_near_quote"),
+    (kept("funding_round", "Kelluu raised a EUR 15M Series A round in 2026", date="2026", precision="year"),
+     "News. Kelluu raised a EUR 15M Series A round in 2026.", True, ""),
+    (kept("site_customer", "[name] said that Kelluu Oy signed a pilot"),
+     "CEO Jane Doe said that Kelluu Oy signed a pilot on 3 June 2022.", True, ""),
+    (kept("site_customer", ""), "Kelluu Oy signed a pilot on 3 June 2022.", False, "no_quote"),
+])
+def test_recheck_event(event, page, ok, reason):
+    got, why = stitcher.recheck_event(COMPANY, event, page)
+    assert got is ok, why
+    assert why.startswith(reason if not ok else "second pass")
+
+
+def test_every_emittable_type_has_type_words():
+    assert set(stitcher.TYPE_WORDS) == set(stitcher.EMITTABLE)
+
+
+def test_recheck_run_over_an_older_run_logs_under_that_run(conn):
+    run(conn)
+    # pretend the run predates the second pass: remove its recheck rows, then recheck it with one page gone
+    conn.execute("DELETE FROM stitch_log WHERE run_id='t1' AND outcome IN ('confirmed','refuted')")
+    gone = lambda url: (_ for _ in ()).throw(Blocked("HTTP 410")) if "partner" in url else fake_fetch(url)  # noqa: E731
+    res = stitcher.recheck_run(conn, "t1", KELLUU, refetch=gone)
+    assert res == {"company": KELLUU, "kept": 5, "confirmed": 4}
+    assert stitcher.report(conn, "t1")["refuted"] == {"refetch_failed": 1}
+    assert stitcher.recheck_run(conn, "t1", KELLUU, refetch=gone)["skipped"] == "already rechecked"

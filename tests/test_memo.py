@@ -11,15 +11,17 @@ from radar.adapters import ecosystem
 from tests.fixtures import ecosystem_fixture as fx
 
 SNAP = Path(__file__).resolve().parent.parent / "data" / "snapshot"
-ROWS = [
+CFG = {"rows": [
     {"id": 1, "impact": "High", "business": "High", "investment": "High", "fit": "High", "decision": "INVEST"},
-    {"id": 2, "impact": ["High", "Medium"], "business": "any", "investment": "Low", "fit": ["High", "Medium"], "decision": "GRANT SUPPORT"},
-    {"id": 3, "impact": "Low", "business": "any", "investment": "any", "fit": "Low", "decision": "REJECT / LOW FIT"},
-]
+    {"id": 2, "impact": "High", "business": "Medium", "investment": "Low", "fit": "High", "decision": "GRANT SUPPORT"},
+    {"id": 3, "impact": "Low", "business": "Low", "investment": "Low", "fit": "Low", "decision": "REJECT / LOW FIT"}],
+    "rules": [{"id": "c", "when": {"impact": "High", "business": "Medium"}, "decision": "ACCELERATOR"},
+              {"id": "e", "when": {"technology": "High", "business": ["Low", "Medium"]}, "decision": "PARTNER INTRODUCTION"},
+              {"id": "g", "when": {"impact": "Low", "fit": "Low"}, "decision": "REJECT / LOW FIT"}]}
 
 
-def bands(i="High", b="High", v="High", f="High"):
-    return {"impact": i, "business": b, "investment": v, "fit": f}
+def bands(i="High", b="High", v="High", f="High", t="Medium"):
+    return {"impact": i, "business": b, "investment": v, "fit": f, "technology": t}
 
 
 def test_band_mapping_and_unknown_is_never_low():
@@ -28,22 +30,34 @@ def test_band_mapping_and_unknown_is_never_low():
     assert memo.band(None, spec) == "unknown"
 
 
-def test_first_match_wins_and_unmatched_is_watchlist():
-    row, unknown = memo.decide(bands(), ROWS)
-    assert row["decision"] == "INVEST" and unknown == []
-    row, _ = memo.decide(bands("Medium", "High", "Low"), ROWS)
-    assert row["decision"] == "GRANT SUPPORT"
-    row, unknown = memo.decide(bands("Medium", "Medium", "Medium", "Medium"), ROWS)
-    assert row is None and unknown == []
+def test_pass_one_exact_row_then_pass_two_rules_then_watchlist():
+    row, _ = memo.decide(bands(), CFG)
+    assert row["decision"] == "INVEST" and row["text"] == "row 1, H/H/H/H"
+    row, _ = memo.decide(bands("High", "Medium", "Low", "High"), CFG)
+    assert row["text"] == "row 2, H/M/L/H"
+    row, _ = memo.decide(bands("High", "Medium", "High", "Medium"), CFG)       # no row: rule c
+    assert row["decision"] == "ACCELERATOR" and row["text"] == "rule c"
+    row, _ = memo.decide(bands("Medium", "Low", "Low", "Medium", "High"), CFG)  # rule e needs technology High
+    assert row["decision"] == "PARTNER INTRODUCTION" and row["text"] == "rule e"
+    row, unknown = memo.decide(bands("Medium", "High", "High", "Medium"), CFG)
+    assert row is None and unknown == []                                        # unmatched: the caller falls to WATCHLIST
 
 
 def test_unknown_level_does_not_match_a_named_band():
-    row, unknown = memo.decide(bands("High", "High", "unknown", "High"), ROWS)
-    assert row is None and unknown == ["investment"]          # needs investment evidence, not "Low"
-    row, unknown = memo.decide(bands("unknown", "unknown", "unknown", "Low"), ROWS)
-    assert row is None                                         # reject needs impact Low on evidence too
-    row, _ = memo.decide(bands("Low", "unknown", "unknown", "Low"), ROWS)
-    assert row["decision"] == "REJECT / LOW FIT"               # an "any" cell accepts unknown
+    row, unknown = memo.decide(bands("High", "High", "unknown", "High"), CFG)
+    assert row is None and unknown == ["investment"]
+    row, unknown = memo.decide(bands("unknown", "Low", "Low", "Low"), CFG)
+    assert row is None and "impact" in unknown                 # reject needs impact Low on evidence
+    row, _ = memo.decide(bands("Low", "Low", "Low", "Low"), CFG)
+    assert row["decision"] == "REJECT / LOW FIT"
+
+
+def test_the_teams_ten_rows_and_seven_rules_are_in_the_config():
+    for key, v in thesis.available().items():
+        d = thesis.load(v)["memo"]["decisions"]
+        assert len(d["rows"]) == 10 and [r["decision"] for r in d["rows"]][:3] == ["INVEST", "DUE DILIGENCE", "ACCELERATOR"]
+    blue = thesis.load()["memo"]["decisions"]
+    assert [r["id"] for r in blue["rules"]] == list("abcdefg") and blue["rows"][7]["decision"] == "REJECT / LOW FIT"
 
 
 @pytest.fixture()

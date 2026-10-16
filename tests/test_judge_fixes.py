@@ -37,7 +37,9 @@ def test_item8_unknown_name(client):
 
 def test_item9_sources_never_bare_zero(client):
     t = client.get("/method").text
-    table = t.split("<tbody>", 1)[1].split("</tbody>", 1)[0]
+    # the Sources table is the tbody that lists sources (the Baltic country-depth table may come first)
+    bodies = [b.split("</tbody>", 1)[0] for b in t.split("<tbody>")[1:]]
+    table = next((b for b in bodies if "not loaded in this build" in b or "profiles" in b), bodies[0])
     cells = re.findall(r"<td>([^<]*)</td>", table)
     assert cells and all(c.strip() not in ("0", "") for c in cells)
     assert "Finnish profiles, no dated events" in table or "not loaded in this build" in table

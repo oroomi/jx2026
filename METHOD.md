@@ -51,3 +51,6 @@ Only confirmed events are emitted. Writes go only through `radar.emit.emit_signa
 `RESULT run 2026-10-16T23:06:54Z: 6 companies, 15 proposed, 14 kept, 1 dropped (date_not_on_page), 2 emitted, 12 not emitted (types not in SIGNAL_TYPES: programme_entry 2, award, funding_round, partnership, incorporation, crowdfunding_campaign, facility_expansion, first_international_client, research_collaboration, network_membership, supplier_selection), 8 kept events dated before the 2026-01-01 reference, 3 of them also archived before it, across 3 companies.`
 
 Three companies got no proposals at all: Sub Marine Store, Taikoa and Arctic Fry.
+
+## 5. Earliness: counted apart
+Stitcher signals never count in the backtest's four groups (live public records, declared research, later, none). `/backtest` lists them under the company as "found by the AI stitcher: never in the live count", and prints one separate line. That line counts cohort companies whose latest stitcher run has an event that passed both code checks and whose page the Internet Archive captured strictly before the company's reference date. The archive date (`public_since`) counts, never the event date. `radar.adapters.stitcher.archived_before`, called from `radar/earliness.py`, returned as `stitcher` in the backtest result.

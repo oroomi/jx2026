@@ -335,3 +335,53 @@ def test_person_shaped_names_are_never_aliases(conn):
     c = stitcher.company_row(conn, ARCTIC)
     got = stitcher.aliases(c, lambda co: ["Matti Virtanen Holding Oy", "Arctic Fry Oy"])
     assert [a["name"] for a in got] == ["WESI Solutions"]  # only the declared name; the person-shaped one is dropped
+
+
+# ---- backtest: counted apart, by the archive date ------------------------------------------------------------------------
+EYE = "3543918-7"  # a cohort company in the snapshot
+EYE_PAGES = {
+    "https://example.org/eye-prize": "Turku, 5 March 2025. Emission-Eye Oy won the Fixture Pitch Prize 2025 for port emission monitoring.",
+    "https://example.org/eye-cohort": "15 May 2025: Emission-Eye Oy was selected into the Fixture Accelerator cohort.",
+}
+EYE_LLM = {"queries_run": [], "events": [
+    {"signal_type": "award", "date": "2025-03-05", "date_precision": "day", "source_url": "https://example.org/eye-prize",
+     "quote": "Emission-Eye Oy won the Fixture Pitch Prize 2025 for port emission monitoring.", "confidence": "high"},
+    {"signal_type": "programme_entry", "date": "2025-05-15", "date_precision": "day", "source_url": "https://example.org/eye-cohort",
+     "quote": "Emission-Eye Oy was selected into the Fixture Accelerator cohort.", "confidence": "high"},
+]}
+
+
+def test_stitcher_events_never_enter_the_live_count_and_are_counted_apart_by_archive_date(conn):
+    from radar import earliness, thesis
+    th = thesis.load()
+    before = earliness.backtest(conn, th)
+    assert before["stitcher"] == {"companies": 0, "runs": 0, "rows": []}
+    archive = {"https://example.org/eye-prize": ("2025-03-09", "https://web.archive.org/web/20250309000000/https://example.org/eye-prize"),
+               "https://example.org/eye-cohort": ("2026-02-01", "https://web.archive.org/web/20260201000000/https://example.org/eye-cohort")}
+    get = lambda url: EYE_PAGES[url]  # noqa: E731
+    res = stitcher.stitch_company(conn, EYE, run_id="2026-10-17T02:00:00Z", runner=lambda p: json.dumps(EYE_LLM), fetch=get,
+                                  capture=lambda url: archive[url], refetch=get, today="2026-10-16")
+    assert res["confirmed"] == 2 and res["emitted"] == 2
+    after = earliness.backtest(conn, th)
+    assert [after[g] for g in earliness.GROUP_ORDER] == [before[g] for g in earliness.GROUP_ORDER]  # live groups unchanged
+    row = next(r for r in after["rows"] if r["company_key"] == EYE)
+    st = [o for o in row["others"] if o["adapter"] == "stitcher"]
+    assert len(st) == 2 and not any(o["counted"] for o in st) and st[0]["reason"] == earliness.STITCHER_NOT_COUNTED
+    assert after["stitcher"]["companies"] == 1 and after["stitcher"]["runs"] == 1
+    ev = after["stitcher"]["rows"][0]["event"]
+    assert ev["signal_type"] == "award" and ev["public_since"] == "2025-03-09"  # the cohort page was archived after the reference
+    assert after["stitcher"]["rows"][0]["name"] == "Emission-Eye Oy"
+
+
+def test_backtest_page_prints_the_separate_stitcher_line(conn, monkeypatch):
+    from fastapi.testclient import TestClient
+    get = lambda url: EYE_PAGES[url]  # noqa: E731
+    stitcher.stitch_company(conn, EYE, run_id="2026-10-17T02:00:00Z", runner=lambda p: json.dumps(EYE_LLM), fetch=get,
+                            capture=lambda url: ("2025-03-09", "https://web.archive.org/web/20250309000000/" + url), refetch=get,
+                            today="2026-10-16")
+    monkeypatch.setenv("RADAR_DB", conn.execute("PRAGMA database_list").fetchone()[2])
+    import app
+    t = TestClient(app.app).get("/backtest").text
+    line = t.split('id="stitcher-early"')[1].split("</div>")[0]
+    assert "Counted apart, never added to the groups above" in line and "<strong>1</strong> of 19" in line
+    assert f'href="/c/{EYE}#stitch"' in line and "2025-03-09" in line

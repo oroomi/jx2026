@@ -898,6 +898,27 @@ def report(conn: sqlite3.Connection, run_id: str, entry: tuple[str, str] | None 
     return out
 
 
+def archived_before(conn: sqlite3.Connection, refs: list[tuple[str, str]]) -> dict:
+    """The stitcher's own earliness count, kept apart from the live-records backtest: per (company_key, reference date),
+    the earliest event of the company's latest run that passed BOTH checks (verify/confirmed) and whose page the Internet
+    Archive first captured strictly before the reference date. public_since, not the event date, is what counts: it is
+    the earliest day anyone could have read the event."""
+    rows = []
+    for key, ref in refs:
+        try:
+            run = conn.execute("SELECT max(run_id) FROM stitch_log WHERE company_key=? AND run_id<>'print-prompt'", (key,)).fetchone()[0]
+        except sqlite3.OperationalError:
+            return {"companies": 0, "rows": [], "runs": 0}
+        if run is None:
+            continue
+        hit = conn.execute("""SELECT signal_type, suggested_type, date, date_precision, source_url, public_since, archive_url FROM stitch_log
+                              WHERE run_id=? AND company_key=? AND step='verify' AND outcome='confirmed' AND public_since IS NOT NULL
+                                AND public_since < ? ORDER BY public_since, date LIMIT 1""", (run, key, ref)).fetchone()
+        rows.append({"company_key": key, "reference_date": ref, "run_id": run, "event": dict(hit) if hit else None})
+    found = [r for r in rows if r["event"]]
+    return {"companies": len(found), "runs": len(rows), "rows": found}
+
+
 def _resolve_db(arg: str | None, th: dict) -> Path:
     from radar import db, thesis as thesis_mod
     p = Path(arg or os.environ.get("RADAR_DB") or thesis_mod.db_path(th))

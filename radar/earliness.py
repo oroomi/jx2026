@@ -59,6 +59,8 @@ def rule_lines(th: dict) -> list[str]:
         "Found later = counted signals exist but none is before the reference date (a year-only date in the reference year is later or same). No public signal = no counted signal at all, shown blank. "
         "The four groups always add up to the cohort size.",
         "Undated profile evidence (a BlueInvest profile with a TRL and no listing date) is shown as a note and never moves a company between groups.",
+        "AI stitcher events (proposed by an LLM, checked by code) never count in the four groups. They are counted on a separate line, only when the event "
+        "passed both code checks and the Internet Archive captured its page before the company's reference date (public since, not the event date).",
         "Confidence is printed beside the signal that set the first date. A low confidence keyword match is shown but is never proof.",
     ]
 
@@ -119,6 +121,8 @@ NOT_COUNTED = {
     "employer_ended": "a negative record, shown but never counted as a find",
     "website_first_seen": "a website existing is not traction, and the archive date is only an upper bound",
 }
+STITCHER = "stitcher"  # AI stitcher events never count in the four groups; archived_before() counts them apart
+STITCHER_NOT_COUNTED = "found by the AI stitcher: never in the live count, counted apart by the date its page was first archived"
 RESEARCH_TYPES = ("pilot_named", "first_hire", "certification", "programme_entry", "exhibitor", "award", "funding_round", "product_launch")
 GROUP_ORDER = ("earlier", "declared", "later", "none")
 
@@ -164,6 +168,9 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
         for s in sigs:
             d = f"{s['date'][:4]}-01-01" if s["date_precision"] == "year" else s["date"]
             label = store.TYPE_LABELS.get(s["signal_type"], s["signal_type"])
+            if s.get("adapter") == STITCHER:
+                others.append(_other(s, False, STITCHER_NOT_COUNTED))
+                continue
             if is_research(s):
                 if s["confidence"] in ("medium", "high"):
                     o = _other(s, True, None)
@@ -223,6 +230,11 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
     res = {"rows": rows, "earlier": tot["earlier"], "declared": tot["declared"], "later": tot["later"], "none": tot["none"], "total": len(rows),
            "reference_date": ref_iso, "reference_source": ref_source, "reference_label": reference_label(ref_iso), "age_cut_years": cut}
     res["headline"] = headline(res)
+    from radar.adapters import stitcher
+    res["stitcher"] = stitcher.archived_before(conn, [(r["company_key"], r["reference_date"]) for r in rows])
+    names = {r["company_key"]: r["name"] for r in rows}
+    for r in res["stitcher"]["rows"]:
+        r["name"] = names.get(r["company_key"], r["company_key"])
     return res
 
 

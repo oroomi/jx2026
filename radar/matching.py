@@ -211,10 +211,13 @@ def dataset_summary(conn) -> dict | None:
 def _assemble(conn, thesis: dict, company_key: str, ctx: dict, t: date) -> dict:
     """Every candidate row, unranked and uncut."""
     facts = _investor_facts(thesis)
-    programmes = _programmes(thesis, ctx, t)
+    eco_rows = _eco_rows(conn, company_key)
+    # Open programmes are listed for companies the dataset or the declared cohort knows; a register-only company gets no generic list.
+    known = bool(eco_rows) or ctx["c"]["group_tag"] in ("cohort", "portfolio", "ecosystem")
+    programmes = _programmes(thesis, ctx, t) if known else []
     inv, fund, part = [], [], []
     declared_member = ctx["c"]["group_tag"] in ("cohort", "portfolio")
-    for r in _eco_rows(conn, company_key):
+    for r in eco_rows:
         if declared_member and store.is_partner_org(r["name"]):
             continue  # a cohort or portfolio company already works with the partner organisations
         row = {"name": r["name"], "kind": (r["target_type"] or "").replace("_", " "), "reason": r["why"] or "no reason string in the dataset",

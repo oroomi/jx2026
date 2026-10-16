@@ -1,6 +1,6 @@
 # One-page handout (text), worked example: Kelluu Oy
 
-Notes for whoever prints it: this is the text for one printed page per company. The header is the plain text line below, never A'Pelago's or Redstone's letterhead or logo. Every value comes from the snapshot store `data/snapshot/radar_redstone_apelago_blue.sqlite` (rows fetched 2026-10-16), and matches https://jx.hankintaviikko.fi/c/2902007-2 on build 446e896. Sections 03 and 04 are empty in that snapshot and are printed as empty. Regenerate from the live page on Sunday morning before printing.
+Notes for whoever prints it: this is the text for one printed page per company. The header is the plain text line below, never A'Pelago's or Redstone's letterhead or logo. Every value comes from the snapshot store `data/snapshot/radar_redstone_apelago_blue.sqlite` (rows fetched 2026-10-16), and matches https://jx.hankintaviikko.fi/c/2902007-2 on builds 446e896 and c13bf41. Sections 03 and 04 are empty in that snapshot and are printed as empty. The one exception is the Life-line block, which is not in the snapshot: it is copied from the live page on build c13bf41 (16 Oct 2026, 22:27Z) and labelled as such. Regenerate from the live page on Sunday morning before printing.
 
 ---
 
@@ -14,6 +14,12 @@ Source: PRH/YTJ register, https://avoindata.prh.fi/opendata-ytj-api/v3/companies
 Why it is on the radar: it is on the declared Redstone Blue portfolio list (data/declared/cohort_portfolio_companies.csv, from redstone.vc/portfolio). Its industry code 30310 is not on the blue-economy thesis list, so the feed's code filter alone would not have found it.
 
 Connections across records: received a Business Finland funding decision in 2018 (year only), and 4 more of the same type (Business Finland); registered in the trade register in March 2018 (PRH); joined an EU project (project start) in September 2024 (CORDIS).
+
+Life-line (from the live page, build c13bf41; not in the snapshot):
+- Formation: trade register entry 2018-03-09 (PRH/YTJ).
+- First money: Business Finland funding 2018, 2019, 2022, 2025, 2026 (each year only).
+- First team: no public evidence. First salary: no employer-register entry in public records.
+- Validation: registered equity events 2023-06-28, 2024-04-03, 2025-05-22; EU project 2024-09-01; registered board changes 2024-12-10, 2025-06-19, 2025-08-26, 2025-09-02, 2026-02-10, 2026-09-24 (PRH registered notices, https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2; CORDIS).
 
 ### 01 Who is most promising
 
@@ -74,6 +80,8 @@ Y-tunnus <id or "not in public records"> · registered <date> · industry <code 
 Source: <register link> (read <date>)
 
 Connections across records: <the sentence from the page, with its sources>
+
+Life-line: Formation <dated records> · First money <dated records> · First team <dated records or "no public evidence"> · Validation <dated records>
 
 01 Who is most promising
 <N> public records tie it to the sector. No score and no ranking.

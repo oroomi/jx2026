@@ -22,14 +22,15 @@ LIVE: the company page of the name a judge gives (fallback Emission-Eye, /c/3543
 Sections 01 to 04 in the partner's order, a chip under every fact.
 Fallback screenshot: the same page captured Sunday morning, not an older build.
 
-Speaker note: tap one chip so the trade register record opens, then walk 01, 02, 03, 04 in order.
+Speaker note: tap one chip so the trade register record opens, point at the life-line, then walk 01, 02, 03, 04 in order.
 
-## 3. Would we have found them first?
+## 3. Your cohort was invisible to public registers until after you picked them
 
-LIVE: https://jx.hankintaviikko.fi/backtest, the lane chart of the 19 Nordic Blue companies.
-`<N1>` of 19 before January 2026, `<N2>` with no public signal, drawn blank.
+LIVE: https://jx.hankintaviikko.fi/backtest, the lane chart of the 19 Nordic Blue companies, most lanes hatched.
+On its own feed rule the radar shows `<N1>` of 19 before January 2026; `<N2>` have no public signal.
+This radar shows the companies that are visible now, each with a dated public record.
 
-Speaker note: point at one hatched lane and say "they stay blank".
+Speaker note: point at one hatched lane; if `<N1>` is above 0 on Sunday, retitle "`<N1>` of 19 were visible before you picked them".
 
 ## 4. Every line is a public record
 
@@ -42,7 +43,7 @@ Speaker note: "dated, linkable, the same for anyone who opens it".
 ## 5. Earliness measured on your cohort, not claimed
 
 Vendors state their own lead time; we found no independent check (research/BENCHMARKS.md).
-We tested ourselves on your 19 and kept the blanks on the chart.
+We tested ourselves on your 19 with the feed's own rule and printed the result, blanks included.
 Visual: a crop of the /backtest chart around the reference line, with its rule line underneath.
 
 Speaker note: "I am a maritime engineer; I trust a measurement more than a claim."
@@ -55,17 +56,17 @@ Companies only, never private people.
 
 Speaker note: name the four frameworks once more: KTH BRL, Aalto TRL, Ocean Impact Navigator, Investment Potential dimensions.
 
-## 7. Same code, another sector
+## 7. Same code, another sector or region
 
-Everything sector-specific lives in one file (config/thesis.yaml).
-The header switch loads health technology, Turku region, on the same code.
-Visual: two feed headers side by side, each with its own count and chip.
+Everything sector- or region-specific lives in one file (config/thesis*.yaml).
+The header switch loads the Baltic Sea region (8 countries) or health technology in Turku on the same code.
+Register depth so far: Finland and Estonia; the other six countries read EU sources only.
 
 Speaker note: only if time allows; otherwise leave it on screen during the ask.
 
 ## 8. Run it on your pipeline for a month
 
-Note the date each company reaches you; we show which ones the radar saw first.
+Note the date each company reaches you; we show what the public record held on that day.
 https://jx.hankintaviikko.fi, with a QR code to the same address.
 
-Speaker note: end on "`<N1>` of 19, on your own cohort. Scan the code and try your own company."
+Speaker note: end on "Right now `<N3>` companies are visible, each with a dated record. Scan the code and try your own company."

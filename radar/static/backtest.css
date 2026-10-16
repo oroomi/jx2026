@@ -1,0 +1,22 @@
+/* Backtest page. Tokens only (app.css): --bg --surface --text --muted --accent --hairline. */
+.muted{color:var(--muted);font-size:.8125rem}
+.bt-rule{white-space:normal;padding-left:28px;margin:8px 0;font-size:.875rem}
+.bt-rule li{margin:4px 0}
+.bt-chart{display:block;width:100%;max-width:520px;height:auto;margin:8px 0 24px;font-family:var(--sans)}
+.bt-chart text{fill:var(--text);font-size:11.5px}
+.bt-name{font-weight:600;font-size:12.5px}
+.bt-chart a:focus-visible text{text-decoration:underline}
+.bt-mlabel{fill:var(--muted)!important}
+.bt-track{stroke:var(--hairline);stroke-width:1}
+.bt-tick line{stroke:var(--hairline);stroke-width:1;stroke-dasharray:2 3}
+.bt-tick text{fill:var(--muted);font-size:10.5px}
+.bt-ref line{stroke:var(--accent);stroke-width:2}
+.bt-ref text{fill:var(--accent);font-weight:600;font-size:11px}
+.mk{fill:var(--accent);stroke:var(--accent);stroke-width:2}
+.mk.hollow{fill:var(--bg)}
+.bt-hatchline{stroke:var(--hairline);stroke-width:2}
+.bt-blank{stroke:var(--hairline);stroke-width:1}
+.bt-blanktext{fill:var(--muted)!important}
+.bt-table .ev-chip{margin-right:6px}
+.bt-other{margin-top:4px}
+.bt-months{white-space:nowrap}

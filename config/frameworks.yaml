@@ -1,0 +1,12 @@
+# Partner frameworks (official brief 16 Oct 2026): names, URLs, evidence-class mappings.
+# Read only through radar/frameworks.py. Category keywords are text hints matched against signal detail and industry
+# description; the Ocean Impact Navigator itself is login-walled, so categories follow the four A'Pelago themes.
+urls:
+  navigator: "https://www.1000oceanstartups.org/navigator"
+  brl: "https://kthinnovationreadinesslevel.com/wp-content/uploads/sites/9/2018/10/Business-readiness-Level.pdf"
+  trl: "https://www.aalto.fi/en/services/technology-readiness-level-trl"
+impact_categories:
+  ocean data: [ocean data, oceanograph, hydrograph, remote sensing, sonar, bathymetr, marine data]
+  aquatech: [aquacultur, fish farm, aquatech, algae, seaweed, fisher]
+  emissions: [emission, decarbon, shipping fuel, ammonia, hydrogen, battery, electrif]
+  water quality: [water quality, wastewater, ballast, water treatment, microplastic, eutroph]

@@ -40,6 +40,15 @@ Declared datasets are copied unchanged into `data/declared/` with their `source_
 
 Not connected, shown only as "connector slot": LinkedIn, Dealroom, Crunchbase, PitchBook, Tracxn. Nothing from them is in this repo.
 
+## Frameworks cited
+Named by the official Redstone x A'Pelago brief; levels on the company page are our own evidence-class rules over public records, printed on /method.
+| Framework | Use | Source | Access |
+|---|---|---|---|
+| Ocean Impact Navigator | Ocean Impact Readiness: category only, no score | https://www.1000oceanstartups.org/navigator | login-walled; cited by name and link, categories per A'Pelago themes |
+| KTH Innovation Readiness Level, BRL 1-9 | Business Readiness Level labels and evidence-class mapping | https://kthinnovationreadinesslevel.com/wp-content/uploads/sites/9/2018/10/Business-readiness-Level.pdf | public PDF, text saved in data/declared/frameworks/ |
+| Aalto University TRL 1-9 | Technology Readiness Level labels and evidence-class mapping | https://www.aalto.fi/en/services/technology-readiness-level-trl | public page, text saved in data/declared/frameworks/ |
+| Investment Potential dimensions (ten) | Market, Product, Team, Business Model, Competition, Marketing & Distribution, Financials, Tech, Deal Dynamics, Impact | official brief | five have no source here and show "not in public records" |
+
 ## Third-party services
 | Service | Purpose | Account pre-existed? |
 |---|---|---|

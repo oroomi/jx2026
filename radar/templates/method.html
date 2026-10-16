@@ -40,6 +40,20 @@
 </div>
 <h2>Declared datasets</h2>
 <ul>{% for f in declared %}<li><code>{{ f }}</code></li>{% else %}<li>no data</li>{% endfor %}</ul>
+<h2 id="frameworks">Frameworks</h2>
+<p>Named in the official Redstone x A'Pelago brief. Levels on the company page are evidence-class rules over public records, never a judgement; a class with no signal gives no level.</p>
+<ul>
+  <li>Ocean Impact Readiness: <a href="{{ fw.urls.navigator }}" rel="noopener">Ocean Impact Navigator</a> (login-walled, cited by name and link; categories per A'Pelago themes)</li>
+  <li>Business Readiness Level 1-9: <a href="{{ fw.urls.brl }}" rel="noopener">KTH Innovation Readiness Level, BRL</a></li>
+  <li>Technology Readiness Level 1-9: <a href="{{ fw.urls.trl }}" rel="noopener">Aalto University TRL</a></li>
+  <li>Investment Readiness 1-9, read from the ten Investment Potential dimensions: Market, Product, Team, Business Model, Competition, Marketing &amp; Distribution, Financials, Tech, Deal Dynamics, Impact. Five of them have no source in this radar and always show "not in public records".</li>
+</ul>
+{% for title, rows, abbr in (("Business Readiness Level (KTH BRL): evidence class to level", fw.brl_map, "BRL"), ("Technology Readiness Level (Aalto TRL): evidence class to level", fw.trl_map, "TRL"), ("Investment Readiness: evidence class to level", fw.irl_map, "IRL")) %}
+<h3>{{ title }}</h3>
+<table class="srctable"><thead><tr><th scope="col">Level</th><th scope="col">Evidence class</th></tr></thead><tbody>
+{% for m in rows %}<tr><th scope="row">{{ abbr }} {{ m.level }}</th><td>{{ m.rule }}</td></tr>{% endfor %}
+</tbody></table>
+{% endfor %}
 <h2>Connector slots</h2>
-<ul>{% for c in connectors %}<li>{{ c }}: connector slot, not connected</li>{% endfor %}</ul>
+<ul>{% for c in connectors %}<li>{{ c }}: connector slot: not connected, no data shown</li>{% endfor %}</ul>
 {% endblock %}

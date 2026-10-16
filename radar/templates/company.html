@@ -102,7 +102,6 @@
 </div>
 
 <div class="co-bar">
-  {% if radar_exists %}<a href="/radar">Radar{% if cohort_n %} of {{ cohort_n }}{% endif %}</a>
-  {% else %}<span>Radar{% if cohort_n %} of {{ cohort_n }}{% endif %}, opens Saturday</span>{% endif %}
+  <a href="/radar">Radar{% if cohort_n %} of {{ cohort_n }}{% endif %}</a>
 </div>
 {% endblock %}

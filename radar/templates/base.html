@@ -19,7 +19,7 @@
     {% set cur = current_thesis(request) %}
     <nav aria-label="Main">
       <a href="/" {% if active == "feed" %}aria-current="page"{% endif %}>Feed</a>
-      {% if has_route("/radar") %}<a href="/radar" {% if active == "radar" %}aria-current="page"{% endif %}>Radar</a>{% endif %}
+      <a href="/radar" {% if active == "radar" %}aria-current="page"{% endif %}>Radar</a>
       <a href="/backtest" {% if active == "backtest" %}aria-current="page"{% endif %}>Backtest</a>
       <a href="/method" {% if active == "method" %}aria-current="page"{% endif %}>Method</a>
     </nav>

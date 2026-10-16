@@ -1,0 +1,69 @@
+"""GET / : early-signal feed shell. Reads the signals table; empty is shown as empty."""
+from __future__ import annotations
+
+import subprocess
+from datetime import date, timedelta
+from pathlib import Path
+
+from fastapi import APIRouter, Request
+from fastapi.templating import Jinja2Templates
+
+from radar import db, thesis as thesis_mod
+
+ROOT = Path(__file__).resolve().parent.parent.parent
+templates = Jinja2Templates(directory=ROOT / "radar" / "templates")
+router = APIRouter()
+
+
+def _build_line() -> str:
+    try:
+        sha = subprocess.run(["git", "rev-parse", "--short", "HEAD"], cwd=ROOT, capture_output=True, text=True, timeout=3).stdout.strip()
+    except Exception:
+        sha = ""
+    return f"build {sha}" if sha else "build unknown"
+
+
+BUILD = _build_line()
+templates.env.globals["build_line"] = BUILD
+
+
+def asset_version() -> str:
+    """Cache-buster for /static links (the edge caches static files for hours)."""
+    return str(int(max((f.stat().st_mtime for f in (ROOT / "radar" / "static").rglob("*") if f.is_file()), default=0)))
+
+
+templates.env.globals["asset_v"] = asset_version()
+
+
+def feed_rows(conn, th: dict) -> list[dict]:
+    """First feed-type signal per company, inside the window, newest first."""
+    types = th["feed_signal_types"]
+    since = (date.today() - timedelta(days=th["geography"]["feed_window_days"])).isoformat()
+    if not types:
+        return []
+    q = ",".join("?" * len(types))
+    rows = conn.execute(
+        f"""SELECT c.company_key, c.name, s.signal_type, s.date, s.source_url, s.confidence
+            FROM signals s JOIN companies c USING (company_key)
+            WHERE s.signal_type IN ({q})
+              AND s.date = (SELECT MIN(date) FROM signals s2 WHERE s2.company_key = s.company_key AND s2.signal_type IN ({q}))
+              AND s.date >= ?
+            GROUP BY c.company_key ORDER BY s.date DESC, c.name""",
+        [*types, *types, since],
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+def _has_route(request: Request):
+    return lambda path: any(getattr(r, "path", None) == path for r in request.app.routes)
+
+
+@router.get("/")
+def home(request: Request):
+    th = thesis_mod.load()
+    conn = db.connect()
+    try:
+        rows = feed_rows(conn, th)
+    finally:
+        conn.close()
+    return templates.TemplateResponse(request, "home.html", {"thesis": th, "rows": rows, "days": th["geography"]["feed_window_days"], "active": "feed", "has_route": _has_route(request)})

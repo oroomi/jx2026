@@ -5,7 +5,7 @@ import re
 
 from fastapi import APIRouter, Request
 
-from radar import fit as fit_mod, frameworks, store
+from radar import blueinvest, fit as fit_mod, frameworks, store
 from radar.routes.home import _has_route, templates
 
 try:  # built Saturday on another branch; not wired until its signatures are read
@@ -50,6 +50,13 @@ def register_rows(c: dict) -> list[dict]:
     return rows
 
 
+def blueinvest_trl(profile: dict) -> dict:
+    """The TRL a BlueInvest profile states, in the shape frameworks._level returns, with its profile page as the evidence chip."""
+    ev = {"label": "BlueInvest pipeline", "event_date": None, "date_precision": "day", "date_label": "no date stated",
+          "fetched_at": profile.get("fetched_at"), "url": profile.get("url"), "confidence": None, "confidence_rule": None}
+    return {"level": profile["trl"], "evidence": [{"evidence": ev}], "because": f"the BlueInvest profile states TRL {profile['trl']}"}
+
+
 def readiness_rows(thesis: dict, signals: list[dict]) -> list[dict]:
     spec = thesis.get("readiness") or {}
     out = []
@@ -90,15 +97,19 @@ def company_page(request: Request, company_key: str):
                          message=f"no company with key {company_key} in this radar", hits=store.search(conn, company_key, 5))
         c, sigs = data["company"], data["signals"]
         n = store.cohort_count(conn)
+        profile = blueinvest.profile_for(conn, company_key)
     finally:
         conn.close()
     reasons = fit_mod.fit(c, sigs, thesis)
+    fw = frameworks.assess(c, sigs)
+    if profile and profile.get("trl") is not None:
+        fw["trl"] = blueinvest_trl(profile)
     entered = sorted({s["evidence"]["label"] for s in sigs}) or [store.evidence(c)["label"]]
     return _page(request, "company.html", c=c, signals=sigs, counts=data["counts"], thesis=thesis,
                  register=register_rows(c), reasons=reasons, fit_rule=fit_mod.RULE_LINE, entered_via=", ".join(entered),
                  readiness=readiness_rows(thesis, sigs), sources=sources(c, sigs), connectors=CONNECTORS,
                  cohort_n=n, radar_exists=_has_route(request)("/radar"),
-                 fw=frameworks.assess(c, sigs), connections=frameworks.connections(sigs),
+                 fw=fw, connections=frameworks.connections(sigs),
                  matching_ready=matching_mod is not None, nextstep_ready=nextstep_mod is not None,
                  type_labels=store.TYPE_LABELS)
 

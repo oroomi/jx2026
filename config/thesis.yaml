@@ -44,6 +44,11 @@ name_keywords:
   sv: [hav, havs, vatten, marin, skärgård, fisk, hamn]
   en: [ocean, marine, maritime, sea, subsea, underwater, aqua, aquatic, water, blue, offshore, vessel, harbour, port, coastal, algae, kelp, shipping]
 
+# Matching precision (radar/fit.py). A stop word never matches a thesis keyword, even as a word prefix.
+keyword_stop_words: [have, blueprint, blueprints, biography, aaltonen, aaltola, vattenfall, marinade, marinated, marinara, waterloo, watermark, hävikki]
+# Words that make a legal name a business, never a private person (policy: personal-name holding companies are hidden).
+non_person_words: [infra, design, partners, group, solutions, technologies, systems, finland, nordic, software, energy, ventures, properties, real, estate, advisory, management, services, trading, engineering, global]
+
 # Signals the feed counts. A company enters the feed on its FIRST signal inside the window.
 feed_signal_types: [register_entry, bf_funding, eu_project, blueinvest, patent, public_contract, job_ad]
 

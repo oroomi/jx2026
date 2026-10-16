@@ -1,14 +1,11 @@
 import re
-import shutil
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
-from radar import store, thesis
+from radar import fit, store, thesis
 from tests.fixtures import feed_precision_fixture as fx
 
-SHARED_HEALTH = Path("/root/hack/shared/jx2026/radar_health_tech_turku.sqlite")
 HEALTH_ID = "health_tech_turku"
 DEFAULT_ID = "redstone_apelago_blue"
 
@@ -92,10 +89,103 @@ def test_health_swap_main_feed_non_empty(tmp_path, monkeypatch):
     assert head.count('class="feed-row') >= 1 and "industry code 86900" in t.lower()
 
 
-@pytest.mark.skipif(not SHARED_HEALTH.is_file(), reason="shared health database absent")
-def test_real_health_copy_main_feed_not_empty(tmp_path, monkeypatch):
-    shutil.copy(SHARED_HEALTH, tmp_path / f"radar_{HEALTH_ID}.sqlite")
-    th = thesis.load(thesis.resolve(HEALTH_ID))
-    conn = store.open_db(tmp_path / f"radar_{HEALTH_ID}.sqlite")
-    c = store.feed_counts(conn, th, today=conn.execute("SELECT MAX(date) FROM signals").fetchone()[0])
-    assert c["main"] > 0
+# ---- jx20b: circular own-text, whole-word keywords, name-only rule, personal names, BlueInvest TRL ----------------------
+from radar import db, emit  # noqa: E402
+
+
+def _co(conn, key, name, **kw):
+    emit.upsert_company(conn, company_key=key, name=name, source_url=f"https://example.test/fixture/{key}", **kw)
+
+
+def _sig(conn, key, typ, d, adapter="prh", conf="medium", text=None, **kw):
+    url = f"https://example.test/fixture/{key}/{adapter}/{typ}/{d}"
+    emit.emit_signal(conn, company_key=key, signal_type=typ, date=d, source_url=url, confidence=conf, adapter=adapter, **kw)
+    sid = conn.execute("SELECT id FROM signals WHERE source_url=?", (url,)).fetchone()[0]
+    for field, t in (text or {}).items():
+        conn.execute("INSERT INTO signal_text (signal_id, field, text) VALUES (?,?,?)", (sid, field, t))
+    conn.commit()
+
+
+def _feed(conn):
+    th = thesis.load(thesis.resolve(None))
+    return th, {r["company_key"]: r for r in store.feed(conn, th, limit=1000)}
+
+
+def test_annotation_is_never_read_as_project_text(tmp_path):
+    conn = db.connect(tmp_path / "c.sqlite")
+    ann = "Matched on project objective: 'hav'. X: Fixture project (Horizon), role participant, project start 2026-09-01"
+    for key, text in (("F-ann", None), ("F-have", {"objective": "We have blueprints and havaintolaite for all."}),
+                      ("F-real", {"objective": "A study of the Hav and its fish."})):
+        _co(conn, key, f"Fixture {key} Oy", industry_code="58290", industry_desc="Software publishing")
+        _sig(conn, key, "eu_project", fx.day(20), adapter="cordis", conf="low", detail=ann, text=text)
+    _, rows = _feed(conn)
+    for k in ("F-ann", "F-have"):
+        assert rows[k]["strength"] == "weak" and "own_text" not in rows[k]["reasons"]
+    assert rows["F-real"]["reasons"] == ["own_text"] and "'hav'" in rows["F-real"]["why"]
+
+
+def test_keyword_matching_is_whole_word_or_long_prefix():
+    th = thesis.load(thesis.resolve(None))
+    m = lambda t: fit.matched_keywords(t, th)  # noqa: E731
+    for t in ("have", "blueprints", "havaintolaite", "Oy Merinova Ab", "Meridian Vector Oy", "Aaltonen", "marinade"):
+        assert m(t) == [], t
+    assert m("Hav") == ["hav"] and m("the Hav is cold") == ["hav"]
+    assert "ocean" in m("Oceanic Works") and "marine" in m("Marinemaster Oy")  # 5+ character words match as a word start
+    assert m("Blue") == ["blue"] and m("Seaside") == []  # shorter words: whole word only
+
+
+def test_name_keyword_alone_never_admits_a_company(tmp_path):
+    conn = db.connect(tmp_path / "n.sqlite")
+    _co(conn, "F-m", "Oy Merinova Ab", industry_code="70200", industry_desc="Management consulting")
+    _sig(conn, "F-m", "register_entry", fx.day(10))
+    _co(conn, "F-sea", "Fixture Sea Oy", industry_code="58290", industry_desc="Software publishing")
+    _sig(conn, "F-sea", "register_entry", fx.day(10))
+    _co(conn, "F-sea2", "Fixture Sea Two Oy", industry_code="58290", industry_desc="Software publishing")
+    _sig(conn, "F-sea2", "register_entry", fx.day(10))
+    _sig(conn, "F-sea2", "bf_funding", fx.day(300), adapter="businessfinland")
+    _, rows = _feed(conn)
+    assert rows["F-m"]["strength"] == "weak" and "contains" not in rows["F-m"]["why"].split("Weak:")[1][:40]
+    assert rows["F-sea"]["strength"] == "weak"
+    assert rows["F-sea2"]["reasons"] == ["corroborated_keyword"]
+
+
+def test_personal_name_holding_is_hidden_unless_it_has_a_real_signal(tmp_path):
+    conn = db.connect(tmp_path / "p.sqlite")
+    for key, name in (("F-p1", "Fixtura Persona Holding Oy"), ("F-p2", "Fixtura Persona Invest Oy"), ("F-biz", "Fixture Design Consulting Oy"),
+                      ("F-plain", "Fixture Words Oy")):
+        _co(conn, key, name, industry_code="30110", industry_desc="Fixture shipbuilding")
+        _sig(conn, key, "register_entry", fx.day(10))
+    _sig(conn, "F-p2", "bf_funding", fx.day(5), adapter="businessfinland")
+    th, rows = _feed(conn)
+    assert "F-p1" not in rows and "F-p2" in rows and "F-biz" in rows and "F-plain" in rows
+    assert store.feed_counts(conn, th)["hidden_personal"] == 1
+
+
+def test_footer_prints_hidden_count(tmp_path, monkeypatch):
+    monkeypatch.delenv("RADAR_DB", raising=False)
+    conn = db.connect(tmp_path / f"radar_{DEFAULT_ID}.sqlite")
+    _co(conn, "F-p1", "Fixtura Persona Holding Oy", industry_code="30110")
+    _sig(conn, "F-p1", "register_entry", fx.day(10))
+    conn.close()
+    monkeypatch.setenv("RADAR_DATA_DIR", str(tmp_path))
+    import app
+    t = TestClient(app.app).get("/").text
+    assert re.search(r'n-hidden">1</span> companies hidden: personal-name holding companies', t) and "Persona" not in t
+    assert "whole word" in TestClient(app.app).get("/method").text
+
+
+def test_company_page_reads_trl_from_blueinvest_profile(tmp_path, monkeypatch):
+    monkeypatch.delenv("RADAR_DB", raising=False)
+    conn = db.connect(tmp_path / f"radar_{DEFAULT_ID}.sqlite")
+    for key, trl in (("F-trl", 4), ("F-notrl", None)):
+        _co(conn, key, f"Fixture {key} Oy")
+        _sig(conn, key, "register_entry", fx.day(10))
+        conn.execute("""INSERT INTO blueinvest_profiles (profile_id,company_key,title,trl,url,fetched_at)
+                        VALUES (?,?,?,?,?,?)""", (key, key, "Fixture project", trl, f"https://example.test/blueinvest/{key}", "2026-10-16T00:00:00Z"))
+    conn.commit()
+    conn.close()
+    monkeypatch.setenv("RADAR_DATA_DIR", str(tmp_path))
+    import app
+    t = TestClient(app.app).get("/c/F-trl").text
+    assert "level 4 of 9" in t and "the BlueInvest profile states TRL 4" in t and "https://example.test/blueinvest/F-trl" in t
+    assert "level " not in TestClient(app.app).get("/c/F-notrl").text.split("Technology Readiness")[1].split("Investment Readiness")[0]

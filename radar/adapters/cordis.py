@@ -209,6 +209,13 @@ def run(conn: sqlite3.Connection, thesis: dict, zips: dict | None = None) -> dic
         new = emit.emit_signal(conn, company_key=key, signal_type="eu_project", date=start,
                                source_url=PROJECT_URL.format(p["id"]), confidence=conf, adapter=NAME,
                                detail=f"{how}. {project_detail(p, o)}", amount_eur=parse_amount(o.get("ecContribution")))
+        row = conn.execute("SELECT id FROM signals WHERE company_key=? AND signal_type='eu_project' AND date=? AND source_url=?",
+                           (key, start, PROJECT_URL.format(p["id"]))).fetchone()
+        if row is not None:  # the project's own words, apart from the annotation in `detail`
+            for field, col in (("title", "title"), ("objective", "objective"), ("keywords", "keywords")):
+                if (p.get(col) or "").strip():
+                    conn.execute("INSERT OR REPLACE INTO signal_text (signal_id, field, text) VALUES (?,?,?)",
+                                 (row[0], field, p[col].strip()))
         if new:
             counts["signals"] += 1
             fp = (p.get("frameworkProgramme") or "unknown").strip() or "unknown"

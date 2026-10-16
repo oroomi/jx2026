@@ -56,6 +56,7 @@ def conn(tmp_path, monkeypatch):
     p = tmp_path / "store.sqlite"
     shutil.copy(SNAP, p)
     monkeypatch.setattr(stitcher, "CACHE", tmp_path / "cache")
+    monkeypatch.setattr(stitcher, "registered_names", lambda company: [])  # no register call in tests
     c = db.connect(p)
     yield c
     c.close()
@@ -302,3 +303,35 @@ def test_page_view_without_stitch_log_table(tmp_path):
     import sqlite3
     c = sqlite3.connect(tmp_path / "bare.sqlite")
     assert stitcher.page_view(c, KELLUU) is None
+
+
+# ---- recall: other names of the company --------------------------------------------------------------------------------
+ARCTIC, TAIKOA = "3166759-6", "3380111-1"
+REGISTER = {ARCTIC: ["Arctic Fry Oy", "WESI Solutions"], TAIKOA: ["Taikoa Oy", "Taikoa Ltd"]}
+
+
+def test_registered_and_declared_names_widen_the_search(conn):
+    c = stitcher.company_row(conn, ARCTIC)
+    c["aliases"] = stitcher.aliases(c, lambda co: REGISTER[co["y_tunnus"]])
+    assert c["aliases"] == [{"name": "WESI Solutions", "kind": "registered_name", "confirmed": True}]  # declared duplicate folded in
+    qs = stitcher.search(conn, "t", c)
+    assert '"WESI Solutions"' in qs and '"FI31667596"' in qs and "site:wesi.fi" in qs
+    assert any(q.startswith('"wesi solutions" rahoitus') for q in qs)
+    assert "Also known as: WESI Solutions (registered name in the trade register)" in stitcher.build_prompt(c, qs)
+    assert stitcher.name_match(c, "WESI Solutions won the Blue Prize on 3 June 2022") == "registered_name"
+    ok, why = stitcher.recheck_event(c, kept("award", "WESI Solutions won the Blue Prize"), "3 June 2022: WESI Solutions won the Blue Prize.")
+    assert ok and "registered_name" in why
+
+
+def test_unconfirmed_declared_name_searches_but_never_names_the_company(conn):
+    c = stitcher.company_row(conn, TAIKOA)
+    c["aliases"] = stitcher.aliases(c, lambda co: REGISTER[co["y_tunnus"]])
+    assert c["aliases"] == [{"name": "WAIing", "kind": "declared_name", "confirmed": False}]  # Taikoa Ltd folds to the legal name
+    assert '"WAIing"' in stitcher.search(conn, "t", c)
+    assert stitcher.name_match(c, "WAIing joined the accelerator on 3 June 2022") is None
+
+
+def test_person_shaped_names_are_never_aliases(conn):
+    c = stitcher.company_row(conn, ARCTIC)
+    got = stitcher.aliases(c, lambda co: ["Matti Virtanen Holding Oy", "Arctic Fry Oy"])
+    assert [a["name"] for a in got] == ["WESI Solutions"]  # only the declared name; the person-shaped one is dropped

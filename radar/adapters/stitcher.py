@@ -40,6 +40,8 @@ from datetime import date, datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
+import csv
+
 import httpx
 
 from radar import emit
@@ -53,6 +55,9 @@ MAX_QUOTE_WORDS = 20
 MAX_EVENTS = 15
 LLM_TIMEOUT = 900       # seconds for one company's read session
 CACHE = CACHE_ROOT / NAME
+ROOT = Path(__file__).resolve().parents[2]
+DECLARED = ROOT / "data" / "declared" / "cohort_portfolio_companies.csv"
+PRH_API = "https://avoindata.prh.fi/opendata-ytj-api/v3/companies"
 
 # Types the LLM may propose. Register-derived types (register_entry, first_sales, first_hire, sales_ended,
 # employer_ended) and website_first_seen come from their own adapters, never from a web page the LLM picked.
@@ -129,19 +134,80 @@ def company_row(conn: sqlite3.Connection, company_key: str) -> dict:
     return dict(r)
 
 
+def registered_names(company: dict) -> list[str]:
+    """Every name the trade register holds for the business ID: main, parallel, auxiliary and earlier names (PRH/YTJ open
+    API, cached under data/cache/stitcher/). Finnish companies only; [] when the register cannot be reached."""
+    yt = company.get("y_tunnus")
+    if not yt or not re.fullmatch(r"\d{7}-\d", yt) or (company.get("country") or "FI") != "FI":
+        return []
+    try:
+        data, _ = cached_get(NAME, PRH_API, interval=INTERVAL, params={"businessId": yt})
+    except Blocked:
+        return []
+    return [str(n.get("name") or "").strip() for c in (data or {}).get("companies") or [] for n in c.get("names") or []
+            if str(n.get("name") or "").strip()]
+
+
+def declared_names(company: dict) -> list[tuple[str, bool]]:
+    """(name, confirmed) from the declared cohort and portfolio list for the same business ID: the name the cohort uses.
+    confirmed is False when the list itself marks the link low ('entity unconfirmed')."""
+    yt = company.get("y_tunnus")
+    if not yt or not DECLARED.is_file():
+        return []
+    out = []
+    with DECLARED.open(encoding="utf-8", newline="") as f:
+        for r in csv.DictReader(f):
+            if (r.get("y_tunnus") or "").strip() == yt:
+                low = (r.get("match_confidence") or "").strip().lower().startswith("low")
+                out += [(n.strip(), not low) for n in (r.get("company") or "").split(" / ") if n.strip()]
+    return out
+
+
+def aliases(company: dict, names=None) -> list[dict]:
+    """Other names of the company: registered names (as strong as the legal name, the register ties them to the business
+    ID) and declared cohort names (medium; an unconfirmed one widens the search but never names the company on a page).
+    A name shaped like a private person's name is never used."""
+    from radar import fit, thesis as thesis_mod
+    th = thesis_mod.load()
+    names = names or registered_names
+    seen = {core_name(company["name"]) or fold(company["name"])}
+    out = []
+    for kind, items in (("registered_name", [(n, True) for n in names(company)]), ("declared_name", declared_names(company))):
+        for n, confirmed in items:
+            key = core_name(n) or ""
+            if not key or key in seen or fit.looks_like_person(n, th):
+                continue
+            seen.add(key)
+            out.append({"name": n, "kind": kind, "confirmed": confirmed})
+    return out
+
+
+def _vat(yt: str | None) -> str | None:
+    return "FI" + yt.replace("-", "") if yt and re.fullmatch(r"\d{7}-\d", yt) else None
+
+
 def search(conn: sqlite3.Connection, run_id: str, company: dict) -> list[str]:
-    """Web queries from the legal name, business ID and website domain. Every query is logged. No personal names, ever."""
+    """Web queries from the legal name, the other registered and declared names, the business ID and VAT number and the
+    website domain. Every query is logged. No personal names, ever."""
     name, yt, dom = company["name"], company.get("y_tunnus"), domain_of(company.get("website"))
     core = core_name(name) or fold(name)
+    fi = (company.get("country") or "FI") == "FI"
     qs = [f'"{name}"']
     if yt:
         qs.append(f'"{yt}"')
+    if _vat(yt):
+        qs.append(f'"{_vat(yt)}"')
     if dom:
-        qs += [f'"{dom}"', f"site:{dom} news OR press OR customers OR partners"]
+        qs += [f'"{dom}"', f"site:{dom}", f"site:{dom} news OR press OR customers OR partners"]
     qs += [f'"{core}" funding OR investment OR grant', f'"{core}" pilot OR customer OR contract OR award',
            f'"{core}" EU project OR Horizon OR BlueInvest OR "Business Finland"']
-    if (company.get("country") or "FI") == "FI":
-        qs.append(f'"{core}" rahoitus OR asiakas OR pilotti OR palkinto')
+    if fi:
+        qs.append(f'"{core}" rahoitus OR asiakas OR pilotti OR palkinto OR kiihdyttämö OR sijoitus OR hanke')
+    for a in company.get("aliases") or []:
+        ac = core_name(a["name"]) or fold(a["name"])
+        qs += [f'"{a["name"]}"', f'"{ac}" funding OR investment OR pilot OR customer OR award OR accelerator']
+        if fi:
+            qs.append(f'"{ac}" rahoitus OR asiakas OR pilotti OR palkinto OR kiihdyttämö')
     seen, out = set(), []
     for q in qs:
         if q not in seen:
@@ -157,8 +223,11 @@ def build_prompt(company: dict, queries: list[str]) -> str:
     types = "\n".join(f'  - "{k}": {v}' for k, v in EMITTABLE.items())
     yt = company.get("y_tunnus") or "none"
     site = company.get("website") or "unknown"
+    known = [f"{a['name']} ({'registered name in the trade register' if a['kind'] == 'registered_name' else 'name the cohort list uses'})"
+             for a in company.get("aliases") or []]
+    also = f"\nAlso known as: {'; '.join(known)}. A page that uses one of these names is about this company." if known else ""
     return f"""You are collecting PUBLIC, DATED events about one company, each with the exact web page that states it.
-Company: {company['name']} | business ID: {yt} | country: {company.get('country') or 'unknown'} | website: {site}
+Company: {company['name']} | business ID: {yt} | country: {company.get('country') or 'unknown'} | website: {site}{also}
 
 Use WebSearch on these queries (add your own if useful) and WebFetch to open the pages you cite:
 {chr(10).join('  ' + q for q in queries)}
@@ -361,9 +430,17 @@ def name_match(company: dict, page_text: str) -> str | None:
     legal = fold(company["name"])
     if " " in legal and f" {legal} " in folded:
         return "legal_name"
+    for a in company.get("aliases") or []:
+        ac = core_name(a["name"])
+        if a["kind"] == "registered_name" and ac and f" {ac} " in folded:
+            return "registered_name"
     core = core_name(company["name"])
     if core and f" {core} " in folded:
         return "core_name"
+    for a in company.get("aliases") or []:
+        ac = core_name(a["name"])
+        if a["kind"] == "declared_name" and a["confirmed"] and ac and f" {ac} " in folded:
+            return "declared_name"
     dom = domain_of(company.get("website"))
     if dom and dom.lower() in page_text.lower():
         return "domain"
@@ -462,7 +539,7 @@ def verify(conn: sqlite3.Connection, run_id: str, company: dict, proposals: list
                  quote=p["quote"], name_match=nm)
             continue
         prec = min(p["date_precision"], found, key=order.get)
-        conf = "high" if nm in ("business_id", "legal_name") and prec in ("day", "month") else "medium"
+        conf = "high" if nm in ("business_id", "legal_name", "registered_name") and prec in ("day", "month") else "medium"
         since, arch = capture(p["source_url"])
         quote_ok = bool(p["quote"]) and "[name]" not in p["quote"] and fold(p["quote"]) in fold(text)
         notes = [f"name by {nm}", f"date on page at {found} precision"]
@@ -546,9 +623,17 @@ def _named(company: dict, folded: str) -> str | None:
     legal = fold(company["name"])
     if " " in legal and f" {legal} " in folded:
         return "legal_name"
+    for a in company.get("aliases") or []:
+        ac = core_name(a["name"])
+        if a["kind"] == "registered_name" and ac and f" {ac} " in folded:
+            return "registered_name"
     core = core_name(company["name"])
     if core and f" {core} " in folded:
         return "core_name"
+    for a in company.get("aliases") or []:
+        ac = core_name(a["name"])
+        if a["kind"] == "declared_name" and a["confirmed"] and ac and f" {ac} " in folded:
+            return "declared_name"
     dom = domain_of(company.get("website"))
     if dom and f" {fold(dom)} " in folded:
         return "domain"
@@ -737,9 +822,10 @@ def page_view(conn: sqlite3.Connection, company_key: str) -> dict | None:
 # ---------------------------------------------------------------- orchestration and report
 
 def stitch_company(conn: sqlite3.Connection, company_key: str, *, run_id: str | None = None, runner=claude_runner,
-                   fetch=fetch_page, capture=first_capture, refetch=None, today: str | None = None) -> dict:
+                   fetch=fetch_page, capture=first_capture, refetch=None, names=None, today: str | None = None) -> dict:
     run_id = run_id or now_utc()
     company = company_row(conn, company_key)
+    company["aliases"] = aliases(company, names)
     queries = search(conn, run_id, company)
     proposals = read(conn, run_id, company, queries, runner=runner)
     kept = verify(conn, run_id, company, proposals, fetch=fetch, capture=capture, today=today)
@@ -758,9 +844,10 @@ def kept_rows(conn: sqlite3.Connection, run_id: str, company_key: str) -> list[d
     return [dict(r) for r in rows]
 
 
-def recheck_run(conn: sqlite3.Connection, run_id: str, company_key: str, *, refetch=None) -> dict:
+def recheck_run(conn: sqlite3.Connection, run_id: str, company_key: str, *, refetch=None, names=None) -> dict:
     """The second pass over a run made before it existed. Logged under that run_id; nothing is emitted or removed here."""
     company = company_row(conn, company_key)
+    company["aliases"] = aliases(company, names)
     rows = kept_rows(conn, run_id, company_key)
     done = conn.execute("SELECT count(*) FROM stitch_log WHERE run_id=? AND company_key=? AND outcome IN ('confirmed','refuted')",
                         (run_id, company_key)).fetchone()[0]
@@ -839,6 +926,7 @@ def main(argv: list[str] | None = None) -> int:
     if a.print_prompt:
         for k in keys:
             c = company_row(conn, k)
+            c["aliases"] = aliases(c)
             print(f"===== {k}\n{build_prompt(c, search(conn, 'print-prompt', c))}")
         conn.rollback()
         return 0

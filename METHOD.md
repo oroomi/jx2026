@@ -4,10 +4,13 @@ How `radar/adapters/stitcher.py` finds dated public events for one company. The 
 
 ## 1. Queries (search step)
 They are built only from register facts already in the store. A personal name is never used.
-- `"<legal name>"`, `"<business ID>"`, `"<domain>"`, `site:<domain> news OR press OR customers OR partners`
+- `"<legal name>"`, `"<business ID>"`, `"<FI VAT number>"`, `"<domain>"`, `site:<domain>`, `site:<domain> news OR press OR customers OR partners`
 - `"<core name>" funding OR investment OR grant`, `"<core name>" pilot OR customer OR contract OR award`
 - `"<core name>" EU project OR Horizon OR BlueInvest OR "Business Finland"`
-- Finnish companies add `"<core name>" rahoitus OR asiakas OR pilotti OR palkinto`.
+- Finnish companies add `"<core name>" rahoitus OR asiakas OR pilotti OR palkinto OR kiihdyttämö OR sijoitus OR hanke`.
+- **Other names of the company** (added 17 Oct for recall): every name the trade register holds for the business ID (PRH/YTJ open API: main, parallel, auxiliary and earlier names), and the name the declared cohort list uses. Each gets `"<name>"`, `"<name>" funding OR investment OR pilot OR customer OR award OR accelerator` and, for Finnish companies, the Finnish line. The prompt lists them as "Also known as". A name shaped like a private person's name is never used.
+- When checking a page, a registered name names the company as strongly as the legal name (`registered_name`, high confidence with a day or month). A declared cohort name is `declared_name` (medium). A declared name that the list itself marks as an unconfirmed link (WAIing for Taikoa Oy) widens the search but never names the company on a page.
+- The three companies with 0 proposals on 16 Oct trade under other names: Arctic Fry Oy is WESI Solutions (auxiliary name), Sub Marine Store Oy also holds Suomen Varavirta (auxiliary name), Taikoa Oy is behind WAIing (declared, unconfirmed). Each went from 8 to 13 queries.
 
 The core name is the folded name without the legal form (`openalex.core_name`). Both our queries and the queries the LLM reports it ran are logged.
 

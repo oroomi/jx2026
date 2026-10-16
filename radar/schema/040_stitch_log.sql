@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS stitch_log (
   source_url     TEXT,
   quote          TEXT,                      -- at most 20 words, person-shaped names redacted
   confidence     TEXT,                      -- read rows: the LLM's own; verify/emit rows: computed by the rule in emit.py
-  name_match     TEXT,                      -- business_id | legal_name | core_name | domain
+  name_match     TEXT,                      -- business_id | legal_name | registered_name | core_name | declared_name | domain
   public_since   TEXT,                      -- first 200 capture of source_url in the Internet Archive (YYYY-MM-DD), NULL when not archived
   archive_url    TEXT,
   signal_id      INTEGER,                   -- signals.id when emitted

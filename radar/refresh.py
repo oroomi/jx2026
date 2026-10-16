@@ -5,7 +5,7 @@ Safety, all enforced here:
   cooldown              COOLDOWN_SECONDS after the previous run finished (shown on the page)
   never in place        the run works on a COPY of the thesis store; the copy replaces the live file with os.replace only when
                         every step has finished and PRAGMA quick_check on the copy says ok. A failed run deletes the copy.
-  bounded steps         each step runs in its own process with a timeout; adapters keep their own rate limit (1 request per
+  bounded steps         each step runs in its own process with a timeout (rows it committed before the stop are kept, they are whole); adapters keep their own rate limit (1 request per
                         1-2 s) and reuse cached responses under data/cache/
 Which steps run is the thesis key refresh_adapters (names from STEPS). CLI used by the runner: python3 -m radar.refresh --step NAME --db PATH
 """
@@ -65,7 +65,7 @@ def prh_recent(conn: sqlite3.Connection, thesis: dict, today: date | None = None
             if len(comps) < prh.PAGE_SIZE or page * prh.PAGE_SIZE >= data.get("totalResults", 0):
                 break
             page += 1
-    conn.commit()
+        conn.commit()  # each query is complete on its own, so a step stopped by its timeout leaves sound partial rows
     return {"companies": stats["discovered"], "signals": stats["signals"], "skipped": stats["examined"] - stats["discovered"],
             "requests": requests}
 
@@ -282,7 +282,7 @@ def execute(th: dict, *, now: datetime | None = None, step_runner=None) -> dict:
             run["error"] = "No refresh_adapters are configured in the sector file; nothing was run."
         elif problem:
             run["error"] = f"The refreshed copy was not used: {problem}."
-        elif all(s["status"] != "ok" for s in run["steps"]):
+        elif all(s["status"] == "error" for s in run["steps"]):
             run["error"] = "Every step failed; the store was left as it was."
         else:
             after = _keys(copy)

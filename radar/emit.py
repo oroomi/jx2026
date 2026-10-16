@@ -20,6 +20,7 @@ SIGNAL_TYPES = (
     "public_contract",     # public contract awarded (Hilma)
     "job_ad",              # open job posting (Finnish open-jobs API)
     "site_customer",       # customer or partner named on the company's own site
+    "eu_grant",            # national EU-fund beneficiary list (EMKVR, Kaju): grant to a company, date = project start
 )
 CONFIDENCE = ("high", "medium", "low")
 _DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")

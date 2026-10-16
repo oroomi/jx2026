@@ -80,7 +80,7 @@ def profile(conn, key: str) -> dict | None:
 
 def _signals(conn, key: str) -> list[dict]:
     rows = [dict(r) for r in conn.execute(
-        "SELECT id AS signal_id, signal_type, date, source_url, confidence, adapter, detail FROM signals WHERE company_key=? ORDER BY date, id", (key,))]
+        "SELECT id AS signal_id, signal_type, date, source_url, confidence, adapter, detail, fetched_at FROM signals WHERE company_key=? ORDER BY date, id", (key,))]
     store.with_precision(conn, rows)
     for r in rows:
         r["label"] = store.TYPE_LABELS.get(r["signal_type"], r["signal_type"])
@@ -199,36 +199,55 @@ def _n(x) -> str:
 def tier(conn, th: dict, *, today=None, exclude: set[str] | None = None, limit: int = 300) -> list[dict]:
     """Companies that met the intake rule inside the feed window and are not already in the Main or Weak lists (`exclude` keys),
     ranked by their number of startup signals, then newest intake first. Each row says which signal put it there.
-    Companies with thesis evidence are left to the Main list; person-shaped legal names and partner organisations are hidden."""
+    Companies with thesis evidence are left to the Main list; person-shaped legal names, partner organisations and sole traders are hidden."""
     cfg = settings(th)
     if cfg is None or not _has_table(conn):
         return []
     start, end, _ = store._window(th, today)
     exclude = exclude or set()
-    out = []
+    types = sorted(set(cfg["startup_signals"]) - {"register_entry"})
+    q = ",".join("?" * len(types))
+    by_company: dict[str, list[dict]] = {}
     for r in conn.execute(
-            f"""SELECT c.*, p.form_code FROM companies c JOIN {PROFILE_TABLE} p USING (company_key)
-                WHERE c.group_tag NOT IN ('cohort','portfolio')"""):
-        key = r["company_key"]
-        if key in exclude or not eligible(r["form_code"], r["industry_code"], cfg)[0]:
+            f"""SELECT s.id AS signal_id, s.company_key, s.signal_type, s.date, s.source_url, s.confidence, s.adapter, s.detail, s.fetched_at
+                FROM signals s JOIN companies c USING (company_key) JOIN {PROFILE_TABLE} p USING (company_key)
+                WHERE s.signal_type IN ({q}) AND c.group_tag NOT IN ('cohort','portfolio') ORDER BY s.date, s.id""", types):
+        by_company.setdefault(r["company_key"], []).append(dict(r))
+    cands = []
+    for key, ss in by_company.items():
+        if key in exclude or len(ss) < cfg["min_signals"]:
+            continue
+        d = ss[cfg["min_signals"] - 1]["date"]
+        if start.isoformat() <= d <= end.isoformat():
+            cands.append((key, d, ss))
+    names = {r["company_key"]: r for r in conn.execute(
+        f"SELECT c.*, p.form_code FROM companies c JOIN {PROFILE_TABLE} p USING (company_key)")}
+    cands.sort(key=lambda c: (-len(c[2]), -int(c[1].replace("-", "")), names[c[0]]["name"]))
+    out = []
+    for key, d, ss in cands:
+        r = names[key]
+        if not eligible(r["form_code"], r["industry_code"], cfg)[0] or r["register_status"] in ("bankrupt", "ended"):
             continue
         if fit_mod.looks_like_person(r["name"], th) or store.is_partner_org(r["name"]):
             continue
-        sigs = _signals(conn, key)
-        d, ss = entered(sigs, cfg)
-        if d is None or not (start.isoformat() <= d <= end.isoformat()):
+        if thesis_evidence(conn, th, dict(r), _signals(conn, key))["strength"] == "strong":
             continue
-        company = dict(r)
-        if thesis_evidence(conn, th, company, sigs)["strength"] == "strong":
-            continue
-        first = ss[cfg["min_signals"] - 1]
         out.append({"company_key": key, "name": r["name"], "industry_code": r["industry_code"], "industry_desc": r["industry_desc"],
-                    "date": d, "n": len(ss), "signal": first, "signals": ss,
-                    "why": f"{first['label']} on {first.get('date_label') or d} put it here"
-                           + (f"; {len(ss) - 1} more startup signal{'s' if len(ss) != 2 else ''}." if len(ss) > 1 else "."),
-                    "evidence": store.evidence({**first, "date_precision": first.get("date_precision", "day")})})
-    out.sort(key=lambda x: (-x["n"], -int(x["date"].replace("-", "")), x["name"]))
-    return out[:limit]
+                    "date": d, "n": len(ss), "signals": ss})
+        if len(out) >= limit:
+            break
+    flat = [s for o in out for s in o["signals"]]
+    store.with_precision(conn, flat)
+    for s in flat:
+        s["label"] = store.TYPE_LABELS.get(s["signal_type"], s["signal_type"])
+        s["source_label"] = store.evidence(s)["label"]
+    for o in out:
+        first = o["signals"][cfg["min_signals"] - 1]
+        more = o["n"] - 1
+        o["signal"] = first
+        o["why"] = f"{first['label']} on {first.get('date_label') or first['date']} put it here" + (f"; {more} more startup signal{'s' if more != 1 else ''}." if more else ".")
+        o["evidence"] = store.evidence(first)
+    return out
 
 
 def rule_text(th: dict) -> str | None:
@@ -236,8 +255,8 @@ def rule_text(th: dict) -> str | None:
     cfg = settings(th)
     if cfg is None:
         return None
-    forms = " and ".join(f.split(" (")[0].lower() for f in cfg["company_forms"].values())
-    types = ", ".join(store.TYPE_LABELS.get(t, t).lower() for t in cfg["startup_signals"])
+    forms = " or ".join(f.split(" (")[0].lower() for f in cfg["company_forms"].values())
+    types = ", ".join((store.TYPE_LABELS.get(t) or t.replace("_", " ")).lower() for t in cfg["startup_signals"])
     n = cfg["min_signals"]
     return (f"A company is taken in when it is a {forms}, its industry code starts with {', '.join(cfg['code_prefixes'])} (or is a code on the sector list), "
             f"and public records show at least {n} startup signal{'s' if n != 1 else ''} beyond its register entry ({types}). "

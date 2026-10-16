@@ -1,0 +1,1 @@
+Snapshots of the two radar stores as deployed on 16 Oct 2026 ~21:40Z, so that cloud sessions (no network to Finnish or EU hosts) can run the app and tests against real data: `RADAR_DATA_DIR=data/snapshot python3 -m uvicorn app:app --port 8130`. Rebuilt by adapters on the VPS; do not hand-edit. The live store is data/radar_*.sqlite (gitignored).

@@ -6,3 +6,7 @@ node_modules/
 *.pyc
 shots/
 .next/
+data/radar*.sqlite
+data/cache/
+data/fetched/
+.local/

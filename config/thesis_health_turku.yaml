@@ -1,0 +1,32 @@
+# Second thesis, used live to prove the swap: same feed, page and radar, different sector. Health-tech, Turku region.
+# Sources are the same adapters; only filters change. Declared lists for investors are reused where relevant.
+id: health_tech_turku
+title: Health technology, Turku region (swap demo)
+owner_note: Demonstration thesis for transferability. Keywords and codes below are filters, not claims about any company.
+geography: {countries: [FI], feed_window_days: 90, stage_max_company_age_years: 5, city_filter: [TURKU, TURUN, LIETO, RAISIO, NAANTALI]}
+themes:
+  - {id: diagnostics, label: Diagnostics and medical devices}
+  - {id: digital_health, label: Digital health and health data}
+  - {id: biotech, label: Biotech and drug discovery}
+industry_codes:
+  - {code: "21200", note: "Manufacture of pharmaceutical preparations"}
+  - {code: "26600", note: "Irradiation, electromedical equipment"}
+  - {code: "32500", note: "Medical and dental instruments"}
+  - {code: "72110", note: "R&D in biotechnology"}
+  - {code: "86900", note: "Other human health activities"}
+name_keywords:
+  fi: [terveys, lääke, hoiva, diagnost, bio, geeni, kuntoutus]
+  sv: [hälsa, läkemedel, vård, bio]
+  en: [health, medical, medtech, diagnostic, biotech, bio, pharma, clinical, care, therapy]
+feed_signal_types: [register_entry, bf_funding, eu_project, patent, public_contract, job_ad]
+hilma_cpv_divisions: ["33", "85", "73"]
+hilma_keywords: [terveys, lääke, laboratorio, diagnost, potilas, hoiva]
+readiness:
+  technology: {scale: "TRL 1-9", source_classes: [patent, eu_project, bf_funding]}
+  business: {scale: "1-5 commercial readiness", source_classes: [register_entry, public_contract, job_ad]}
+  investment: {scale: "IRL 1-9", source_classes: [bf_funding, eu_project]}
+  ocean_impact: null
+matching:
+  investors: data/declared/investors.csv
+  corporates: data/declared/corporates_clients.csv
+  programmes: data/declared/programmes_grants.csv

@@ -1,0 +1,74 @@
+# Thesis file: the ONLY place a sector, investor or market is defined. Swap this file and the feed, the company page
+# and the radar serve a different thesis (see config/thesis_*.yaml). No code reads sector words from anywhere else.
+id: redstone_apelago_blue
+title: Blue economy, Finland and Nordics (Redstone Blue x A'Pelago)
+owner_note: >
+  Built from Redstone Blue's four areas (redstone.vc/strategies/blue-economy) and A'Pelago's stated themes
+  (apelago.fi). Edit here, never in code.
+
+geography:
+  countries: [FI]                # register adapters run for these; other countries appear only via declared lists
+  feed_window_days: 90           # early-signal feed shows companies whose FIRST signal falls inside this window
+  stage_max_company_age_years: 5 # "young company" cut for Hilma first-contract and register-entry signals
+
+themes:                          # Redstone Blue's four areas plus A'Pelago's wording
+  - id: maritime_port_tech
+    label: Sustainable maritime and port technology
+  - id: ocean_infra_clean_energy
+    label: Ocean infrastructure and clean energy
+  - id: marine_intelligence
+    label: Marine intelligence (ocean data, monitoring, emissions)
+  - id: blue_bio_water
+    label: Blue biotech and water innovation
+
+# TOL 2008 (NACE) codes. A code match alone is only LOW confidence (codes are coarse: Emission-Eye is 62100).
+industry_codes:
+  - {code: "03211", note: "Marine aquaculture"}
+  - {code: "03111", note: "Marine fishing"}
+  - {code: "30110", note: "Building of ships and floating structures"}
+  - {code: "30120", note: "Building of pleasure and sporting boats"}
+  - {code: "33150", note: "Repair and maintenance of ships and boats"}
+  - {code: "50100", note: "Sea and coastal passenger water transport"}
+  - {code: "50200", note: "Sea and coastal freight water transport"}
+  - {code: "52220", note: "Service activities incidental to water transportation"}
+  - {code: "36000", note: "Water collection, treatment and supply"}
+  - {code: "37000", note: "Sewerage"}
+  - {code: "39000", note: "Remediation activities"}
+  - {code: "71121", note: "Engineering and technical consulting"}
+  - {code: "71200", note: "Technical testing and analysis"}
+  - {code: "72190", note: "R&D in natural sciences and engineering"}
+
+# Name and description keywords (word-start match, case-insensitive). A keyword in the legal name is MEDIUM.
+name_keywords:
+  fi: [meri, merellinen, vesi, vesi-, aalto, satama, laiva, vene, kala, levä, rannik, itämeri, vedenalai]
+  sv: [hav, havs, vatten, marin, skärgård, fisk, hamn]
+  en: [ocean, marine, maritime, sea, subsea, underwater, aqua, aquatic, water, blue, offshore, vessel, harbour, port, coastal, algae, kelp, shipping]
+
+# Signals the feed counts. A company enters the feed on its FIRST signal inside the window.
+feed_signal_types: [register_entry, bf_funding, eu_project, blueinvest, patent, public_contract, job_ad]
+
+# Hilma (public contracts): categories where a young company's first win is a signal. CPV divisions.
+hilma_cpv_divisions: ["71", "73", "90", "45", "34", "35", "65", "77", "03", "98"]
+hilma_keywords: [meri, vesi, satama, väylä, laivaliikenne, jäänmurto, vesistö, kalastus, kalankasvatus, öljyntorjunta, päästö, ilmanlaatu, hydrografi, merikartoitus]
+
+# Readiness scales (rules live in radar/readiness.py; this lists what the page prints)
+readiness:
+  technology: {scale: "TRL 1-9", source_classes: [patent, eu_project, bf_funding, blueinvest, public_contract]}
+  business:   {scale: "1-5 commercial readiness", source_classes: [register_entry, public_contract, site_customer, job_ad]}
+  investment: {scale: "IRL 1-9", source_classes: [bf_funding, eu_project, blueinvest]}
+  ocean_impact: {scale: "1-5, 'no public evidence' when nothing is published", source_classes: [blueinvest, eu_project]}
+
+# Who comes next: declared lists (data/declared) read by the matching rules
+matching:
+  investors: data/declared/investors.csv
+  corporates: data/declared/corporates_clients.csv
+  programmes: data/declared/programmes_grants.csv
+  ticket_eur: {min: 200000, max: 2000000, source: "https://redstone.vc/strategies/blue-economy"}
+  grants_next_dates:
+    - {name: "EIC Accelerator 2026 cut-off", date: "2026-11-04", trl_window: "TRL 6-8 (5 completed)", source: "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"}
+    - {name: "Helsinki Blue Economy Studio by A'Pelago 2027", date: "2026-11-30", source: "https://www.apelago.fi/"}
+
+# Backtest: the 19 Nordic Blue 2026 cohort companies in data/declared/cohort_portfolio_companies.csv (group = cohort)
+backtest:
+  cohort_group: cohort
+  entry_event: "entered Nordic Blue 2026 cohort"

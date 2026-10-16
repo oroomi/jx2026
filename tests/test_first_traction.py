@@ -290,3 +290,9 @@ def test_affiliation_single_word_needs_legal_form_and_multiword_whole_words():
 
 def test_affiliation_prose_is_rejected():
     assert not openalex.affiliation_matches("fixture robotics", work("He wrote about Fixture Robotics. " + "x" * 200))
+
+
+def test_archive_ignores_robots_and_favicon_for_first_seen():
+    caps = [("20180101000000", "http://fixture.test/robots.txt"), ("20190505000000", "http://fixture.test/")]
+    out = wa.derive(caps)
+    assert out[0][0] == "website_first_seen" and out[0][1] == "2019-05-05"

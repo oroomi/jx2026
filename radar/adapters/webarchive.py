@@ -58,6 +58,8 @@ def captures(rows: list) -> list[tuple[str, str]]:
 
 def derive(caps: list[tuple[str, str]]) -> list[tuple[str, str, str, str]]:
     """[(signal_type, date, archived_url, detail)]: one first_seen, and the first capture per milestone word."""
+    # robots.txt, favicons and sitemaps are fetched by crawlers before any page exists: they date the crawl, not the site
+    caps = [(ts, o) for ts, o in caps if urlparse(o).path.lower() not in ("/robots.txt", "/favicon.ico", "/sitemap.xml")]
     if not caps:
         return []
     first_ts, first_url = min(caps)

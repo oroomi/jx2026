@@ -34,7 +34,8 @@ import time
 from pathlib import Path
 
 from radar import emit
-from radar.adapters.cordis import fold, parse_amount, vat_to_ytunnus
+from radar import thesis as thesis_mod
+from radar.adapters.cordis import fold, parse_amount, vat_key, vat_to_ytunnus
 from radar.fit import matched_keywords
 
 NAME = "eu_grants"
@@ -156,6 +157,7 @@ def run(conn: sqlite3.Connection, thesis: dict, path: Path | None = None) -> dic
     if path is None or not Path(path).exists():
         c["seconds"] = round(time.time() - t0, 1)
         return c
+    countries = set(thesis_mod.countries(thesis))
     by_y = {r[0]: r[1] for r in conn.execute("SELECT y_tunnus, company_key FROM companies WHERE y_tunnus IS NOT NULL")}
     by_name: dict[str, str] = {}
     for r in conn.execute("SELECT company_key, name FROM companies"):
@@ -168,7 +170,11 @@ def run(conn: sqlite3.Connection, thesis: dict, path: Path | None = None) -> dic
         prog, call = pick(g, "programme"), pick(g, "call")
         acr, title = pick(g, "acronym"), pick(g, "title")
         for p in pick(g, "parts") or []:
-            if not isinstance(p, dict) or not is_finland(pick(p, "p_country")):
+            if not isinstance(p, dict):
+                continue
+            cc = str(pick(p, "p_country") or "").strip().upper()
+            cc = "FI" if is_finland(cc) else cc
+            if cc not in countries:
                 continue
             c["finnish_beneficiaries"] += 1
             name = str(pick(p, "p_name") or "").strip()
@@ -179,7 +185,7 @@ def run(conn: sqlite3.Connection, thesis: dict, path: Path | None = None) -> dic
             if not date or not name:
                 c["skipped_no_date"] += 1
                 continue
-            ytj = vat_to_ytunnus(pick(p, "p_vat"))
+            ytj = vat_key(pick(p, "p_vat"), cc)
             key, conf = (by_y[ytj], "high") if ytj in by_y else (by_name.get(fold(name)), "medium")
             if key is None:
                 hit = None
@@ -189,7 +195,7 @@ def run(conn: sqlite3.Connection, thesis: dict, path: Path | None = None) -> dic
                     c["skipped_unmatched"] += 1
                     continue
                 key, conf = ytj, "medium"
-                emit.upsert_company(conn, company_key=key, name=name, source_url=f"{FILE_URL}#{gid}", y_tunnus=ytj, country="FI", group_tag="feed")
+                emit.upsert_company(conn, company_key=key, name=name, source_url=f"{FILE_URL}#{gid}", y_tunnus=ytj if cc == "FI" else None, country=cc, group_tag="feed")
                 by_y[ytj] = key
                 by_name.setdefault(fold(name), key)
                 disc.add(key)

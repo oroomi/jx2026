@@ -54,7 +54,7 @@ def test_first_screen_words(dbpath):
     import app
     t = TestClient(app.app).get("/").text
     for s in ("Early signals of blue-economy startups, for fund and accelerator teams.", "Every line links to the public record.",
-              'placeholder="Type a startup name, for example Kelluu"', "New this quarter", "Judge one startup", "The Nordic Blue 19"):
+              'placeholder="Type a startup name, for example Viva Jets"', "New this quarter", "Judge one startup", "The Nordic Blue 19"):
         assert s in t
 
 

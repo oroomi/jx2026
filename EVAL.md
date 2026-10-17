@@ -4,6 +4,12 @@
 1 of the 19 Nordic Blue 2026 cohort companies before January 2026 (Sub Marine Store Oy, first sales on 2021-03-15). With declared
 research added, 13 of 19 have a counted public signal before that date, 5 appear only after it, and 1 has none.
 <!-- recheck after data swap -->
+**Rule change, 17 Oct (judge round 3):** a sector word in the legal name is now corroborated only by a record from a different
+source family (PRH register entries, PRH notices and PRH tax registers are one registry). Sub Marine Store's hit was the word "marin"
+plus a PRH tax-register record, so under the new rule the swapped live store shows **0 of 19** from live records (12 declared research
+only, 6 later, 1 none), measured with the code on 17 Oct before deploy. The tables below are from before the change. The memo also
+gained a fallback: thesis fit High with no impact evidence reads impact as Medium, implied by the sector (rule c2 gives ACCELERATOR,
+c1 GRANT SUPPORT for TRL 1-3, c3 DUE DILIGENCE), printed as "because: fallback c2, impact implied by sector".
 Source: <https://jx.hankintaviikko.fi/api/backtest> and <https://jx.hankintaviikko.fi/backtest>, read on 17 Oct 2026 at 01:54 UTC,
 build 4080686.
 

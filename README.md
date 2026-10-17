@@ -32,6 +32,11 @@ companies before January 2026 <!-- recheck after data swap -->. With declared re
 signal before that date <!-- recheck after data swap -->. The reason the number is low is the finding: of the 7 cohort companies
 with a Finnish business ID, none is registered under an industry code on the sector list. They are registered as software,
 retail, wholesale, consulting, R&D and freshwater aquaculture. Method and every caveat: [EVAL.md](EVAL.md).
+Corroboration rule (17 Oct): a sector word in a legal name is backed only by a record from a different source family, and PRH register
+entries, PRH notices and PRH tax registers count as one registry; with that rule the live store shows 0 of 19 (the one hit was the word
+"marin" plus a PRH tax-register record) <!-- recheck after data swap -->.
+Decision fallback (17 Oct): when thesis fit is High and there is no impact evidence, the memo reads impact as Medium, implied by the
+sector, and says so ("because: fallback c2, impact implied by sector"); the rule is printed on `/method`.
 
 ## The demo path (what to click)
 
@@ -42,13 +47,14 @@ retail, wholesale, consulting, R&D and freshwater aquaculture. Method and every 
    2026 cohort company. The memo reads WATCHLIST, because Ocean impact Medium, Business readiness Low, Investment readiness
    unknown and Thesis fit Medium, and it names the evidence still missing. The life-line shows its first public trace:
    first sales on 2020-10-05 (VAT register), first hire on 2025-04-01 (employer register).
-3. Read the four questions on the same page. 01 says "Thesis fit: no public evidence yet" and shows the registered line of
-   business. 02 gives Business readiness 2 of 9 with the KTH rule printed under it, and "no public evidence" for technology and
+3. Read the four questions on the same page. 01 says "Thesis fit: declared cohort company" (it was selected into the programme;
+   no industry code, line of business or source text shows the fit on its own yet). 02 gives Business readiness 2 of 9 with the KTH rule printed under it, and "no public evidence" for technology and
    investment. 03 lists investors, programmes and partners from the declared ecosystem dataset, each with its reason, plus the
    BlueInvest E-Pitching session that closes 2026-11-12. 04 says Watch, names the rule used (5) and prints the whole decision table.
 4. Open a portfolio company for contrast: <https://jx.hankintaviikko.fi/c/2962040-6>, Viva Jets Oy. Its industry code 30120
    (building of pleasure and sporting boats) is on the sector list, and the page shows share issues from the PRH register
-   notices and Business Finland funding in 2019, 2021 and 2024.
+   notices and Business Finland funding in 2019, 2021 and 2024. Its memo reads ACCELERATOR, "because: fallback c2, impact implied
+   by sector": thesis fit High from the industry code, no published impact, business and investment readiness Medium.
 5. Click **The Nordic Blue 19** (`/radar`): the 19 cohort and 9 portfolio companies, each with its count of dated public records
    and a timeline. Companies with no public event are listed apart as "no public events", never filled in.
 6. Click **Earliness test** (`/backtest`): the four groups (found earlier by live public records, found earlier only by declared

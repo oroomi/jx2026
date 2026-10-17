@@ -100,14 +100,68 @@ def test_verify_drops_unsupported_sentences(kelluu, text, cite, reason):
     assert why and why.startswith(reason)
 
 
-def test_brief_with_too_few_passing_sentences_is_dropped(kelluu):
+def slots(exp, **kw):
+    sig = {s["type"]: s["source_url"] for s in exp["signals"]}
+    base = {"what_it_does": sent("Kelluu Oy is a portfolio company registered on 2018-03-09.", PRH),
+            "readiness": sent("Technology, business and investment readiness are all level 4 on the radar's rules.", exp["levels"]["technology"]["url"])}
+    base.update(kw)
+    return {"company_key": exp["company_key"], "written": "2026-10-17", "slots": base}
+
+
+def test_brief_slots_pass_fail_and_null(kelluu):
     exp, th = kelluu
-    b = {"company_key": "2902007-2", "sentences": [sent("Kelluu Oy was registered on 2018-03-09.", PRH), sent("It has a strong team.", PRH)]}
-    clean, drops = briefs.verify_brief(b, exp, th)
+    clean, drops = briefs.verify_brief(slots(exp, thesis_fit=sent("It has a strong team.", PRH), whats_missing=None), exp, th)
+    assert clean and clean["slots"]["what_it_does"] and clean["slots"]["readiness"] and clean["slots"]["thesis_fit"] is None
+    assert clean["slots"]["whats_missing"] is None and drops[0]["slot"] == "thesis_fit"
+
+
+def test_readiness_numbers_must_match_the_export_levels(kelluu):
+    exp, th = kelluu
+    lv = {d: exp["levels"][d]["level"] for d in ("technology", "business", "investment")}
+    assert lv == {"technology": 4, "business": 4, "investment": 4}
+    url = exp["levels"]["technology"]["url"]
+    f = briefs.Facts(exp)
+    ok = briefs.verify_slot("readiness", sent("Technology level 4, business level 4 and investment level 4.", url), exp, f, th)
+    assert ok is None
+    bad = briefs.verify_slot("readiness", sent("Technology readiness is level 6 on the radar's rules.", url), exp, f, th)
+    assert bad and bad.startswith("level differs from the export")
+    stray = briefs.verify_slot("readiness", sent("The company reaches level 9 overall.", url), exp, f, th)
+    assert stray and stray.startswith("level differs from the export")
+
+
+def test_who_to_meet_uses_only_list_names(kelluu):
+    exp, th = kelluu
+    names = [r for r in exp["next"]["investors"]][:2]
+    f = briefs.Facts(exp)
+    good = f"{names[0]['name']} and {names[1]['name']} are the first investors on the list."
+    assert briefs.verify_slot("who_to_meet", sent(good, names[0]["url"], names[1]["url"]), exp, f, th) is None
+    foreign = briefs.verify_slot("who_to_meet", sent(f"{names[0]['name']} and Acme Capital should be met.", names[0]["url"]), exp, f, th)
+    assert foreign and ("Acme" in foreign or foreign.startswith("who_to_meet"))
+    assert briefs.verify_slot("who_to_meet", sent("Someone should be met.", PRH), exp, f, th).startswith("who_to_meet")
+    wrong_url = briefs.verify_slot("who_to_meet", sent(f"{names[0]['name']} is first on the list.", PRH), exp, f, th)
+    assert wrong_url and "not a who-comes-next source" in wrong_url
+
+
+def test_fund_slot_must_match_the_memo_verdict(kelluu):
+    exp, th = kelluu
+    assert exp["memo"]["decision"] == "WATCHLIST"
+    f = briefs.Facts(exp)
+    assert briefs.verify_slot("what_the_fund_should_do", sent("Keep it on the watchlist until a new public record appears.", PRH), exp, f, th) is None
+    assert briefs.verify_slot("what_the_fund_should_do", sent("Start due diligence now.", PRH), exp, f, th)
+    assert briefs.verify_slot("what_the_fund_should_do", sent("Meet them this week.", PRH), exp, f, th).startswith("memo verdict")
+
+
+def test_one_sentence_slots(kelluu):
+    exp, th = kelluu
+    f = briefs.Facts(exp)
+    two = sent("Kelluu Oy was registered on 2018-03-09. It is a portfolio company.", PRH)
+    assert briefs.verify_slot("what_it_does", two, exp, f, th).startswith("slot what_it_does")
+
+
+def test_brief_with_too_few_slots_is_dropped(kelluu):
+    exp, th = kelluu
+    clean, drops = briefs.verify_brief({"company_key": "2902007-2", "slots": {"what_it_does": sent("Kelluu Oy was registered on 2018-03-09.", PRH)}}, exp, th)
     assert clean is None and any("brief dropped" in d["reason"] for d in drops)
-    b["sentences"].append(sent("The record lists a funding round dated 2026-04-14.", exp["signals"][1]["source_url"]))
-    clean, drops = briefs.verify_brief(b, exp, th)
-    assert clean and len(clean["sentences"]) == 2 and len(drops) == 1
 
 
 def test_import_round_trip_and_template(snap, kelluu, tmp_path):
@@ -115,26 +169,27 @@ def test_import_round_trip_and_template(snap, kelluu, tmp_path):
     inn, out = tmp_path / "in", tmp_path / "out"
     inn.mkdir(), out.mkdir()
     (inn / "2902007-2.json").write_text(json.dumps(exp))
-    brief = {"company_key": "2902007-2", "written": "2026-10-17", "sentences": [
-        sent("Kelluu Oy was registered on 2018-03-09.", PRH),
-        sent("The record shows one EU project that started on 2024-09-01.", CORDIS),
-        sent("Kelluu Oy has a strong team and is a market leader.", PRH)]}
+    brief = slots(exp, thesis_fit=sent("Kelluu Oy has a strong team and is a market leader.", PRH))
     (out / "2902007-2.json").write_text(json.dumps(brief))
     conn = db.connect(thesis.db_path(th))
     res = briefs.run_dir(out, inn, th, conn=conn, log=lambda m: None)
     conn.close()
-    assert res["kept"] == 1 and res["dropped_sentences"] == 1
+    assert res["kept"] == 1 and res["dropped_slots"] == 1 and res["slots_kept"] == 2
     b = briefs.brief_for("2902007-2", th)
-    assert [s["text"] for s in b["sentences"]][0].startswith("Kelluu Oy was registered") and len(b["sentences"]) == 2
-    assert b["sentences"][1]["cites"] == [{"n": 2, "url": CORDIS}] and b["written"] == "2026-10-17"
+    assert [s["key"] for s in b["slots"]] == list(briefs.SLOT_KEYS) and b["written"] == "2026-10-17"
+    by = {s["key"]: s for s in b["slots"]}
+    assert by["what_it_does"]["text"].startswith("Kelluu Oy is a portfolio") and by["what_it_does"]["cites"] == [{"n": 1, "url": PRH}]
+    assert by["thesis_fit"]["text"] is None
     assert briefs.brief_for("3543918-7", th) is None
+    assert briefs.one_liners(th)["2902007-2"].startswith("Kelluu Oy is a portfolio")
     from radar.routes import briefs as _r  # noqa: F401  (registers brief_for)
     from radar.routes.home import templates
     t = templates.env.get_template("company_brief.html")
-    with_brief = t.render(c={"company_key": "2902007-2"}, thesis=th)
-    assert "What the public record says" in with_brief and 'class="brief-cite"' in with_brief and "checked by code; written 2026-10-17" in with_brief
+    html = t.render(c={"company_key": "2902007-2"}, thesis=th)
+    assert "What the public record says" in html and html.count('class="brief-row ') == 6 and 'class="brief-cite"' in html
+    assert html.count("no public evidence yet") == 4 and "AI summary of the linked public records, checked by code" in html
     none = t.render(c={"company_key": "3543918-7"}, thesis=th)
-    assert "No summary yet" in none and "brief-foot" not in none
+    assert "No summary yet" in none and "brief-row" not in none
 
 
 def test_no_em_dash_in_brief_template_or_module():

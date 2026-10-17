@@ -8,3 +8,4 @@ from radar.routes.home import templates
 
 router = APIRouter()
 templates.env.globals["brief_for"] = briefs.brief_for
+templates.env.globals["brief_one_liners"] = briefs.one_liners

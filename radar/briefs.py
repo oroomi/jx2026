@@ -1,12 +1,12 @@
 """The AI box on each company page: "What the public record says". A batch, so no live API key and no cost at page time.
 
     export  facts the page already shows, one JSON per company, pure Python, no person names (radar.briefs export)
-    (write) a model writes 4 to 6 plain sentences per company from that JSON, each with `cites` taken only from that export
-    verify  code checks every sentence before it is stored; a failing sentence is dropped and logged, a brief left with fewer than
-            MIN_SENTENCES sentences is dropped
+    (write) a model writes six fixed slots per company from that JSON, each {text, cites} or null, cites taken only from that export
+    verify  code checks every sentence before it is stored; a failing sentence is dropped and logged, a brief with fewer than
+            MIN_SLOTS slots left is dropped
     import  loads the verified briefs into company_briefs (radar/schema/040_briefs.sql)
 
-Brief file: {"company_key": "...", "written": "YYYY-MM-DD", "sentences": [{"text": "...", "cites": ["https://..."]}]}.
+Brief file: {"company_key": "...", "written": "YYYY-MM-DD", "slots": {"what_it_does": {"text": "...", "cites": ["https://..."]} | null, "thesis_fit": ..., "readiness": ..., "who_to_meet": ..., "what_the_fund_should_do": ..., "whats_missing": ...}}.
 CLI: python3 -m radar.briefs export --keys FILE --out DIR | verify --dir DIR [--exports DIR] | import --dir DIR [--exports DIR]"""
 from __future__ import annotations
 
@@ -234,53 +234,158 @@ def verify_sentence(sent: dict, facts: Facts, thesis: dict | None = None) -> str
     return None
 
 
+SLOTS = (("what_it_does", "What it does"), ("thesis_fit", "Thesis fit"), ("readiness", "Readiness"), ("who_to_meet", "Who to meet"),
+         ("what_the_fund_should_do", "What the fund should do"), ("whats_missing", "What's missing"))
+SLOT_KEYS = tuple(k for k, _ in SLOTS)
+MAX_SENTENCES_IN_SLOT = {"what_it_does": 1, "readiness": 1}      # every other slot may use two
+MIN_SLOTS = 2
+_SENT_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z])")
+_LEVEL_PAIR = re.compile(r"\b(technology|business|investment)\b[^.;\d]{0,60}?\b(\d)\b", re.I)
+_DECISION_WORD = {"INVEST": r"\binvest\b", "DUE DILIGENCE": r"due diligence", "ACCELERATOR": r"accelerator", "GRANT SUPPORT": r"grant",
+                  "PARTNER INTRODUCTION": r"partner", "WATCHLIST": r"watch ?list", "REJECT / LOW FIT": r"low fit|reject"}
+_NEVER_AGAINST = ("INVEST", "DUE DILIGENCE", "WATCHLIST", "REJECT / LOW FIT")   # words that contradict a different verdict
+
+
+def _next_names(exp: dict) -> list[str]:
+    names = []
+    for lst in (exp.get("next") or {}).values():
+        for r in lst:
+            names.append(r["name"])
+            names += [p.strip() for p in re.split(r"[()/]", r["name"]) if p.strip()]
+    return sorted(set(names), key=len, reverse=True)
+
+
+def _check_levels(text: str, exp: dict, strict: bool) -> str | None:
+    """A slot's numbers must be the export's framework levels, never recomputed."""
+    levels = {d: (exp.get("levels") or {}).get(d, {}).get("level") for d in ("technology", "business", "investment")}
+    for dim, n in _LEVEL_PAIR.findall(text):
+        have = levels.get(dim.lower())
+        if have is None:
+            return f"level not in the export: {dim} has no level"
+        if int(n) != have:
+            return f"level differs from the export: {dim} {n}, export {have}"
+    if strict:
+        valid = {str(v) for v in levels.values() if v is not None}
+        stripped = _MONTH_YEAR.sub(" ", _ISO.sub(" ", _URL.sub(" ", text)))
+        for n in _NUM.findall(stripped):
+            if re.fullmatch(r"[1-9]", n.strip()) and n.strip() not in valid:
+                return f"level differs from the export: {n.strip()} is not a framework level here"
+    return None
+
+
+def verify_slot(name: str, slot: dict, exp: dict, facts: "Facts", thesis: dict | None = None) -> str | None:
+    """None when the slot passes. Every sentence rule applies, plus the slot rules."""
+    why = verify_sentence(slot, facts, thesis)
+    if why:
+        return why
+    text = slot["text"].strip()
+    pieces = [x for x in _SENT_SPLIT.split(text) if x.strip()]
+    if len(pieces) > MAX_SENTENCES_IN_SLOT.get(name, 2):
+        return f"slot {name} is longer than {MAX_SENTENCES_IN_SLOT.get(name, 2)} sentence(s)"
+    why = _check_levels(text, exp, strict=(name == "readiness"))
+    if why:
+        return why
+    if name == "who_to_meet":
+        names = _next_names(exp)
+        if not names:
+            return "who_to_meet: the export has no who-comes-next names"
+        rest = text
+        for n in names + [exp.get("name") or ""]:
+            rest = rest.replace(n, " ")
+        if rest == text:
+            return "who_to_meet: names none of the who-comes-next list"
+        toks = list(_CAP.finditer(_URL.sub(" ", rest)))
+        for t in toks:
+            w = t.group()
+            first = not rest[:t.start()].strip() or rest[:t.start()].rstrip().endswith((".", "!", "?", ":"))
+            if w not in GENERIC and not w.isupper() and not first:
+                return f"who_to_meet: name not from the who-comes-next list: {w}"
+        allowed_urls = {r["url"] for lst in (exp.get("next") or {}).values() for r in lst}
+        if any(u not in allowed_urls for u in slot["cites"]):
+            return "who_to_meet: cited url is not a who-comes-next source"
+    if name == "what_the_fund_should_do":
+        dec = ((exp.get("memo") or {}).get("decision"))
+        if dec:
+            low = text.casefold()
+            if not re.search(_DECISION_WORD[dec], low):
+                return f"memo verdict {dec} is not stated"
+            for other in _NEVER_AGAINST:
+                if other != dec and re.search(_DECISION_WORD[other], low):
+                    return f"contradicts the memo verdict {dec}: mentions {other.lower()}"
+    return None
+
+
 def verify_brief(brief: dict, exp: dict, thesis: dict | None = None) -> tuple[dict | None, list[dict]]:
-    """(cleaned brief or None, drops [{sentence, reason}]). A brief with fewer than MIN_SENTENCES passing sentences is dropped."""
+    """(cleaned brief or None, drops [{slot, sentence, reason}]). Failing slots become null; fewer than MIN_SLOTS slots left drops the brief."""
     facts = Facts(exp)
-    keep, drops = [], []
-    for s in (brief.get("sentences") or [])[:MAX_SENTENCES + 4]:
-        why = verify_sentence(s, facts, thesis)
+    slots, drops = {}, []
+    given = brief.get("slots") or {}
+    for key in given:
+        if key not in SLOT_KEYS:
+            drops.append({"slot": key, "sentence": None, "reason": f"unknown slot: {key}"})
+    for key in SLOT_KEYS:
+        s = given.get(key)
+        if s is None:
+            slots[key] = None
+            continue
+        why = verify_slot(key, s, exp, facts, thesis)
         if why:
-            drops.append({"sentence": s.get("text"), "reason": why})
+            drops.append({"slot": key, "sentence": s.get("text"), "reason": why})
+            slots[key] = None
         else:
-            keep.append({"text": s["text"].strip(), "cites": list(dict.fromkeys(s["cites"]))})
-    keep = keep[:MAX_SENTENCES]
-    if len(keep) < MIN_SENTENCES:
-        drops.append({"sentence": None, "reason": f"brief dropped: {len(keep)} passing sentence(s), minimum {MIN_SENTENCES}"})
+            slots[key] = {"text": s["text"].strip(), "cites": list(dict.fromkeys(s["cites"]))}
+    if sum(1 for v in slots.values() if v) < MIN_SLOTS:
+        drops.append({"slot": None, "sentence": None, "reason": f"brief dropped: {sum(1 for v in slots.values() if v)} slot(s) pass, minimum {MIN_SLOTS}"})
         return None, drops
-    return {"company_key": brief["company_key"], "written": brief.get("written"), "sentences": keep}, drops
+    return {"company_key": brief["company_key"], "written": brief.get("written"), "slots": slots}, drops
 
 
 # ---- store and read -----------------------------------------------------------------------------------------
 
 def store_brief(conn: sqlite3.Connection, brief: dict) -> None:
-    conn.execute("INSERT OR REPLACE INTO company_briefs (company_key, written, sentences_json, imported_at) VALUES (?,?,?,datetime('now'))",
-                 (brief["company_key"], brief.get("written") or date.today().isoformat(), json.dumps(brief["sentences"], ensure_ascii=False)))
+    conn.execute("INSERT OR REPLACE INTO company_brief_slots (company_key, written, slots_json, imported_at) VALUES (?,?,?,datetime('now'))",
+                 (brief["company_key"], brief.get("written") or date.today().isoformat(), json.dumps(brief["slots"], ensure_ascii=False)))
 
 
 def brief_for(company_key: str, thesis: dict) -> dict | None:
-    """Template hook: the stored brief with numbered cites, or None ("No summary yet")."""
+    """Template hook: the six slots in order, each text/cites with numbers restarting at 1 per row, or None ("No summary yet")."""
     conn = store.open_db(thesis=thesis)
     if conn is None:
         return None
     try:
-        row = conn.execute("SELECT written, sentences_json FROM company_briefs WHERE company_key=?", (company_key,)).fetchone()
+        row = conn.execute("SELECT written, slots_json FROM company_brief_slots WHERE company_key=?", (company_key,)).fetchone()
     except sqlite3.OperationalError:
         return None
     finally:
         conn.close()
     if row is None:
         return None
-    order: list[str] = []
-    sents = []
-    for s in json.loads(row[1]):
-        nums = []
-        for u in s["cites"]:
-            if u not in order:
-                order.append(u)
-            nums.append({"n": order.index(u) + 1, "url": u})
-        sents.append({"text": s["text"], "cites": nums})
-    return {"written": row[0], "sentences": sents}
+    data = json.loads(row[1])
+    slots = []
+    for key, label in SLOTS:
+        v = data.get(key)
+        slots.append({"key": key, "label": label, "text": v["text"] if v else None,
+                      "cites": [{"n": i, "url": u} for i, u in enumerate(v["cites"], 1)] if v else []})
+    return {"written": row[0], "slots": slots}
+
+
+def one_liners(thesis: dict) -> dict[str, str]:
+    """company_key -> the what_it_does sentence, for the one-liner on the home list. Empty when nothing is imported."""
+    conn = store.open_db(thesis=thesis)
+    if conn is None:
+        return {}
+    try:
+        rows = conn.execute("SELECT company_key, slots_json FROM company_brief_slots").fetchall()
+    except sqlite3.OperationalError:
+        return {}
+    finally:
+        conn.close()
+    out = {}
+    for k, js in rows:
+        v = json.loads(js).get("what_it_does")
+        if v:
+            out[k] = v["text"]
+    return out
 
 
 # ---- CLI ----------------------------------------------------------------------------------------------------
@@ -291,7 +396,7 @@ def _load(p: Path):
 
 def run_dir(dir_out: Path, dir_in: Path, thesis: dict, *, conn=None, log=print) -> dict:
     """Verify every brief in dir_out against its export in dir_in; store the survivors when conn is given."""
-    res = {"briefs": 0, "kept": 0, "dropped_briefs": 0, "dropped_sentences": 0, "reasons": {}}
+    res = {"briefs": 0, "kept": 0, "dropped_briefs": 0, "dropped_slots": 0, "slots_kept": 0, "reasons": {}}
     for p in sorted(Path(dir_out).glob("*.json")):
         res["briefs"] += 1
         b = _load(p)
@@ -305,13 +410,14 @@ def run_dir(dir_out: Path, dir_in: Path, thesis: dict, *, conn=None, log=print) 
         for d in drops:
             kind = d["reason"].split(":")[0]
             res["reasons"][kind] = res["reasons"].get(kind, 0) + 1
-            if d["sentence"] is not None:
-                res["dropped_sentences"] += 1
-            log(f"DROP {b['company_key']}: {d['reason']}" + (f" | {d['sentence']}" if d["sentence"] else ""))
+            if d["slot"] is not None:
+                res["dropped_slots"] += 1
+            log(f"DROP {b['company_key']} [{d['slot']}]: {d['reason']}" + (f" | {d['sentence']}" if d["sentence"] else ""))
         if clean is None:
             res["dropped_briefs"] += 1
             continue
         res["kept"] += 1
+        res["slots_kept"] += sum(1 for v in clean["slots"].values() if v)
         if conn is not None:
             store_brief(conn, clean)
     if conn is not None:

@@ -111,6 +111,9 @@ def available() -> bool:
     """True when a key is in the environment and the SDK is installed. A boolean only: the key is never returned, logged or echoed."""
     if not api_key_present():
         return False
+    # kill switch without a restart: the file data/AAVA_LLM_OFF (in RADAR_DATA_DIR) turns the reasoning Aava off; the deterministic Aava answers
+    if (Path(os.environ.get("RADAR_DATA_DIR") or Path(__file__).resolve().parent.parent / "data") / "AAVA_LLM_OFF").exists():
+        return False
     try:
         import anthropic  # noqa: F401
     except ImportError:

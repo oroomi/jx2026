@@ -103,5 +103,5 @@ def test_plain_why_reads_the_dataset_reason_string():
     assert "68" not in s and "dataset match" not in s
     assert "kw" not in s and "[" not in s and "shared keywords" not in s  # no empty keyword clause
     s = matching.plain_why("caps ['C5']; kw ['fish side-streams']; stage 0.5; impact 2/5")
-    assert "shared keywords fish side-streams" in s and "stage overlap partial" in s and "impact rating 2 of 5" in s
+    assert "shared keywords fish side-streams" in s and "stage overlap partial" in s and "the declared ecosystem research rates its impact" in s and "2 of 5" not in s
     assert matching._plain("the company's stage (seed) \"x\" [y]") == "the company's stage, seed, x, y"

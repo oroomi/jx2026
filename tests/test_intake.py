@@ -1,4 +1,5 @@
 """Wide intake: rule, adapter, third feed tier, Q01 chip and the backtest precision line. All companies are synthetic ("Fixture ...")."""
+import re
 from datetime import date, timedelta
 
 import pytest
@@ -206,7 +207,8 @@ def test_health_thesis_feed_renders_with_no_blue_wording(tier_db, tmp_path, monk
     shutil.copy(tmp_path / "t.sqlite", tmp_path / "radar_health_tech_turku.sqlite")
     import app
     html = TestClient(app.app).get("/?thesis=health_tech_turku").text
-    assert "health-tech" in html and "blue" not in html.split("<main")[1].lower().replace("blueinvest", "")
+    body = re.sub(r'<details class="hr-f" data-f="thesis".*?</details>|<nav class="hc-sectors[^"]*".*?</nav>', "", html.split("<main")[1], flags=re.S)   # the Sector group lists every sector by title (D33)
+    assert "health-tech" in html and "blue" not in body.lower().replace("blueinvest", "")
 
 
 # ---- Q01 chip ---------------------------------------------------------------------------------------------------

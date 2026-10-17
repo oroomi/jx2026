@@ -62,3 +62,6 @@
 .hc-whyc { display: inline-block; max-width: 100%; padding: 2px 8px; border: 1px solid var(--hairline); border-radius: 999px; font-size: 13px; line-height: 1.35; color: var(--muted); overflow-wrap: anywhere; }
 :root[data-skin="editorial"] .hc-whyc { border-radius: 0; }
 :root[data-skin="terminal"] .hc-whyc { border-radius: 2px; font-family: var(--mono); }
+
+/* wide screens: every country link is visible (the row wraps); on a phone it stays one row that scrolls sideways */
+@media (min-width: 600px) { .hc-countries { flex-wrap: wrap; overflow-x: visible; } }

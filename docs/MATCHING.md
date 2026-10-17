@@ -8,7 +8,7 @@ Code: `radar/matchmaker.py` (filters, components, ranking), `radar/matchmaker_or
 
 The data partner's rule for any ranking: it must explain itself in words ("Climate focus, Seed stage, Baltic region" is good; "AI score = 92"
 is bad). Every listed counterpart therefore shows reason chips and, behind them, one sentence per satisfied reason with the record it rests
-on. There is no score field in the page or the API.
+on. There is no total score for a startup in the page or in the match API, which returns an ordinal `rank` and a `weight` on each reason; `/api/company/{key}` carries the declared research dataset's own match `score` and its readiness numbers.
 
 ## 1. What the research said, and what we took
 

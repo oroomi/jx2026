@@ -305,12 +305,14 @@ def test_player_plays_the_feed_answer_clip_by_clip(client, live_url):
         page.click("[data-q='1']")
         assert _caption(page) == segs[0]["text"]
         for s in segs[1:3]:
-            page.wait_for_function("t => document.getElementById('aava-caption').textContent === t", arg=s["text"], timeout=5000)  # advanced on 'ended'
+            page.wait_for_function("t => document.getElementById('aava-caption').textContent === t", arg=s["text"], timeout=15000)  # advanced on 'ended'; a deadline, not a pause
         by_sha = {e["text_sha"]: e["file"] for e in manifest["segments"]}
-        for _ in range(30):  # the request for the third clip is recorded a moment after its caption shows
-            if len([u for u in hits if u.endswith(".mp3")]) >= 3:
-                break
-            time.sleep(0.1)
+        # The request for the third clip is recorded a moment after its caption shows. `hits` is filled by Playwright's route callback, which runs
+        # only while the test is inside a Playwright call: time.sleep never delivers it, so a loaded machine left the list one clip short.
+        # Wait for the condition itself (three clip requests), pumping the event loop with wait_for_timeout, up to a generous deadline.
+        deadline = time.monotonic() + 20
+        while len([u for u in hits if u.endswith(".mp3")]) < 3 and time.monotonic() < deadline:
+            page.wait_for_timeout(100)
         assert [u.rsplit("/", 1)[1] for u in hits if u.endswith(".mp3")][:3] == [by_sha[s["sha"]] for s in segs[:3]]
         page.click("#aava-stop")
     finally:

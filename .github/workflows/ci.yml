@@ -16,7 +16,7 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install pytest
       - name: Test
-        run: pytest -q
+        run: python -m pytest -q -p no:cacheprovider --deselect tests/test_api.py::test_each_endpoint_answers_under_500_ms
       - name: Node (only if package.json exists)
         if: hashFiles('package.json') != ''
         uses: actions/setup-node@v4

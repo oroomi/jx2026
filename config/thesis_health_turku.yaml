@@ -93,3 +93,10 @@ intake:
   code_prefixes: ["21", "26", "32", "62", "63", "72"]
   min_signals: 1
   startup_signals: [first_sales, first_hire, eu_project, eu_grant, research_output, bf_funding, startup_notice, equity_event, public_funding]
+
+# Ask Aava bar: intent words are inherited from config/thesis.yaml; the blue-economy sector words do not apply here.
+ask:
+  examples:
+    - "What is new on the radar?"
+    - "Show accelerator companies in Finland"
+  sectors: {}

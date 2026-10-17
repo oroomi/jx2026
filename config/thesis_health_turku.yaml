@@ -41,7 +41,7 @@ hilma_cpv_divisions: ["33", "85", "73"]
 hilma_keywords: [terveys, lääke, laboratorio, diagnost, potilas, hoiva]
 readiness:
   technology: {scale: "TRL 1-9", source_classes: [patent, eu_project, bf_funding]}
-  business: {scale: "1-5 commercial readiness", source_classes: [register_entry, public_contract, job_ad]}
+  business: {scale: "BRL 1-9 (KTH business readiness)", source_classes: [register_entry, public_contract, job_ad]}
   investment: {scale: "IRL 1-9", source_classes: [bf_funding, eu_project]}
   ocean_impact: null
 matching:

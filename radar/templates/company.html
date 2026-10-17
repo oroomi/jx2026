@@ -8,6 +8,7 @@
 {% from "_c_components.html" import verdict_pill, key_stats %}
 {% set m = memo_for(c.company_key, thesis) %}
 {% set rec = m.recommendation if m else none %}
+{% set impact_lbl = (thesis.memo.labels.impact if thesis.memo and thesis.memo.labels and thesis.memo.labels.impact else "Ocean impact") %}
 {% set sig_asc = signals | sort(attribute="date") %}
 {% set types = signals | map(attribute="signal_type") | list %}
 {% set checks = [
@@ -15,7 +16,7 @@
   ("public funding", "bf_funding" in types or "eu_grant" in types or "public_funding" in types),
   ("EU project participation", "eu_project" in types),
   ("a public contract or named customer", "public_contract" in types or "first_sales" in types or "pilot_named" in types),
-  ("an ocean impact category match", fw.category.category is not none and fw.category.category != ""),
+  ("a category match for " ~ (impact_lbl | lower), fw.category.category is not none and fw.category.category != ""),
   ("an investor match", (nxt.investors or []) | length > 0)] %}
 {% set covered = checks | selectattr(1) | list %}
 {% set watch = checks | rejectattr(1) | map(attribute=0) | list %}
@@ -102,7 +103,7 @@
   {% for label, r in (("Technology (TRL)", fw.trl), ("Business (BRL)", fw.brl), ("Investment", fw.irl)) %}
     {% if r.level %}{% set _ = ks.append({"label": label, "value": r.level ~ " / 9", "source_url": (r.evidence[0].evidence.url if r.evidence else none)}) %}{% endif %}
   {% endfor %}
-  {% if fw.category.category and not (m and m.ocean_impact) %}{% set _ = ks.append({"label": "Ocean impact", "value": (m.levels.impact.band if m and m.levels.impact.band in ["Low", "Medium", "High"] else none), "source_url": none}) %}{% endif %}
+  {% if fw.category.category and not (m and m.ocean_impact) %}{% set _ = ks.append({"label": impact_lbl, "value": (m.levels.impact.band if m and m.levels.impact.band in ["Low", "Medium", "High"] else none), "source_url": none}) %}{% endif %}
   {% if c.founded %}{% set _ = ks.append({"label": "Founded", "value": c.founded[:4], "source_url": c.source_url}) %}{% endif %}
   {% set _ = ks.append({"label": "Business ID", "value": c.y_tunnus or c.company_key, "source_url": c.source_url}) %}
   {% if sig_asc %}{% set _ = ks.append({"label": "First public record", "value": sig_asc[0].date_label or sig_asc[0].date, "source_url": sig_asc[0].source_url}) %}
@@ -250,7 +251,7 @@
 
 <section id="q2" class="q q-ready">
   <h2><span class="num">02</span> How ready are they</h2>
-  {% from "_answers.html" import ready_answer %}{{ ready_answer(fw) }}
+  {% from "_answers.html" import ready_answer %}{{ ready_answer(fw, m.ocean_impact if m else none, impact_lbl | lower) }}
   {% macro lvl(r, scale) -%}
     {% if r.level %}<p class="lvl"><strong>level {{ r.level }} of {{ scale }}</strong> from public records{% if r.evidence %}, latest source dated {{ r.evidence[0].evidence.date_label or r.evidence[0].evidence.event_date or "no date" }}{% endif %}: {{ r.because }}</p>
     <div class="chips">{% for s in r.evidence[:4] %}{{ chip(s.evidence, True) }}{% endfor %}</div>
@@ -271,11 +272,13 @@
   <details class="why-box" open><summary>See why</summary>
   <table class="ready">
     <tbody>
-    <tr><th scope="row"><a href="{{ fw.urls.navigator }}" target="_blank" rel="noopener">{{ fw.labels.ocean_impact }}</a></th>
+    <tr><th scope="row">{% if m and m.ocean_impact %}<a href="{{ fw.urls.navigator }}" target="_blank" rel="noopener">{{ fw.labels.ocean_impact }}</a>{% else %}{{ impact_lbl }}{% endif %}</th>
       <td>
+      {% if m and m.ocean_impact %}<p class="lvl">{% if m.ocean_impact.level %}<strong>level {{ m.ocean_impact.level }} of {{ m.ocean_impact.level_max }}</strong>{% if m.ocean_impact.band %}, {{ m.ocean_impact.band }}{% else %}, not yet evidenced{% endif %} (the ocean impact assessment above, confidence {{ m.ocean_impact.confidence }}){% else %}no level on record (the ocean impact assessment above){% endif %}</p>{% endif %}
       {% if fw.category.category %}
         <p class="lvl">Navigator category: <strong>{{ fw.category.category }}</strong> (categories per A'Pelago themes; keyword "{{ fw.category.keyword }}"{% if fw.category.industry %} in the register industry text "{{ fw.category.industry }}"{% endif %})</p>
         {% if fw.category.evidence %}<div class="chips">{{ chip(fw.category.evidence, True) }}</div>{% endif %}
+      {% elif m and m.ocean_impact %}<p class="lvl">Navigator keyword rule: no category word found in the register text or the signal texts. It is context only; the level above does not depend on it.</p>
       {% else %}{{ missing("no public evidence") }} <span class="lvl">Navigator category: not in public records</span>{% endif %}
       <p class="lvl">measured outcome published: {{ missing("no public evidence") }}</p>
       <p class="rule">No numeric score. The Navigator is login-walled, so it is cited by name and link; categories follow the four A'Pelago themes.</p>

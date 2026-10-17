@@ -6,8 +6,8 @@
 {%- endmacro %}
 
 {# Question 02: the four frameworks, in the order the table below shows them, read as one line. #}
-{% macro ready_answer(fw) -%}
-<p class="answer-line" id="q2-answer">{{ _level("Business readiness", fw.brl) }}, {{ _level("technology", fw.trl) }}, {{ _level("investment", fw.irl) }}; ocean impact{% if fw.category and fw.category.category %} category {{ fw.category.category }}{% else %}: no public evidence{% endif %}.</p>
+{% macro ready_answer(fw, oi=none, label="ocean impact") -%}
+<p class="answer-line" id="q2-answer">{{ _level("Business readiness", fw.brl) }}, {{ _level("technology", fw.trl) }}, {{ _level("investment", fw.irl) }}; {{ label }}{% if oi %}{% if oi.level %} level {{ oi.level }} of {{ oi.level_max }}{% if oi.band %} ({{ oi.band | lower }}){% else %}, not yet evidenced{% endif %}{% else %}: no level on record{% endif %}{% elif fw.category and fw.category.category %} category {{ fw.category.category }}{% else %}: no public evidence{% endif %}.</p>
 {%- endmacro %}
 
 {% macro _count(n, one, many) -%}

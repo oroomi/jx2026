@@ -366,7 +366,7 @@ def _gaps(memo: dict | None, limit: int = 3) -> list[str]:
     rec = (memo or {}).get("recommendation") or {}
     if rec.get("needs"):
         needs, impact_gap = _needs(memo)
-        return ((["no evidence yet for " + _list([_lc(n) for n in needs])] if needs else []) + ([impact_gap] if impact_gap else []))[:limit]
+        return (([impact_gap] if impact_gap else []) + (["no evidence yet for " + _list([_lc(n) for n in needs])] if needs else []))[:limit]
     out = []
     for k in (memo or {}).get("risks") or []:
         t = _gap_clause(k.get("text") or "")

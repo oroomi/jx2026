@@ -311,7 +311,7 @@ def _families(recs: list[dict], programme: list[dict], declared: dict | None) ->
 
 def _raise(level: int | None, cfg: dict, recs, programme, declared) -> str:
     """The record that would lift the company one rung. It never asks for a second source family when the evidence already holds two
-    (the confidence line says so): it then names the next rung's own record (D37, `raise_next_rung` of the rung in the thesis file)."""
+    (the confidence line says so): it then names the next rung's own record (D38, `raise_next_rung` of the rung in the thesis file)."""
     if level is None:
         return (cfg.get("no_level") or {}).get("raise") or ""
     rung = next((r for r in cfg.get("levels") or [] if r.get("level") == level), {})

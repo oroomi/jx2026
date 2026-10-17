@@ -355,7 +355,7 @@ def store_brief(conn: sqlite3.Connection, brief: dict) -> None:
                  (brief["company_key"], brief.get("written") or date.today().isoformat(), json.dumps(brief["slots"], ensure_ascii=False)))
 
 
-# ---- keep a stored brief true to the page (D35) ---------------------------------------------------------------
+# ---- keep a stored brief true to the page (D36) ---------------------------------------------------------------
 # A brief is written once and stored; the memo moves (a new rule, a new record, a new band). A stored sentence that names a verdict or
 # a band level different from the memo the page shows now is dropped when the brief is rendered, and a rule id is never printed.
 _RULE_AFTER_UNDER = re.compile(r"\s+under\s+(?:the\s+)?(?:fallback|rule|row|decision table row)\s+\w{1,3}\b", re.I)
@@ -372,7 +372,8 @@ def _memo_now(memo: dict | None, thesis: dict | None) -> dict | None:
     bands = {b["label"].casefold(): str(b["band"]).split(",")[0].strip().casefold() for b in rec.get("because_labels") or []}
     tech = ((memo.get("levels") or {}).get("technology") or {}).get("band")
     bands[(labels.get("technology") or "technology readiness").casefold()] = str(tech or "unknown").casefold()
-    return {"decision": rec.get("decision"), "fallback": rec.get("kind") == "fallback", "bands": bands}
+    first = (rec.get("because_labels") or [{}])[0].get("label")
+    return {"decision": rec.get("decision"), "fallback": rec.get("kind") == "fallback", "bands": bands, "impact": (first or "").casefold()}
 
 
 def _verdict_named(sentence: str) -> str | None:
@@ -401,6 +402,8 @@ def stale_reason(sentence: str, slot: str, now: dict | None) -> str | None:
         for m in re.finditer(lab + r"\b[^.;:()]{0,25}?\b" + _BAND_WORD + r"\b", low):
             if m.group(1) != band:
                 return f"names {label} {m.group(1)}, the memo now says {band}"
+            if label == now["impact"] and now["fallback"] and "implied" not in low:  # an evidenced Medium is not the sector-implied one
+                return f"states {label} {band} without saying the memo reads it as implied by the sector"
         if band != "unknown" and re.search(r"no (?:public )?evidence for " + lab, low):
             return f"says there is no evidence for {label}, the memo now has a band"
     if "implied by the sector" in low and not now["fallback"]:

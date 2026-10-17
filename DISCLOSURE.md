@@ -33,7 +33,7 @@ Declared datasets are copied unchanged into `data/declared/` with their `source_
 | data/declared/programmes_grants.csv | 29 rows | per-row source_url | public pages, facts only | 2026-10-16 |
 | data/declared/startups_universe.csv | 47 rows | per-row source_url | public pages, facts only | 2026-10-16 |
 | PRH/YTJ open data API v3 (fetched live by radar/adapters/prh.py) | live | https://avoindata.prh.fi/opendata-ytj-api/v3 | CC BY 4.0, attribution to PRH, no PRH logos | fetch date stored per row |
-| Hilma public procurement awards, read-only from /opt/portfolio/tenderhub/data/awards_deep.sqlite (our own archive of public notices, built before the event, 43,495 awards 2018-09-07 to 2026-10-16) | rows used are copied into signals | https://www.hankintailmoitukset.fi | public notices | 2026-10-16 |
+| Hilma public procurement awards, read-only from /opt/portfolio/tenderhub/data/awards_deep.sqlite (our own archive of public notices, built before the event, 43,502 awards 2018-09-07 to 2026-10-16, counted on 17 Oct) | rows used are copied into signals | https://www.hankintailmoitukset.fi | public notices | 2026-10-16 |
 | CORDIS Horizon Europe and H2020 bulk CSV (fetched by radar/adapters/cordis.py) | live | https://cordis.europa.eu/data/ | EU open data, CC BY 4.0 | fetch date stored |
 | EU Funding and Tenders reference data grantsTenders.json (fetched by radar/adapters/eu_grants.py into data/cache/eu/, never committed) | live, when reachable | https://ec.europa.eu/info/funding-tenders/opportunities/data/referenceData/grantsTenders.json | EU open data | fetch date stored |
 | TED (Tenders Electronic Daily) contract award notices, public search API (fetched by radar/adapters/ted.py into data/cache/ted/, never committed) | live; award notices since 2025-01-01 for the thesis CPV prefixes and countries, no key | https://api.ted.europa.eu/v3/notices/search | EU open data, re-use of TED notices under the Commission's reuse policy | fetch date stored per signal |
@@ -50,11 +50,18 @@ Not connected, shown only as "connector slot": LinkedIn, Dealroom, Crunchbase, P
 Named by the official Redstone x A'Pelago brief; levels on the company page are our own evidence-class rules over public records, printed on /method.
 | Framework | Use | Source | Access |
 |---|---|---|---|
-| Ocean Impact Navigator | Ocean Impact Readiness: category only, no score | https://www.1000oceanstartups.org/navigator | login-walled; cited by name and link, categories per A'Pelago themes |
+| Ocean Impact Navigator | The framework the brief names for ocean impact; we use its impact areas in words (per A'Pelago themes). It publishes no levels, so the nine rungs of our Ocean Impact Assessment are our own evidence ladder, not a Navigator level (D27) | https://www.1000oceanstartups.org/navigator | login-walled; cited by name and link |
 | KTH Innovation Readiness Level, BRL 1-9 | Business Readiness Level labels and evidence-class mapping | https://kthinnovationreadinesslevel.com/wp-content/uploads/sites/9/2018/10/Business-readiness-Level.pdf | public PDF, text saved in data/declared/frameworks/ |
 | Aalto University TRL 1-9 | Technology Readiness Level labels and evidence-class mapping | https://www.aalto.fi/en/services/technology-readiness-level-trl | public page, text saved in data/declared/frameworks/ |
 | Investment Potential dimensions (ten) | Market, Product, Team, Business Model, Competition, Marketing & Distribution, Financials, Tech, Deal Dynamics, Impact | official brief | five have no source here and show "not in public records" |
 | PRH registered notices API v3 | Dated equity events, board changes, capital losses and start-up notices | https://avoindata.prh.fi/opendata-registerednotices-api/v3/ | CC BY 4.0, no key; fetched by radar/adapters/prh_notices.py, cached in data/cache/prh_notices/ |
+
+## Partner guidance received during the event (no data, rules only)
+
+| From | Date | What it said | Where it shaped the product |
+|---|---|---|---|
+| A'Pelago | 17 Oct 2026 | "missing information is not necessarily a reason to exclude a company or assign it a low score. Identifying information gaps, distinguishing facts from assumptions, and determining what to investigate next can itself be valuable venture intelligence." | Rungs 1 and 2 of the Ocean Impact ladder read "not yet evidenced", never Low (D27); the sentence is quoted once in README.md and once in DEMO_SCRIPT.md |
+| The data partner's review of the live site | 17 Oct 2026 | A ranking must explain itself in words ("Climate focus, Seed stage, Baltic region, Ticket size match" good, "AI score = 92" bad); ocean impact may feel secondary and should not become "just another score": show impact area, evidence, scalability, readiness x of 9 and confidence | A34 (matchmaking shows reasons with records and no score) and D27 (the Ocean Impact Assessment) |
 
 ## Matchmaking method: sources read (ideas only, no code, text or data copied)
 
@@ -78,14 +85,16 @@ The matchmaking reads only data already declared above (the declared lists and t
 ## Third-party services
 | Service | Purpose | Account pre-existed? |
 |---|---|---|
-| ElevenLabs | text-to-speech, the Aava narration rendered once at build time into MP3 files (free plan, attribution: audio generated with ElevenLabs) | yes, the owner's existing free account, opened before the event |
-| Anthropic Claude (Claude Code + API) | Pair programmer and in-product LLM calls | yes |
+| ElevenLabs | text-to-speech: the Aava narration, rendered once at build time into MP3 files (voice Rachel, model `eleven_multilingual_v2`, Starter plan). 16 clips, 4,404 characters: 12 for Viva Jets Oy and Arctic Fry Oy and 4 for the home page's "what is new" answer; no call and no key at run time | yes, the owner's existing account, opened before the event |
+| Anthropic Claude (Claude Code + API) | Pair programmer and in-product LLM calls (the stitcher's proposals and the batch-written company summaries; code checks both) | yes |
 | Cloudflare tunnel + VPS jx.hankintaviikko.fi | Public URL for the demo | yes |
 | GitHub (oroomi/jx2026) | Source hosting | account yes, repo created at the bell |
 | Claude Code cloud session (claude.ai) | Second builder | yes |
-| Browser SpeechSynthesis API (the visitor's own device voices; Aava, radar/static/aava.js) | Reads the page's records aloud; no audio or text is sent to any service by us, no microphone is used | built into the browser |
+| Browser SpeechSynthesis API (the visitor's own device voices; Aava, radar/static/aava.js, and the Ask Aava bar's spoken answers) | Reads the page's records aloud when no recording matches the text; no audio or text is sent to any service by us | built into the browser |
+| Browser Web Speech API, speech recognition (the Ask Aava bar's voice input, live since 17 Oct 12:54 UTC, behind `?demo=1`; `radar/static/askbar.js`) | Turns the visitor's spoken question into text in the browser (language en-US). Some browsers do this on their vendor's speech service; this site receives only the text of the question, and the overlay prints that sentence. We call no speech service and keep no audio | built into the browser |
+| Browser microphone (`getUserMedia`) and Web Audio API (the same voice overlay) | The microphone level moves the orb animation. Nothing is recorded, stored or sent by us; the visitor is asked for permission by the browser | built into the browser |
 
-Narration audio pre-rendered with ElevenLabs text-to-speech from the page's own segment text; no runtime calls, no key in the app (build-time tool radar/aava_voice.py, model eleven_multilingual_v2, MP3 files in radar/static/aava/audio/). The browser voice above stays as the fallback.
+Narration audio pre-rendered with ElevenLabs text-to-speech from the page's own segment text; no runtime calls, no key in the app (build-time tool `radar/aava_voice.py`, voice id `21m00Tcm4TlvDq8ikWAM` (Rachel), MP3 files in `radar/static/aava/audio/<company key>/`, one manifest per page keyed by a fingerprint of the text). The browser voice stays as the fallback. The home page's "what is new" answer (4 clips, 551 characters, `radar/static/aava/audio/feed/`) was re-rendered in Rachel's voice on 17 Oct (commit de11098) when the feed reader changed; the five earlier clips in another voice were removed.
 
 ## Not used
 No code from any earlier project. No private or scraped personal data. No named private individuals.
@@ -93,7 +102,7 @@ No code from any earlier project. No private or scraped personal data. No named 
 ## Chief notes after the night-two verification (16 Oct 2026, 21:30Z)
 - data/declared/businessfinland.xlsx (2.4 MB) is tracked on main on purpose, against the earlier "keep it untracked" rule: it is the public Business Finland funding export as downloaded by the team on 16 Oct, and a judge must be able to rebuild the bf_funding signals from the repo alone. It is declared data, not fetched data.
 - BlueInvest public pipeline profiles stored: 21 in total, 18 with country Finland (earlier notes said 19 Finnish; the stored count is the truth).
-- Feed precision defect D-N1 (own-text reasons from our own annotations, short keywords hitting common words) is acknowledged and fixed by task jx20b; until it is merged, main-list rows whose reason reads "eu project text contains '<short word>'" are over-inclusive.
+- Feed precision defect D-N1 (own-text reasons from our own annotations, short keywords hitting common words) was fixed by task jx20b and is merged (PROJECT_RULES.md, D2).
 
 ## Feed precision (jx20b)
 

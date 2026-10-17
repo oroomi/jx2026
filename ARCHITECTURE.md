@@ -38,21 +38,27 @@ so the pages, the API and the tests call the same code. The module map with a co
  READ SIDE  radar/store.py      feed, company, search, and the one-line "why" (store.explain)
  AND RULES  radar/fit.py        thesis fit with ordered reasons
             radar/frameworks.py readiness: TRL (Aalto), BRL (KTH), investment readiness, ocean impact category
+            radar/ocean_impact.py Ocean Impact Assessment: area, evidence, scalability, rung 1-9, confidence (D27)
             radar/earliness.py  the backtest: first counted public signal against the cohort reference date
             radar/intake.py     wide intake: startup-shaped companies first, sector fit graded by evidence
             radar/matching.py   who comes next (investors, funding, partners) and what should happen next
+            radar/matchmaker.py, matchmaker_orgs.py, matchtext.py   two-sided matchmaking: filters, then reasons in words (D28-D30)
             radar/memo.py       the fund memo: one decision from the team's decision table
             radar/lifeline.py   every dated record on one line from founding to today
+            radar/home_list.py, home_filter.py   the home rows with their criteria box, and the 12-filter rail (cached per store file)
+            radar/aava.py       the six-question conversation, built from the same rows; radar/aava_voice.py pre-renders it (build time)
             |
             +-----------------------------------+-------------------------------------+
             v                                   v                                     v
  WEB        FastAPI + Jinja2 + htmx    JSON API radar/routes/api.py          DATASETTE deploy/datasette/
             radar/routes/*.py, all     GET only, no auth, errors as JSON     raw tables read-only on 127.0.0.1:8170,
             included by app.py         /api, /api/companies, /api/company,   person tables denied, not deployed
-            radar/templates, static    /api/feed, /api/backtest              to a public URL
+            radar/templates, static    /api/feed, /api/backtest, /api/match  to a public URL
+            Ask Aava bar + /api/ask (live since 12:54 UTC, 17 Oct): a deterministic router over the same functions
 
  config/thesis*.yaml, read only through radar/thesis.py, drives every layer above:
- sector words, industry codes, intake families, feed signal types, countries, matching lists, backtest population, memo table
+ sector words, industry codes, intake families, feed signal types, countries, matching lists and weights, impact areas and ladder,
+ backtest population, memo table
 ```
 
 ## Components and why we chose them
@@ -64,12 +70,17 @@ so the pages, the API and the tests call the same code. The module map with a co
 | `emit.py` | The only code that writes companies and signals | One event shape means the feed, the company page, the backtest and the API read one table. The confidence rule lives in one place. The stored date is the event date, never the fetch date, and a missing value stays NULL | `radar/emit.py`, `radar/schema/001_core.sql` |
 | SQLite per thesis | One database file per thesis file | A sector swap is one environment variable (`RADAR_THESIS`) or one `?thesis=` parameter, and the two stores never mix. A file can be copied, checked with `PRAGMA quick_check` and swapped with `os.replace`, which is how the refresh works. No database server to run; a judge can open the file | `radar/db.py`, `radar/thesis.py` (`db_path`), `radar/schema/*.sql` |
 | Numbered schema files | A new table goes in a new numbered file | Parallel branches add tables without touching each other's files | `radar/schema/005` to `040` |
-| Read side and rules | Pure functions over a connection and the thesis | No web code inside, so each one imports and tests alone, and the pages and the API cannot disagree | `radar/store.py`, `fit.py`, `frameworks.py`, `earliness.py`, `intake.py`, `matching.py`, `memo.py`, `lifeline.py` |
+| Read side and rules | Pure functions over a connection and the thesis | No web code inside, so each one imports and tests alone, and the pages and the API cannot disagree | `radar/store.py`, `fit.py`, `frameworks.py`, `ocean_impact.py`, `earliness.py`, `intake.py`, `matching.py`, `matchmaker.py`, `memo.py`, `lifeline.py`, `home_list.py` (the home page's list and tabs), `home_filter.py` |
 | Fund memo | One decision per company from the team's decision table | The table is data in the thesis file, so the partners can change it without code. Rules only, no LLM, so it runs with no API key. A level with no public evidence is "unknown", never Low | `radar/memo.py`, `memo:` in `config/thesis.yaml` |
+| Ocean Impact Assessment | One block per company: impact area in words, the records that name it (each with its link), scalability from records only, a rung 1 to 9 of evidence readiness, a confidence with its reason, and the record that would raise it | The partners asked that ocean impact not be "just another score", and the Navigator that names the framework is login-walled and defines KPIs, not levels (D1, D27). So the ladder says which kind of record must be on file for each rung and code applies it. Rungs 1 and 2 (sector implied only) carry no band and read "not yet evidenced": a gap is information, not a low score. It is attached to the memo and the API, and no decision-table band, verdict or other level changes (D21) | `radar/ocean_impact.py`, `impact_readiness:` in `config/thesis.yaml`, `/method#ocean-impact` |
+| Home list, criteria box and filter rail | The rows of `/`, each with its criteria (impact, TRL, BRL, IRL, thesis fit, verdict) and a `facets` record; the rail's 12 filters read the facets | The criteria are the memo's own cells, so a row cannot disagree with its company page. Facets are computed once per cache warm, so a click filters cached rows and never opens the database; a selection lives in the URL, so every view is shareable. The number beside an option is how many rows would remain, so no click leads to a surprise empty list. Every sector's list is built in one background thread at start, and a request waits at most 3 seconds for a list still being built (D26) | `radar/home_list.py`, `radar/home_filter.py`, `radar/routes/home_rail.py`, `tests/test_criteria_filters.py` |
+| Matchmaking | For a startup, the counterparts that are its next step; for a counterpart, the startups that fit it | Filter first (kind by verdict path, declared geography, open and inside its stated windows), then rank by reasons in words. Counterpart demand is declared (its own text, stages, geography, window) plus revealed (the companies it has chosen); keywords are read on both sides through the thesis file's keyword groups plus raw shared word stems. No score field in the page or API (A34). Organisations only; the dataset's person table is never read (D28 to D30). Method, practices adopted and rejected: [docs/MATCHING.md](docs/MATCHING.md) | `radar/matchmaker.py`, `radar/matchmaker_orgs.py`, `radar/matchtext.py`, `radar/routes/match.py`, `matching:` in `config/thesis.yaml`, `tests/test_matchmaker.py` |
+| Aava | A spoken analyst of one company page, as six questions with one first-person answer each, and a one-question feed reader | The text is built by code from the rows the page shows (company, signals, memo, who comes next, the decision table); a missing fact is spoken as missing. Each segment carries a fingerprint of its text, so a recording is played only when it was rendered from exactly that text, and otherwise the browser's own voice speaks. Recordings for Viva Jets, Arctic Fry and the home "what is new" answer are made once at build time (ElevenLabs, voice Rachel) and committed, so the demo plays files with no network call and no key. Behind `?demo=1` | `radar/aava.py`, `radar/aava_voice.py`, `radar/routes/aava.py`, `radar/static/aava.js`, `radar/static/aava/audio/` |
+| Ask Aava bar (live, merge 5cd3293) | The home hero: a text and voice bar, answered by a deterministic intent router at `GET /api/ask?q=` | Intents are company, filter, feed, match, search and help, chosen by rules over the question's words; every word the rules react to is in the thesis file's `ask:` block, none in code. It calls the same functions as the pages and the Aava scripts, so there is no model and no network call. Voice input is the browser's Web Speech API, only with the demo flag. The header tabs move into a Menu and the footer | `radar/ask.py`, `radar/routes/ask.py`, `radar/static/askbar.js`, `ask:` in `config/thesis.yaml` |
 | The stitcher | Finds dated events on the public web | An LLM is good at finding pages and bad at quoting and dating them faithfully. So the LLM only proposes; code fetches each page itself and keeps an event only when the page names the company and prints the date, then fetches it again and checks the quote, the name next to it and the event words. The Internet Archive's first capture of the URL is stored as `public_since`, the earliest day anyone could have read it, and that is the date the backtest uses. Its events are counted apart from the four backtest groups | `radar/adapters/stitcher.py`, `radar/schema/040_stitch_log.sql`, [METHOD.md](METHOD.md) |
 | Web pages | FastAPI routes render Jinja2 templates; htmx swaps the feed rows when a filter is picked | Server-rendered honesty: what the page says is what the database returned, and every source link is in the HTML. No client build step and no JavaScript framework. htmx is vendored and the fonts are self-hosted, so a page makes no third-party request | `app.py`, `radar/routes/*.py`, `radar/templates/`, `radar/static/` |
 | Route discovery | `app.py` includes every module in `radar/routes/` that exposes `router` | Same reason as adapters; the catch-all `zz_notfound.py` sorts last | `app.py` |
-| JSON API | Company search, company, feed and backtest as JSON | The same read side, for a partner's own tools; read-only, no auth, the thesis comes only from `?thesis=` | `radar/routes/api.py`, `tests/test_api.py` |
+| JSON API | Company search, company (with the Ocean Impact Assessment), feed, backtest and matchmaking (`/api/match/company/{key}`, `/api/match/org/{id}`, `/api/match/orgs`) as JSON | The same read side, for a partner's own tools; read-only, no auth, the thesis comes only from `?thesis=`. The match API has no score field, only an ordinal `rank` and the reasons with their links | `radar/routes/api.py`, `radar/routes/match.py`, `tests/test_api.py`, `tests/test_matchmaker.py` |
 | Refresh | Re-reads the fast live sources from the `/data` page | Works on a copy and swaps it in only after `quick_check`, so pages never see a half-written store; one run at a time with a cooldown; switched off unless `REFRESH_ENABLED=1` | `radar/refresh.py`, `radar/routes/data.py` |
 | Datasette | Raw tables, read-only | Lets the team browse and export without the app. Tables that hold people are denied. It is not routed to a public URL | `deploy/datasette/` |
 | Combined database | `python3 -m radar.combined --thesis <id>` copies the declared ecosystem file and appends the radar's `radar_*` tables and the view `v_entity_public_record` | One file answers "what public record does the radar hold for each dataset entity". The dataset's tables are copied unchanged and checked by digest, the store is only read, and the file is for the team only because it carries the dataset's `person` table | `radar/combined.py`, `data/combined/<thesis id>_combined.sqlite` (gitignored), `tests/test_combined.py` |
@@ -96,6 +107,12 @@ In Datasette: the `person` table and every table or view that holds a person's n
 evidence"). A readiness level appears only when a record of its evidence class exists. A year-only date (Business Finland, some stitcher
 events) is stored as 1 January with a `signal_meta` precision row, and the page labels it "year only".
 
+**A gap is information, not a score.** The sponsor's guidance (A'Pelago, 17 Oct) is that missing information is not necessarily a reason to assign a low score, and that naming the gap, separating facts from assumptions and saying what to investigate next is itself venture intelligence. The architecture carries that in four places. A level with no record is "unknown" or "no public record" and never matches a decision-table cell that needs a band, so a missing level cannot produce REJECT / LOW FIT (A10, A12). The ocean-impact rungs 1 and 2 carry no band and read "not yet evidenced" (D27). Every ocean-impact level states a confidence with its reason and the record that would raise it. And an assumption is printed as one: "impact implied by the sector" whenever the memo's fallback applies (A13), and a declared-research reading of low confidence is "a lead and sets no rung" (A24).
+
+**A ranking explains itself in words (A34).** Matchmaking lists the reasons that hold, each as a chip and a sentence with the record behind it, and lists what did not hold with its note; there is no score field in the page or the API. The weights in `matching: weights` only order the list. They are a stated hypothesis (D29): there is no ground truth for who should have met whom, so `docs/MATCHING.md` says so and PILOT.md asks the partners to rate 20 pairs.
+
+**Deterministic where it speaks.** Aava's answers and the Ask Aava bar's answers are built by code from the rows the pages show, with no model and no network call at run time. The recordings are made once at build time and played only when their text fingerprint matches the text on the page (`radar/aava.py` `text_sha`).
+
 **In the backtest, live, declared and stitched never mix.** The backtest counts live public records in one group and declared research events in a
 separate group; stitcher events are counted on their own line and never move a company between groups.
 
@@ -115,25 +132,28 @@ each value beside the `source_url` of the row it came from, and counts are compu
   company page), so a judge can check a row by hand.
 - The stitcher keeps an LLM's proposal only after two code checks against the page it cites, and logs every drop with its reason.
 - Partner organisations and capital sources are never shown as discovered startups (71 names on 17 Oct, listed on `/method`).
-- Tests: `python3 -m pytest -q` (397 passed on 17 Oct, 29 s) and CI on every push (`.github/workflows/ci.yml`). The deployed site:
-  `/root/hack/bin/smoke.py https://jx.hankintaviikko.fi` loads 13 pages with no error (PASS 13/13 on 17 Oct).
+- Tests: `python3 -m pytest -q` (713 passed, 5 skipped on 17 Oct, one latency test left out) and CI on every push (`.github/workflows/ci.yml`). The deployed site:
+  `/root/hack/bin/smoke.py https://jx.hankintaviikko.fi` loads 15 pages with no error (PASS 15/15 on 17 Oct, 13:17 UTC).
+- Every number in the judged documents has a row in [docs/NUMBERS.md](docs/NUMBERS.md) with the page or query it was read from.
 
 ## What breaks first at scale
 
 Request-time computation. Every page computes the feed rule and the intake tier from the whole store on each request; nothing is
-precomputed. Today `/api/feed` answers in 0.34 to 0.39 s over the public URL with 17,195 companies in the store. The wide intake run on a store copy added 15,584 companies and 41,220 signals, and before it was
-rewritten into one pass the intake tier took 10 s per request on 4,600 intake companies (now under 1 s). Adding the Nordic registers
+precomputed except the two caches below. Measured over the public URL on 17 Oct (13:17 UTC, 10 requests each, host load average about 1.9), with 17,193 companies and 47,693 dated records in the store:
+`/api/feed` answers in 0.13 to 0.21 s, `/api/backtest` in 0.25 to 0.52 s, and the home page in 0.58 to 1.83 s (median 0.68 s). The wide intake alone put 16,385 companies into the live store. Adding the Nordic registers
 multiplies the store again. The fix is to compute the feed, the tiers and the backtest once per refresh into tables and serve those.
+
+Two cached exceptions. The home list (`radar/home_list.py`): it builds a fund memo, an ocean-impact assessment and the criteria for every row (about 0.1 s each, per its docstring), so it is kept in memory per thesis and per store file, and **every thesis in `config/` is warmed in one background thread when the app starts** (D26); a request that arrives while its list is still being built waits at most 3 seconds and then gets the plain feed with the line "The grouped view of this sector is still being prepared". Before that rule, `/?thesis=baltic_blue` took 70 s on the first load after a restart (D26); measured after a warm start, it answers in 0.44 to 0.56 s; right after the 13:16 UTC restart its first two requests took 3.6 s and 2.8 s (the 3 second wait plus the render) and the third 0.5 s. The matchmaking index (`radar/matchmaker.py`) builds once per store version, in about 2 seconds for the first match after a start (1.7 s measured), and then a company's matches take milliseconds; the counterpart view profiles the best 300 of a cheap first pass in full and says how many more passed and were not checked.
 
 The second limit is freshness: the network adapters read at one request every 2 seconds, and the refresh button re-reads only the
 register notices and recent registrations and is switched off on this deployment.
 
 ## What we would change with a week
 
-- Add the Swedish, Norwegian and Danish registers and load the Estonian adapter into the live store: 12 of the 19 cohort companies
+- Extend the Norwegian and Danish register lookups (1 record each in the live store) to full registers, add Sweden, and load the Estonian adapter into the live store: 12 of the 19 cohort companies
   have no Finnish business ID, and 8 of those 12 are Danish, Swedish or Norwegian.
 - Precompute the feed, the intake tiers and the backtest at refresh time, and run the existing copy, check and swap refresh on a
   schedule.
-- Count a keyword in a legal name as corroborated only when the second record comes from a different source family (0 of the 36
-  main-list companies carry the corroborated-name reason today), and move the sector words still in
-  code into the thesis file.
+- Move the sector words still in code into the thesis file (the list is under "Transferability is a file").
+- Replace the matchmaking weights, a stated hypothesis, with ones fitted to the partners' own ratings of 20 pairs (PILOT.md).
+- Give the Ocean Impact ladder a measured top: a rung-9 source (an official or register outcome) is not connected today.

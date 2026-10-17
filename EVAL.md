@@ -11,8 +11,8 @@ plus a PRH tax-register record, so under the new rule the swapped live store sho
 only, 6 later, 1 none), measured with the code on 17 Oct before deploy. The tables below are measured after the change. The memo also
 gained a fallback: thesis fit High on more than an industry code, with no impact evidence, reads impact as Medium, implied by the sector (rule c2 gives ACCELERATOR,
 c1 GRANT SUPPORT for TRL 1-3, c3 DUE DILIGENCE), printed as "because: fallback c2, impact implied by sector".
-Source: <https://jx.hankintaviikko.fi/api/backtest> and <https://jx.hankintaviikko.fi/backtest>, read on 17 Oct 2026 at 03:24 UTC,
-build c2174cd.
+Source: <https://jx.hankintaviikko.fi/api/backtest> and <https://jx.hankintaviikko.fi/backtest>, read on 17 Oct 2026 at 09:36 UTC,
+build b7085d3.
 
 **What the low number means.** For the Finnish companies the data was there; the sector rule is what missed them. All 7 cohort
 companies with a Finnish business ID have dated public records in our store from before January 2026 (register entry, first sales,
@@ -64,7 +64,7 @@ Each cohort company falls in exactly one of four groups, and the four always add
 | No public signal | 1 |
 | Total | 19 |
 
-Per company, first counted signal as served by `/api/backtest` on 17 Oct, 03:24 UTC:
+Per company, first counted signal as served by `/api/backtest` on 17 Oct, 09:36 UTC:
 
 | Company | Country | Business ID | Group | First counted signal |
 |---|---|---|---|---|
@@ -114,15 +114,39 @@ The intake takes in limited companies and cooperatives whose industry code start
 startup signal beyond the register entry (first sales, first hire, EU project or grant, research output, Business Finland, start-up
 notice, share issue, public funding). Nothing about intake says the company fits the sector.
 
-- **Run on a store copy** (commit 93798f5, before families 582 and 03 existed): 50,480 companies examined, 19,027 passed the form and
-  code test, 2 of 19 cohort companies entered intake before cohort entry: Sireness Oy (first startup signal 2025-09-29, rank 20 of 103
-  new 2025 companies in family 72) and Emission-Eye Oy (first sales 2025-08-01, rank 715 of 1,176 in family 62).
-- **The honesty note.** The families 582 (software publishing) and 03 (fishing and aquaculture) were added after that backtest showed
-  the net missed two cohort companies, Kilocode (58290) and Arctic Fry (03220). Any result for those two is measured on the companies
-  used to tune the net, and `/method` and `/backtest` print that sentence.
-- **Live today**: the intake rows are in the live store (16,385 from `prh_intake`), so `/backtest` reads
-  "Entered wide intake before cohort entry: 4 of 19": 4 of the 7 Finnish cohort startups entered intake before the cohort entry
-  (Kilocode, Sireness, Arctic Fry, Emission-Eye; median rank 3 of 60).
+**What we claim.** Had the intake been running through 2025, 4 of the 7 cohort companies with a Finnish business ID (Kilocode,
+Sireness, Arctic Fry and Emission-Eye) would have been in it before January 2026, and the claim stops short of "found early":
+Kilocode's intake date is a 2003 VAT registration, so it is not an early find; Kilocode and Arctic Fry are in only because we added
+their code families after seeing them, so they are in-sample; Sireness enters on a declared-research record rather than a public one;
+and Emission-Eye, on a public start-up notice, ranks 132 of 1,176 among the 2025 registrations in its code family.
+
+Live, from `/api/backtest` (`intake`) and the wide intake table on `/backtest`, read 17 Oct 2026 at 09:36 UTC. The headline there
+reads "Entered wide intake before cohort entry: 4 of 19" (before = 4). The other 3 Finnish cohort companies are outside the intake
+code families (Finnish Sauna Shop 47279, Sub Marine Store 46900, Taikoa 70200); the other 12 have no Finnish business ID, so they
+are not checked against the Finnish register. Rank counts companies of the same registration year and code family that had entered
+intake by 2026-01-01, strongest first by startup signals up to that date, then earliest intake date.
+
+| Company | Intake date and the record that set it | Rank, same year and family | What limits the claim |
+|---|---|---|---|
+| Kilocode Oy (1840910-3) | 2003-08-01, first sales, VAT register (PRH/YTJ tax registers); registered 2003-07-11 | 3 of 8 (2003, family 58) | Not an early find: the date is 22 years before cohort entry. In-sample: family 582 was added after the backtest showed the net missed it. |
+| Sireness Oy (3568392-1) | 2025-04-30, grant or public funding, a declared-research record (dataset confidence medium) | 1 of 104 (2025, family 72) | Rests on a declared record, not a public one; the date is five months before the company's own registration (2025-09-29). On public records alone its first startup signal is 2025-09-29 (first sales and first hire, tax registers), also before cohort entry. |
+| Arctic Fry Oy (3166759-6) | 2020-10-05, first sales, VAT register (PRH/YTJ tax registers) | 3 of 16 (2020, family 03) | In-sample: family 03 was added after the backtest showed the net missed it, so the result is measured on a company used to tune the net. |
+| Emission-Eye Oy (3543918-7) | 2025-07-02, start-up notification (PRH registered notices) | 132 of 1,176 (2025, family 62), about the top 11 percent | A public record, in a family that was not added afterwards. The page itself calls the rank generous to the cohort company: read it as an upper bound on how findable the company was. |
+
+- **Not blind, even for the untuned families.** The first intake families (26 to 30, 62, 63, 71, 72) were chosen as general
+  tech-startup families after the earliness audit had already listed the cohort's registered codes (62100 for Emission-Eye, 72100
+  for Sireness; [EARLINESS_AUDIT.md](EARLINESS_AUDIT.md)); only 582 and 03 were added later and are labelled. So none of the four is a
+  blind result, and 4 of 7 is a statement about what the net holds, not a forecast of what it will find next.
+- **The page's median.** `/backtest` also prints "median rank 3 of 60". That median mixes four pools of 8, 16, 104 and 1,176
+  companies and is set by the two in-sample families and the declared record, so we do not quote it.
+- **The honesty note.** The families 582 (software publishing) and 03 (fishing and aquaculture) were added after the first backtest
+  showed the net missed two cohort companies, Kilocode (58290) and Arctic Fry (03220). `/method` and `/backtest` print that sentence.
+- **First run, on a store copy** (commit 93798f5, before families 582 and 03 existed): 616 requests, 50,480 companies examined,
+  19,027 passed the form and code test, 2 of 19 cohort companies entered intake before cohort entry (Sireness and Emission-Eye, both
+  still in the live result). The live store holds records that copy did not (a declared-research grant for Sireness, a start-up
+  notification for Emission-Eye), so their dates and ranks moved: that run gave Sireness 2025-09-29, rank 20 of 103, and
+  Emission-Eye 2025-08-01, rank 715 of 1,176. The live figures above replace them.
+- **Live store**: the intake rows are in the live store (16,385 from `prh_intake`, `/data`).
 
 ## AI stitcher
 
@@ -142,8 +166,7 @@ LLM answers are committed in `data/fetched/stitcher/proposals/` (54 files), so t
   (1 confirmed), Arctic Fry 0 to 2 (0 confirmed: both Nordic Blue entries were refuted because the quotes do not state the programme
   next to the company's name).
 - **Intake thesis-evidence pass** on the top 100 wide-intake companies: 1 yes (Meriva Oy), 30 no, 69 unclear (nothing public describes
-  the company's activity). Counted from the 100 committed records on `origin/cloud/stitcher` (commit 634f83c), which is not merged into
-  main yet.
+  the company's activity). Counted from the 100 committed records in `data/fetched/stitcher/intake_fit/` (commit 634f83c, merged into main as 74fe976).
 - **Live today**: the batch has been replayed into the live store (27 stitcher signals); `/backtest` reads "3 of 19 ... (19 of 19 have a
   stitcher run)". The live store holds 6 stitcher signals for Kelluu.
 - **Limits of this run**: the cloud session could not reach web.archive.org's CDX index, so `public_since` came from the Wayback
@@ -152,11 +175,14 @@ LLM answers are committed in `data/fetched/stitcher/proposals/` (54 files), so t
 
 ## Software checks
 
-- `python3 -m pytest -q`: 397 passed in 29 s on 17 Oct, on main at 4080686.
-- `/root/hack/bin/smoke.py https://jx.hankintaviikko.fi`: PASS 13/13 pages (the home page with and without the trailing slash,
-  radar, backtest, method, data and seven feed filters), no console errors.
-- Fresh clone, offline: `pip install -r requirements.txt`, `python3 -m radar.build --adapters declared,businessfinland,ecosystem`
-  (3 s, 147 signals), then nine pages answered 200 from `uvicorn` on a spare port.
+- `python3 -m pytest -q`: 590 passed in 304 s on 17 Oct, on main at b7085d3, with the host at a load average of about 13.
+  `tests/test_api.py::test_each_endpoint_answers_under_500_ms` asserts a latency (best of three under 0.5 s) and is load-sensitive:
+  it failed when run alone on the busy host (`/api/feed` 0.524 s) and passed inside the full run.
+- `/root/hack/bin/smoke.py https://jx.hankintaviikko.fi`: PASS 13/13 pages on 17 Oct (the home page with and without the trailing
+  slash, radar, backtest, method, data and seven home-list views: the tabs all, fit and new, and the country views FI, DK, ES and SE),
+  no console errors.
+- Offline, from an empty data directory: `python3 -m radar.build --adapters declared,businessfinland,ecosystem` (8.4 s on a busy
+  host on 17 Oct, 147 signals), then nine pages answered 200 from `uvicorn` on a spare port.
 
 ## Failure examples (real ones)
 
@@ -182,6 +208,7 @@ python3 -m pytest -q
 - n is small: 19 companies with an earliness verdict, one cohort, one reference date for all of them.
 - The reference date is ours, not each company's real entry date, so "months before" is measured against January 2026.
 - 12 of the 19 are outside the Finnish registers, so for them the test measures declared research, not the radar.
-- The health-tech thesis is a swap demo, not an evaluated thesis: its feed still lists clinics matched on "medical" in the line of
-  business.
+- The health-tech thesis is a swap demo, not an evaluated thesis, and a thin one. On 17 Oct its home page says "1 company surfaced"
+  (the headline measure, first public record inside the window: KE Pharma Oy) and the folded full-window list holds 30 companies,
+  1 strong and 29 weak; several of the weak ones are not health companies (two "auto care" firms matched on the word "care").
 - No partner has yet scored the memos or the next steps; usefulness to Redstone Blue and A'Pelago is untested (PILOT.md, weeks 5 to 8).

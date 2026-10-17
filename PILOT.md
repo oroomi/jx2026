@@ -8,6 +8,11 @@ Blue 2026 cohort companies have a Finnish business ID. From live records the rad
 yet all 7 Finnish ones already had dated public records in our store before then. The gap is
 coverage (12 of the 19 are outside the Finnish register) and the sector rule (the 7 Finnish ones are registered under codes the
 sector list does not hold), as measured in [EVAL.md](EVAL.md).
+The wide intake, which takes startup-shaped companies in before any sector test, held 4 of those 7 before January 2026 (Kilocode,
+Sireness, Arctic Fry and Emission-Eye), and the claim is smaller than that sounds: Kilocode's intake date is a 2003 VAT registration,
+so it is not an early find; Kilocode and Arctic Fry are in only because we added their code families after seeing them (in-sample);
+Sireness enters on a declared-research record rather than a public one; and Emission-Eye, on a public start-up notice, ranks 132 of
+1,176 among the 2025 registrations in its code family. The other 3 Finnish ones are registered outside the intake's code families.
 
 ## What you get in 8 weeks
 

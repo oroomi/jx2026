@@ -21,6 +21,8 @@ def test_item7_health_thesis_has_no_blue_wording(client):
     for path in ("/", "/how", "/method"):
         t = client.get(path + "?thesis=health_tech_turku").text
         body = t.split("<main", 1)[1].split("</main>", 1)[0]
+        # the Sector group lists every configured sector by its title, so the other sectors' names are there by design (D33); nothing else may
+        body = re.sub(r'<details class="hr-f" data-f="thesis".*?</details>|<nav class="hc-sectors[^"]*".*?</nav>', "", body, flags=re.S)
         assert "blue" not in body.lower().replace("blueinvest", ""), path
         assert "Nordic Blue" not in t
     assert "health-tech startups" in client.get("/?thesis=health_tech_turku").text

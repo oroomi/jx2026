@@ -6,8 +6,9 @@ public records (for the sparkline), the fund memo verdict and its investment ban
 dates. Groups are computed from those fields only:
   new     = first public record inside the feed window (the thesis' window, ending today)
   fit     = memo verdict INVEST, DUE DILIGENCE or ACCELERATOR, or thesis fit High
-Every group is ordered by verdict strength (INVEST, DUE DILIGENCE, ACCELERATOR, PARTNER INTRODUCTION, GRANT SUPPORT,
-WATCHLIST), then thesis-fit band, then the latest record; "New this quarter" stays newest record first.
+Every group is ordered by verdict strength (INVEST, DUE DILIGENCE, ACCELERATOR, PARTNER INTRODUCTION, GRANT SUPPORT, WATCHLIST), and inside
+a verdict by evidence (D34): declared cohort or portfolio company, Ocean Impact ladder level, its confidence, business readiness level, number
+of dated records, newest record; "New this quarter" stays newest record first.
   ready   = memo investment readiness band High
   country = companies.country
 Each row also carries `ocean`: the Ocean Impact Assessment's area, level, band and confidence (None when the thesis defines no impact areas).
@@ -28,6 +29,8 @@ from radar import matching, memo, store
 TOP_VERDICTS = ("INVEST", "DUE DILIGENCE", "ACCELERATOR")
 VERDICT_ORDER = ("INVEST", "DUE DILIGENCE", "ACCELERATOR", "PARTNER INTRODUCTION", "GRANT SUPPORT", "WATCHLIST")
 FIT_ORDER = ("High", "Medium", "Low")
+CONFIDENCE_ORDER = ("high", "medium", "low")
+DECLARED_TAGS = ("cohort", "portfolio")
 COUNTRY_NAMES = {"FI": "Finland", "SE": "Sweden", "NO": "Norway", "DK": "Denmark", "EE": "Estonia", "IS": "Iceland",
                  "DE": "Germany", "PL": "Poland", "LV": "Latvia", "LT": "Lithuania", "ES": "Spain", "BG": "Bulgaria", "CH": "Switzerland"}
 
@@ -216,10 +219,17 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
         # the five judging criteria plus the verdict, and the rail's facets (computed once per cache warm, from the same memo)
         rows[-1]["criteria"], rows[-1]["facets"] = criteria(m, matching.company_context(conn, key), nxt, thesis, today)
     def strength(r):
-        """Verdict strength, then thesis-fit band, then the latest record (newest first), then name."""
+        """Verdict strength first (the verdict rules are untouched). Inside one verdict, evidence decides (D34): a declared cohort or
+        portfolio company first, then the Ocean Impact ladder level (higher first), then its confidence (high, medium, low), then the
+        business readiness level, then the number of dated public records, then the newest record, then the name. A company with no
+        level sorts after one that has a level; it is never ranked as if it had a low one."""
         v = VERDICT_ORDER.index(r["verdict"]) if r["verdict"] in VERDICT_ORDER else len(VERDICT_ORDER)
-        f = FIT_ORDER.index(r["fit"]) if r["fit"] in FIT_ORDER else len(FIT_ORDER)
-        return (v, f, -int((r["latest"] or "0000-00-00").replace("-", "")[:8] or 0), r["name"])
+        oi = r.get("ocean") or {}
+        level = oi.get("level")
+        conf = CONFIDENCE_ORDER.index(oi["confidence"]) if oi.get("confidence") in CONFIDENCE_ORDER else len(CONFIDENCE_ORDER)
+        brl = ((r.get("criteria") or {}).get("brl") or {}).get("level")
+        return (v, 0 if r["group_tag"] in DECLARED_TAGS else 1, -(level if level is not None else -1), conf, -(brl if brl is not None else -1),
+                -len(r["signals"]), -int((r["latest"] or "0000-00-00").replace("-", "")[:8] or 0), r["name"])
 
     by_date = sorted(rows, key=lambda r: (r["latest"] or "", r["name"]), reverse=True)
     rows.sort(key=strength)

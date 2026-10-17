@@ -330,6 +330,9 @@ class Turn:
                         results.append({"type": "tool_result", "tool_use_id": b.id, "content": body, **({} if ok else {"is_error": True})})
                         for act in ctx.actions[before:]:
                             yield {"event": "action", "data": act}
+                    if not results:    # a tool_use stop with no tool call in it: nothing to answer, nothing to send back
+                        err = self._error("stop", "Aava stopped early.")
+                        break
                     self.messages.append({"role": "user", "content": results})
                     continue
                 if stop == "refusal":

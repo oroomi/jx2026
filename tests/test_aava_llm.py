@@ -176,6 +176,13 @@ def test_a_refusal_and_a_truncated_empty_answer_are_errors(th):
     assert last["event"] == "done" and last["data"]["truncated"] is True
 
 
+def test_a_tool_use_stop_with_no_tool_call_ends_in_an_error_not_a_bad_request(th):
+    t, client = turn_for(th, "hello", [call(text="hm", stop="tool_use")])
+    last = run(t)[-1]
+    assert last["event"] == "error" and last["data"]["kind"] == "stop"
+    assert len(client.messages.calls) == 1                                         # nothing empty was sent back to the API
+
+
 def test_no_key_and_no_injected_client_is_an_error_not_a_crash(th):
     msgs = aava_llm.clean_messages([{"role": "user", "content": "hi"}], aava_llm.settings())
     evs = list(aava_llm.Turn(msgs, th).events())

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ocean Opportunity Radar · Companies</title>
+<link rel="stylesheet" href="tokens.css">
+<script>try{var t=localStorage.getItem('radar-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+  .layout { display: grid; gap: var(--s-5); padding-top: var(--s-5); }
+  @media (min-width: 1000px) { .layout { grid-template-columns: 220px minmax(0,1fr); gap: var(--s-6); } }
+  .rail { display: flex; flex-wrap: wrap; gap: var(--s-4) var(--s-6); }
+  @media (min-width: 1000px) { .rail { display: block; position: sticky; top: 80px; align-self: start; } }
+  .fwrap summary { display: none; }
+  @media (max-width: 999px) {
+    .fwrap summary { display: inline-flex; cursor: pointer; font-size: var(--fs-14); padding: 6px 12px; border: 1px solid var(--hairline-strong); border-radius: 8px; color: var(--text-2); list-style: none; }
+    .fwrap summary::-webkit-details-marker { display: none; }
+    .fwrap[open] summary { margin-bottom: var(--s-3); }
+    .rail .fgroup { flex: 1 1 140px; min-width: 0; }
+  }
+  .layout > * { min-width: 0; }
+  .fgroup { margin-bottom: var(--s-5); }
+  .fgroup h3 { font: 600 var(--fs-12)/1 var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 var(--s-2); }
+  .fgroup label { display: flex; align-items: center; gap: 8px; font-size: var(--fs-14); padding: 4px 0; cursor: pointer; }
+  .fgroup label span { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .fgroup input { accent-color: var(--accent); width: 16px; height: 16px; }
+  .bar { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-4); margin-bottom: var(--s-3); }
+  .bar h1 { font: 400 var(--fs-32)/1.1 var(--font-serif); margin: 0; }
+  .tbl-wrap { border: 1px solid var(--hairline); border-radius: var(--radius); overflow: auto; background: var(--surface); box-shadow: var(--shadow); max-height: calc(100vh - 170px); }
+  table { width: 100%; border-collapse: collapse; font-size: var(--fs-14); }
+  thead th { position: sticky; top: 0; background: var(--surface-2); text-align: left; font-weight: 600; font-size: var(--fs-12); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--hairline-strong); white-space: nowrap; cursor: pointer; user-select: none; }
+  thead th[aria-sort="descending"]::after { content: " ↓"; color: var(--accent); } thead th[aria-sort="ascending"]::after { content: " ↑"; color: var(--accent); }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid var(--hairline); vertical-align: middle; }
+  tbody tr:hover td { background: var(--bg-raised); }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  td a.co { font-weight: 600; text-decoration: none; }
+  td a.co:hover { color: var(--accent); }
+  td .sub { display: block; color: var(--muted); font-size: var(--fs-12); max-width: 46ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pill-go { color: var(--ok); background: var(--ok-soft); }
+  .lvl { display: inline-grid; grid-template-columns: repeat(9, 4px); gap: 2px; vertical-align: middle; margin-left: 6px; }
+  .lvl i { height: 10px; border-radius: 1px; background: var(--hairline-strong); }
+  .lvl i.on { background: var(--accent); }
+  .nod { color: var(--muted); opacity: .7; }
+  @media (max-width: 700px) { .hide-sm { display: none; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="a_home.html"><i class="brand-mark" aria-hidden="true"></i><span>Ocean Opportunity Radar</span></a>
+    <nav class="nav"><a href="a_home.html" aria-current="page">Companies</a><a href="#">Saved lists</a><a href="#">Cohort radar</a></nav>
+    <label class="cmd"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input type="search" id="q" placeholder="Search company or Business ID" aria-label="Search"><span class="kbd">/</span></label>
+    <button class="theme-btn" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
+  </div>
+</header>
+<main class="wrap layout">
+  <details class="fwrap" id="fwrap" open><summary>Filters</summary><aside class="rail" id="rail"></aside></details>
+  <div>
+    <div class="bar"><h1>Companies</h1><span class="small muted" id="count"></span></div>
+    <div class="tbl-wrap"><table>
+      <thead><tr><th data-k="group" aria-sort="ascending" title="Portfolio and cohort first, A to Z">Company</th><th data-k="country" class="hide-sm">Country</th><th data-k="newest">Last signal</th><th data-k="n" class="hide-sm" style="text-align:right">Signals</th><th data-k="trl" class="hide-sm">TRL</th><th data-k="verdict">Verdict</th></tr></thead>
+      <tbody id="tb"></tbody>
+    </table></div>
+  </div>
+</main>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent), M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function when(n){ var d = n.date; return n.prec === 'year' ? d.slice(0,4) : (+d.slice(8,10))+' '+M[+d.slice(5,7)-1]+' '+d.slice(0,4); }
+  var VERDICT = {'PARTNER INTRODUCTION': ['Introduce', 'pill-go'], 'WATCHLIST': ['Watchlist', 'pill-none']};
+  var GROUP = {portfolio: 'Portfolio', cohort: 'Cohort', feed: 'Found by the feed'};
+  var F = {country: {}, group: {}, verdict: {}}, sortK = 'group', dir = 1;
+  function count(field, label){ var o = {}; D.rows.forEach(function(r){ var v = r[field]; o[v] = (o[v] || 0) + 1; }); return Object.keys(o).sort(function(a,b){ return o[b]-o[a]; }).map(function(k){ return [k, label(k), o[k]]; }); }
+  var groups = [['country', 'Country', count('country', function(k){ var r = D.rows.filter(function(x){ return x.country === k; })[0]; return r.country_name; })],
+                ['group', 'Source group', count('group', function(k){ return GROUP[k] || k; })],
+                ['verdict', 'Verdict', count('verdict', function(k){ return (VERDICT[k] || [k])[0]; })]];
+  $('rail').innerHTML = groups.map(function(g){ return '<div class="fgroup"><h3>'+g[1]+'</h3>' + g[2].map(function(o){ return '<label><input type="checkbox" data-f="'+g[0]+'" value="'+esc(o[0])+'">'+esc(o[1])+'<span>'+o[2]+'</span></label>'; }).join('') + '</div>'; }).join('');
+  $('rail').addEventListener('change', function(e){ var t = e.target; F[t.dataset.f][t.value] = t.checked; render(); });
+  function key(r, k){ if (k === 'group') return ((r.group === 'feed') ? '1' : '0') + r.name.toLowerCase(); return k === 'newest' ? (r.newest ? r.newest.date : '') : k === 'n' ? r.n_signals : k === 'trl' ? (r.levels.technology || 0) : (r[k] || '').toString().toLowerCase(); }
+  function render(){
+    var q = ($('q').value || '').toLowerCase();
+    var rows = D.rows.filter(function(r){
+      return ['country','group','verdict'].every(function(f){ var on = Object.keys(F[f]).filter(function(k){ return F[f][k]; }); return !on.length || on.indexOf(r[f]) > -1; })
+        && (!q || r.name.toLowerCase().indexOf(q) > -1 || (r.y || '').indexOf(q) > -1);
+    }).sort(function(a, b){ var x = key(a, sortK), y = key(b, sortK); return (x < y ? -1 : x > y ? 1 : 0) * dir; });
+    $('count').textContent = rows.length + ' of ' + D.rows.length + ' companies';
+    $('tb').innerHTML = rows.map(function(r){
+      var v = VERDICT[r.verdict] || [r.verdict || 'none', 'pill-info'], t = r.levels.technology;
+      return '<tr><td><a class="co" href="a_company.html">'+esc(r.name)+'</a><span class="sub">'+(r.line ? esc(r.line.text) : '')+'</span></td>'
+        + '<td class="hide-sm">'+esc(r.country_name)+'</td>'
+        + '<td>'+(r.newest ? esc(when(r.newest)) + '<span class="sub">'+esc(r.newest.label)+'</span>' : '<span class="nod">no signal</span>')+'</td>'
+        + '<td class="num hide-sm">'+r.n_signals+'</td>'
+        + '<td class="hide-sm">'+(t ? t + '<span class="lvl">'+Array.apply(null, Array(9)).map(function(_, i){ return '<i class="'+(i < t ? 'on' : '')+'"></i>'; }).join('')+'</span>' : '<span class="nod">none</span>')+'</td>'
+        + '<td><span class="pill '+v[1]+'">'+esc(v[0])+'</span></td></tr>';
+    }).join('');
+  }
+  document.querySelector('thead').addEventListener('click', function(e){ var th = e.target.closest('th'); if (!th) return; var k = th.dataset.k; dir = sortK === k ? -dir : (k === 'name' || k === 'country' ? 1 : -1); sortK = k; [].forEach.call(this.querySelectorAll('th'), function(x){ x.removeAttribute('aria-sort'); }); th.setAttribute('aria-sort', dir < 0 ? 'descending' : 'ascending'); render(); });
+  $('q').addEventListener('input', render);
+  if (matchMedia('(max-width: 999px)').matches) $('fwrap').removeAttribute('open');
+  render();
+  $('theme').addEventListener('click', function(){ var r = document.documentElement, c = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = c === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('radar-theme', n); } catch (e) {} });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Company profile · Ocean Opportunity Radar</title>
+<link rel="stylesheet" href="tokens.css">
+<script>try{var t=localStorage.getItem('radar-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+  .phead { padding: var(--s-6) 0 0; border-bottom: 1px solid var(--hairline); }
+  .prow { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-5); }
+  .logo { width: 56px; height: 56px; border-radius: 12px; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--hairline-strong); font: 600 var(--fs-22)/1 var(--font-sans); color: var(--text-2); }
+  .prow h1 { font: 600 var(--fs-32)/1.1 var(--font-sans); margin: 0; letter-spacing: -.01em; }
+  .meta { display: flex; flex-wrap: wrap; gap: 6px var(--s-4); color: var(--muted); font-size: var(--fs-14); margin-top: 6px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s-3); }
+  .pill-go { color: var(--ok); background: var(--ok-soft); }
+  .ptabs { margin-top: var(--s-5); border-bottom: 0; } .ptabs a.tab { text-decoration: none; }
+  .grid { display: grid; gap: var(--s-5); padding-top: var(--s-5); }
+  @media (min-width: 1000px) { .grid { grid-template-columns: minmax(0,1fr) 320px; } }
+  .panel { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--s-5); }
+  .panel h2 { font: 600 var(--fs-16)/1.3 var(--font-sans); margin: 0 0 var(--s-3); }
+  .kpis { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1px; background: var(--hairline); border: 1px solid var(--hairline); border-radius: var(--radius); overflow: hidden; }
+  @media (min-width: 760px) { .kpis { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+  .kpi { background: var(--surface); padding: var(--s-4); }
+  .kpi .l { font-size: var(--fs-12); color: var(--muted); }
+  .kpi .n { font: 600 var(--fs-22)/1.2 var(--font-sans); font-variant-numeric: tabular-nums; margin-top: 4px; }
+  .kpi .n.none { font-weight: 400; font-size: var(--fs-14); color: var(--muted); }
+  .kpi .s { font-size: var(--fs-12); color: var(--muted); }
+  .ai-empty { padding: var(--s-3) var(--s-4); border: 1px dashed var(--hairline-strong); border-radius: var(--radius-sm); background: var(--hatch); color: var(--text-2); font-size: var(--fs-14); }
+  .tl { list-style: none; margin: 0; padding: 0; position: relative; }
+  .tl li { display: grid; grid-template-columns: 84px minmax(0,1fr); gap: var(--s-3); padding: 8px 0; border-bottom: 1px solid var(--hairline); font-size: var(--fs-14); }
+  .tl .d { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .tl a { color: var(--muted); font-size: var(--fs-12); }
+  .side dl { margin: 0; }
+  .side dt { font-size: var(--fs-12); color: var(--muted); margin-top: var(--s-3); }
+  .side dt:first-child { margin-top: 0; }
+  .side dd { margin: 2px 0 0; font-size: var(--fs-14); }
+  .nodata { font-size: var(--fs-12); color: var(--muted); padding: 1px 6px; border: 1px dashed var(--hairline-strong); border-radius: 4px; background: var(--hatch); }
+  .info { cursor: help; color: var(--muted); border-bottom: 1px dotted var(--muted); }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="a_home.html"><i class="brand-mark" aria-hidden="true"></i><span>Ocean Opportunity Radar</span></a>
+    <nav class="nav"><a href="a_home.html">Companies</a><a href="#">Saved lists</a><a href="#">Cohort radar</a></nav>
+    <label class="cmd"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input type="search" placeholder="Search company or Business ID" aria-label="Search"><span class="kbd">/</span></label>
+    <button class="theme-btn" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
+  </div>
+</header>
+<div class="phead"><div class="wrap">
+  <div class="prow"><div><h1 id="name"></h1><div class="meta" id="meta"></div></div><span id="pill" style="margin-left:auto"></span></div>
+  <div class="tags" id="tags"></div>
+  <div class="tabs ptabs" role="tablist"><a class="tab" href="#kpis" aria-selected="true">Overview</a><a class="tab" href="#ai">Summary</a><a class="tab" href="#tl">Timeline</a><a class="tab" href="#facts">Key facts</a></div>
+</div></div>
+<main class="wrap grid">
+  <div style="display:grid;gap:var(--s-5);align-content:start">
+    <div class="kpis" id="kpis"></div>
+    <section class="panel" id="ai"><h2>What the public record says <span class="small muted" style="font-weight:400">· AI summary, checked against sources</span></h2><div class="ai-empty">No summary yet.</div></section>
+    <section class="panel"><h2>Timeline</h2><ol class="tl" id="tl"></ol></section>
+  </div>
+  <aside class="side"><section class="panel"><h2>Key facts</h2><dl id="facts"></dl></section></aside>
+</main>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent), co = D.company, m = D.memo || {}, rec = m.recommendation || {};
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function day(d){ return (+d.slice(8,10))+' '+M[+d.slice(5,7)-1]+' '+d.slice(0,4); }
+  function when(s){ return s.date_precision === 'year' ? s.date.slice(0,4) : day(s.date); }
+  var VERDICT = {'PARTNER INTRODUCTION': ['Introduce', 'pill-go'], 'WATCHLIST': ['Watchlist', 'pill-none']};
+  var v = VERDICT[rec.decision] || [rec.decision || 'No verdict', 'pill-info'];
+  $('name').textContent = co.name; document.title = co.name + ' · ' + document.title;
+  $('meta').innerHTML = '<span>Town: <span class="nodata">no data</span></span><span>Founded '+esc(co.founded.slice(0,4))+'</span><span>Business ID '+esc(co.y_tunnus)+'</span>';
+  $('pill').className = 'pill ' + v[1]; $('pill').textContent = v[0];
+  $('tags').innerHTML = [co.group_tag === 'portfolio' ? 'Portfolio' : co.group_tag, co.industry_desc].map(function(t){ return '<span class="chip">'+esc(t)+'</span>'; }).join('');
+  var money = D.signals.filter(function(s){ return s.amount_eur; }), total = money.reduce(function(a, s){ return a + s.amount_eur; }, 0);
+  var R = D.readiness || {}, last = D.signals[0];
+  var src1 = money.map(function(s){ return s.source_label; }).filter(function(x, i, a){ return a.indexOf(x) === i; }).join(', ');
+  $('kpis').innerHTML = [
+    ['Public funding on record', 'EUR ' + Math.round(total/1000) + 'k', money.length + ' decisions · ' + src1],
+    ['Last signal', last ? last.date.slice(0,4) : '', last ? last.type_label : ''],
+    ['Technology readiness', R.technology && R.technology.level != null ? 'TRL ' + R.technology.level : null, 'Aalto TRL'],
+    ['Ocean impact', R.ocean_impact && R.ocean_impact.level != null ? R.ocean_impact.level : null, 'Ocean Impact Navigator']
+  ].map(function(k){ return '<div class="kpi"><div class="l">'+k[0]+'</div><div class="n'+(k[1] == null ? ' none' : '')+'">'+(k[1] == null ? 'no public evidence' : esc(k[1]))+'</div><div class="s"><span class="info" title="Source: '+esc(k[2])+'">'+esc(k[2])+'</span></div></div>'; }).join('');
+  $('tl').innerHTML = D.signals.map(function(s){ var amt = s.amount_eur ? ' · EUR ' + Math.round(s.amount_eur).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' ') : ''; return '<li><span class="d">'+esc(when(s))+'</span><span>'+esc(s.type_label)+amt+' <a href="'+esc(s.source_url)+'" rel="noopener">'+esc(s.source_label)+'</a></span></li>'; }).join('');
+  $('facts').innerHTML = [['Website', co.website ? '<a href="'+esc(co.website)+'">'+esc(co.website.replace(/^https?:\/\//,'').replace(/\/$/,''))+'</a>' : '<span class="nodata">no data</span>'],
+    ['Industry', esc(co.industry_code + ' · ' + co.industry_desc)], ['Register status', esc(co.register_status)], ['Founded', esc(day(co.founded))],
+    ['Verdict basis', (rec.because_labels || []).map(function(b){ return esc(b.label) + ': ' + esc(b.band); }).join('<br>')],
+    ['Investors', '<span class="nodata">no match in the declared dataset</span>'],
+    ['Connectors', esc((D.connector_slots || {}).names.join(', ')) + ' <span class="muted">(not connected)</span>']]
+    .map(function(f){ return '<dt>'+f[0]+'</dt><dd>'+f[1]+'</dd>'; }).join('');
+  $('theme').addEventListener('click', function(){ var r = document.documentElement, c = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = c === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('radar-theme', n); } catch (e) {} });
+})();
+</script>
+</body>
+</html>

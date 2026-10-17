@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ocean Opportunity Radar</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="c.css">
+<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;var a=(location.search.match(/accent=([abc])/)||[])[1];if(a)document.documentElement.dataset.accent=a;}catch(e){}</script>
+</head>
+<body class="c">
+<div class="shell inst">
+  <main class="col-main">
+    <header class="c-top">
+      <a class="c-back" href="c_home.html"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4L6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Radar</a>
+      <button class="c-icon" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
+    </header>
+
+    <div class="inst-head"><span class="mark" id="mark" aria-hidden="true"></span><div><h1 id="name"></h1><div class="tick" id="tick"></div></div></div>
+
+    <div class="big"><span class="bn" id="bn"></span></div>
+    <p class="reason" id="reason"></p>
+
+    <p class="recline" id="recline"></p>
+    <p class="recline covers" id="covers"></p>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="button" id="aava"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0v-4a3 3 0 0 1 3-3zM4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Ask Aava</button>
+      <button class="btn btn-secondary" type="button" id="print"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 7V2.5h9V7M5.5 14.5H3.5v-6a1.5 1.5 0 0 1 1.5-1.5h10a1.5 1.5 0 0 1 1.5 1.5v6h-2M5.5 11.5h9v6h-9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Print memo</button>
+    </div>
+    <p class="aava-note" id="aava-note" aria-live="polite"></p>
+
+    <section class="sec"><h2>Key statistics</h2><div class="stats" id="stats"></div></section>
+
+  </main>
+  <aside class="col-side">
+    <section class="sec"><h2>About</h2>
+      <div class="card-c"><ol class="rows6" id="card"></ol><ol class="srcs" id="srcs"></ol></div>
+      <p class="small muted" style="margin-top:8px">What the public record says, each answer from the numbered sources.</p>
+    </section>
+
+    <section class="sec" id="meet-sec"><h2>Who to meet</h2><div class="meet" id="meet"></div></section>
+
+    <section class="sec"><h2>News</h2><ol class="news" id="news"></ol></section>
+
+    <section class="sec"><h2>Analysts</h2><div class="analysts" id="an"></div><p class="an-note" id="an-note"></p></section>
+  </aside>
+</div>
+
+<nav class="tabbar" aria-label="Main">
+  <a href="c_home.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" class="f"/></svg>Radar</a>
+  <a href="c_home.html#q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>Search</a>
+  <a href="c_home.html#lists"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg>Lists</a>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Backtest</a>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>Data</a>
+</nav>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent), co = D.company, m = D.memo || {}, rec = m.recommendation || {};
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function day(d){ return (+d.slice(8,10))+' '+M[+d.slice(5,7)-1]+' '+d.slice(0,4); }
+  function when(s){ return s.date_precision === 'year' ? s.date.slice(0,4) : s.date_precision === 'month' ? M[+s.date.slice(5,7)-1]+' '+s.date.slice(0,4) : day(s.date); }
+  function dt(s){ var p = s.split('-'); return Date.UTC(+p[0], +(p[1]||1)-1, +(p[2]||1)); }
+  function eur(n){ return 'EUR ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  var HOSTS = {'tietopankki.businessfinland.fi': 'Business Finland export', 'avoindata.prh.fi': 'PRH/YTJ register', 'cordis.europa.eu': 'CORDIS', 'blueinvest-community.converve.io': 'BlueInvest events', 'www.apelago.fi': "A'Pelago", 'apelago.fi': "A'Pelago"};
+  function host(u){ var h = (u || '').replace(/^https?:\/\//, '').split('/')[0]; return HOSTS[h] || h.replace(/^www\./, ''); }
+  function src(url, label){ return url ? '<a href="'+esc(url)+'" rel="noopener">'+esc(label || host(url))+'</a>' : esc(label || ''); }
+  var VERDICT = {'WATCHLIST':['Watchlist','v-grey'], 'PARTNER INTRODUCTION':['Partner introduction','v-teal'], 'INVEST':['Invest','v-green'], 'DUE DILIGENCE':['Due diligence','v-green'], 'REJECT':['Reject','v-red']};
+  var v = VERDICT[rec.decision] || [rec.decision || 'No verdict', 'v-grey'];
+  var S = D.signals.slice(), R = D.readiness || {};
+
+  document.title = co.name + ' · ' + document.title;
+  $('mark').textContent = co.name.replace(/\b(Oy|Ab)\b/g, '').trim().split(/\s+/).map(function(w){ return w[0]; }).join('').slice(0, 2).toUpperCase();
+  $('name').textContent = co.name;
+  $('tick').textContent = co.y_tunnus + ' · ' + (co.group_tag === 'portfolio' ? 'Portfolio' : co.group_tag === 'cohort' ? 'Cohort' : 'Found by the feed');
+  $('bn').textContent = v[0];
+  if (v[1] !== 'v-grey') $('bn').insertAdjacentHTML('afterend', '<span class="vpill big '+v[1]+'">'+esc(v[0])+'</span>');
+  var note = rec.note ? rec.note.charAt(0).toUpperCase() + rec.note.slice(1) + '.' : '';
+  $('reason').innerHTML = esc(note) + ' <span class="muted small">Fund memo verdict from the team’s decision table.</span>';
+
+  // Public record line: first, count, latest; each date links to its row in News.
+  var asc = S.slice().sort(function(a, b){ return a.date < b.date ? -1 : 1; });
+  var first = asc[0], latest = S[0];
+  $('recline').innerHTML = 'Public record: first <a href="#sig-'+first.id+'">'+esc(when(first))+'</a> · '+S.length+' dated signals · latest <a href="#sig-'+latest.id+'">'+esc(when(latest))+'</a>';
+
+  $('aava').addEventListener('click', function(){ $('aava-note').textContent = 'In the live app Aava reads this card aloud and answers questions from its sources. Not wired in this static prototype.'; });
+  $('print').addEventListener('click', function(){ window.print(); });
+
+  // Key statistics: the four readiness levels, founded, Business ID, first public record, last signal.
+  function lvl(k, label){ var r = R[k] || {}, ev = (r.evidence || [])[0];
+    if (r.level == null) return '';
+    var extra = k === 'investment' && R.investment_dimensions ? ' · ' + R.investment_dimensions.filter(function(d){ return d.evidence_count > 0; }).length + ' of 10 dimensions' : '';
+    return '<div class="stat-c"><span class="l">'+label+'</span><span class="v">'+r.level+' <small>/ 9</small></span><span class="s">'+(ev ? src(ev.source_url, ev.source_label) : '')+esc(extra)+'</span></div>'; }
+  var last = S[0];
+  $('stats').innerHTML = lvl('technology', 'Technology (TRL)') + lvl('business', 'Business (BRL)') + lvl('investment', 'Investment') + lvl('ocean_impact', 'Ocean impact')
+    + '<div class="stat-c"><span class="l">Founded</span><span class="v">'+esc(co.founded ? co.founded.slice(0,4) : 'no data')+'</span><span class="s">'+src(co.source_url, 'PRH/YTJ')+'</span></div>'
+    + '<div class="stat-c"><span class="l">Business ID</span><span class="v">'+esc(co.y_tunnus)+'</span><span class="s">'+src(co.source_url, 'PRH/YTJ')+'</span></div>'
+    + '<div class="stat-c"><span class="l">First public record</span><span class="v">'+esc(when(first))+'</span><span class="s">'+src(first.source_url, first.source_label)+'</span></div>'
+    + '<div class="stat-c"><span class="l">Last signal</span><span class="v">'+esc(when(last))+'</span><span class="s">'+src(last.source_url, last.source_label)+'</span></div>';
+
+  // About: the six-row card with numbered sources.
+  var SRC = [], idx = {};
+  function cite(url, label){ if (!url) return ''; if (!(url in idx)) { SRC.push([url, label || host(url)]); idx[url] = SRC.length; } return '<sup><a href="#s'+idx[url]+'" title="'+esc(label || host(url))+'">'+idx[url]+'</a></sup>'; }
+  var EMPTY = '<span class="empty6">no public evidence yet</span>';
+  var wid = D.what_it_does;
+  var a1 = wid ? esc(wid.text) + cite(wid.src, wid.src_label) : EMPTY;
+  var fitB = (rec.because_labels || []).filter(function(b){ return /fit/i.test(b.label); })[0];
+  var fitWhy = (m.why || []).filter(function(w){ return /^Thesis fit/.test(w.text); });
+  var a2 = fitB && fitB.band !== 'unknown' ? esc(fitB.band) + '. ' + fitWhy.map(function(w){ var t = w.text.replace(/^Thesis fit:\s*/, '').replace(/\.$/, ''); return esc(t.charAt(0).toUpperCase() + t.slice(1)) + '.' + cite(w.url); }).join(' ') : EMPTY;
+  var a3 = ['technology','business','investment','ocean_impact'].map(function(k){ var r = R[k] || {}, ev = (r.evidence || [])[0], nm = {technology:'Technology',business:'Business',investment:'Investment',ocean_impact:'Ocean impact'}[k];
+    return r.level == null ? '' : nm + ' ' + r.level + '/9' + (ev ? cite(ev.source_url, ev.source_label) : ''); }).filter(Boolean).join(' · ');
+  var N = D.who_comes_next || {}, meet = (N.investors || []).concat(N.funding || []).slice(0, 3);
+  var a4 = meet.length ? meet.map(function(x){ return esc(x.name) + (x.deadline ? ' (deadline ' + esc(day(x.deadline)) + ')' : '') + cite(x.source_url); }).join('; ') + '.' : EMPTY;
+  var ns = D.next_step || {};
+  // Rule 4 ("check in") is restated from its own facts, so the page never prints "no public signal".
+  var nsText = ns.rule === 4 && S.length ? 'Check in with the company. Its latest public record is from ' + when(S[0]) + '.' : (ns.sentence ? ns.sentence + '.' : '');
+  var a5 = nsText ? esc(nsText) + cite(ns.source_url || co.source_url, 'decision table, rule ' + ns.rule) : EMPTY;
+  // Six public-record checks; the page says how many are covered and the card says what to watch for.
+  var types = {}; S.forEach(function(x){ types[x.signal_type] = true; });
+  var CHECKS = [
+    ['a trade register record', !!types.register_entry],
+    ['public funding', !!(types.bf_funding || types.eu_grant || types.public_funding)],
+    ['EU project participation', !!types.eu_project],
+    ['a public contract or named customer', !!(types.public_contract || types.first_sales || types.pilot_named)],
+    ['an ocean impact category match', !!(R.ocean_impact && R.ocean_impact.level != null)],
+    ['an investor match', !!((D.who_comes_next || {}).investors || []).length]
+  ];
+  var have = CHECKS.filter(function(c){ return c[1]; }).length, want = CHECKS.filter(function(c){ return !c[1]; }).map(function(c){ return c[0]; });
+  $('covers').textContent = 'Public record covers ' + have + ' of ' + CHECKS.length + ' checks.';
+  var a6 = want.length ? (function(t){ return t.charAt(0).toUpperCase() + t.slice(1); })(want.join(', ')) + '.' : '';
+  $('card').innerHTML = [['What it does', a1], ['Thesis fit', a2], ['Readiness', a3], ['Who to meet', a4], ['What the fund should do', a5], ['Watch for', a6]]
+    .filter(function(q){ return q[1] && q[1] !== EMPTY; }).map(function(q){ return '<li><span class="q6">'+q[0]+'</span><div class="a6">'+q[1]+'</div></li>'; }).join('');
+  $('srcs').innerHTML = SRC.map(function(x, i){ return '<li id="s'+(i+1)+'"><a href="'+esc(x[0])+'" rel="noopener">'+esc(x[1])+'</a></li>'; }).join('');
+
+  // Who to meet: up to five groups, each with its top entries and the reason line; empty groups are not shown.
+  var GROUPS = [['investors', 'Investors'], ['buyers', 'Public buyers'], ['eu_partners', 'EU project partners'], ['research', 'Research institutes'], ['funding', 'Programmes and accelerators'], ['partners', 'Partners']];
+  var NN = D.who_comes_next || {};
+  var meetHtml = GROUPS.filter(function(g){ return (NN[g[0]] || []).length; }).map(function(g){
+    var items = NN[g[0]].slice(0, 3);
+    return '<div class="meet-g"><div class="meet-h"><span>'+esc(g[1])+'</span><span class="muted">'+NN[g[0]].length+'</span></div><ol>'
+      + items.map(function(x){ return '<li><span class="mn">'+esc(x.name)+'</span><span class="mr">'+esc(x.reason)+'</span><span class="ms">'+src(x.source_url)+'</span></li>'; }).join('') + '</ol></div>';
+  }).join('');
+  if (meetHtml) $('meet').innerHTML = meetHtml; else $('meet-sec').remove();
+
+  // News: dated signals, newest first.
+  $('news').innerHTML = S.map(function(s){
+    var amt = s.amount_eur ? ' <span class="amt">' + eur(s.amount_eur) + (/loan/.test(s.detail) ? ' loan' : s.signal_type === 'bf_funding' ? ' grant' : '') + '</span>' : '';
+    return '<li id="sig-'+s.id+'"><span class="t">'+esc(s.type_label)+amt+'</span><span class="d">'+esc(when(s))+'</span><span class="s">'+src(s.source_url, s.source_label)+'</span></li>';
+  }).join('');
+
+  // Analysts: the decision-table match.
+  var BAND = {Low: 1, Medium: 2, High: 3};
+  $('an').innerHTML = (rec.because_labels || []).filter(function(b){ return b.band !== 'unknown'; }).map(function(b){
+    var w = BAND[b.band];
+    return '<div class="an-row"><span>'+esc(b.label)+'</span>'+(w ? '<span class="an-bar"><i style="width:'+(w/3*100).toFixed(0)+'%"></i></span>' : '<span class="an-bar hz"></span>')+'<span class="an-v">'+(w ? esc(b.band) : 'unknown')+'</span></div>';
+  }).join('');
+  $('an-note').textContent = 'Matched in the team\u2019s decision table on ' + (rec.because_labels || []).filter(function(b){ return b.band !== 'unknown'; }).map(function(b){ return b.label.toLowerCase() + ' ' + b.band; }).join(', ') + '.';
+
+  $('theme').addEventListener('click', function(){ var r = document.documentElement, c = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = c === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('theme', n); } catch (e) {} });
+})();
+</script>
+</body>
+</html>

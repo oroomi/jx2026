@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ocean Opportunity Radar</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="c.css">
+<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;var a=(location.search.match(/accent=([abc])/)||[])[1];if(a)document.documentElement.dataset.accent=a;}catch(e){}</script>
+</head>
+<body class="c">
+<div class="shell">
+  <main class="col-main">
+    <header class="c-top">
+      <span class="c-brand"><i class="brand-mark" aria-hidden="true"></i>Radar</span>
+      <button class="c-icon" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
+    </header>
+
+    <section class="headline" id="hero"></section>
+
+    <nav class="pills" role="tablist" id="groups" aria-label="Group"></nav>
+    <nav class="quiet-switch" id="countries" aria-label="Country"></nav>
+
+    <ol class="rows-c" id="rows"></ol>
+    <p class="page-note" id="note"></p>
+  </main>
+  <aside class="col-side" aria-label="Lists">
+    <h2 class="side-h">Lists</h2>
+    <div class="lists" id="lists"></div>
+  </aside>
+</div>
+
+<nav class="tabbar" aria-label="Main">
+  <a href="c_home.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" class="f"/></svg>Radar</a>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>Search</a>
+  <a href="#lists"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg>Lists</a>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Backtest</a>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>Data</a>
+</nav>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent);
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function dt(s){ var p = s.split('-'); return Date.UTC(+p[0], +(p[1]||1)-1, +(p[2]||1)); }
+  function addDays(s, n){ var d = new Date(dt(s) + n * 864e5); return d.toISOString().slice(0, 10); }
+  var VERDICT = {'WATCHLIST':['Watchlist','v-grey'], 'PARTNER INTRODUCTION':['Partner intro','v-teal'], 'ACCELERATOR':['Accelerator','v-teal'],
+                 'INVEST':['Invest','v-green'], 'DUE DILIGENCE':['Due diligence','v-green'], 'REJECT':['Reject','v-red']};
+  function pill(v){ if (!v) return ''; var p = VERDICT[v] || [v.charAt(0) + v.slice(1).toLowerCase(), 'v-grey']; return '<span class="vpill '+p[1]+'">'+esc(p[0])+'</span>'; }
+  function initials(n){ var w = n.replace(/\b(Oy|Ab|AB|Oyj|Ltd|Ky)\b/g, '').replace(/[^\wÀ-ž\s-]/g, '').trim().split(/\s+/); return ((w[0]||'')[0] + ((w[1]||'')[0] || (w[0]||'')[1] || '')).toUpperCase(); }
+  function short(s){ return (s || '').replace(/\s*\(.*$/, '').replace(/ n\.e\.c\.$/, ''); }
+  function spark(dates, today){
+    // Running count of dated public records over the last 3 years; the newest record is the dot.
+    var W = 72, H = 28, t1 = dt(today), t0 = t1 - 3 * 365 * 864e5;
+    var before = dates.filter(function(d){ return dt(d) < t0; }).length, inWin = dates.filter(function(d){ var x = dt(d); return x >= t0 && x <= t1; });
+    var total = before + inWin.length || 1, y = function(n){ return H - 4 - (n / total) * (H - 8); }, x = function(t){ return 2 + (t - t0) / (t1 - t0) * (W - 4); };
+    var n = before, d = 'M2 ' + y(n).toFixed(1);
+    inWin.forEach(function(s){ d += ' H' + x(dt(s)).toFixed(1) + ' V' + y(++n).toFixed(1); });
+    d += ' H' + (W - 2);
+    var dot = inWin.length ? '<circle cx="'+x(dt(inWin[inWin.length-1])).toFixed(1)+'" cy="'+y(n).toFixed(1)+'" r="2.4" class="sp-dot"/>' : '';
+    return '<svg class="spark" viewBox="0 0 '+W+' '+H+'" aria-hidden="true"><path d="'+d+'" class="sp-line'+(inWin.length ? '' : ' flat')+'"/>'+dot+'</svg>';
+  }
+  var cur = 0, grp = 'all';
+  function groups(T){
+    var ws = T.window_start, inv = T.rows.filter(function(r){ return r.verdict === 'INVEST' || r.verdict === 'DUE DILIGENCE'; });
+    if (inv.length < 5) inv = inv.concat(T.rows.filter(function(r){ return r.business === 'High' && inv.indexOf(r) < 0; }));
+    return [
+      ['all', 'All startups', T.rows],
+      ['fit', 'Top fits', T.rows.filter(function(r){ return r.fit === 'High'; })],
+      ['ready', 'Investor-ready', inv],
+      ['new', 'New this quarter', T.rows.filter(function(r){ return r.first && r.first >= ws; })]
+    ].filter(function(g){ return g[2].length; });
+  }
+  function render(){
+    var T = D.tabs[cur];
+    $('countries').innerHTML = D.tabs.filter(function(t){ return t.available; }).map(function(t){ var i = D.tabs.indexOf(t); return '<button data-i="'+i+'" aria-pressed="'+(i===cur)+'">'+esc(t.label)+'</button>'; }).join('');
+    var G = groups(T), g = G.filter(function(x){ return x[0] === grp; })[0] || G[0];
+    var ws = T.window_start, month = addDays(T.window_end, -30);
+    var newQ = T.rows.filter(function(r){ return r.first && r.first >= ws; }), newM = newQ.filter(function(r){ return r.first >= month; });
+    $('hero').innerHTML = '<p class="hl-kicker">In the past 90 days</p><p class="hl-main"><span>'+newQ.length+' companies surfaced</span>'
+      + (newM.length ? ' <span class="up">▲ '+newM.length+' this month</span>' : '')+'</p>';
+    $('groups').innerHTML = G.map(function(x){ return '<button role="tab" data-g="'+x[0]+'" aria-selected="'+(x === g)+'">'+esc(x[1])+'</button>'; }).join('');
+    var rows = g[2].slice().sort(function(a, b){ return (a.date || '') < (b.date || '') ? 1 : (a.date || '') > (b.date || '') ? -1 : a.name.localeCompare(b.name); });
+    $('rows').innerHTML = rows.map(function(r){
+      var second = [short(r.sector)].filter(Boolean).join(' · ');
+      return '<li><a class="row-c" href="c_company.html">'
+        + '<span class="mark" aria-hidden="true">'+esc(initials(r.name))+'</span>'
+        + '<span class="who"><span class="nm">'+esc(r.name)+'</span>'+(second ? '<span class="sub">'+esc(second)+'</span>' : '')+'</span>'
+        + '<span class="rt">'+(r.dates.length ? spark(r.dates, T.window_end) : '')+pill(r.verdict)+'</span>'
+        + '</a></li>';
+    }).join('');
+    var hidden = ['Investor-ready'].filter(function(n){ return !G.some(function(x){ return x[1] === n; }); });
+    $('note').textContent = 'Sorted by newest public record. ' + (hidden.length ? hidden.join(', ') + ' appears once a company qualifies. ' : '') + 'Data as stored ' + T.fetched.slice(0, 10) + '.';
+  }
+  $('groups').addEventListener('click', function(e){ var b = e.target.closest('button'); if (!b) return; grp = b.dataset.g; render(); });
+  $('countries').addEventListener('click', function(e){ var b = e.target.closest('button'); if (!b) return; cur = +b.dataset.i; render(); });
+  var L = D.lists, T0 = D.tabs[0];
+  $('lists').innerHTML = [['Nordic Blue', L.cohort, 'cohort companies'], ['Redstone portfolio', L.portfolio, 'portfolio companies'],
+     ['New this quarter', T0.rows.filter(function(r){ return r.first && r.first >= T0.window_start; }).length, 'first public record in 90 days']]
+    .map(function(l){ return '<a class="list-card" href="#"><span class="lc-t">'+esc(l[0])+'</span><span class="lc-n">'+l[1]+'</span><span class="lc-s">'+esc(l[2])+'</span></a>'; }).join('');
+  render();
+  $('theme').addEventListener('click', function(){ var r = document.documentElement, n = r.dataset.theme === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('theme', n); } catch (e) {} });
+})();
+</script>
+</body>
+</html>

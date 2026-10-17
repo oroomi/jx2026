@@ -115,3 +115,77 @@ body:has(.co-layout) .top .wrap,body:has(.co-layout) .foot{max-width:1360px}
 .memo .memo-list{margin:0;padding-left:1.25rem}
 .memo .memo-list li{margin:0 0 var(--s2)}
 .memo .rule{margin-top:var(--s3)}
+
+/* ---------- Design C (jx37), approved company layout. Dark default, near-black base, one accent.
+   Accent is provisional: ?accent=a sea-green (default), b warm amber, c soft violet, until Dayo picks. ---------- */
+:root[data-theme="dark"] { --bg: #0A0A0B; --surface: #161618; --hairline: #26262A; --text: #FFFFFF; --muted: #9A9AA2; }
+:root[data-theme="dark"], :root[data-theme="dark"][data-accent="a"] { --accent: #3DDC97; --cc-accent-ink: #04140C; }
+:root[data-theme="dark"][data-accent="b"] { --accent: #F5B544; --cc-accent-ink: #1A1205; }
+:root[data-theme="dark"][data-accent="c"] { --accent: #A78BFA; --cc-accent-ink: #120B26; }
+:root[data-theme="light"] { --cc-accent-ink: #FFFFFF; }
+:root[data-theme="light"][data-accent="a"] { --accent: #0E8A5A; }
+:root[data-theme="light"][data-accent="b"] { --accent: #A86400; }
+:root[data-theme="light"][data-accent="c"] { --accent: #6D4FD8; }
+
+.co-c { max-width: 640px; margin: 0 auto; padding: 8px 0 24px; }
+.cc-head { display: flex; align-items: center; gap: 14px; margin-top: 8px; }
+.cc-mark { flex: none; width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); font-weight: 600; font-size: 16px; }
+.cc-tick { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.cc-head h1 { margin: 2px 0 0; font-family: var(--sans); font-size: 22px; line-height: 1.2; font-weight: 600; }
+.cc-verdict { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 22px 0 6px; }
+.cc-big { margin: 0; font-family: var(--sans); font-weight: 400; font-size: clamp(2.75rem, 12vw, 3.5rem); line-height: 1; letter-spacing: -.02em; }
+.cc-reason { margin: 0 0 10px; font-size: 16px; color: var(--text); }
+.cc-line { margin: 4px 0 0; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.cc-line a { color: var(--text); text-underline-offset: 3px; }
+.cc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 22px 0 6px; }
+.cc-actions > * { min-width: 0; }
+.cc-btn, .cc-actions button, .cc-actions .aava-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 52px; border-radius: 999px; border: 0; font: 600 16px/1 var(--sans); cursor: pointer; }
+.cc-actions button:first-child, .cc-actions .aava-btn { background: var(--accent); color: var(--cc-accent-ink); }
+.cc-btn-2, .cc-actions button.cc-btn-2 { background: var(--surface); color: var(--text); }
+.cc-actions:has(> .cc-btn-2:only-child) { grid-template-columns: 1fr; }
+.cc-sec { margin-top: 30px; }
+.cc-h, .co-c .c-ks-title { margin: 0 0 12px; font-family: var(--sans); font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+.cc-card { background: var(--surface); border-radius: 20px; overflow: hidden; }
+.cc-rows { list-style: none; margin: 0; padding: 0; }
+.cc-rows > li { display: grid; gap: 4px; padding: 14px 16px; border-top: 1px solid var(--hairline); }
+.cc-rows > li:first-child { border-top: 0; }
+.cc-q { font-size: 14px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.cc-a { font-size: 16px; line-height: 1.5; }
+.cc-a sup a { color: var(--accent); text-decoration: none; font-weight: 600; margin-left: 2px; }
+.cc-srcs { margin: 0; padding: 12px 16px 14px 36px; border-top: 1px solid var(--hairline); font-size: 14px; color: var(--muted); }
+.cc-srcs a { color: var(--muted); }
+
+.cc-meet { display: grid; gap: 12px; }
+@media (min-width: 600px) { .cc-meet { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); } }
+.cc-meet-g { background: var(--surface); border-radius: 20px; padding: 14px 16px; }
+.cc-meet-t { display: flex; justify-content: space-between; margin: 0 0 6px; font-weight: 600; font-size: 14px; }
+.cc-n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.cc-meet-g ol { list-style: none; margin: 0; padding: 0; }
+.cc-meet-g li { display: grid; gap: 2px; padding: 8px 0; border-top: 1px solid var(--hairline); }
+.cc-meet-g li:first-child { border-top: 0; }
+.cc-meet-g li a { color: var(--text); font-weight: 500; text-decoration: none; }
+.cc-why { font-size: 14px; color: var(--muted); }
+
+.cc-news { list-style: none; margin: 0; padding: 0; }
+.cc-news li { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 12px; padding: 12px 0; border-bottom: 1px solid var(--hairline); }
+.cc-news li:target { background: color-mix(in srgb, var(--accent) 14%, transparent); border-radius: 8px; }
+.cc-nt { font-weight: 600; font-variant-numeric: tabular-nums; }
+.cc-news time, .cc-src { font-size: 14px; color: var(--muted); }
+.cc-src { grid-column: 1; }
+
+.cc-an { display: grid; gap: 10px; }
+.cc-an-row { display: grid; grid-template-columns: 150px minmax(0,1fr) 72px; gap: 12px; align-items: center; font-size: 14px; }
+.cc-bar { height: 8px; border-radius: 4px; background: var(--hairline); overflow: hidden; }
+.cc-bar i { display: block; height: 100%; background: var(--accent); border-radius: 4px; }
+.cc-an-v { text-align: right; color: var(--muted); }
+.cc-note { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+
+.cc-evidence { max-width: 1200px; margin: 28px auto 0; border-top: 1px solid var(--hairline); }
+.cc-evidence > summary { cursor: pointer; list-style: none; padding: 16px 0; font-weight: 600; color: var(--muted); max-width: 640px; margin: 0 auto; }
+.cc-evidence > summary::-webkit-details-marker { display: none; }
+.cc-evidence > summary::after { content: "  +"; color: var(--accent); }
+.cc-evidence[open] > summary::after { content: "  \2212"; }
+@media print { .cc-evidence { display: block; } .cc-evidence > summary { display: none; } .no-print { display: none !important; } }
+.co-c .c-ks-grid a { color: var(--text); text-decoration-color: var(--hairline); text-underline-offset: 4px; }
+.co-c .c-ks-grid a:hover { text-decoration-color: var(--accent); }

@@ -1,8 +1,101 @@
 {% extends "base.html" %}
 {% from "_chip.html" import chip, missing %}
 {% block title %}{{ c.name }} | Ocean Opportunity Radar{% endblock %}
-{% block head %}<link rel="stylesheet" href="/static/company.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/matching.css?v={{ asset_v }}">{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/c_components.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/company.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/matching.css?v={{ asset_v }}">
+<script>try{var a=(location.search.match(/[?&]accent=([abc])/)||[])[1];document.documentElement.dataset.accent=a||"a";}catch(e){}</script>{% endblock %}
 {% block content %}
+{% from "_c_components.html" import verdict_pill, key_stats %}
+{% set m = memo_for(c.company_key, thesis) %}
+{% set rec = m.recommendation if m else none %}
+{% set sig_asc = signals | sort(attribute="date") %}
+{% set types = signals | map(attribute="signal_type") | list %}
+{% set checks = [
+  ("a trade register record", "register_entry" in types),
+  ("public funding", "bf_funding" in types or "eu_grant" in types or "public_funding" in types),
+  ("EU project participation", "eu_project" in types),
+  ("a public contract or named customer", "public_contract" in types or "first_sales" in types or "pilot_named" in types),
+  ("an ocean impact category match", fw.category.category is not none and fw.category.category != ""),
+  ("an investor match", (nxt.investors or []) | length > 0)] %}
+{% set covered = checks | selectattr(1) | list %}
+{% set watch = checks | rejectattr(1) | map(attribute=0) | list %}
+<article class="co-c">
+  <header class="cc-head">
+    <span class="cc-mark" aria-hidden="true">{% set w = (c.name | replace(" Oyj", "") | replace(" Oy", "") | replace(" Ab", "") | trim).split() %}{{ ((w[0][:1] if w else "") ~ (w[1][:1] if w | length > 1 else (w[0][1:2] if w else ""))) | upper }}</span>
+    <div><p class="cc-tick">{{ c.y_tunnus or c.company_key }} · {{ c.group_tag }}</p><h1>{{ c.name }}</h1></div>
+  </header>
+
+  <div class="cc-verdict">
+    {% if rec %}<p class="cc-big">{{ rec.decision | capitalize }}</p>{% if rec.decision != "WATCHLIST" %}{{ verdict_pill(rec.decision | capitalize, rec.note) }}{% endif %}{% endif %}
+  </div>
+  {% if rec and rec.note %}<p class="cc-reason">{{ rec.note[0] | upper }}{{ rec.note[1:] }}.</p>{% endif %}
+  {% if sig_asc %}
+  <p class="cc-line">Public record: first <a href="#sig-{{ sig_asc[0].id }}">{{ sig_asc[0].date_label or sig_asc[0].date }}</a> · {{ signals | length }} dated signal{{ "s" if signals | length != 1 }} · latest <a href="#sig-{{ sig_asc[-1].id }}">{{ sig_asc[-1].date_label or sig_asc[-1].date }}</a></p>
+  {% endif %}
+  <p class="cc-line">Public record covers {{ covered | length }} of {{ checks | length }} checks.</p>
+
+  <div class="cc-actions no-print">
+    {% include "_aava.html" ignore missing %}
+    <button class="cc-btn cc-btn-2" type="button" onclick="window.print()">Print memo</button>
+  </div>
+
+  {% set ks = [] %}
+  {% for label, r in (("Technology (TRL)", fw.trl), ("Business (BRL)", fw.brl), ("Investment", fw.irl)) %}
+    {% if r.level %}{% set _ = ks.append({"label": label, "value": r.level ~ " / 9", "source_url": (r.evidence[0].evidence.url if r.evidence else none)}) %}{% endif %}
+  {% endfor %}
+  {% if fw.category.category %}{% set _ = ks.append({"label": "Ocean impact", "value": fw.category.category, "source_url": none}) %}{% endif %}
+  {% if c.founded %}{% set _ = ks.append({"label": "Founded", "value": c.founded[:4], "source_url": c.source_url}) %}{% endif %}
+  {% set _ = ks.append({"label": "Business ID", "value": c.y_tunnus or c.company_key, "source_url": c.source_url}) %}
+  {% if sig_asc %}{% set _ = ks.append({"label": "First public record", "value": sig_asc[0].date_label or sig_asc[0].date, "source_url": sig_asc[0].source_url}) %}
+  {% set _ = ks.append({"label": "Last signal", "value": sig_asc[-1].date_label or sig_asc[-1].date, "source_url": sig_asc[-1].source_url}) %}{% endif %}
+  <div class="cc-sec cc-ks">{{ key_stats(ks) }}</div>
+
+  <section class="cc-sec" aria-labelledby="about-h">
+    <h2 id="about-h" class="cc-h">About</h2>
+    {% include "company_brief.html" ignore missing %}
+    {% include "company_card.html" %}
+  </section>
+
+  {% set groups = [("investors", "Investors"), ("buyers", "Public buyers"), ("eu_partners", "EU project partners"), ("research", "Research institutes"), ("funding", "Programmes and accelerators"), ("partners", "Partners and clients")] %}
+  {% set shown = [] %}{% for k, t in groups %}{% if nxt[k] %}{% set _ = shown.append((k, t)) %}{% endif %}{% endfor %}
+  {% if shown %}
+  <section class="cc-sec" aria-labelledby="meet-h">
+    <h2 id="meet-h" class="cc-h">Who to meet</h2>
+    <div class="cc-meet">
+    {% for k, t in shown %}
+      <div class="cc-meet-g"><p class="cc-meet-t"><span>{{ t }}</span><span class="cc-n">{{ nxt[k] | length }}</span></p>
+        <ol>{% for r in nxt[k][:3] %}<li><a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.name }}</a><span class="cc-why">{{ r.reason }}</span></li>{% endfor %}</ol>
+      </div>
+    {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if signals %}
+  <section class="cc-sec" aria-labelledby="news-h">
+    <h2 id="news-h" class="cc-h">News</h2>
+    <ol class="cc-news">
+    {% for s in signals %}
+      <li id="sig-{{ s.id }}"><span class="cc-nt">{{ s.type_label }}{% if s.amount_eur %} · EUR {{ "{:,.0f}".format(s.amount_eur) | replace(",", " ") }}{% endif %}</span>
+        <time datetime="{{ s.date[:4] if s.date_precision == "year" else s.date }}">{{ s.date_label or s.date }}</time>
+        <a class="cc-src" href="{{ s.evidence.url }}" target="_blank" rel="noopener">{{ s.evidence.label }}</a></li>
+    {% endfor %}
+    </ol>
+  </section>
+  {% endif %}
+
+  {% if rec %}{% set known = rec.because_labels | rejectattr("band", "equalto", "unknown") | list %}
+  {% if known %}
+  <section class="cc-sec" aria-labelledby="an-h">
+    <h2 id="an-h" class="cc-h">Analysts</h2>
+    <div class="cc-an">{% for b in known %}{% set w = {"Low": 1, "Medium": 2, "High": 3}[b.band] | default(0) %}
+      <div class="cc-an-row"><span>{{ b.label }}</span><span class="cc-bar"><i style="width:{{ (w / 3 * 100) | round | int }}%"></i></span><span class="cc-an-v">{{ b.band }}</span></div>{% endfor %}</div>
+    <p class="cc-note">Matched in the team's decision table on {% for b in known %}{{ b.label | lower }} {{ b.band }}{% if not loop.last %}, {% endif %}{% endfor %}.</p>
+  </section>
+  {% endif %}{% endif %}
+</article>
+
+<details class="cc-evidence" id="evidence">
+<summary>Evidence: every rule, level and source behind this page</summary>
 <div class="co-layout">
 <nav class="co-rail" aria-label="The four questions">
   <a href="#q1">01 Who is most promising</a>
@@ -216,6 +309,8 @@
   </ul>
 </aside>
 </div>
+
+</details>
 
 <div class="co-bar">
   <a href="/radar">Radar{% if cohort_n %} of {{ cohort_n }}{% endif %}: show the Nordic Blue companies</a>

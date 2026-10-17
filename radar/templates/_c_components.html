@@ -1,0 +1,148 @@
+{#
+  Direction C components (jx37, the Trading 212 feel), phone first.
+
+  Server-rendered, dependency-free: every macro returns plain HTML or inline SVG and
+  needs no JavaScript. Colours come from the tokens in radar/static/app.css; the only
+  additions are the verdict pill's green and red, which DESIGN.md allows nowhere else.
+
+  Dates are ISO strings. A rough day number from the string is enough to place a mark
+  on an axis and keeps these macros free of custom Jinja filters.
+
+  Signals are dicts or objects with .date (ISO), and optionally .label and .source_url.
+#}
+
+{%- macro _day(d) -%}{{ (d[0:4]|int) * 365.25 + (d[5:7]|int) * 30.44 + (d[8:10]|int) }}{%- endmacro -%}
+
+
+{#  1. Sparkline: signals accumulating over time, a dot on the newest.
+    There is no value axis in the data, so the line is the running count of public
+    records, which is the only quantity the signals actually carry. #}
+{%- macro sparkline(signals, width=80, height=24, label=None) -%}
+{%- set rows = (signals or [])|sort(attribute='date') -%}
+{%- if not rows -%}
+<span class="c-spark c-spark-none" role="img" aria-label="no public evidence yet"
+      style="width:{{ width }}px;height:{{ height }}px"></span>
+{%- else -%}
+{%- set t0 = _day(rows[0].date)|float -%}
+{%- set t1 = _day(rows[-1].date)|float -%}
+{%- set span = (t1 - t0) if (t1 - t0) > 0 else 1 -%}
+{%- set pad = 2 -%}
+{%- set n = rows|length -%}
+<svg class="c-spark" width="{{ width }}" height="{{ height }}" viewBox="0 0 {{ width }} {{ height }}"
+     role="img" aria-label="{{ label or (n ~ ' public record' ~ ('' if n == 1 else 's') ~ ', ' ~ rows[0].date ~ ' to ' ~ rows[-1].date) }}">
+  {%- set ns = namespace(pts=[]) -%}
+  {%- for s in rows -%}
+    {%- set x = pad + ((_day(s.date)|float - t0) / span) * (width - 2 * pad) -%}
+    {%- set y = (height - pad) - (loop.index / n) * (height - 2 * pad) -%}
+    {%- set ns.pts = ns.pts + ['%.1f,%.1f'|format(x, y)] -%}
+  {%- endfor -%}
+  {%- if n == 1 -%}
+  <line x1="{{ pad }}" y1="{{ height / 2 }}" x2="{{ width - pad }}" y2="{{ height / 2 }}"
+        stroke="currentColor" stroke-width="1.25" opacity=".55"/>
+  <circle cx="{{ width - pad }}" cy="{{ height / 2 }}" r="2.6" fill="currentColor"/>
+  {%- else -%}
+  <polyline points="{{ ns.pts|join(' ') }}" fill="none" stroke="currentColor"
+            stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="{{ ns.pts[-1].split(',')[0] }}" cy="{{ ns.pts[-1].split(',')[1] }}" r="2.6" fill="currentColor"/>
+  {%- endif -%}
+</svg>
+{%- endif -%}
+{%- endmacro -%}
+
+
+{#  2. Life-line: dated signals on a time axis, with 1Y / 3Y / MAX chips.
+    The chips are radio inputs and sibling selectors, so the ranges work with CSS alone.
+    MAX is checked, which is also what a browser with no CSS at all shows first.
+    `uid` must be unique on the page: the radio group name is built from it. #}
+{%- macro lifeline(signals, uid, today=None, width=320, height=64) -%}
+{%- set rows = (signals or [])|sort(attribute='date') -%}
+{%- if not rows -%}
+<p class="c-ll-empty"><span class="hatch">no public evidence yet</span></p>
+{%- else -%}
+{%- set end = today or rows[-1].date -%}
+{%- set tend = _day(end)|float -%}
+<div class="c-ll" role="group" aria-label="Public records over time">
+  {%- for r in [('1y', '1Y', 365.25), ('3y', '3Y', 1095.75), ('max', 'MAX', 0)] -%}
+  <input class="c-ll-radio" type="radio" name="ll-{{ uid }}" id="ll-{{ uid }}-{{ r[0] }}"
+         {{ 'checked' if r[0] == 'max' }}>
+  {%- endfor -%}
+  <div class="c-ll-chips">
+    {%- for r in [('1y', '1Y'), ('3y', '3Y'), ('max', 'MAX')] -%}
+    <label class="c-ll-chip" for="ll-{{ uid }}-{{ r[0] }}">{{ r[1] }}</label>
+    {%- endfor -%}
+  </div>
+  {%- for r in [('1y', 365.25), ('3y', 1095.75), ('max', 0)] -%}
+  {%- set win = r[1] -%}
+  {%- set tstart = (tend - win) if win else (_day(rows[0].date)|float) -%}
+  {%- set ns = namespace(vis=[]) -%}
+  {%- for s in rows -%}{%- if (_day(s.date)|float) >= tstart -%}{%- set ns.vis = ns.vis + [s] -%}{%- endif -%}{%- endfor -%}
+  {%- set span = (tend - tstart) if (tend - tstart) > 0 else 1 -%}
+  <div class="c-ll-pane c-ll-{{ r[0] }}">
+    <svg width="100%" viewBox="0 0 {{ width }} {{ height }}"
+         role="img" aria-label="{{ ns.vis|length }} public record{{ '' if ns.vis|length == 1 else 's' }} in this range">
+      <line x1="6" y1="{{ height - 20 }}" x2="{{ width - 6 }}" y2="{{ height - 20 }}"
+            stroke="var(--hairline)" stroke-width="1"/>
+      {%- for s in ns.vis -%}
+        {%- set x = 6 + (((_day(s.date)|float) - tstart) / span) * (width - 12) -%}
+        <line x1="{{ '%.1f'|format(x) }}" y1="14" x2="{{ '%.1f'|format(x) }}" y2="{{ height - 20 }}"
+              stroke="var(--hairline)" stroke-width="1"/>
+        <circle cx="{{ '%.1f'|format(x) }}" cy="{{ height - 20 }}" r="{{ 4 if loop.last else 3 }}"
+                fill="{{ 'var(--accent)' if loop.last else 'var(--bg)' }}"
+                stroke="var(--accent)" stroke-width="1.5"/>
+      {%- endfor -%}
+    </svg>
+    <p class="c-ll-note">
+      {%- if ns.vis -%}
+      {{ ns.vis|length }} record{{ '' if ns.vis|length == 1 else 's' }}, {{ ns.vis[0].date }} to {{ ns.vis[-1].date }}
+      {%- else -%}
+      no public record in this range
+      {%- endif -%}
+    </p>
+  </div>
+  {%- endfor -%}
+</div>
+{%- endif -%}
+{%- endmacro -%}
+
+
+{#  3. Verdict pill. The word carries the meaning; the colour only repeats it, because
+    DESIGN.md does not let colour be the only signal. Anything unrecognised reads neutral. #}
+{%- set VERDICT_TONE = {
+  'watchlist': 'grey',
+  'accelerator': 'teal', 'partner introduction': 'teal', 'partner': 'teal',
+  'invest': 'green', 'due diligence': 'green',
+  'reject': 'red', 'low fit': 'red', 'reject / low fit': 'red'
+} -%}
+{%- macro verdict_pill(verdict, reason=None) -%}
+{%- set key = (verdict or '')|lower|trim -%}
+{%- set tone = VERDICT_TONE.get(key, 'grey') -%}
+{%- if verdict -%}
+<span class="c-pill c-pill-{{ tone }}"{% if reason %} title="{{ reason }}"{% endif %}>{{ verdict }}</span>
+{%- else -%}
+<span class="hatch">no verdict yet</span>
+{%- endif -%}
+{%- endmacro -%}
+
+
+{#  4. Key statistics. Each row is label, value, and the link the value came from.
+    A row with no value shows the hatched chip, never a dash that could read as data. #}
+{%- macro key_stats(rows, title='Key statistics') -%}
+<section class="c-ks" aria-label="{{ title }}">
+  <h2 class="c-ks-title">{{ title }}</h2>
+  <dl class="c-ks-grid">
+    {%- for r in (rows or []) -%}
+    <div class="c-ks-cell">
+      <dt>{{ r.label }}</dt>
+      <dd>
+        {%- if r.value -%}
+          {%- if r.source_url -%}<a href="{{ r.source_url }}">{{ r.value }}</a>
+          {%- else -%}{{ r.value }}{%- endif -%}
+        {%- else -%}
+        <span class="hatch">no public evidence yet</span>
+        {%- endif -%}
+      </dd>
+    </div>
+    {%- endfor -%}
+  </dl>
+</section>
+{%- endmacro -%}

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ocean Opportunity Radar · Startups</title>
+<link rel="stylesheet" href="tokens.css">
+<script>try{var t=localStorage.getItem('radar-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+  .countries { position: sticky; top: 56px; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--hairline); }
+  .countries .tabs { border-bottom: 0; gap: var(--s-6); }
+  .countries .tab { font-size: var(--fs-16); padding: 16px 0 14px; }
+  .list { list-style: none; margin: 0; padding: 0; }
+  .head, .item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px var(--s-4); align-items: center; }
+  .head { display: none; }
+  .item { padding: var(--s-4) var(--s-3); margin: 0 calc(-1 * var(--s-3)); border-bottom: 1px solid var(--hairline); border-radius: var(--radius-sm); text-decoration: none; color: inherit; }
+  .item:hover { background: var(--bg-raised); }
+  .nm { font-weight: 600; font-size: var(--fs-18); grid-column: 1; }
+  .item .pill { grid-column: 2; grid-row: 1; justify-self: end; }
+  .ln { color: var(--text-2); font-size: var(--fs-14); grid-column: 1 / -1; }
+  .tw, .sg { font-size: var(--fs-14); color: var(--muted); grid-column: 1 / -1; font-variant-numeric: tabular-nums; }
+  .sg b { color: var(--text-2); font-weight: 500; }
+  .nodata { font-size: var(--fs-12); color: var(--muted); padding: 1px 6px; border: 1px dashed var(--hairline-strong); border-radius: 4px; background: var(--hatch); white-space: nowrap; }
+  @media (min-width: 900px) {
+    .head, .item { grid-template-columns: minmax(0, 2.2fr) 140px minmax(0, 1.6fr) 190px; gap: var(--s-5); }
+    .head { display: grid; padding: var(--s-4) var(--s-3) var(--s-2); margin: 0 calc(-1 * var(--s-3)); font-size: var(--fs-12); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; border-bottom: 1px solid var(--hairline-strong); }
+    .head span:last-child { text-align: right; }
+    .nm { font-size: var(--fs-16); }
+    .ln { grid-column: 1; margin-top: 2px; }
+    .cell1 { grid-column: 1; grid-row: 1; }
+    .tw { grid-column: 2; grid-row: 1; }
+    .sg { grid-column: 3; grid-row: 1; }
+    .item .pill { grid-column: 4; }
+  }
+  .tw-none { color: var(--muted); opacity: .75; font-style: italic; }
+  @media (max-width: 899px) { .tw-none { display: none; } }
+  .listbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--s-2) var(--s-4); padding-top: var(--s-4); }
+  .listbar .count { padding: 0; margin: 0; }
+  .sort { font-size: var(--fs-14); color: var(--muted); display: inline-flex; align-items: center; gap: 8px; }
+  .sort select { font: inherit; color: var(--text-2); background: transparent; border: 1px solid var(--hairline); border-radius: 6px; padding: 4px 8px; }
+  .count { font-size: var(--fs-14); color: var(--muted); padding: var(--s-4) 0 0; }
+  .pill-go { color: var(--ok); background: var(--ok-soft); }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="b_home.html"><i class="brand-mark" aria-hidden="true"></i><span>Ocean Opportunity Radar</span></a>
+    <label class="cmd"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input type="search" id="q" placeholder="Search a startup" aria-label="Search a startup"></label>
+    <button class="theme-btn" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
+  </div>
+</header>
+<div class="countries"><div class="wrap"><div class="tabs" role="tablist" id="tabs"></div></div></div>
+<main class="wrap">
+  <div class="listbar"><p class="count" id="count"></p><label class="sort">Sort <select id="sort"><option value="declared">Portfolio and cohort first</option><option value="newest">Newest signal</option><option value="name">Name, A to Z</option></select></label></div>
+  <div class="head"><span>Startup</span><span title="The PRH register holds the address; the radar does not store it yet">Town</span><span>Newest public signal</span><span>Verdict</span></div>
+  <ol class="list" id="list"></ol>
+</main>
+<footer class="foot"><div class="wrap"><span>Ocean Opportunity Radar · direction B prototype</span><span id="fetched"></span></div></footer>
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent);
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function when(n){ if (!n) return ''; var d = n.date; return n.prec === 'year' ? d.slice(0,4) : (n.prec === 'month' ? M[+d.slice(5,7)-1]+' '+d.slice(0,4) : (+d.slice(8,10))+' '+M[+d.slice(5,7)-1]+' '+d.slice(0,4)); }
+  var VERDICT = {'PARTNER INTRODUCTION': ['Introduce', 'pill-go'], 'WATCHLIST': ['Watchlist', 'pill-none']};
+  function pill(v){ var p = VERDICT[v] || [v ? v.charAt(0) + v.slice(1).toLowerCase() : 'No verdict', 'pill-info']; return '<span class="pill '+p[1]+'" title="Fund memo verdict: '+esc(v)+'">'+esc(p[0])+'</span>'; }
+  function declared(r){ return r.group === 'portfolio' || r.group === 'cohort'; }
+  function nd(r){ return r.newest ? r.newest.date : ''; }
+  var ORDER = {
+    declared: ['Portfolio and cohort first, A to Z, then new finds, newest first.', function(a, b){ if (declared(a) !== declared(b)) return declared(a) ? -1 : 1; return declared(a) ? a.name.localeCompare(b.name) : (nd(b) < nd(a) ? -1 : 1); }],
+    newest: ['Newest public signal first.', function(a, b){ return nd(b) < nd(a) ? -1 : nd(b) > nd(a) ? 1 : a.name.localeCompare(b.name); }],
+    name: ['Name, A to Z.', function(a, b){ return a.name.localeCompare(b.name); }]
+  };
+  var rows = D.rows.slice();
+  var cur = D.countries[0].code;
+  function render(){
+    var q = ($('q').value || '').toLowerCase();
+    var o = ORDER[$('sort').value] || ORDER.declared;
+    var list = rows.slice().sort(o[1]).filter(function(r){ return r.country === cur && (!q || r.name.toLowerCase().indexOf(q) > -1 || (r.y || '').indexOf(q) > -1); });
+    $('count').textContent = list.length + (list.length === 1 ? ' startup. ' : ' startups. ') + o[0];
+    $('list').innerHTML = list.map(function(r){
+      return '<li><a class="item" href="b_company.html">'
+        + '<div class="cell1"><div class="nm">'+esc(r.name)+'</div>'
+        + '<div class="ln">'+(r.line ? esc(r.line.text) : '<span class="nodata">no description on record</span>')+'</div></div>'
+        + '<div class="tw tw-none">not stored yet</div>'
+        + '<div class="sg">'+(r.newest ? '<b>'+esc(r.newest.label)+'</b> · '+esc(when(r.newest)) : '<span class="nodata">no signal yet</span>')+'</div>'
+        + pill(r.verdict) + '</a></li>';
+    }).join('');
+  }
+  $('tabs').innerHTML = D.countries.map(function(c, i){ return '<button class="tab" role="tab" data-c="'+c.code+'" aria-selected="'+(i===0)+'">'+esc(c.name)+'<span class="n">'+c.n+'</span></button>'; }).join('');
+  $('tabs').addEventListener('click', function(e){ var b = e.target.closest('.tab'); if (!b) return; [].forEach.call(this.children, function(x){ x.setAttribute('aria-selected', x === b); }); cur = b.dataset.c; render(); });
+  $('q').addEventListener('input', render);
+  $('sort').addEventListener('change', render);
+  $('fetched').textContent = 'Data as stored ' + D.fetched.slice(0,10) + '. Companies only.';
+  render();
+  $('theme').addEventListener('click', function(){ var r = document.documentElement, c = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = c === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('radar-theme', n); } catch (e) {} });
+})();
+</script>
+</body>
+</html>

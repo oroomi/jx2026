@@ -196,3 +196,27 @@ def test_no_em_dash_in_brief_template_or_module():
     root = Path(__file__).resolve().parent.parent / "radar"
     for p in (root / "briefs.py", root / "templates" / "company_brief.html"):
         assert chr(0x2014) not in p.read_text()
+
+
+# ---- batch 2 rules: the fund slot cites the memo rule, no raw tokens ---------------------------------------------
+EXP2 = {"company_key": "9400001-1", "name": "Fixture Two Oy", "levels": {"technology": {"level": None}, "business": {"level": 2}, "investment": {"level": None}},
+        "signals": [{"ref": "S1", "type": "register_entry", "date": "2026-01-01", "source_url": "https://example.test/r", "title": None, "note": None}],
+        "memo": {"decision": "ACCELERATOR", "matched": "fallback c2, impact implied by sector", "because": "Medium, implied by sector / Low / unknown / High"},
+        "next": {"funding": [{"name": "Fixture Studio", "kind": "accelerator", "reason": "r", "url": "https://example.test/s"}]},
+        "counts": {"signals": 1}, "urls": ["https://example.test/r", "https://example.test/s"]}
+
+
+def test_fund_slot_states_the_current_verdict_and_cites_the_memo_rule():
+    f = briefs.Facts(EXP2)
+    ok = sent("The memo recommends an accelerator under fallback c2, so the fund should consider a place in an accelerator programme.", "https://example.test/r")
+    assert briefs.verify_slot("what_the_fund_should_do", ok, EXP2, f) is None
+    old = sent("The memo puts it on the watchlist, so the fund should reassess it later.", "https://example.test/r")
+    assert briefs.verify_slot("what_the_fund_should_do", old, EXP2, f).startswith("memo verdict ACCELERATOR")
+    norule = sent("The memo recommends an accelerator, so the fund should consider a place in an accelerator programme.", "https://example.test/r")
+    assert briefs.verify_slot("what_the_fund_should_do", norule, EXP2, f).startswith("memo rule not cited: fallback c2")
+
+
+@pytest.mark.parametrize("text", ["The record has a first_hire signal.", "It matches caps ['C4'] in the dataset.", "The kw [] list is empty."])
+def test_raw_tokens_are_rejected(text):
+    why = briefs.verify_sentence(sent(text, "https://example.test/r"), briefs.Facts(EXP2))
+    assert why and why.startswith("raw token")

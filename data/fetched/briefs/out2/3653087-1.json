@@ -1,0 +1,44 @@
+{
+ "company_key": "3653087-1",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Aalto Guard Oy is a newly registered company, entered in the register on 2026-09-06 under the industry code 62100, computer programming activities.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3653087-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3653087-1"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The name contains a word that can mean waves in Finnish, but the record does not show what the software does; the memo reads thesis fit as Low.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3653087-1"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3653087-1"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Business Finland as a public funder and Suomen Tekstiili ja Muoti ry as a buyer from similar companies.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/3431/enotice/4130"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Low), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3653087-1"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; thesis fit is Low on the stored evidence.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3653087-1"
+   ]
+  }
+ }
+}

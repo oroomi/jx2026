@@ -1,0 +1,493 @@
+{
+ "company_key": "3543918-7",
+ "name": "Emission-Eye Oy",
+ "business_id": "3543918-7",
+ "founded": "2025-06-13",
+ "country": "FI",
+ "group": "cohort",
+ "register_status": "active",
+ "industry": {
+  "code": "62100",
+  "description": "Computer programming activities"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "exhibitor",
+   "type_label": "Exhibitor or demo",
+   "date": "2026-08-19",
+   "date_label": "2026-08-19",
+   "source_url": "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/769881",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Exhibitor or demo. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-07-19",
+   "date_label": "2026-07-19",
+   "source_url": "https://www.b2match.com/e/apelago-initiative-matchmaking/opportunities/UGFydGljaXBhdGlvbk9wcG9ydHVuaXR5OjI0ODMzMA==",
+   "source_label": "declared research",
+   "confidence": "low",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "patent",
+   "type_label": "Patent filing",
+   "date": "2026-05-31",
+   "date_label": "2026-05-31",
+   "source_url": "https://startupcenter.aalto.fi/we-are-going-to-latitude-59-in-tallinn",
+   "source_label": "declared research",
+   "confidence": "low",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Patent filed. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "exhibitor",
+   "type_label": "Exhibitor or demo",
+   "date": "2026-05-31",
+   "date_label": "2026-05-31",
+   "source_url": "https://startupcenter.aalto.fi/we-are-going-to-latitude-59-in-tallinn",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Exhibitor or demo. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-02-09",
+   "date_label": "2026-02-09",
+   "source_url": "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (accelerator_or_programme_entry). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S6",
+   "type": "board_change",
+   "type_label": "Board change",
+   "date": "2025-09-24",
+   "date_label": "2025-09-24",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3543918-7",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2025-09-24 (PRH). Register entries: Board of directors (HAL). Record number: 2025/472481.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S7",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2025-08-01",
+   "date_label": "2025-08-01",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3543918-7",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S8",
+   "type": "startup_notice",
+   "type_label": "Start-up notification",
+   "date": "2025-07-02",
+   "date_label": "2025-07-02",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3543918-7",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2025-07-02 (PRH). Register entries: Start-up notification. Record number: 2025/300768.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S9",
+   "type": "board_change",
+   "type_label": "Board change",
+   "date": "2025-07-02",
+   "date_label": "2025-07-02",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3543918-7",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2025-07-02 (PRH). Register entries: Board of directors (HAL). Record number: 2025/300768.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S10",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2025-06-13",
+   "date_label": "2025-06-13",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7",
+   "source_label": "PRH/YTJ register",
+   "confidence": "high",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": 6,
+   "rule": "stated by the declared research",
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Start-up notification on 2025-07-02: Start-up notification registered 2025-07-02 (PRH). Register entries: Start-up notification. Record number: 2025/300768.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3543918-7"
+  },
+  {
+   "text": "Exhibitor or demo on 2026-08-19: Exhibitor or demo. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/769881"
+  },
+  {
+   "text": "Exhibitor or demo on 2026-05-31: Exhibitor or demo. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium; month only, stored as the last day of the month]",
+   "confidence": "medium",
+   "url": "https://startupcenter.aalto.fi/we-are-going-to-latitude-59-in-tallinn"
+  },
+  {
+   "text": "Patent filing on 2026-05-31: Patent filed. Open the source link for the details [declared research (16 Oct 2026); dataset confidence low; month only, stored as the last day of the month]",
+   "confidence": "low",
+   "url": "https://startupcenter.aalto.fi/we-are-going-to-latitude-59-in-tallinn"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / Medium",
+  "note": "more public evidence needed: Ocean impact, Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Thesis fit: declared cohort company",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7"
+   },
+   {
+    "text": "Why now: BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) closes 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7"
+   },
+   {
+    "text": "Introduce them to BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) before 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ]
+ },
+ "next": {
+  "investors": [
+   {
+    "name": "Aboa Advest",
+    "kind": "investor angel",
+    "reason": "caps ['C3', 'C4']; kw []; stage 0.5",
+    "url": "https://pulse2.com/redstone-reaches-first-close-of-e25-million-blue-fund-to-back-ocean-technology-startups/"
+   },
+   {
+    "name": "Wärtsilä (Next Business Lab / Sustainable Technology Hub / WISE)",
+    "kind": "investor corporate",
+    "reason": "caps ['C3', 'C4']; kw []; stage 0.5; impact 1/5",
+    "url": "https://www.wartsila.com"
+   },
+   {
+    "name": "Farvatn Venture",
+    "kind": "investor angel",
+    "reason": "caps ['C4']; kw []; stage 1.0; impact 1/5",
+    "url": "https://ecosystem.fi/?p=1261"
+   },
+   {
+    "name": "SWEN Blue Ocean Partners (SWEN Capital Partners)",
+    "kind": "investor vc",
+    "reason": "caps ['C3', 'C4']; kw []; stage 0.0; impact 1/5",
+    "url": "https://emergingoceans.substack.com/p/blue-economy-funds-exceed-raise-targets"
+   },
+   {
+    "name": "Fintraffic",
+    "kind": "investor corporate",
+    "reason": "caps ['C4']; kw []; stage 0.5",
+    "url": "https://www.fintraffic.fi"
+   }
+  ],
+  "funding": [
+   {
+    "name": "Interreg Central Baltic Programme 2021-2027",
+    "kind": "public funder",
+    "reason": "caps ['C3', 'C4']; kw []; stage 0.5; impact 1/5",
+    "url": "https://centralbaltic.eu"
+   },
+   {
+    "name": "Nordic Innovation (NOCA - Nordic Ocean Cluster Accelerator)",
+    "kind": "public funder",
+    "reason": "caps ['C3', 'C4']; kw []; stage 0.5; impact 1/5",
+    "url": "https://www.nordicinnovation.org/programs/nordic-ocean-cluster-accelerator-noca"
+   },
+   {
+    "name": "EIC Accelerator (European Innovation Council)",
+    "kind": "public funder",
+    "reason": "caps ['C3', 'C4']; kw []; stage 0.5; impact 1/5",
+    "url": "https://eic.ec.europa.eu"
+   },
+   {
+    "name": "EIF BlueInvest Fund / InvestEU Blue Economy",
+    "kind": "public funder",
+    "reason": "caps ['C3', 'C4']; kw []; stage 0.5; impact 1/5",
+    "url": "https://www.eif.org"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "partners": [
+   {
+    "name": "Eckerö Line Abp (Eckerö Group)",
+    "kind": "shipowner operator",
+    "reason": "caps ['C3']; kw ['fueleu']; stage 0.5",
+    "url": "https://www.eckeroline.fi"
+   },
+   {
+    "name": "Suomen Varustamot (Finnish Shipowners' Association)",
+    "kind": "cluster network",
+    "reason": "caps ['C3']; kw ['fueleu']; stage 0.5",
+    "url": "https://shipowners.fi"
+   },
+   {
+    "name": "Wärtsilä Oyj Abp",
+    "kind": "corporate",
+    "reason": "caps ['C3']; kw ['fueleu']; stage 0.5",
+    "url": "https://www.wartsila.com"
+   },
+   {
+    "name": "ABB Marine & Ports (ABB Oy, Helsinki)",
+    "kind": "corporate",
+    "reason": "caps ['C3']; kw []; stage 0.5",
+    "url": "https://new.abb.com/marine"
+   },
+   {
+    "name": "Arctia Oy (Arctia Icebreaking Oy / Arctia Meritaito Oy)",
+    "kind": "shipowner operator",
+    "reason": "caps ['C3']; kw []; stage 0.5",
+    "url": "https://www.arctia.fi"
+   }
+  ],
+  "public_funding": [
+   {
+    "name": "Business Finland",
+    "kind": "public funder",
+    "reason": "Funded 9 other companies with the same industry code 62100 (Computer programming activities) since 2023.",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   },
+   {
+    "name": "Horizon Europe",
+    "kind": "EU funding programme",
+    "reason": "Funded 2 projects since 2023 whose title holds the company's topic word 'digital twin'; latest started 2026-09-01 (CORDIS).",
+    "url": "https://cordis.europa.eu/project/id/101287905"
+   },
+   {
+    "name": "Baltic Sea Action Plan (BSAP) Fund (NIB + NEFCO)",
+    "kind": "public funder",
+    "reason": null,
+    "url": "https://www.nib.int/about/cooperation/bsap-fund"
+   },
+   {
+    "name": "Interreg Baltic Sea Region",
+    "kind": "public funder",
+    "reason": null,
+    "url": "https://interreg-baltic.eu"
+   },
+   {
+    "name": "Interreg Central Baltic Programme 2021-2027",
+    "kind": "public funder",
+    "reason": null,
+    "url": "https://centralbaltic.eu"
+   }
+  ],
+  "buyers": [
+   {
+    "name": "Suomen Tekstiili ja Muoti ry",
+    "kind": "public buyer",
+    "reason": "Awarded 2 contracts since 2024-10: bought from a company with the same industry code 62100; EUR 500,000 in total. Latest 2025-01-22: Konsultoinnin puitejärjestelyt, EUR 250,000 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/3431/enotice/4130"
+   },
+   {
+    "name": "Espoon kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 62100. Latest 2026-06-26: Rakennusmittausten ja tietomallikonsultointipalveluiden hankinta 2026 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/27223/enotice/52428"
+   },
+   {
+    "name": "Forum Virium Helsinki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 62100. Latest 2025-06-03: Kasvua kaupunkiluonnolle: haku auki kaupunkien vehreyttä tukeville kokeiluille, EUR 98,025 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/13200/enotice/22210"
+   }
+  ],
+  "project_partners": [
+   {
+    "name": "Tapio Palvelut Oy",
+    "kind": "project partner",
+    "reason": null,
+    "url": "https://cordis.europa.eu/project/id/101287905"
+   },
+   {
+    "name": "AWAKE.AI Oy",
+    "kind": "project partner",
+    "reason": null,
+    "url": "https://cordis.europa.eu/project/id/101189589"
+   }
+  ],
+  "research_institutes": [
+   {
+    "name": "VTT Technical Research Centre of Finland",
+    "kind": "research institute",
+    "reason": "Dataset match score 45: caps ['C3']; kw []; stage 0.5 (declared ecosystem dataset).",
+    "url": "https://www.vttresearch.com"
+   },
+   {
+    "name": "Finnish Environment Institute (Syke)",
+    "kind": "research institute",
+    "reason": "Dataset match score 45: caps ['C4']; kw []; stage 0.5 (declared ecosystem dataset).",
+    "url": "https://www.syke.fi"
+   },
+   {
+    "name": "Finnish Meteorological Institute (FMI) - Ice Service",
+    "kind": "research institute",
+    "reason": "Dataset match score 45: caps ['C4']; kw []; stage 0.5 (declared ecosystem dataset).",
+    "url": "https://en.ilmatieteenlaitos.fi"
+   }
+  ]
+ },
+ "counts": {
+  "signals": 10,
+  "by_type": {
+   "exhibitor": 2,
+   "ecosystem_event": 2,
+   "patent": 1,
+   "board_change": 2,
+   "first_sales": 1,
+   "startup_notice": 1,
+   "register_entry": 1
+  },
+  "next_investors": 5,
+  "next_funding": 5,
+  "next_partners": 5,
+  "next_public_funding": 5,
+  "next_buyers": 3,
+  "next_project_partners": 2,
+  "next_research_institutes": 3
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3543918-7",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7",
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://centralbaltic.eu",
+  "https://cordis.europa.eu/project/id/101189589",
+  "https://cordis.europa.eu/project/id/101287905",
+  "https://ecosystem.fi/?p=1261",
+  "https://eic.ec.europa.eu",
+  "https://emergingoceans.substack.com/p/blue-economy-funds-exceed-raise-targets",
+  "https://en.ilmatieteenlaitos.fi",
+  "https://interreg-baltic.eu",
+  "https://new.abb.com/marine",
+  "https://pulse2.com/redstone-reaches-first-close-of-e25-million-blue-fund-to-back-ocean-technology-startups/",
+  "https://shipowners.fi",
+  "https://startupcenter.aalto.fi/we-are-going-to-latitude-59-in-tallinn",
+  "https://tietopalvelu.ytj.fi/yritys/3543918-7",
+  "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+  "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+  "https://www.arctia.fi",
+  "https://www.b2match.com/e/apelago-initiative-matchmaking/opportunities/UGFydGljaXBhdGlvbk9wcG9ydHVuaXR5OjI0ODMzMA==",
+  "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/769881",
+  "https://www.eckeroline.fi",
+  "https://www.eif.org",
+  "https://www.fintraffic.fi",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/13200/enotice/22210",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/27223/enotice/52428",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/3431/enotice/4130",
+  "https://www.nib.int/about/cooperation/bsap-fund",
+  "https://www.nordicinnovation.org/programs/nordic-ocean-cluster-accelerator-noca",
+  "https://www.syke.fi",
+  "https://www.vttresearch.com",
+  "https://www.wartsila.com"
+ ]
+}

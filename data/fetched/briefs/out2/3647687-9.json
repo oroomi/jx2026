@@ -1,0 +1,43 @@
+{
+ "company_key": "3647687-9",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Made by Aalto Oy is a company registered on 2026-08-17 under the industry code 73112, other activities of advertising agencies.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647687-9",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647687-9"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The name has a word that can mean waves in Finnish, but the registered industry is advertising; the memo reads thesis fit as Low.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647687-9"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647687-9"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Valtiovarainministeriö as a buyer from similar companies.",
+   "cites": [
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/11181/enotice/20045"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Low), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647687-9"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; thesis fit is Low on the stored evidence.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647687-9"
+   ]
+  }
+ }
+}

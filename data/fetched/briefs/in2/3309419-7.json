@@ -1,0 +1,258 @@
+{
+ "company_key": "3309419-7",
+ "name": "eSuunta Oy",
+ "business_id": "3309419-7",
+ "founded": "2022-09-03",
+ "country": "FI",
+ "group": "feed",
+ "register_status": "active",
+ "industry": {
+  "code": "71121",
+  "description": "Engineering design and technical consultancy incidental to urban planning"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3309419-7",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2026-10-01",
+   "date_label": "2026-10-01",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3309419-7",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "public_contract",
+   "type_label": "Public contract",
+   "date": "2026-07-07",
+   "date_label": "2026-07-07",
+   "source_url": "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189",
+   "source_label": "Hilma notice",
+   "confidence": "high",
+   "adapter": "hilma",
+   "title": "TARJOUSPYYNTÖ: Maankäytön suunnittelun ja infran asiantuntijapalveluiden puitesopimus",
+   "note": "Hämeenlinnan kaupunki: TARJOUSPYYNTÖ: Maankäytön suunnittelun ja infran asiantuntijapalveluiden puitesopimus",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2022-10-01",
+   "date_label": "2022-10-01",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3309419-7",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "startup_notice",
+   "type_label": "Start-up notification",
+   "date": "2022-09-06",
+   "date_label": "2022-09-06",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3309419-7",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2022-09-06 (PRH). Register entries: Start-up notification. Record number: 2022/364537.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "board_change",
+   "type_label": "Board change",
+   "date": "2022-09-06",
+   "date_label": "2022-09-06",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3309419-7",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2022-09-06 (PRH). Register entries: Board of directors (HAL). Record number: 2022/364537.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S6",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2022-09-03",
+   "date_label": "2022-09-03",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3309419-7",
+   "source_label": "PRH/YTJ register",
+   "confidence": "high",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": 7,
+   "rule": "public contract awarded: a buyer purchased in an operational setting",
+   "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189"
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 6,
+   "rule": "first public contract or named customer on own site",
+   "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Industry code 71121 is on the thesis list (Engineering and technical consulting).",
+   "confidence": "low",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3309419-7"
+  },
+  {
+   "text": "Public contract on 2026-07-07: Hämeenlinnan kaupunki: TARJOUSPYYNTÖ: Maankäytön suunnittelun ja infran asiantuntijapalveluiden puitesopimus",
+   "confidence": "high",
+   "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189"
+  },
+  {
+   "text": "Start-up notification on 2022-09-06: Start-up notification registered 2022-09-06 (PRH). Register entries: Start-up notification. Record number: 2022/364537.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3309419-7"
+  }
+ ],
+ "memo": {
+  "decision": "PARTNER INTRODUCTION",
+  "matched": "rule e",
+  "because": "unknown / Medium / unknown / High",
+  "note": null,
+  "why": [
+   {
+    "text": "Business readiness Medium (level 6): first public contract or named customer on own site",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189"
+   },
+   {
+    "text": "Technology readiness High (level 7): public contract awarded: a buyer purchased in an operational setting",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189"
+   },
+   {
+    "text": "Investment readiness, secondary: 3 of 10 investment dimensions have public evidence",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189"
+   },
+   {
+    "text": "Thesis fit: Industry code 71121 (Engineering design and technical consultancy incidental to urban planning, PRH) is on the thesis list.",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3309419-7"
+   },
+   {
+    "text": "Why now: First hire on 2026-10-01",
+    "url": "https://tietopalvelu.ytj.fi/yritys/3309419-7"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   }
+  ],
+  "actions": []
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": [],
+  "public_funding": [
+   {
+    "name": "Business Finland",
+    "kind": "public funder",
+    "reason": "Funded 2 other companies with the same industry code 71121 (Engineering design and technical consultancy incidental to urban planning) since 2023.",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   }
+  ],
+  "buyers": [
+   {
+    "name": "Hämeenlinnan kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: already bought from this company. Latest 2026-07-07: TARJOUSPYYNTÖ: Maankäytön suunnittelun ja infran asiantuntijapalveluiden puitesopimus (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189"
+   },
+   {
+    "name": "Kajaanin kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 71121. Latest 2026-06-26: Ilmanlaadunseurannan seurantamittaukset vuosille 2026 - 2029, EUR 89,500 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/28053/enotice/52569"
+   },
+   {
+    "name": "Tampereen kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 71121. Latest 2026-05-23: Niittyihin liittyvä asiantuntijatyön hankinta (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/24543/enotice/49627"
+   },
+   {
+    "name": "Raahen kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 71121. Latest 2025-10-02: Katujen ja hulevesiviemäreiden rakennussuunnittelun ja liikennesuunnittelun puitejärjestely (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/17915/enotice/31021"
+   },
+   {
+    "name": "Väylävirasto",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 71121. Latest 2025-08-07: Taitorakennerekisteritöiden ja asiantuntijapalveluiden puitesopimus, EUR 10,000,000 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/13946/enotice/27983"
+   }
+  ],
+  "project_partners": [],
+  "research_institutes": []
+ },
+ "counts": {
+  "signals": 6,
+  "by_type": {
+   "first_hire": 1,
+   "public_contract": 1,
+   "first_sales": 1,
+   "startup_notice": 1,
+   "board_change": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0,
+  "next_public_funding": 1,
+  "next_buyers": 5,
+  "next_project_partners": 0,
+  "next_research_institutes": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3309419-7",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3309419-7",
+  "https://tietopalvelu.ytj.fi/yritys/3309419-7",
+  "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/13946/enotice/27983",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/17915/enotice/31021",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/24543/enotice/49627",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/28053/enotice/52569"
+ ]
+}

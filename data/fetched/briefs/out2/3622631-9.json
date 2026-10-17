@@ -1,0 +1,43 @@
+{
+ "company_key": "3622631-9",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Astrum Vene Turku Oy is a company registered on 2026-05-05 under the industry code 70100, activities of head offices.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622631-9",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622631-9"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The record shows a head-office company and nothing about its activity; the memo reads thesis fit as Low.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622631-9"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622631-9"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Väylävirasto as a buyer from similar companies.",
+   "cites": [
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/30364/enotice/53584"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Low), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622631-9"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; thesis fit is Low on the stored evidence.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622631-9"
+   ]
+  }
+ }
+}

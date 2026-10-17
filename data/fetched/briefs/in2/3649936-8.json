@@ -1,0 +1,183 @@
+{
+ "company_key": "3649936-8",
+ "name": "Boat Services Finland Oy",
+ "business_id": "3649936-8",
+ "founded": "2026-08-25",
+ "country": "FI",
+ "group": "feed",
+ "register_status": "active",
+ "industry": {
+  "code": "33150",
+  "description": "Repair and maintenance of civilian ships and boats"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "startup_notice",
+   "type_label": "Start-up notification",
+   "date": "2026-08-28",
+   "date_label": "2026-08-28",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649936-8",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2026-08-28 (PRH). Register entries: Start-up notification. Record number: 2026/439687.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "board_change",
+   "type_label": "Board change",
+   "date": "2026-08-28",
+   "date_label": "2026-08-28",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649936-8",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2026-08-28 (PRH). Register entries: Board of directors (HAL). Record number: 2026/439687.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2026-08-25",
+   "date_label": "2026-08-25",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3649936-8",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2026-08-25",
+   "date_label": "2026-08-25",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8",
+   "source_label": "PRH/YTJ register",
+   "confidence": "low",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Industry code 33150 is on the thesis list (Repair and maintenance of ships and boats).",
+   "confidence": "low",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8"
+  },
+  {
+   "text": "Start-up notification on 2026-08-28: Start-up notification registered 2026-08-28 (PRH). Register entries: Start-up notification. Record number: 2026/439687.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649936-8"
+  }
+ ],
+ "memo": {
+  "decision": "ACCELERATOR",
+  "matched": "fallback c2, impact implied by sector",
+  "because": "Medium, implied by sector / Low / unknown / High",
+  "note": "No measured impact on record; thesis fit is High, so impact is read as Medium, implied by the sector, and fallback c2 of the decision rules applies.",
+  "why": [
+   {
+    "text": "Thesis fit: Industry code 33150 (Repair and maintenance of civilian ships and boats, PRH) is on the thesis list.",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8"
+   },
+   {
+    "text": "Why now: Board change on 2026-08-28",
+    "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649936-8"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact (read as implied by the sector for this decision)",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": []
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": [],
+  "public_funding": [],
+  "buyers": [],
+  "project_partners": [],
+  "research_institutes": []
+ },
+ "counts": {
+  "signals": 4,
+  "by_type": {
+   "startup_notice": 1,
+   "board_change": 1,
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0,
+  "next_public_funding": 0,
+  "next_buyers": 0,
+  "next_project_partners": 0,
+  "next_research_institutes": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649936-8",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8",
+  "https://tietopalvelu.ytj.fi/yritys/3649936-8"
+ ]
+}

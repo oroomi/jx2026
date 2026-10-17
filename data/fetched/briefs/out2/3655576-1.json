@@ -1,0 +1,43 @@
+{
+ "company_key": "3655576-1",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Rannikon Rakennus & Remontti Oy is a newly registered company, entered in the register on 2026-09-15 under the industry code 41000, construction of buildings.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655576-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655576-1"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The name has a coastal word but the registered industry is building construction; the memo reads thesis fit as Low.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655576-1"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655576-1"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Tampereen Tilapalvelut Oy as a buyer from similar companies.",
+   "cites": [
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/16583/enotice/32302"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Low), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655576-1"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; thesis fit is Low on the stored evidence.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655576-1"
+   ]
+  }
+ }
+}

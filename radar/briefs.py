@@ -38,6 +38,7 @@ _ISO = re.compile(r"\b(\d{4})-(\d{2})-(\d{2})\b")
 _MONTHS = {m: i for i, m in enumerate(["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"], 1)}
 _MONTH_YEAR = re.compile(r"\b(" + "|".join(_MONTHS) + r")\s+(\d{4})\b", re.I)
 _URL = re.compile(r"https?://[^\s\"'<>)]+")
+_RAW_TOKEN = re.compile(r"\b[a-z]+(?:_[a-z0-9]+)+\b|\b(?:caps|kw|stage) ?[\[\d]")
 
 
 def slug(key: str) -> str:
@@ -195,6 +196,9 @@ def verify_sentence(sent: dict, facts: Facts, thesis: dict | None = None) -> str
         return f"longer than {MAX_CHARS} characters"
     if not cites:
         return "no cited url"
+    raw = _RAW_TOKEN.search(_URL.sub(" ", text))
+    if raw:
+        return f"raw token in the sentence: {raw.group()}"
     foreign = [u for u in cites if u not in facts.urls]
     if foreign:
         return f"cited url not in the export: {foreign[0]}"
@@ -310,6 +314,9 @@ def verify_slot(name: str, slot: dict, exp: dict, facts: "Facts", thesis: dict |
             low = text.casefold()
             if not re.search(_DECISION_WORD[dec], low):
                 return f"memo verdict {dec} is not stated"
+            m = re.match(r"(row \d+|rule \w+|fallback \w+)", (exp.get("memo") or {}).get("matched") or "")
+            if m and m.group(1).casefold() not in low:
+                return f"memo rule not cited: {m.group(1)}"
             for other in _NEVER_AGAINST:
                 if other != dec and re.search(_DECISION_WORD[other], low):
                     return f"contradicts the memo verdict {dec}: mentions {other.lower()}"

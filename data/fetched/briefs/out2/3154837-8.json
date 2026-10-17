@@ -1,0 +1,46 @@
+{
+ "company_key": "3154837-8",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Redkik Oy is a portfolio company registered on 2020-08-28 under the industry code 62200, computer consultancy and facilities management.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8"
+   ]
+  },
+  "thesis_fit": {
+   "text": "It is a declared portfolio company, and the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 6 and investment readiness is level 3.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://redkik.com/news/redkik-announces-a-new-global-partnership-with-international-logistics-provider-meisterprep/"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name BlueInvest E-Pitching Session as a programme or funding source, Business Finland as a public funder and Suomen Tekstiili ja Muoti ry as a buyer from similar companies.",
+   "cites": [
+    "https://blueinvest-community.converve.io/all_events.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/3431/enotice/4130"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Medium, investment readiness Low, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8"
+   ]
+  }
+ }
+}

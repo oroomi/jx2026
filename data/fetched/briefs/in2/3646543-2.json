@@ -1,0 +1,212 @@
+{
+ "company_key": "3646543-2",
+ "name": "Marinepro diving services oy",
+ "business_id": "3646543-2",
+ "founded": "2026-08-13",
+ "country": "FI",
+ "group": "feed",
+ "register_status": "active",
+ "industry": {
+  "code": "42990",
+  "description": "Construction of other civil engineering projects n.e.c."
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646543-2",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "startup_notice",
+   "type_label": "Start-up notification",
+   "date": "2026-08-18",
+   "date_label": "2026-08-18",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3646543-2",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2026-08-18 (PRH). Register entries: Start-up notification. Record number: 2026/418065.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "board_change",
+   "type_label": "Board change",
+   "date": "2026-08-18",
+   "date_label": "2026-08-18",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3646543-2",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2026-08-18 (PRH). Register entries: Board of directors (HAL). Record number: 2026/418065.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2026-08-13",
+   "date_label": "2026-08-13",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646543-2",
+   "source_label": "PRH/YTJ register",
+   "confidence": "medium",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646543-2"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Legal name contains thesis keyword: marin, marine.",
+   "confidence": "medium",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646543-2"
+  },
+  {
+   "text": "Start-up notification on 2026-08-18: Start-up notification registered 2026-08-18 (PRH). Register entries: Start-up notification. Record number: 2026/418065.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3646543-2"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / Low",
+  "note": "more public evidence needed: Ocean impact, Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Thesis fit: only the legal name ('Marinepro diving services oy') contains 'marin'; the registered line of business is 'Construction of other civil engineering projects n.e.c.' (42990).",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646543-2"
+   },
+   {
+    "text": "Why now: Board change on 2026-08-18",
+    "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3646543-2"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646543-2"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "Thesis fit is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646543-2"
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646543-2"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": [],
+  "public_funding": [],
+  "buyers": [
+   {
+    "name": "Seinäjoen kaupunki",
+    "kind": "public buyer",
+    "reason": null,
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/9488/enotice/41587"
+   },
+   {
+    "name": "Heinolan kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 42990. Latest 2026-04-09: Heinolan kaupungin työkonepalvelut, EUR 400,000 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/23323/enotice/45930"
+   },
+   {
+    "name": "Kauhavan kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 42990. Latest 2026-01-28: Kauhavan kaupungin teknisen toimen konetyöt (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/22848/enotice/39322"
+   },
+   {
+    "name": "Sonkajärven kunta",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 42990. Latest 2026-01-16: Talvikunnossapito 2025-2028, Sukevan taajama, Sonkajärven kunta, EUR 213,640 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/19330/enotice/38214"
+   },
+   {
+    "name": "Karvian kunta",
+    "kind": "public buyer",
+    "reason": null,
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/21757/enotice/32542"
+   }
+  ],
+  "project_partners": [],
+  "research_institutes": []
+ },
+ "counts": {
+  "signals": 3,
+  "by_type": {
+   "startup_notice": 1,
+   "board_change": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0,
+  "next_public_funding": 0,
+  "next_buyers": 5,
+  "next_project_partners": 0,
+  "next_research_institutes": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3646543-2",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646543-2",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/19330/enotice/38214",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/21757/enotice/32542",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/22848/enotice/39322",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/23323/enotice/45930",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/9488/enotice/41587"
+ ]
+}

@@ -1,0 +1,38 @@
+{
+ "company_key": "3644849-9",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Styrbord service Oy is a company registered on 2026-08-07 under the industry code 33150, repair and maintenance of civilian ships and boats.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644849-9",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644849-9"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The registered industry is on the thesis list, but no public record yet shows technology or growth; the memo reads thesis fit as High.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644849-9"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules; ocean impact reads Medium (implied by the sector).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644849-9"
+   ]
+  },
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo recommends an accelerator under fallback c2 (ocean impact Medium (implied by the sector), business readiness Low, investment readiness unknown, thesis fit High), although the evidence behind it is thin, so the fund should consider a place for it in an accelerator programme.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644849-9"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact (read as implied by the sector for this decision); business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644849-9"
+   ]
+  }
+ }
+}

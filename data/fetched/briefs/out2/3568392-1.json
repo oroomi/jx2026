@@ -1,0 +1,45 @@
+{
+ "company_key": "3568392-1",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Sireness Oy is a cohort company registered on 2025-09-29 under the industry code 72100, research and experimental development.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   ]
+  },
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4 and business readiness is level 2, while investment readiness has no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Valmet as an investor, Baltic Sea Action Plan as a programme or funding source and Evac Oy as a partner.",
+   "cites": [
+    "https://www.valmet.com",
+    "https://www.nib.int/about/cooperation/bsap-fund",
+    "https://news.cision.com/altor/r/altor-acquires-a-majority-stake-in-evac-and-partners-with-management,c4278541"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   ]
+  }
+ }
+}

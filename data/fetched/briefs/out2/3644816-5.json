@@ -1,0 +1,34 @@
+{
+ "company_key": "3644816-5",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Studio VILDA Oy is a company registered on 2026-08-07 under the industry code 72200, research and experimental development on social sciences and humanities, and the tax register records first sales on 2026-10-07.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5",
+    "https://tietopalvelu.ytj.fi/yritys/3644816-5",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5"
+   ]
+  },
+  "thesis_fit": null,
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5"
+   ]
+  },
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit unknown), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public evidence for thesis fit.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5"
+   ]
+  }
+ }
+}

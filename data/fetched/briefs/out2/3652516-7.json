@@ -1,0 +1,43 @@
+{
+ "company_key": "3652516-7",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Sillanpään Saaristo & Rannikkopalvelut Oy is a newly registered company, entered in the register on 2026-09-03 under the industry code 81300, landscape service activities.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652516-7",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652516-7"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The name has archipelago and coastal words but the registered industry is landscape services; the memo reads thesis fit as Low.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652516-7"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652516-7"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Hämeenlinnan kaupunki as a buyer from similar companies.",
+   "cites": [
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/28136/enotice/52903"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Low), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652516-7"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; thesis fit is Low on the stored evidence.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652516-7"
+   ]
+  }
+ }
+}

@@ -1,0 +1,45 @@
+{
+ "company_key": "3508136-5",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Suomen Vesistökunnostus Oy is a company registered on 2025-02-03 under the industry code 42910, construction of water projects.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The registered line of business 'Construction of water projects' contains 'water'; the memo reads thesis fit as High.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 7 and business readiness is level 6, while investment readiness has no level on those rules.",
+   "cites": [
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Horizon Europe as a public funder, Työllisyys-, kehittämis- ja hallintokeskus as a buyer from similar companies and Pegasor Oy as a project partner.",
+   "cites": [
+    "https://cordis.europa.eu/project/id/101318796",
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675",
+    "https://cordis.europa.eu/project/id/101318796"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo points to a partner introduction under rule e, and the fund should open the contract notice of EUR 278 600 first to see who the buyer is.",
+   "cites": [
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; no public evidence for investment readiness.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5"
+   ]
+  }
+ }
+}

@@ -1,0 +1,224 @@
+{
+ "company_key": "3652593-3",
+ "name": "Rannikon Ilmastointi ja Kylmä OY",
+ "business_id": "3652593-3",
+ "founded": "2026-09-03",
+ "country": "FI",
+ "group": "feed",
+ "register_status": "active",
+ "industry": {
+  "code": "43220",
+  "description": "Plumbing, heat and air-conditioning installation"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "startup_notice",
+   "type_label": "Start-up notification",
+   "date": "2026-09-14",
+   "date_label": "2026-09-14",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3652593-3",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2026-09-14 (PRH). Register entries: Start-up notification. Record number: 2026/458903.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "board_change",
+   "type_label": "Board change",
+   "date": "2026-09-14",
+   "date_label": "2026-09-14",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3652593-3",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2026-09-14 (PRH). Register entries: Board of directors (HAL). Record number: 2026/458903.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2026-09-03",
+   "date_label": "2026-09-03",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3652593-3",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2026-09-03",
+   "date_label": "2026-09-03",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3",
+   "source_label": "PRH/YTJ register",
+   "confidence": "medium",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Legal name contains thesis keyword: rannik.",
+   "confidence": "medium",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3"
+  },
+  {
+   "text": "Start-up notification on 2026-09-14: Start-up notification registered 2026-09-14 (PRH). Register entries: Start-up notification. Record number: 2026/458903.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3652593-3"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / Low",
+  "note": "more public evidence needed: Ocean impact, Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Why now: Board change on 2026-09-14",
+    "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3652593-3"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "Thesis fit is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3"
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": [],
+  "public_funding": [],
+  "buyers": [
+   {
+    "name": "Etelä-Savon hyvinvointialue",
+    "kind": "public buyer",
+    "reason": "Awarded 2 contracts since 2024-10: bought from a company with the same industry code 43220; EUR 2,132,000 in total. Latest 2026-05-15: Jälki-ilmoitus, LVI-työt (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/27953/enotice/49163"
+   },
+   {
+    "name": "Jämsän kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 43220. Latest 2026-06-24: Jämsän yhtenäiskoulun Paunun yksikön aurinkovoimala, EUR 63,000 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/28067/enotice/52307"
+   },
+   {
+    "name": "Kuopion kaupunki",
+    "kind": "public buyer",
+    "reason": null,
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/28346/enotice/46159"
+   },
+   {
+    "name": "Kotkan kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 43220. Latest 2026-02-08: Ilmanvaihtojärjestelmien puhdistus-, mittaus-, säätö-, huolto- ja asennustyöt (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/16483/enotice/40361"
+   },
+   {
+    "name": "Kauhavan kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 43220. Latest 2026-01-21: Kauhavan kaupunki - Kunnossapitoon liittyvät putkityöt 2026 - 2028 + optio 1 v (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/20013/enotice/38712"
+   }
+  ],
+  "project_partners": [],
+  "research_institutes": []
+ },
+ "counts": {
+  "signals": 4,
+  "by_type": {
+   "startup_notice": 1,
+   "board_change": 1,
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0,
+  "next_public_funding": 0,
+  "next_buyers": 5,
+  "next_project_partners": 0,
+  "next_research_institutes": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3652593-3",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3",
+  "https://tietopalvelu.ytj.fi/yritys/3652593-3",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/16483/enotice/40361",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/20013/enotice/38712",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/27953/enotice/49163",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/28067/enotice/52307",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/28346/enotice/46159"
+ ]
+}

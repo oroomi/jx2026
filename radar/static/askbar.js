@@ -705,6 +705,6 @@
   window.addEventListener("pagehide", function () { closeVoice(); Speech.stop(); });
 
   /* a handle for tests and screenshots */
-  window.AskBar = { ask: ask, heard: heard, openVoice: openVoice, closeVoice: closeVoice, state: function () { return state; }, setTranscript: function (t, final) {
+  window.AskBar = { ask: ask, speak: window.AskBar.speak, stopSpeech: window.AskBar.stopSpeech, heard: heard, openVoice: openVoice, closeVoice: closeVoice, state: function () { return state; }, setTranscript: function (t, final) {
     elLine.textContent = t; elLine.classList.toggle("is-final", !!final); } };
 })();

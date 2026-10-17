@@ -34,10 +34,10 @@
     return a;
   }
   function inline(parent, s) {
-    var re = /\*\*([^*\n]+)\*\*|\[([^\]\n]+)\]\(([^)\s]+)\)/g, last = 0, m;
+    var re = /\*\*([^*\n]+)\*\*|\*([^*\n]+)\*|\[([^\]\n]+)\]\(([^)\s]+)\)/g, last = 0, m;
     while ((m = re.exec(s))) {
       if (m.index > last) parent.appendChild(document.createTextNode(s.slice(last, m.index)));
-      parent.appendChild(m[1] != null ? el("strong", null, m[1]) : linkNode(m[2], m[3]));
+      parent.appendChild(m[1] != null ? el("strong", null, m[1]) : m[2] != null ? el("em", null, m[2]) : linkNode(m[3], m[4]));
       last = re.lastIndex;
     }
     if (last < s.length) parent.appendChild(document.createTextNode(s.slice(last)));
@@ -330,7 +330,10 @@
     form.addEventListener("submit", function (e) { e.preventDefault(); var q = input.value.trim(); input.value = ""; open(q); });
     form2.addEventListener("submit", function (e) { e.preventDefault(); var q = in2.value.trim(); in2.value = ""; if (q) api.send(q, { withCompany: true }); });
     close.addEventListener("click", shut);
-    sheet.addEventListener("keydown", function (e) { if (e.key === "Escape" && !busy) { e.stopPropagation(); shut(); } });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape" || sheet.hidden || e.defaultPrevented) return;
+      if (busy) api.stop(); else shut();
+    });
   }
 
   fetch("/api/aava/status", { headers: { Accept: "application/json" } })

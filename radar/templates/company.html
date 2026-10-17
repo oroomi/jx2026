@@ -73,17 +73,17 @@
   {% if intake.signals %}
   <p class="plain">It is in the radar as a startup. {{ intake.signals | length }} startup signal{{ "s" if intake.signals | length != 1 }} brought it in, the first on {{ intake.signals[0].date_label or intake.signals[0].date }}:</p>
   <ul class="reasons intake-signals">
-    {% for s in intake.signals %}<li><span class="reason-text">{{ s.type_label }}, {{ s.date_label or s.date }}{% if s.detail %}: {{ s.detail }}{% endif %}</span> {{ chip(s.evidence, True) }}</li>{% endfor %}
+    {% for s in intake.signals %}<li><span class="reason-text">{{ s.type_label }}, {{ s.date_label or s.date }}{% if s.detail %}: {{ s.detail | plain_text }}{% endif %}</span> {{ chip(s.evidence, True) }}</li>{% endfor %}
   </ul>
   {% elif intake.reason %}<p class="rule">Not taken in as a wide-intake startup: {{ intake.reason }}.</p>{% endif %}
   <p class="rule">{{ intake.why }}</p>
   {% endif %}
   {% if reasons and (intake is none or intake.evidence) %}
-  <p class="plain">{{ reasons | length }} reason{{ "s" if reasons | length != 1 }} it fits this sector, from public records. First: {{ reasons[0].text }}</p>
+  <p class="plain">{{ reasons | length }} reason{{ "s" if reasons | length != 1 }} it fits this sector, from public records. First: {{ reasons[0].text | plain_text }}</p>
   <details class="why-box" open><summary>See why</summary>
   <ol class="reasons">
     {% for r in reasons %}
-    <li><span class="reason-text">{{ r.text }}</span> {{ chip(r.evidence, True) }}</li>
+    <li><span class="reason-text">{{ r.text | plain_text }}</span> {{ chip(r.evidence, True) }}</li>
     {% endfor %}
   </ol>
   <p class="rule">{{ fit_rule | replace("adapter", "source") }}</p>
@@ -193,7 +193,7 @@
   <ul class="siglist">
     {% for s in signals %}
     <li><span class="s-type">{{ s.type_label }}</span> <time datetime="{{ s.date[:4] if s.date_precision == "year" else s.date }}">{{ s.date_label or s.date }}</time>
-      <span class="s-detail">{% if s.detail %}{{ s.detail }}{% else %}{{ missing("no detail in source") }}{% endif %}</span>
+      <span class="s-detail">{% if s.detail %}{{ s.detail | plain_text }}{% else %}{{ missing("no detail in source") }}{% endif %}</span>
       {{ chip(s.evidence) }} <span class="s-conf">how sure: {{ s.confidence }}</span></li>
     {% endfor %}
   </ul>

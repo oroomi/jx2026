@@ -23,7 +23,7 @@ def rule_text(thesis: dict) -> str:
     return ("Rank = the number of distinct dated public events in the database (register entry, Business Finland funding year, "
             "EU project start, public contract, BlueInvest listing date, patent, job ad). Equal counts: the most recent event first, "
             "then alphabetical. A year-only date counts as one event on 1 January of that year and is labelled. A register entry older "
-            f"than the thesis's young-company cut ({cut} years, stage_max_company_age_years) still counts as an event here; the backtest "
+            f"than the thesis's young-company cut ({cut} years, set in the sector file) still counts as an event here; the backtest "
             "page applies a stricter rule. A low confidence name-keyword match is never counted. No weighting, no score, no prediction.")
 
 

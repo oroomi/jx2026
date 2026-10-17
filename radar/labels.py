@@ -5,6 +5,7 @@ Every page, feed pill, company row, backtest line, /data row and /method list re
 fallback turns underscores into spaces."""
 from __future__ import annotations
 
+import re
 from urllib.parse import urlparse
 
 SIGNAL_LABELS = {
@@ -84,3 +85,12 @@ def source_label(adapter: str | None, url: str | None = None) -> str:
         return SOURCE_LABELS[adapter]
     host = urlparse(url or "").netloc
     return host or plain(adapter) or "unknown source"
+
+
+_SNAKE = re.compile(r"(?<![/\w.=&?-])([a-z][a-z0-9]*(?:_[a-z0-9]+)+)(?![\w/.=&-])")
+
+
+def plain_text(text: str | None) -> str:
+    """A stored detail line with any snake_case id our adapters wrote (for example a dataset event type) turned into words.
+    Parts of a link are left alone."""
+    return _SNAKE.sub(lambda m: m.group(1).replace("_", " "), text or "")

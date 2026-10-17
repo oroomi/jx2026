@@ -250,6 +250,23 @@ def test_stream_guard_holds_a_split_link_and_passes_everything_else():
     assert out == "see [Real Oy](/c/1-1) and Fake Oy, then [a note] and a [lone bracket that never closes"
 
 
+def test_stream_guard_output_does_not_depend_on_how_the_text_was_cut():
+    import random
+    seen, urls = {"1-1": "Real Oy", "2-2": "Härksalmi Oy"}, {"https://ok.example/a"}
+    texts = ["See [Real Oy](/c/1-1) and [Fake Oy](/c/9-9), then [a note] and [ok](https://ok.example/a) or [bad](https://no.example) [x](javascript:alert(1)) tail.",
+             "[Härksalmi Oy](/c/2-2?demo=1)\n\n[ broken\nnext line [Real](/c/1-1)", "a [b] c [d](e f) [g](/c/1-1"]
+    rnd = random.Random(7)
+    for t in texts:
+        g = aava_entities.StreamGuard(seen, urls)
+        whole = g.feed(t) + g.flush()
+        assert "9-9" not in whole and "javascript" not in whole and "no.example" not in whole
+        for _ in range(60):
+            cuts = sorted(rnd.sample(range(1, len(t)), min(rnd.randint(1, 8), len(t) - 1)))
+            g = aava_entities.StreamGuard(seen, urls)
+            parts = [t[a:b] for a, b in zip([0, *cuts], [*cuts, len(t)])]
+            assert "".join(g.feed(p) for p in parts) + g.flush() == whole
+
+
 # ---- the page: filters and the view ---------------------------------------------------------------------------------------------------------
 def test_apply_filters_reaches_the_client_as_an_action_with_the_count(th):
     t, client = turn_for(th, "Show me accelerator candidates in Finland", [

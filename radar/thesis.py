@@ -77,8 +77,65 @@ def _parse(p: Path) -> dict:
         raise ThesisError(f"thesis file {p}: 'country_depth' must be a mapping of country code to a depth text")
     if "intake" in data:
         _check_intake(p, data["intake"])
+    if data.get("taxonomy"):
+        _check_taxonomy(p, data)
     data["_path"] = str(p)
     return data
+
+
+TAXONOMY_KINDS = ("code", "own_text", "name_corroborated", "declared", "notice")
+
+
+def _check_taxonomy(p: Path, data: dict) -> None:
+    """The `taxonomy:` block (radar/sectors.py applies it): a top-level sector, its sub-sectors, and what counts as evidence for each. An empty
+    list or mapping means the sector defines no taxonomy and the facet hides. Everything a sub-sector refers to must exist in this file."""
+    tx = data["taxonomy"]
+    where = f"thesis file {p}: taxonomy"
+    if not isinstance(tx, dict):
+        raise ThesisError(f"{where} must be a mapping with slug, label and sectors (or empty)")
+    for key in ("slug", "label"):
+        if not isinstance(tx.get(key), str) or not tx[key].strip():
+            raise ThesisError(f"{where}.{key} must be a non-empty string")
+    kinds = tx.get("evidence_kinds") or list(TAXONOMY_KINDS)
+    if not (isinstance(kinds, list) and set(kinds) <= set(TAXONOMY_KINDS)):
+        raise ThesisError(f"{where}.evidence_kinds must be a list of {', '.join(TAXONOMY_KINDS)}")
+    groups = {g.get("id") for g in (tx.get("keyword_groups") or []) + ((data.get("matching") or {}).get("keyword_groups") or []) if isinstance(g, dict)}
+    areas = set(((data.get("impact_readiness") or {}).get("areas") or {}))
+    sets = set((tx.get("word_sets") or {}))
+    sectors = tx.get("sectors")
+    if not (isinstance(sectors, list) and sectors):
+        raise ThesisError(f"{where}.sectors must be a non-empty list of sub-sectors")
+    seen = {tx["slug"], str((tx.get("unclassified") or {}).get("slug") or "")}
+    for sec in sectors:
+        if not isinstance(sec, dict):
+            raise ThesisError(f"{where}.sectors: every entry must be a mapping")
+        slug = sec.get("slug")
+        if not isinstance(slug, str) or not re.fullmatch(r"[a-z0-9_]+", slug) or slug in seen:
+            raise ThesisError(f"{where}.sectors: slug {slug!r} must be unique lower-case letters, digits and underscores")
+        seen.add(slug)
+        if not isinstance(sec.get("label"), str) or not sec["label"].strip():
+            raise ThesisError(f"{where}.sectors[{slug}].label must be a non-empty string")
+        ev = sec.get("evidence")
+        if not (isinstance(ev, list) and ev and set(ev) <= set(kinds)):
+            raise ThesisError(f"{where}.sectors[{slug}].evidence must be a non-empty list drawn from evidence_kinds ({', '.join(kinds)})")
+        for key in ("code_prefixes", "words", "drop_words", "keyword_groups", "impact_areas"):
+            if key in sec and not (isinstance(sec[key], list) and all(isinstance(x, (str, int)) and not isinstance(x, bool) and str(x).strip() for x in sec[key])):
+                raise ThesisError(f"{where}.sectors[{slug}].{key} must be a list of non-empty values")
+        for g in sec.get("keyword_groups") or []:
+            if g not in groups:
+                raise ThesisError(f"{where}.sectors[{slug}] names keyword group {g!r}, which is not in matching.keyword_groups or taxonomy.keyword_groups")
+        for a in sec.get("impact_areas") or []:
+            if a not in areas:
+                raise ThesisError(f"{where}.sectors[{slug}] names impact area {a!r}, which is not in impact_readiness.areas")
+        for gate in sec.get("gated_codes") or []:
+            ok = isinstance(gate, dict) and isinstance(gate.get("prefixes"), list) and gate["prefixes"] and isinstance(gate.get("needs"), list) and gate["needs"]
+            ok = ok and set(gate["needs"]) <= (sets | {"self"}) and set(gate.get("kinds") or ["own_text"]) <= {"own_text", "name_corroborated"}
+            if not ok:
+                raise ThesisError(f"{where}.sectors[{slug}].gated_codes: each needs prefixes, needs (word sets or self) and kinds (own_text, name_corroborated)")
+        if "declared" in sec and not isinstance(sec["declared"], dict):
+            raise ThesisError(f"{where}.sectors[{slug}].declared must be a mapping with capabilities and/or categories")
+        if "declared" in ev and not (sec.get("declared") or {}):
+            raise ThesisError(f"{where}.sectors[{slug}] lists declared evidence but maps no capability or category")
 
 
 def _check_intake(p: Path, it) -> None:

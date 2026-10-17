@@ -87,6 +87,123 @@ backtest:
   cohort_group: cohort
   entry_event: "entered Nordic Blue 2026 cohort"
 
+# Sector taxonomy (D42, owner-approved 17 Oct): one top-level sector with eleven sub-sectors and a twelfth, derived, "Not yet classified". A company
+# can sit in several sub-sectors; every link stores its basis (the evidence kind) and the record it rests on. radar/sectors.py applies this block and
+# nothing else: no sector word is in the code. Evidence kinds a sub-sector accepts (`evidence`):
+#   code               an industry code starting with one of `code_prefixes` (a dot is ignored, so NACE 03.110 is 03110). A gated code (`gated_codes`) counts only
+#                      together with a word of the named word set in the company's own text or a corroborated name word; it never classifies alone.
+#   own_text           a word of the sub-sector in the company's own text: the registered line of business, the CORDIS title and objective, the BlueInvest profile,
+#                      a quote the stitcher checked on a page, the verified brief. Never our own `detail` annotations (D2).
+#   name_corroborated  a word of the sub-sector in the legal name AND a record from a different source family (A6); a name word alone classifies nothing (A5).
+#   declared           the declared ecosystem dataset's capability (C1 to C10) or a declared list's category, mapped in `declared:` below.
+#   notice             a word of the sub-sector in the title of a public procurement notice the company won (Hilma).
+# Words come from the keyword groups of `matching:` (by id), the impact areas of `impact_readiness:` (by key) and `words` written here; they match as whole
+# words, or as the start of a longer word when they have 5 or more characters (A8). Impact-area code prefixes count as `code`.
+taxonomy:
+  slug: blue_economy
+  label: Blue economy
+  evidence_kinds: [code, own_text, name_corroborated, declared, notice]
+  keyword_groups:                  # this thesis has no matchmaking block, so the three groups the sub-sectors name are kept here, word for word as in config/thesis.yaml (tests/test_sectors.py keeps them equal)
+    - id: ocean_data
+      label: ocean data and sensing
+      theme: marine_intelligence
+      capability: C4
+      category: ocean data
+      stems: [ocean data, oceanograph, hydrograph, bathymetr, remote sensing, satellite, sensor, sensing, monitoring, buoy, buoys, drone, drones, digital twin, imaging, sonar, hyperspectral, weather, mittaus, merikartoit, kaukokartoit, vesistömittaus, seuranta]
+    - id: aquaculture_bio
+      label: aquaculture and fisheries
+      theme: blue_bio_water
+      capability: C5
+      category: aquatech
+      stems: [aquacultur, aquatech, fish, fisher, salmon, shellfish, mussel, oyster, algae, seaweed, kelp, macroalgae, marine biotech, blue bio, bioeconom, protein, seafood, kalankasvat, kalastus, kalatalous, kala, levä, vesiviljely]
+    - id: offshore_energy
+      label: offshore and marine energy
+      theme: ocean_infra_clean_energy
+      capability: C8
+      stems: [offshore, wind farm, wind power, wave energy, tidal, floating, marine renewable, ocean energy, marine construction, subsea cable, tuulivoima]
+  unclassified: {slug: not_classified, label: Not yet classified}
+  word_sets:                       # gates a sub-sector can require beside a code
+    maritime:
+      words: [maritime, maritim, marine, seafar, seaborne, shipyard, shipbuild, vessel, vessels, offshore, subsea, harbour, harbor, seaport, port of, port call,
+              ocean, sea, boat, boats, ferry, ferries, yacht, yachts, naval, coastal, icebreaker, archipelago, ships, merenkulku, merellinen, merellä, meren,
+              merialue, meriliikenne, laiva, satam, saaristo, vene, veneet, telakka]
+    boating:
+      words: [boating, boat, boats, marina, marinas, yacht, yachts, sailing, sailboat, kayak, canoe, cruise, cruises, diving, archipelago, saaristo, purjehd,
+              vene, veneet, soutu, melont, risteil]
+  declared:                        # where the `declared` evidence comes from; the capability labels are read from the dataset
+    ecosystem_db: data/declared/ecosystem/blue_economy_fi.sqlite   # entity_capability (C1 to C10), joined to the store through eco_entity
+    lists:
+      - {file: data/declared/startups_universe.csv, id_column: y_tunnus_if_found, category_column: category, url_column: source_url, label: Startup universe list}
+  sectors:
+    - slug: shipbuilding_boats
+      label: Shipbuilding and boats
+      evidence: [code, declared]
+      code_prefixes: ["301"]                       # 3011 ships and floating structures, 3012 pleasure and sporting boats
+      declared: {capabilities: [C2]}
+    - slug: ship_repair_services
+      label: Ship repair and maritime services
+      evidence: [code]
+      code_prefixes: ["3315", "5222"]              # 3315 repair of ships and boats (331 as a whole also repairs machinery: not used), 5222 service activities incidental to water transport
+    - slug: shipping_logistics
+      label: Shipping and logistics
+      evidence: [code, own_text, declared]
+      code_prefixes: ["50", "5224"]                # 50 water transport, 5224 cargo handling
+      gated_codes:
+        - {prefixes: ["5229"], needs: [maritime], kinds: [own_text]}   # other transport support: only where the company's own text names a maritime word
+      declared: {capabilities: [C7]}
+    - slug: ports_marine_construction
+      label: Ports and marine construction
+      evidence: [code, own_text, notice, declared]
+      code_prefixes: ["4291"]                      # construction of water projects
+      words: [harbour, harbor, seaport, port of, port authority, port operat, port terminal, port infrastructure, quay, pier, breakwater, dredg, marine construction,
+              satam, ruoppa, laituri, aallonmurtaj, väylä]
+      declared: {categories: [port tech]}
+    - slug: offshore_ocean_energy
+      label: Offshore and ocean energy
+      evidence: [own_text, name_corroborated, notice, declared]
+      keyword_groups: [offshore_energy]
+      drop_words: [floating]                       # 'floating structures' is the name of ship-building code 30110, not floating wind
+      words: [wind, hydrogen, offshore wind, wind turbine, wave power, wave energy, tuulivoim, tuulipuisto, tuulienergia, aaltovoim, aaltoenergia, vety, vetyvoim, vetytalous]
+      declared: {capabilities: [C8]}
+    - slug: maritime_software
+      label: Maritime software and tech
+      evidence: [own_text, name_corroborated, declared]
+      gated_codes:
+        - {prefixes: ["582", "62"], needs: [maritime], kinds: [own_text, name_corroborated]}   # software only together with a maritime word
+      declared: {capabilities: [C1]}
+    - slug: ocean_data_monitoring
+      label: Ocean data and monitoring
+      evidence: [own_text, name_corroborated, notice, declared]
+      impact_areas: [ocean_data, emissions]
+      keyword_groups: [ocean_data]
+      drop_words: [battery, hydrogen, ammonia, electrif, akku, vetyvoima, sähköist, shipping fuel, decarbon]   # the energy words of the emissions area describe decarbonisation, not monitoring; emission and päästö stay
+      declared: {capabilities: [C4], categories: [ocean data, emissions]}
+    - slug: aquaculture_fisheries
+      label: Aquaculture and fisheries
+      evidence: [code, own_text, name_corroborated, notice, declared]
+      code_prefixes: ["031", "032", "102"]         # 031 fishing, 032 aquaculture (0321, 0322), 102 processing of fish
+      keyword_groups: [aquaculture_bio]
+      declared: {capabilities: [C5], categories: [aquatech]}
+    - slug: marine_biotech
+      label: Marine biotech
+      evidence: [own_text, name_corroborated]
+      words: [algae, seaweed, kelp, macroalgae, microalgae, marine biotech, blue biotech, blue bio, marine biolog, levä, levää, levän, leväb, leväv, merilevä, sinilevä]
+      gated_codes:
+        - {prefixes: ["721"], needs: [self], kinds: [own_text, name_corroborated]}   # R&D in natural sciences only with such a word
+    - slug: water_pollution
+      label: Water and pollution
+      evidence: [code, own_text, name_corroborated, notice, declared]
+      code_prefixes: ["36", "37", "39"]
+      impact_areas: [water_quality]
+      declared: {capabilities: [C6], categories: [water quality]}
+    - slug: coastal_tourism_boating
+      label: Coastal tourism and boating
+      evidence: [code, own_text, declared]
+      code_prefixes: ["47631", "5010"]             # 47631 retail sale of boats and boating accessories, 5010 sea and coastal passenger water transport
+      gated_codes:
+        - {prefixes: ["932"], needs: [boating, maritime], kinds: [own_text]}   # recreation only where the own text names boating or marine words
+      declared: {capabilities: [C10]}
+
 # Countries (jx24). `countries` drives every EU-wide adapter (TED, CORDIS, EU grants, BlueInvest) and the feed country column.
 # `country_depth` is printed on /method and above the feed: it says where we hold national-register depth and where only EU sources reach.
 countries: [FI, SE, EE, LV, LT, DK, "NO", DE, PL]

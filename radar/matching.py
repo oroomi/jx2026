@@ -101,9 +101,9 @@ def company_context(conn, company_key: str) -> dict | None:
     if data is None:
         return None
     c, sigs = data["company"], data["signals"]
-    fw = frameworks.assess(c, [x for x in sigs if x["adapter"] != "ecosystem"])  # the dataset never sets a rule level
-    trl, trl_src = fw["trl"]["level"], "register rule"
     profile = blueinvest.profile_for(conn, company_key)
+    fw = frameworks.page_levels(c, sigs, profile)  # the levels the company page prints; the dataset never sets a rule level
+    trl, trl_src = fw["trl"]["level"], "register rule"
     if profile and profile.get("trl") is not None:
         trl, trl_src = profile["trl"], "BlueInvest profile"
     if trl is None:

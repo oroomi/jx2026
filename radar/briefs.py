@@ -106,7 +106,8 @@ def export_one(conn: sqlite3.Connection, thesis: dict, key: str, *, today=None) 
         lv = fw[k]
         ev = lv["evidence"]
         levels[dim] = {"label": label, "level": lv["level"], "rule": lv["because"],
-                       "url": max(ev, key=lambda x: x["date"])["source_url"] if ev else None}
+                       "url": (max(ev, key=lambda x: x["date"])["source_url"] if all(x.get("date") for x in ev)
+                               else next(((x.get("evidence") or {}).get("url") for x in ev if (x.get("evidence") or {}).get("url")), None)) if ev else None}
     if ctx["trl"] is not None and ctx["trl_src"] != "register rule":
         levels["technology"] = {**levels["technology"], "level": ctx["trl"], "rule": f"stated by the {ctx['trl_src']}"}
     cat = fw["category"]

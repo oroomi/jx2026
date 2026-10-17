@@ -156,3 +156,21 @@ def connections(sigs: list[dict]) -> list[dict] | None:
     clauses.sort(key=lambda c: (c["date"], c["type"]))
     clauses[0]["text"] = clauses[0]["text"][0].upper() + clauses[0]["text"][1:]
     return clauses
+
+
+# ---- the levels the company page prints ------------------------------------------------------------------------
+def profile_trl(profile: dict) -> dict:
+    """The TRL a BlueInvest profile states, in the shape _level returns, with its profile page as the evidence chip."""
+    ev = {"label": "BlueInvest pipeline", "event_date": None, "date_precision": "day", "date_label": "no date stated",
+          "fetched_at": profile.get("fetched_at"), "url": profile.get("url"), "confidence": None, "confidence_rule": None}
+    return {"level": profile["trl"], "evidence": [{"evidence": ev}], "because": f"the BlueInvest profile states TRL {profile['trl']}"}
+
+
+def page_levels(c: dict, sigs: list[dict], profile: dict | None = None) -> dict:
+    """The one source of truth for readiness levels: the rule levels over the company's own records (declared research never
+    sets a level), with the TRL a BlueInvest profile states. The company page (question 02), its answer line and the fund
+    memo's Low / Medium / High bands all read this."""
+    fw = assess(c, [x for x in sigs if x.get("adapter") != "ecosystem"])
+    if profile and profile.get("trl") is not None:
+        fw["trl"] = profile_trl(profile)
+    return fw

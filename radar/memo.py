@@ -3,7 +3,9 @@ runs live with no API key. Everything is addressed to the fund, never to the com
 
 One decision per company, exactly one of DECISIONS. It comes from a decision table stored as data in the thesis file
 (`memo.decisions.rows`): four cells (impact, business, investment, thesis fit), each Low / Medium / High, first matching row wins,
-no match is WATCHLIST. The Low / Medium / High cells come from the sponsor-framework levels through the bands in `memo.bands`.
+then pass 3, the fallback (`memo.decisions.fallback`): thesis fit High with no impact evidence reads impact as implied by the sector;
+no match is WATCHLIST. The Low / Medium / High cells come from exactly the levels question 02 of the company page prints
+(radar.frameworks.page_levels) through the bands in `memo.bands`.
 A level with no public evidence is "unknown", never Low: a row that names a band does not match it, so the company lands in
 WATCHLIST with "more public evidence needed: <level>". REJECT / LOW FIT needs evidence of low fit and low impact.
 Nothing is said without a link: a bullet with no source row is an evidence gap and is shown as one."""
@@ -12,8 +14,8 @@ from __future__ import annotations
 import sqlite3
 from datetime import date, timedelta
 
-from radar import labels
-from radar import blueinvest, frameworks, matching, store
+from radar import labels as lbl
+from radar import matching, store
 
 DECISIONS = ("INVEST", "DUE DILIGENCE", "ACCELERATOR", "GRANT SUPPORT", "PARTNER INTRODUCTION", "WATCHLIST", "REJECT / LOW FIT")
 BANDS = ("Low", "Medium", "High")
@@ -28,7 +30,7 @@ def _cfg(thesis: dict) -> dict:
     m = thesis.get("memo") or {}
     d = m.get("decisions") or {}
     return {"labels": m.get("labels") or {}, "bands": m.get("bands") or {}, "rows": d.get("rows") or [], "rules": d.get("rules") or [],
-            "source": d.get("source") or ""}
+            "source": d.get("source") or "", "fallback": d.get("fallback") or {}}
 
 
 def band(value, spec: dict | None) -> str:
@@ -59,7 +61,25 @@ def decide(bands: dict[str, str], cfg: dict) -> tuple[dict | None, list[str]]:
     for r in cfg["rules"]:
         if all(_cell_matches(v, bands.get(k, UNKNOWN)) for k, v in (r.get("when") or {}).items()):
             return {**r, "kind": "rule", "text": f"rule {r['id']}"}, []
+    fb = fallback(bands, cfg)
+    if fb is not None:
+        return fb, []
     return None, [d for d in (*TABLE_DIMS, "technology") if bands.get(d) == UNKNOWN]
+
+
+def fallback(bands: dict[str, str], cfg: dict) -> dict | None:
+    """Pass 3 (the thesis file's `decisions.fallback`): thesis fit High and the impact level unknown. The impact is then read as
+    implied by the sector (`implied_impact`, Medium) and the fallback rules apply, first match wins. None when it does not apply."""
+    fb = cfg.get("fallback") or {}
+    when = fb.get("when") or {}
+    if not fb.get("rules") or not all(bands.get(k, UNKNOWN) == v for k, v in when.items()):
+        return None
+    implied = dict(bands, impact=fb.get("implied_impact", "Medium"))
+    for r in fb["rules"]:
+        if all(_cell_matches(v, implied.get(k, UNKNOWN)) for k, v in (r.get("when") or {}).items()):
+            return {**r, "kind": "fallback", "implied_impact": implied["impact"],
+                    "text": f"fallback {r['id']}, impact implied by sector"}
+    return None
 
 
 def _latest(ev: list[dict]) -> str | None:
@@ -67,46 +87,34 @@ def _latest(ev: list[dict]) -> str | None:
 
 
 def _levels(conn, ctx: dict, key: str, cfg: dict) -> dict:
-    """{dimension: {level, because, url}} for technology, business, investment: rule levels, with the BlueInvest or dataset TRL."""
+    """{dimension: {level, because, url}} for technology, business, investment: exactly the levels question 02 of the company page
+    prints (radar.frameworks.page_levels: rule levels, plus the TRL a BlueInvest profile states). One source of truth, so the
+    memo can never say a level the page does not show. The count of investment dimensions with evidence is a secondary line."""
     fw = ctx["fw"]
     out = {}
     for dim, k in (("technology", "trl"), ("business", "brl"), ("investment", "irl")):
         lv = fw[k]
-        out[dim] = {"level": lv["level"], "because": lv["because"], "url": _latest(lv["evidence"]) if lv["level"] is not None else None}
-    if ctx["trl"] is not None and ctx["trl_src"] != "register rule":
-        if ctx["trl_src"] == "BlueInvest profile":
-            url = (blueinvest.profile_for(conn, key) or {}).get("url")
-            out["technology"] = {"level": ctx["trl"], "because": f"the BlueInvest profile states TRL {ctx['trl']}", "url": url}
-        else:
-            out["technology"] = {"level": ctx["trl"], "because": f"the declared research dataset reads TRL {ctx['trl']}", "url": _dataset_url(conn, key)}
-    dims = [d for d in ctx["fw"]["dimensions"] if d["n"] > 0]
-    url = next((e["url"] for d in dims for e in d["evidence"] if e.get("url")), None)
-    out["investment"] = {"level": len(dims) or None, "url": url if dims else None,
-                         "because": f"{len(dims)} of the {len(ctx['fw']['dimensions'])} investment dimensions have public evidence"}
+        url = None
+        if lv["level"] is not None:
+            ev = lv["evidence"] or []
+            url = _latest([e for e in ev if e.get("date")]) if any(e.get("date") for e in ev) else \
+                next(((e.get("evidence") or {}).get("url") for e in ev if (e.get("evidence") or {}).get("url")), None)
+        out[dim] = {"level": lv["level"], "because": lv["because"], "url": url}
     return out
 
 
-def _dataset_url(conn, key: str) -> str | None:
-    try:
-        row = conn.execute("SELECT sources FROM eco_readiness WHERE company_key=?", (key,)).fetchone()
-    except sqlite3.OperationalError:
-        return None
-    for u in ((row[0] if row else "") or "").split():
-        if u.startswith("http"):
-            return u
-    return None
+def dimensions_line(fw: dict) -> dict:
+    """'N of 10 investment dimensions have public evidence', the secondary investment line, with the first evidence link."""
+    dims = [d for d in fw["dimensions"] if d["n"] > 0]
+    url = next((e["url"] for d in dims for e in d["evidence"] if e.get("url")), None)
+    return {"n": len(dims), "of": len(fw["dimensions"]), "url": url,
+            "text": f"{len(dims)} of {len(fw['dimensions'])} investment dimensions have public evidence"}
 
 
 def _impact(conn, ctx: dict, key: str, spec: dict) -> dict:
-    """Ocean impact (or the thesis's impact dimension): a Navigator-style category found by the rule, or the dataset's reading."""
-    try:
-        r = conn.execute("SELECT oir_score, oir_evidence FROM eco_readiness WHERE company_key=?", (key,)).fetchone()
-    except sqlite3.OperationalError:
-        r = None
-    url = _dataset_url(conn, key)
-    if r and r[0] is not None and url:
-        b = "Low" if r[0] <= spec.get("dataset_low_max", -1) else ("High" if r[0] >= spec.get("dataset_high_min", 99) else "Medium")
-        return {"band": b, "text": f"the declared dataset reads impact readiness {r[0]}" + (f": {r[1]}" if r[1] else ""), "url": url}
+    """Ocean impact (or the thesis's impact dimension) from the same reading question 02 prints: the Navigator-style category the
+    frameworks rule finds. The declared dataset's own impact score is shown on the page as declared research, never as a level,
+    so it never sets this band either."""
     cat = ctx["fw"]["category"]
     if cat.get("category") and spec.get("category_band"):
         ev = cat.get("evidence") or {}
@@ -158,7 +166,7 @@ def _why_now(ctx: dict, funding: list[dict], today: date) -> dict | None:
     for s in ctx["sigs"]:
         d = s.get("date")
         if d and s.get("source_url") and (today - timedelta(days=180)).isoformat() <= d <= today.isoformat():
-            label = s.get("type_label") or labels.signal_label(s["signal_type"])
+            label = s.get("type_label") or lbl.signal_label(s["signal_type"])
             cands.append((abs((date.fromisoformat(d) - today).days), f"{label} on {s.get('date_label') or d}", s["source_url"], d))
     if not cands:
         return None
@@ -175,7 +183,7 @@ def _actions(decision: str, nxt: dict, step: dict, unknown: list[str], labels: d
             out.append({"text": text, "url": url, "source": source})
 
     inv, fund, part = nxt["investors"], nxt["funding"], nxt["partners"]
-    src = lambda r: labels.origin_label(r.get("origin")) if r.get("origin") else ("ecosystem dataset" if r.get("score") is not None else "declared list")  # noqa: E731
+    src = lambda r: lbl.origin_label(r.get("origin")) if r.get("origin") else ("ecosystem dataset" if r.get("score") is not None else "declared list")  # noqa: E731
     if decision in ("INVEST", "DUE DILIGENCE"):
         for r in inv[:2]:
             add(f"Introduce them to {r['name']}: {r['reason']}", r["source_url"], src(r))
@@ -228,11 +236,18 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
         decision = row["decision"] if row else "WATCHLIST"
     labels = cfg["labels"]
     needed = [d for d in unknown]  # dimensions with no public evidence while no row matched
-    because = " / ".join(f"{bands[d]}" for d in TABLE_DIMS)
+    shown = dict(bands)
+    if row and row.get("kind") == "fallback":
+        shown["impact"] = f"{row['implied_impact']}, implied by sector"
+    because = " / ".join(f"{shown[d]}" for d in TABLE_DIMS)
     rec = {"decision": decision, "row_id": row["id"] if row else None, "table_action": row.get("action") if row else None,
-           "matched": row["text"] if row else None, "team_label": row.get("team") if row else None,
-           "because": because, "because_labels": [{"label": labels.get(d, d), "band": bands[d]} for d in TABLE_DIMS],
-           "table_source": cfg["source"], "needs": [labels.get(d, d) for d in needed]}
+           "matched": row["text"] if row else None, "team_label": row.get("team") if row else None, "kind": row.get("kind") if row else None,
+           "because": because, "because_labels": [{"label": labels.get(d, d), "band": shown[d]} for d in TABLE_DIMS],
+           "table_source": cfg["source"], "needs": [labels.get(d, d) for d in needed],
+           "dimensions": dimensions_line(ctx["fw"])}
+    if row and row.get("kind") == "fallback":
+        rec["note"] = (f"No measured impact on record; thesis fit is High, so impact is read as {row['implied_impact']}, implied by the "
+                       f"sector, and fallback {row['id']} of the decision rules applies.")
     if row is None:
         rec["note"] = ("The company has defunct status in the declared dataset." if ctx["status"] in matching.INACTIVE else
                        ("more public evidence needed: " + ", ".join(rec["needs"]) if needed else "no decision row or rule matches these levels, so the company stays on the watchlist"))
@@ -246,6 +261,9 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
         if v["level"] is not None and v["url"]:
             b = bands.get(dim) or tech_band
             why.append({"text": f"{labels.get(dim, dim)} {b} (level {v['level']}): {v['because']}", "url": v["url"]})
+    dl = rec["dimensions"]
+    if dl["n"] and dl["url"]:
+        why.append({"text": f"{labels.get('investment', 'investment')}, secondary: {dl['text']}", "url": dl["url"]})
     why += [{"text": f"Thesis fit: {b['text']}", "url": b["url"]} for b in fit["bullets"] if b.get("url")]
     wn = _why_now(ctx, nxt["funding"], t)
     if wn:
@@ -254,7 +272,8 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
     risks = []
     for d in TABLE_DIMS:
         if bands[d] == UNKNOWN:
-            risks.append({"text": f"No public evidence for {labels.get(d, d).lower()}", "url": None})
+            implied = " (read as implied by the sector for this decision)" if d == "impact" and rec.get("kind") == "fallback" else ""
+            risks.append({"text": f"No public evidence for {labels.get(d, d).lower()}{implied}", "url": None})
         elif bands[d] == "Low":
             src = {"business": lv["business"], "investment": lv["investment"]}.get(d) or (imp if d == "impact" else None)
             risks.append({"text": f"{labels.get(d, d)} is Low on the stored evidence", "url": (src or {}).get("url") or c.get("source_url")})

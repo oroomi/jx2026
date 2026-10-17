@@ -7,6 +7,7 @@
   {% set r = m.recommendation %}
   <p class="memo-decision"><span class="memo-label">Recommendation</span> <strong class="memo-verdict">{{ r.decision }}</strong></p>
   <p class="plain">because: {% if r.matched %}{{ r.matched }} ({% endif %}{% for x in r.because_labels %}{{ x.label }} <strong>{{ x.band }}</strong>{% if not loop.last %} / {% endif %}{% endfor %}{% if r.matched %}){% endif %}{% if r.team_label %}; the team's name for it: {{ r.team_label }}{% endif %}</p>
+  {% if r.dimensions %}<p class="plain memo-dims">{{ r.dimensions.text }}.</p>{% endif %}
   {% if r.table_action %}<p class="plain">{{ r.table_action }}</p>{% endif %}
   {% if r.note %}<p class="plain">{{ r.note[0]|upper }}{{ r.note[1:] }}</p>{% endif %}
 
@@ -21,6 +22,6 @@
   <h3>Recommended actions for the fund</h3>
   {% if m.actions %}<ol class="memo-list">{% for a in m.actions %}<li>{{ a.text }} <a class="ev-chip" href="{{ a.url }}" target="_blank" rel="noopener"><span class="ev-src">{{ a.source }}</span></a></li>{% endfor %}</ol>
   {% else %}<p>{{ missing("no action supported by a source row") }}</p>{% endif %}
-  <p class="rule">Level cut-offs: TRL, BRL and investment dimensions with evidence 1-3 Low, 4-6 Medium, 7-9 or more High; the dataset's 0-5 impact reading 0-1 Low, 2-3 Medium, 4-5 High. A level with no public evidence is unknown and never Low. {{ r.table_source }}</p>
+  <p class="rule">Bands come from the levels in question 02 below: TRL, BRL and Investment Readiness 1-3 Low, 4-6 Medium, 7-9 High; a Navigator category found by the rule reads Medium impact. A level with no public evidence is unknown and never Low. {{ r.table_source }}{% if thesis.memo and thesis.memo.decisions.fallback_text %} {{ thesis.memo.decisions.fallback_text }}{% endif %}</p>
 </section>
 {% endif %}

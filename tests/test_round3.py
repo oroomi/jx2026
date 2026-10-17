@@ -74,3 +74,78 @@ def test_health_file_excludes_human_health_practice(built):
     keys = {r["company_key"] for r in store.feed(built, th, limit=10**6)}
     assert "9300010-1" not in keys and "9300011-2" in keys
     assert store.feed_counts(built, th)["excluded_codes"] == 1
+
+
+# ---- items 1 and 6: memo bands from the page's levels; the fallback decision -------------------------------------------
+import shutil  # noqa: E402
+
+SNAP = Path(__file__).resolve().parent.parent / "data" / "snapshot"
+
+
+@pytest.fixture()
+def snap(tmp_path, monkeypatch):
+    if not (SNAP / "radar_redstone_apelago_blue.sqlite").exists():
+        pytest.skip("no snapshot")
+    for f in SNAP.glob("*.sqlite"):
+        shutil.copy(f, tmp_path / f.name)
+    monkeypatch.setenv("RADAR_DATA_DIR", str(tmp_path))
+    monkeypatch.delenv("RADAR_DB", raising=False)
+    from radar import db, thesis
+    from radar.adapters import ecosystem
+    th = thesis.load()
+    conn = db.connect(thesis.db_path(th))
+    try:
+        ecosystem.run(conn, th)
+        conn.commit()
+    except Exception:
+        pytest.skip("ecosystem dataset not available")
+    conn.close()
+    return th
+
+
+def test_memo_bands_are_the_page_levels(built):
+    from radar import matching, memo, thesis
+    th = thesis.load()
+    cfg = memo._cfg(th)
+    for key in ("9300001-1", "9300005-5", "dk-synthetic"):
+        m = memo.build(built, th, key)
+        fw = matching.company_context(built, key)["fw"]
+        for dim, k in (("business", "brl"), ("investment", "irl"), ("technology", "trl")):
+            assert m["levels"][dim]["band"] == memo.band(fw[k]["level"], cfg["bands"].get(dim)), (key, dim)
+        assert m["recommendation"]["dimensions"]["text"].endswith("of 10 investment dimensions have public evidence")
+
+
+def test_viva_jets_memo_matches_its_readiness_section_and_uses_the_fallback(snap):
+    from radar import frameworks, matching, memo, store
+    conn = store.open_db(thesis=snap)
+    m = memo.build(conn, snap, "2962040-6")
+    ctx = matching.company_context(conn, "2962040-6")
+    conn.close()
+    irl = ctx["fw"]["irl"]["level"]
+    assert irl is not None and m["levels"]["investment"]["band"] == memo.band(irl, snap["memo"]["bands"]["investment"])
+    inv_why = [w["text"] for w in m["why"] if w["text"].startswith("Investment readiness ")]
+    assert inv_why and f"(level {irl})" in inv_why[0]
+    r = m["recommendation"]
+    assert r["decision"] == "ACCELERATOR" and r["matched"] == "fallback c2, impact implied by sector"
+    assert "Medium, implied by sector" in r["because"]
+    from app import app
+    html = TestClient(app).get("/c/2962040-6").text
+    assert "because: fallback c2, impact implied by sector" in html
+    assert f"investment {irl} of 9" in html and "of 10 investment dimensions have public evidence" in html
+
+
+def test_fallback_rules():
+    from radar import memo, thesis
+    cfg = memo._cfg(thesis.load())
+    b = lambda **kw: {**{"impact": "unknown", "business": "Low", "investment": "unknown", "fit": "High", "technology": "unknown"}, **kw}  # noqa: E731
+    assert memo.decide(b(), cfg)[0]["id"] == "c2"                                         # business Low, TRL unknown
+    assert memo.decide(b(business="Medium", technology="Low"), cfg)[0]["decision"] == "GRANT SUPPORT"   # TRL 1-3
+    assert memo.decide(b(business="High", investment="High"), cfg)[0]["decision"] == "DUE DILIGENCE"
+    assert memo.decide(b(fit="Medium"), cfg)[0] is None                                   # fit not High: no fallback
+    assert memo.decide(b(impact="Medium"), cfg)[0] is None                                # impact known: the team's table decides
+    assert memo.decide(b(business="unknown"), cfg)[0] is None
+
+
+def test_fallback_rule_is_on_method(client):
+    t = client.get("/method").text
+    assert 'id="memo-fallback"' in t and "implied by the sector" in t

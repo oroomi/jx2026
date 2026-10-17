@@ -89,6 +89,10 @@ On company pages a defunct company gets no leads, and defunct targets are never 
 {% for m in rows %}<tr><th scope="row">{{ abbr }} {{ m.level }}</th><td>{{ m.rule }}</td></tr>{% endfor %}
 </tbody></table>
 {% endfor %}
+{% if thesis.memo and thesis.memo.decisions %}<h2 id="memo-rules">Fund memo decision</h2>
+<p>{{ thesis.memo.decisions.source }} The four cells are read from the levels the company page prints in question 02 (TRL, BRL, Investment Readiness, the Navigator category) and the thesis-fit reasons in question 01; a level with no public evidence is unknown and never Low.</p>
+{% if thesis.memo.decisions.fallback_text %}<p id="memo-fallback">{{ thesis.memo.decisions.fallback_text }}</p>{% endif %}
+{% endif %}
 <h2>Connector slots</h2>
 <ul>{% for c in connectors %}<li>{{ c }}: connector slot: not connected, no data shown</li>{% endfor %}</ul>
 {% endblock %}

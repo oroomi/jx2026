@@ -1,10 +1,11 @@
 """Aava: the narration script of one company page or of the feed. Pure functions, no database, no network, no model.
 
-A segment is {text, target, action, source_url[, value, max, points]}. target is the id of an element on the rendered page.
+A segment is {text, target, action, source_url, sha[, value, max, points]}; sha fingerprints the text (see text_sha). target is the id of an element on the rendered page.
 Every sentence is built from a row the page also shows; a fact the records lack is spoken as "no public record of X".
 Numbers appear only when the page prints them (dates are spoken as "13 June 2025" for the ISO date on the page)."""
 from __future__ import annotations
 
+import hashlib
 import re
 from datetime import date
 
@@ -14,6 +15,7 @@ MONTHS = ("January", "February", "March", "April", "May", "June", "July", "Augus
 MAX_SIGNALS_SPOKEN = 8
 MAX_DETAIL = 220
 LEVEL_MAX = 9
+SHA_LEN = 16
 _DASHES = re.compile(r"\s*[\u2013\u2014]\s*")
 
 
@@ -47,9 +49,16 @@ def _short(detail: str) -> str:
     return d[:MAX_DETAIL].rsplit(" ", 1)[0]
 
 
+def text_sha(text: str) -> str:
+    """Fingerprint of a segment's spoken text (first 16 hex of SHA-256). The pre-rendered audio manifest (radar.aava_voice) is keyed by it,
+    and the player plays a recording only when this value matches, so audio is never played over text it was not rendered from."""
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()[:SHA_LEN]
+
+
 def seg(text: str, target: str, action: str = "highlight", source_url: str | None = None, **extra) -> dict:
     assert action in ACTIONS
-    return {"text": clean(text), "target": target, "action": action, "source_url": source_url, **extra}
+    spoken = clean(text)
+    return {"text": spoken, "target": target, "action": action, "source_url": source_url, "sha": text_sha(spoken), **extra}
 
 
 def _source_label(s: dict) -> str:

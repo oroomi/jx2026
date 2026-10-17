@@ -71,6 +71,8 @@ Data page: /data shows every source, company and dated record in the database; t
 
 The same data is served as read-only JSON at <https://jx.hankintaviikko.fi/api> (company search, company, feed, backtest).
 
+Ask Aava (demo flag `?demo=1`) narrates a page from its own records; the voice is pre-rendered MP3 (ElevenLabs text-to-speech, default voice `21m00Tcm4TlvDq8ikWAM`, rendered once with `python3 -m radar.aava_voice render --keys 2962040-6,3166759-6 --feed`, set `ELEVENLABS_API_KEY`, optional `ELEVENLABS_VOICE_ID`), so the demo plays files with no network call and no key at runtime, and falls back to the browser voice when a clip is missing or the text has changed.
+
 ## Run it in 3 commands
 
 From the repository root, with Python 3.12:

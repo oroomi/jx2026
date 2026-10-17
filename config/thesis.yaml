@@ -137,6 +137,15 @@ matching:
     WATCHLIST: [accelerator, programme, funder]
     REJECT / LOW FIT: []
   always_kinds: [corporate, port]  # every startup also sees these as pilot partners
+  show_startups: 25              # org view and the home Top matching tab: how many ranked startups both print (one number, so the two never disagree)
+  org_pipeline:                  # org view (D62): a kind that meets startups before they reach its own verdict path is shown the early pipeline, not nothing
+    investor:
+      verdicts: [INVEST, DUE DILIGENCE, ACCELERATOR, GRANT SUPPORT, PORTFOLIO SUPPORT]   # the paths an investor's early pipeline is read from
+      ready: [INVEST, DUE DILIGENCE]                                                     # the paths an investor meets in the startup view; listed first
+      ready_label: at due diligence or invest
+      early_label: not yet at due diligence
+      none_ready: "No startup on the radar is at due diligence yet; these are the closest, in the order below."
+      some_ready: "{n} of these {are} at due diligence or invest and come first; the others are earlier pipeline, in the order below."
   regions:                       # HARD FILTER 2: words a counterpart's declared geography can use -> country codes ("*" = anywhere). Longest word first, matched once.
     finland: [FI]
     suomi: [FI]
@@ -549,6 +558,23 @@ ask:
     - "match {org}"
     - "matches for {org}"
     - "introductions for {org}"
+  top_phrases:                    # "top startups" and its kin: the Top matching ranking of the default organisation (A'Pelago), or of the one named (D64)
+    [top startups, best startups, top matching startups, top matching, top matches, best matches, best match, top match, best investment, best investments,
+     best startup, top startup, who should we invest in, who should we back, who to invest in]
+  top_patterns:                   # {org} is the investor or accelerator named; the ranking is that organisation's
+    - "who should {org} invest in"
+    - "who should {org} back"
+    - "who should {org} fund"
+    - "who should {org} accept"
+    - "top startups for {org}"
+    - "best startups for {org}"
+    - "top matching startups for {org}"
+    - "top matches for {org}"
+    - "best matches for {org}"
+    - "best investment for {org}"
+    - "best investments for {org}"
+    - "{org} top startups"
+    - "{org} best startups"
   org_types:                      # type column of data/declared/*.csv -> words for one line
     vc: a venture capital investor
     corporate_vc: a corporate venture investor

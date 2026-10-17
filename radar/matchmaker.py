@@ -30,7 +30,8 @@ RULE = ("Filter, then rank. A counterpart is listed when its kind fits the start
         "startup. It must also hold at least one topic reason: the same sector or impact area, shared words, or lookalikes in its declared "
         "cohort or portfolio. Listed counterparts are ordered by how many reasons hold and by the weight the thesis file gives each reason "
         "(sector and lookalike most, then shared words and readiness, then timing and geography), then by the nearest deadline. "
-        "The reasons are shown, never a total.")
+        "The reasons are shown, never a total. From an investor's side the early pipeline counts as well: startups on the accelerator, grant "
+        "support, due diligence or invest paths are ranked, those at due diligence or invest first, and the page says in words when none is that far.")
 
 
 # ---- the startup side ---------------------------------------------------------------------------------------------
@@ -393,6 +394,24 @@ def _sort_key(r: dict, primary: set[str]):
     return (-r["_w"], -r["met"], -r["_s"], 0 if r["kind"] in primary else 1, r["deadline"] or "9999-99-99", r["name"].casefold())
 
 
+def org_limit(thesis: dict) -> int:
+    """How many ranked startups the organisation view and the home Top matching tab both print (`matching.show_startups`)."""
+    cfg = matchtext.config(thesis)
+    return int((cfg or {}).get("show_startups", 25))
+
+
+def pipeline_config(cfg: dict, kind: str) -> dict | None:
+    """The early-pipeline reading of a counterpart kind (`matching.org_pipeline`), or None when its startups follow the verdict path alone."""
+    return (cfg.get("org_pipeline") or {}).get(kind) or None
+
+
+def pipeline_note(pc: dict, ready: int) -> str:
+    """The one honest sentence over an early-pipeline ranking, from the words in the thesis file."""
+    if not ready:
+        return pc["none_ready"]
+    return pc["some_ready"].format(n=ready, are="is" if ready == 1 else "are")
+
+
 # ---- the two views ------------------------------------------------------------------------------------------------
 
 def _with_conn(conn, thesis):
@@ -462,13 +481,14 @@ def _company_head(sp: dict, cfg: dict, primary: set[str]) -> dict:
             "grants_on_record": len(sp["grants"]), "pipeline_on_record": len(sp["pipeline"])}
 
 
-def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = None, today=None, limit: int = 25) -> dict | None:
+def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = None, today=None, limit: int | None = None) -> dict | None:
     """The startups that fit one counterpart. `connected` holds the companies it is already connected to (its declared cohort or portfolio
     in our records) with the reason they are connected; `startups` ranks only the others, by the same components, after a cheap first pass
     over every company and a full profile of the best `candidates`. Both lists carry rows of the same shape (D38)."""
     cfg = matchtext.config(thesis)
     if cfg is None:
         return None
+    limit = org_limit(thesis) if limit is None else limit
     conn, own = _with_conn(conn, thesis)
     if conn is None:
         return None
@@ -478,6 +498,8 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
         org = reg["by_id"].get(org_id)
         if org is None:
             return None
+        pc = pipeline_config(cfg, org["kind"])
+        ready_v = set(pc.get("ready") or []) if pc else set()
         idx = _index(conn, thesis, cfg, t)
         connected = []
         for key, m in org["members"].items():
@@ -499,6 +521,7 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
         out_rows = []
         closed = _open(org, t)
         cand = []
+        removed: Counter = Counter()
         tiers = {g: i for i, g in enumerate(cfg.get("tier_order") or [])}
         if not closed:
             for key, base in idx.items():
@@ -506,10 +529,14 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
                     continue
                 ev = evaluate(dict(base), org, cfg, idx, reg["df"], t, full=False)
                 if ev["excluded"]:
+                    removed[re.sub(r"'[^']*'", "'...'", re.sub(r"\b[A-Z]{2}\b", "the startup's country", ev["excluded"]))] += 1
                     continue
                 cand.append((ev["_w"], ev["met"], ev["_s"], tiers.get(base["group_tag"], 9), base["name"].casefold(), key))
             cand.sort(key=lambda c: (-c[0], -c[1], -c[2], c[3], c[4]))
-            kinds_ok = lambda dec: org["kind"] in set(cfg["path_kinds"].get(dec) or []) | set(cfg.get("always_kinds") or [])
+            if pc:        # D62: an investor is shown the early pipeline (every verdict path the thesis lists), those that are ready first
+                kinds_ok = lambda dec: dec in set(pc["verdicts"]) or org["kind"] in set(cfg.get("always_kinds") or [])
+            else:
+                kinds_ok = lambda dec: org["kind"] in set(cfg["path_kinds"].get(dec) or []) | set(cfg.get("always_kinds") or [])
             full_rows = []
             for _w, _m, _s, _t, _n, key in cand[: int(cfg.get("candidates", 300))]:
                 sp = startup(conn, thesis, cfg, key, t)
@@ -519,14 +546,19 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
                 if ev["excluded"]:
                     continue
                 full_rows.append(_startup_row(sp, ev["components"], False, ev))
-            full_rows.sort(key=lambda r: (-r["_w"], -r["met"], -r["_s"], tiers.get(r["tier"], 9), r["name"].casefold()))
+            full_rows.sort(key=lambda r: (r["verdict"] not in ready_v if pc else 0, -r["_w"], -r["met"], -r["_s"], tiers.get(r["tier"], 9), r["name"].casefold()))
             out_rows += full_rows
         shown = out_rows[:limit]
         for i, r in enumerate(shown, 1):
             r["rank"] = i
+            r["early"] = bool(pc) and r["verdict"] not in ready_v       # on an early-pipeline path: said in words beside the verdict
             for k in ("_w", "_s", "tier"):
                 r.pop(k, None)
+        n_ready = sum(1 for r in out_rows if r["verdict"] in ready_v)
+        pipeline = ({"ready": n_ready, "early": len(out_rows) - n_ready, "note": pipeline_note(pc, n_ready) if out_rows else None,
+                     "ready_label": pc.get("ready_label"), "early_label": pc.get("early_label")} if pc else None)
         row = _org_row(org, cfg)
+        row["empty_reason"] = None if out_rows or closed else _empty_reason(org, cfg, removed, len(idx), len(cand), pc)
         row["closed_note"] = closed
         row["revealed"] = {"members_in_records": len(org["members"]), "declared_companies": org["declared_total"],
                            "basis": sorted({m["basis"] for m in org["members"].values()}),
@@ -534,15 +566,28 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
         return {"org": row, "as_of": t.isoformat(), "rule": RULE, "weights": cfg["weights"],
                 "candidates_profiled": min(len(cand), int(cfg.get("candidates", 300))) if not closed else 0,
                 "unprofiled": max(0, len(cand) - int(cfg.get("candidates", 300))),
-                "listed": len(out_rows), "startups": shown, "connected": connected, "limits": LIMITS}
+                "listed": len(out_rows), "startups": shown, "connected": connected, "pipeline": pipeline, "limits": LIMITS}
     finally:
         if own:
             conn.close()
 
 
+def _empty_reason(org: dict, cfg: dict, removed: Counter, total: int, passed_topic: int, pc: dict | None) -> str:
+    """Why an open counterpart ranks nobody, in words and from the counts (never a bare 'no match')."""
+    if passed_topic:
+        what = "the paths " + plain_list([v.lower() for v in pc["verdicts"]]) if pc else "the verdict paths this kind meets"
+        return f"{passed_topic} of the {total} startups pass its topic and geography filters, and none of them is on {what}."
+    if not org["has_declared"] and not org["lookalikes"]:
+        return "it declares no sector text and no portfolio in our records, so there is nothing to match a startup on."
+    if removed:
+        reason, n = removed.most_common(1)[0]
+        return f"{n} of the {total} startups were removed because {reason[0].lower() + reason[1:]}."
+    return "no startup on the radar passes its filters."
+
+
 def _startup_row(sp: dict, comps: list[dict], member: bool, ev: dict) -> dict:
     return {"key": sp["key"], "name": sp["name"], "url": "/c/" + sp["key"], "country": sp["country"], "member": member,
-            "verdict": sp.get("decision"), "industry_family": sp["family"], "components": comps,
+            "verdict": sp.get("decision"), "early": False, "industry_family": sp["family"], "components": comps,
             "met": sum(1 for c in comps if c["met"] and c["id"] != "member"), "_w": ev["_w"], "_s": ev["_s"], "tier": sp["group_tag"]}
 
 

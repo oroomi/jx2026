@@ -1,7 +1,8 @@
 """The Top matching tab of the home list: the investors and accelerators the matchmaker knows (the picker), and, for one of them, the
-startups of the home list ranked the way the matchmaker's organisation view ranks them (`radar.matchmaker.match_org`), each with its top
-two reasons in words. Nothing here scores or ranks: it asks the matchmaker, keeps its order and its reason sentences, and the caller
-intersects the result with the home list and the other filters (D35).
+startups the matchmaker's organisation view ranks (`radar.matchmaker.match_org`), each with its top reasons in words. Nothing here scores
+or ranks: it asks the matchmaker, keeps its order, its count (`matching.show_startups`) and its reason sentences, so the tab and the Match
+page never disagree (D62, D63; it replaces the intersection with the home list that D35 described). The other filters of the rail apply on
+top, to the rows that carry those facts.
 
 The matchmaker's organisation view takes about 1.5 s per organisation, so a ranking is built once per organisation and store version, in a
 background thread; a request waits for it at most WAIT_SECONDS and then shows the plain Top matching list with a one-line note, the same
@@ -77,9 +78,15 @@ def top_reasons(components: list[dict], n: int) -> list[str]:
 
 def _build(thesis: dict, key: tuple, org_id: str, done: threading.Event) -> None:
     try:
-        res = matchmaker.match_org(org_id, thesis, limit=10 ** 6)
+        res = matchmaker.match_org(org_id, thesis) or {}          # the default limit: the number the Match page prints
         n = int(home_config.top_matching()["reasons"])
-        ranks = {s["key"]: {"rank": s["rank"], "why": top_reasons(s["components"], n)} for s in (res or {}).get("startups", [])}
+        names = home_config.country_names()
+        rows = [{"key": s["key"], "name": s["name"], "rank": s["rank"], "verdict": s["verdict"], "early": s.get("early", False),
+                 "country": names.get(s["country"] or "", s["country"]), "why": top_reasons(s["components"], n)} for s in res.get("startups", [])]
+        pipe = res.get("pipeline") or {}
+        org = res.get("org") or {}
+        ranks = {"rows": rows, "listed": res.get("listed", 0), "connected": len(res.get("connected", [])), "note": pipe.get("note"),
+                 "early_label": pipe.get("early_label"), "empty_reason": org.get("empty_reason"), "closed_note": org.get("closed_note")}
         with _lock:
             _ranks.clear() if len(_ranks) > 40 else None
             _ranks[key] = ranks
@@ -92,8 +99,9 @@ def _build(thesis: dict, key: tuple, org_id: str, done: threading.Event) -> None
 
 
 def ranking(thesis: dict, org_id: str, wait: float | None = WAIT_SECONDS) -> dict | None:
-    """{company_key: {"rank", "why"}} for one organisation: the matchmaker's order over every startup it lists, with the reasons. Built in
-    the background once per store version; None while it is not ready (after waiting `wait` seconds; `wait=None` builds here and blocks)."""
+    """The matchmaker's ranking for one organisation, as the tab prints it: {rows: [{key, name, rank, verdict, early, country, why}], listed,
+    connected, note, early_label, empty_reason, closed_note}, in the matchmaker's order and count. Built in the background once per store
+    version; None while it is not ready (after waiting `wait` seconds; `wait=None` builds here and blocks)."""
     stamp = home_list.stamp(thesis)
     if stamp is None:
         return None

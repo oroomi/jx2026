@@ -301,13 +301,14 @@ def chips(sel: dict[str, list[str]], extra: dict[str, str], names: dict[str, str
 
 def top_matching(H: dict, groups: list[tuple], match: dict | None) -> list[tuple]:
     """The groups with the Top matching tab (`fit`) made for the organisation in view. Its rows are the matchmaker's ranking for that
-    organisation (radar.home_orgs) intersected with the home list, in the matchmaker's order, each with its reasons in `why`; the other
-    filters are applied after, like on every tab. Without an organisation or a ranking the tab is the plain list under its plain label."""
+    organisation (radar.home_orgs), all of them, in its order and with its reasons in `why` (D62, D63). A startup that is also on the home
+    list keeps that row's facts, so the rail's filters narrow the ranking to the startups that carry them; the others have no facts for
+    the rail and drop out only when a filter is chosen. Without an organisation or a ranking the tab is the plain list under its plain label."""
     rank = (match or {}).get("rank")
     if not match or not match.get("org") or rank is None:
         return groups
     by_key = {r["company_key"]: r for r in H.get("rows") or []}
-    rows = [dict(by_key[k], why=rank[k]["why"]) for k in sorted((k for k in rank if k in by_key), key=lambda k: rank[k]["rank"])]
+    rows = [{**(by_key.get(m["key"]) or {"facets": {}}), "company_key": m["key"], "name": m["name"], "why": m["why"], "match": m} for m in rank["rows"]]
     entry = ("fit", home_config.group_label_for("fit", match["name"]), rows)
     at = next((i for i, g in enumerate(groups) if g[0] == "fit"), None)
     return [*groups[:at], entry, *groups[at + 1:]] if at is not None else [*groups[:1], entry, *groups[1:]]
@@ -347,6 +348,14 @@ def view(H: dict, params_, *, sectors: list[dict] | None = None, current: str = 
             kinds.setdefault(o["kind_label"], []).append(o)
         out["picker"] = {"orgs": match["orgs"], "kinds": list(kinds.items()), "org": match.get("org"), "name": match.get("name"), "any_label": match.get("any_label"), "pending": match.get("pending"),
                          "any": ANY_VALUE, "hidden": [(k, v) for k, v in _hidden(st)]}
+    out["match_view"] = None
+    rank = (match or {}).get("rank")
+    if match and match.get("org") and rank is not None and cur and cur[0] == "fit":
+        out["match_view"] = {"org": match["org"], "name": match["name"], "ranked": len(rank["rows"]), "listed": rank["listed"], "note": rank["note"],
+                             "early_label": rank["early_label"], "empty_reason": rank["empty_reason"], "closed_note": rank["closed_note"],
+                             "connected": rank["connected"], "filtered": bool(sel), "shown": len(cur[2]),
+                             "match_href": "/match?" + urlencode({"org": match["org"]}),
+                             "connected_href": "/match?" + urlencode({"org": match["org"], "tab": "connected"})}
     out["tabs"] = [{"key": k, "label": label, "n": len(rs), "on": bool(cur) and cur[0] == k,
                     "href": href(sel, {**extra, "group": "" if k == "all" else k}), "hx": href(sel, {**extra, "group": "" if k == "all" else k}, None, PARTIAL)}
                    for k, label, rs in out["groups"]]
@@ -354,7 +363,9 @@ def view(H: dict, params_, *, sectors: list[dict] | None = None, current: str = 
     R = rail(cur_unfiltered[2], sel, extra, S) if cur_unfiltered else None
     if R is not None:
         R["total"] = len(H.get("rows") or [])
-        R["count_text"] = f"{R['shown']} of {R['total']} startups"
+        mv = out["match_view"]
+        R["count_text"] = (f"{R['shown']} of the {mv['ranked']} startups ranked for {mv['name']}" if sel else f"{mv['ranked']} startups ranked for {mv['name']}") \
+            if mv else f"{R['shown']} of {R['total']} startups"
         R["chips"] = chips(sel, extra, sub_labels(H.get("rows")))
         R["state_url"] = st.url
         R["country"] = next((f for f in R["facets"] if f["param"] == "country"), None)

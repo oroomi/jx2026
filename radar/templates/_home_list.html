@@ -32,7 +32,8 @@
   </div>
   {% if (R.n_active and cur[2]) or R.sector_chip %}<div class="hc-active">{{ chip_list(R, true, cur[2] | length > 0) }}{% if R.n_active and cur[2] %}<a class="hc-clearall" href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-replace-url="{{ R.clear_href }}">Clear all</a>{% endif %}</div>{% endif %}
   {% include "_filter_rail.html" %}
-  {% if cur[2] %}
+  {% if H.match_view and cur[2] %}{% include "_home_match.html" %}
+  {% elif cur[2] %}
   <ol class="hc-rows">
   {% for r in cur[2] %}
     {% set w = (r.name | replace(" Oyj", "") | replace(" Oy", "") | replace(" Ab", "") | replace(" AB", "") | trim).split() %}
@@ -54,9 +55,10 @@
   <div class="hc-empty">
     {% if R.n_active %}<p class="hc-empty-h">No startup matches these filters</p>
     {{ chip_list(R) }}<p class="hc-empty-p">Remove a filter above, or <a class="hc-clearall" href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-replace-url="{{ R.clear_href }}">clear all</a> to see all {{ R.total }}.</p>
+    {% elif H.match_view %}{% set M = H.match_view %}<p class="hc-empty-h">No startup on the radar is ranked for {{ M.name }}</p><p class="hc-empty-p">{% if M.closed_note %}{{ M.closed_note | capitalize }}. {% elif M.empty_reason %}Why: {{ M.empty_reason }} {% endif %}{% if M.connected %}<a href="{{ M.connected_href }}">{{ M.connected }} companies it is already connected to</a> are on the Match page. {% endif %}Pick another investor or accelerator above.</p>
     {% elif H.picker and H.picker.name %}<p class="hc-empty-h">No startup on this list is matched to {{ H.picker.name }}</p><p class="hc-empty-p">Pick another investor or accelerator above.</p>
     {% else %}<p class="hc-empty-h">There is nothing in this group yet</p>{% endif %}
   </div>
   {% endif %}
-  <p class="hc-note">{{ "Newest public record first." if cur[0] == "new" else "Strongest verdict first." }}{% if not (H.groups | selectattr(0, "equalto", "ready") | list) %} Investor-ready appears once a company's investment readiness reads High.{% endif %} Every row opens its sourced company page.</p>
+  <p class="hc-note">{{ "Newest public record first." if cur[0] == "new" else ("In the matchmaker's order, the same list as the Match page." if H.match_view else "Strongest verdict first.") }}{% if not (H.groups | selectattr(0, "equalto", "ready") | list) %} Investor-ready appears once a company's investment readiness reads High.{% endif %} Every row opens its sourced company page.</p>
 </div>

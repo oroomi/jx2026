@@ -83,16 +83,17 @@
   {% else %}<p class="mt-note">None of its declared companies is in our records.</p>{% endif %}
   {% elif result.startups %}
   <h3 class="mt-sub">Startups that fit, not yet connected ({{ result.listed }} checked in full pass the filters{% if result.startups | length < result.listed %}, the top {{ result.startups | length }} shown{% endif %}{% if result.unprofiled %}; {{ result.unprofiled }} more passed the first pass and were not checked in full{% endif %})</h3>
+  {% if result.pipeline and result.pipeline.note %}<p class="mt-note mt-pipeline" id="mt-pipeline">{{ result.pipeline.note }}</p>{% endif %}
   <ol class="mt-results">
   {% for s in result.startups %}
     <li class="mt-res">
-      <p class="mt-res-h"><a class="mt-res-n" href="{{ s.url }}">{{ s.name }}</a> <span class="mt-meta">{{ s.country or "country not in records" }}{% if s.verdict %} · {{ s.verdict | lower }}{% endif %}</span></p>
+      <p class="mt-res-h"><a class="mt-res-n" href="{{ s.url }}">{{ s.name }}</a> <span class="mt-meta">{{ s.country or "country not in records" }}{% if s.verdict %} · {{ s.verdict | lower }}{% if s.early and result.pipeline.early_label %}, {{ result.pipeline.early_label }}{% endif %}{% endif %}</span></p>
       {{ chips(s.components) }}
       {{ why(s.components) }}
     </li>
   {% endfor %}
   </ol>
-  {% else %}<p class="mt-note">No startup passes the filters with a reason for this counterpart{% if result.connected %}; the companies it is already connected to are on the other tab{% endif %}.</p>{% endif %}
+  {% else %}<p class="mt-note">No startup on the radar is ranked for this counterpart{% if o.empty_reason %}: {{ o.empty_reason }}{% else %}.{% endif %}{% if result.connected %} The companies it is already connected to are on the other tab.{% endif %}</p>{% endif %}
 {% elif view == "company" and result %}
   {% set k = result.company %}
   <p class="mt-kind">{{ k.verdict | lower }} path · {{ k.country or "country not in records" }}{% if k.age_band %} · {{ k.age_band }} old{% endif %}</p>

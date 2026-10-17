@@ -68,7 +68,8 @@
         bar.appendChild(seg);
       });
     });
-    var parts = ["Holds: " + (r.met.length ? names(r.met) : "none of these reasons")];
+    var held = byKeyOrder(r.met).map(function (k) { return LABELS[k].toLowerCase() + (w[k] ? "" : " (you weigh it 0)"); });
+    var parts = ["Holds: " + (held.length ? held.join(", ") : "none of these reasons")];
     if (r.no.length) parts.push("does not hold: " + names(r.no));
     if (r.none.length) parts.push("no record: " + names(r.none));
     bar.setAttribute("aria-label", parts.join("; ") + ".");
@@ -107,7 +108,6 @@
   }
 
   // ---- apply --------------------------------------------------------------------------------------------------------------------
-  var shownOrder = rows.slice(0, SHOWN).map(function (r) { return r.id; });
   var fullOrder = rows.map(function (r) { return r.id; });
   var basePos = null, timer = null;
 
@@ -168,11 +168,8 @@
         Array.prototype.forEach.call(list.querySelectorAll(".mw-move"), function (b) { b.classList.add("mw-fade"); });
         setTimeout(clearMoves, 300);
       }, 4000);
-      var first = top[0] ? top[0].name : "";
-      var was = shownOrder.join("|") !== top.map(function (r) { return r.id; }).join("|");
-      if (status) status.textContent = was ? "New order: " + first + " first; " + moved + " of the top " + SHOWN + " moved." : "Same order.";
+      if (status) status.textContent = moved ? "New order: " + top[0].name + " first; " + moved + " of the top " + SHOWN + " moved." : "Same order as before.";
     }
-    shownOrder = top.map(function (r) { return r.id; });
     fullOrder = ord.map(function (r) { return r.id; });
     if (results) setTimeout(function () { results.setAttribute("aria-live", "polite"); }, 600);
     syncPanel(w);
@@ -189,7 +186,7 @@
       render(current(), true);
     });
   });
-  ["pointerdown", "focusin", "keydown", "toggle"].forEach(function (ev) {
+  ["pointerdown", "focusin", "keydown"].forEach(function (ev) {          // fetched on the first touch of the panel, not on every page view
     panel.addEventListener(ev, function once() { loadExtras(); panel.removeEventListener(ev, once); });
   });
 

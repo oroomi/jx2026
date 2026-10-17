@@ -4,7 +4,10 @@
 .mw[hidden] { display: none; }
 .mw { margin: 8px 0 16px; border: 1px solid var(--hairline); background: var(--surface); }
 .mw > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; min-height: 44px; padding: 4px 12px; cursor: pointer; font-weight: 600; }
-.mw > summary::marker { color: var(--muted); }
+.mw > summary::-webkit-details-marker { display: none; }
+.mw > summary { list-style: none; }
+.mw > summary::after { content: "Open"; margin-left: auto; font-size: 14px; font-weight: 500; color: var(--accent); }
+.mw[open] > summary::after { content: "Close"; }
 .mw-state { font-weight: 400; font-size: 14px; color: var(--muted); }
 .mw-body { padding: 0 12px 12px; }
 .mw-lede { margin: 0 0 10px; font-size: 15px; max-width: 64ch; }

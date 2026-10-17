@@ -154,6 +154,13 @@ def medium_code(code, spec: dict) -> bool:
     return bool(c) and any(c.startswith(str(f).replace(".", "").strip()) for f in spec.get("medium_codes") or [] if str(f).strip())
 
 
+def code_only_fit(reasons, code, spec: dict) -> bool:
+    """True when a feed row's thesis fit rests on an industry code in a `medium_codes` family and on nothing more (D22): the source's own
+    text and a name word corroborated by a different source family are the evidence that lifts such a code. The registered line of
+    business does not: for these families it is the code's own register label, so it says the same thing twice."""
+    return "industry_code" in (reasons or []) and medium_code(code, spec) and not {"own_text", "corroborated_keyword"} & set(reasons)
+
+
 def _fit(conn, ctx: dict, thesis: dict, spec: dict) -> dict:
     """Thesis fit from the same explain() the feed uses. industry_code or own_text = High; line_of_business or corroborated_keyword =
     Medium; only the legal name = Low; no reason = unknown. A declared cohort or portfolio company has at least the configured floor.

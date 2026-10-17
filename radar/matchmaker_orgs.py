@@ -200,12 +200,16 @@ def _read(cfg: dict, thesis: dict) -> list[dict]:
 
 def _focus(o: dict, thesis: dict, names: tuple[str, ...]) -> str:
     """One line of what the organisation says it wants, person names redacted (the words of listed organisation names are not names),
-    or '' when it says nothing."""
+    or '' when it says nothing. A sentence or clause that holds a redaction marker is dropped (D31); when that leaves nothing,
+    `o["focus_dropped"]` is set and the caller shows the organisation type only."""
     text = next((p.strip() for p in o["parts"] if p and len(p.strip()) > 12), "")
     segs = [x for x in re.split(r"(?<=[.;])\s+", text) if not re.search(r"\.csv\b|\b(?:we|our)\b", x, re.I)]   # the list's own working notes are not the organisation's words
     text = " ".join(segs).replace("_", " ")
     text = fit_mod.redact_person_names(text, o["name"], thesis, also_allowed=names)
     text = re.sub(r"\s+", " ", text).strip(" ;,.")
+    kept = fit_mod.drop_redacted_clauses(text).strip(" ;,.")
+    o["focus_dropped"] = bool(text) and not kept
+    text = kept
     if len(text) > 150:
         text = text[:150].rsplit(" ", 1)[0].rstrip(" ;,.") + "..."
     return text

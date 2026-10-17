@@ -113,7 +113,8 @@ monday tuesday wednesday thursday friday saturday sunday
 significant funding funded receives received closes closed announces announced groundbreaking pioneers generation software
 platform solution solutions system systems service services product products launch launches launched era next
 """.split())
-_CAP = r"[A-ZÅÄÖÜÉÆØ][a-zåäöüéèæø'\-]+"
+# An apostrophe inside a capitalised word belongs to the word ("A'Pelago", "O'Brien"): a run starts at its first capital, never inside it.
+_CAP = r"[A-ZÅÄÖÜÉÆØ](?:['\u2019][A-ZÅÄÖÜÉÆØ])?[a-zåäöüéèæø'\u2019\-]+"
 _PERSON_RUN = re.compile(rf"\b{_CAP}(?:\s+{_CAP}){{1,2}}\b")
 
 

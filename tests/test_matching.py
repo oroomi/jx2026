@@ -98,7 +98,10 @@ def test_next_step_rule_2_public_buyer(world):
 def test_next_step_rule_3_raise(world):
     conn, th = world
     emit.emit_signal(conn, company_key="9100001-1", signal_type="public_contract", date="2025-09-01", source_url="https://contract.example.test/1", confidence="high",
-                     adapter="synthetic", detail="Fixture Agency: unrelated service (EUR 1,000)")   # TRL 7 by the rule
+                     adapter="synthetic", detail="Fixture Agency: unrelated service (EUR 1,000)")   # business readiness only (D77)
+    conn.execute("INSERT INTO blueinvest_profiles (profile_id, company_key, title, trl, url, fetched_at) VALUES "
+                 "('p-9100001-1', '9100001-1', 'Fixture', 7, 'https://bi.example.test/1', '2026-10-16T00:00:00Z')")   # TRL 7 as the profile states it
+    conn.commit()
     emit.emit_signal(conn, company_key="9100001-1", signal_type="bf_funding", date="2026-04-01", source_url="https://bf.example.test/1", confidence="high",
                      adapter="businessfinland", detail="grant")
     s = matching.next_step("9100001-1", th, conn=conn, today=TODAY)

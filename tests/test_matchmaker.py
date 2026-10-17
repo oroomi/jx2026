@@ -98,12 +98,12 @@ def test_verdict_path_filters_kinds(env, monkeypatch):
     cfg = matchtext.config(th)
     real = matchmaker._verdict
     for decision, want in (("INVEST", {"investor"}), ("ACCELERATOR", {"accelerator", "programme", "funder"})):
-        monkeypatch.setattr(matchmaker, "_verdict", lambda c, t, k, d=decision: {**real(c, t, k), "decision": d})
+        monkeypatch.setattr(matchmaker, "_verdict", lambda c, t, k, *a, d=decision: {**real(c, t, k, *a), "decision": d})
         res = matchmaker.match_company(VIVA, th, conn=conn, today=TODAY, limit=50)
         kinds = {r["kind"] for r in res["counterparts"]}
         assert kinds <= want | set(cfg["always_kinds"]), (decision, kinds)
         assert kinds & want, decision
-    monkeypatch.setattr(matchmaker, "_verdict", lambda c, t, k: {**real(c, t, k), "decision": "REJECT / LOW FIT"})
+    monkeypatch.setattr(matchmaker, "_verdict", lambda c, t, k, *a: {**real(c, t, k, *a), "decision": "REJECT / LOW FIT"})
     res = matchmaker.match_company(VIVA, th, conn=conn, today=TODAY, limit=50)
     assert {r["kind"] for r in res["counterparts"]} <= set(cfg["always_kinds"])
 

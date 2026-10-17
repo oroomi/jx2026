@@ -93,9 +93,9 @@ def test_none_of_the_judged_strings_is_on_any_judged_page(site):
         r = client.get(p)
         assert r.status_code == 200, p
         t = _visible(r.text)
-        t = re.sub(r"<span class=\"cc-rule\".*?</span>", " ", t)          # the verdict block's own rule label belongs to the coherence work
+        chipless = _visible(re.sub(r"<span class=\"cc-rule\".*?</span>", " ", r.text))   # the verdict chip may say "decision table row 7" (the table prints its rows)
         for name, rx in FORBIDDEN.items():
-            for m in re.finditer(rx, t):
+            for m in re.finditer(rx, chipless if name == "decision row id" else t):   # D79: a rule letter is forbidden in the chip too
                 bad.append((p, name, t[max(0, m.start() - 40):m.end() + 40]))
     assert not bad, bad[:8]
 

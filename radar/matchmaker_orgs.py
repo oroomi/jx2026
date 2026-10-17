@@ -343,6 +343,29 @@ def _sig(thesis: dict, conn) -> tuple:
     return (thesis["id"], dbp, *(Path(f).stat().st_mtime_ns if Path(f).is_file() else 0 for f in [dbp, *files]))
 
 
+_NAMES: dict = {}
+
+
+def counterpart_index(thesis: dict) -> dict[str, str]:
+    """Folded organisation key -> kind of every counterpart organisation the thesis declares (the declared lists, the dataset's
+    organisation rows, the programme windows: the same rows the registry reads, without the store). A company in the store whose folded
+    name is one of these keys is itself a counterpart, so it is never offered as a startup (D76). Empty when the thesis has no
+    matchmaking. Cached per source-file version."""
+    cfg = matchtext.config(thesis)
+    if cfg is None:
+        return {}
+    from radar.adapters.ecosystem import DB_PATH
+    m = thesis.get("matching") or {}
+    files = [DB_PATH] + [ROOT / m[k] for k in ("investors", "corporates", "programmes") if m.get(k)]
+    sig = (thesis["id"], *(Path(f).stat().st_mtime_ns if Path(f).is_file() else 0 for f in files))
+    hit = _NAMES.get(sig)
+    if hit is None:
+        hit = {o["okey"]: o["kind"] for o in _read(cfg, thesis) if o["okey"]}
+        _NAMES.clear()
+        _NAMES[sig] = hit
+    return hit
+
+
 def registry(conn, thesis: dict) -> dict | None:
     """{'orgs': [...], 'by_id': {...}, 'df': Counter, 'n_text': int} for a thesis, rebuilt when a source file or the store changes."""
     cfg = matchtext.config(thesis)

@@ -68,7 +68,7 @@ hilma_keywords: [meri, vesi, satama, väylä, laivaliikenne, jäänmurto, vesist
 
 # Readiness scales (rules live in radar/readiness.py; this lists what the page prints)
 readiness:
-  technology: {scale: "TRL 1-9", source_classes: [patent, eu_project, bf_funding, blueinvest, public_contract]}
+  technology: {scale: "TRL 1-9", source_classes: [patent, eu_project, bf_funding, blueinvest]}   # a public contract sets business readiness only, never TRL (D77)
   business:   {scale: "BRL 1-9 (KTH business readiness)", source_classes: [register_entry, public_contract, site_customer, job_ad]}
   investment: {scale: "IRL 1-9", source_classes: [bf_funding, eu_project, blueinvest]}
   ocean_impact: {scale: "1-5, 'no public evidence' when nothing is published", source_classes: [blueinvest, eu_project]}
@@ -138,6 +138,7 @@ matching:
     WATCHLIST: [accelerator, programme, funder]
     REJECT / LOW FIT: []
   always_kinds: [corporate, port]  # every startup also sees these as pilot partners
+  startup_kinds: [investor, accelerator]   # D76: these meet startups only; a company that is not a startup on the thesis' rule (older than geography.stage_max_company_age_years, or itself a counterpart organisation; a declared cohort or portfolio company always is one) is never offered to them
   show_startups: 25              # org view and the home Top matching tab: how many ranked startups both print (one number, so the two never disagree)
   org_pipeline:                  # org view (D63): a kind that meets startups before they reach its own verdict path is shown the early pipeline, not nothing
     investor:
@@ -484,8 +485,8 @@ memo:
       # The company's own text, or a name word corroborated by a different source family, can still lift it to High.
       medium_codes: ["36", "37", "39"]
       declared_member_band: High       # a declared cohort or portfolio company has at least this fit (it was selected for the programme; D47)
-      # D66: a High fit whose every reason is the industry code or the register's own label for that code (the line of business) rests on
-      # the code alone, so it is capped here. A declared member is excepted (the floor above applies after the cap).
+      # D66, D78: a High fit whose every reason is the industry code or the register's own label for a code (the line of business; either
+      # one, or both) rests on code-level evidence alone, so it is capped here. A declared member is excepted (the floor above applies after the cap).
       code_alone_band: Medium
       code_alone_reasons: [industry_code, line_of_business]
       code_alone_note: "the industry code alone gives at most a Medium fit"
@@ -523,17 +524,24 @@ memo:
     # Impact is then read as implied by the sector (Medium) and the team's rows are applied with measured impact relaxed to that.
     # Gate: an industry code alone must not carry it. At least one of requires_any must hold, else the company stays on the watchlist:
     #   declared_member = declared cohort or portfolio company; own_text = a fit reason from the source's own text (bands.fit.high);
-    #   line_of_business = the registered line of business names the sector (the company's own declaration at PRH);
     #   corroborated_signal = a name word backed by a record from a different source family (the feed's corroborated_keyword reason).
+    #   The registered line of business is not in the list: it is the register's label for an industry code, so it is code-level evidence (D78).
     fallback:
       when: {fit: High, impact: unknown}
-      requires_any: [declared_member, own_text, line_of_business, corroborated_signal]
+      requires_any: [declared_member, own_text, corroborated_signal]
       blocked_note: "fit rests on the industry code alone"
       implied_impact: Medium
       rules:
         - {id: c1, when: {business: [Low, Medium], technology: Low}, team: "Early-Stage Impact Startup", decision: GRANT SUPPORT, action: "TRL 1-3: recommend grants and incubation support"}
         - {id: c2, when: {business: [Low, Medium]}, team: "Accelerator Candidate", decision: ACCELERATOR, action: "Accept into accelerator and provide mentoring"}
         - {id: c3, when: {business: High, investment: High}, team: "Investment Preparation", decision: DUE DILIGENCE, action: "Help prepare fundraising and connect with investors"}
+    # After the table (D76): a startup-only verdict needs a startup. A company founded more than geography.stage_max_company_age_years ago,
+    # or one that is itself a counterpart organisation in the declared lists, gets `decision` instead; a declared cohort or portfolio
+    # company is a startup by declaration (and is decided by pass 0 anyway).
+    stage_cut:
+      verdicts: [ACCELERATOR]
+      decision: WATCHLIST
+      text: "Startup cut (after the table): the accelerator verdict is for startups. A company founded more than {years} years ago, or one that is itself a counterpart organisation in the declared lists (an investor, buyer, port, programme or funder), stays on the watchlist instead; a declared cohort or portfolio company is a startup by declaration."
     fallback_text: "Fallback (pass 3): when thesis fit is High and there is no public evidence of impact, impact is read as Medium, implied by the sector, but only if the fit rests on more than an industry code: a fit reason comes from the source's own text, or a name word is corroborated by a record from a different source family. A fit that rests on the industry code alone (the code and its register label) is at most Medium, so the fallback never reaches it and the company stays on the watchlist (more public evidence needed: ocean impact). A declared cohort or portfolio company is not assessed here: it gets PORTFOLIO SUPPORT. Then business Low or Medium gives ACCELERATOR (c2), except TRL 1-3 gives GRANT SUPPORT (c1); business High and investment High gives DUE DILIGENCE (c3). The memo prints which one matched."
 
 # Sources the /data page's Refresh button re-reads (names from radar/refresh.py STEPS): the fast live ones only.

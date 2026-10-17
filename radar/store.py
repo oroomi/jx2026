@@ -257,7 +257,7 @@ def explain(row: dict, others: list, thesis: dict, texts: dict | None = None) ->
     if family and not set(reasons) - {"industry_code"}:
         lob = f"'{desc}' ({code})" if desc else f"code {code}"
         why = f"Weak: an industry code in the {family} family alone; a consultancy code needs a sector word. The registered line of business is {lob}."
-        return {"reasons": reasons, "strength": "weak", "why": why}
+        return {"reasons": reasons, "strength": "weak", "why": why, "parts": parts}
     if family:  # the code is on the list, but something stronger backs it: lead with that, keep the code as a further reason
         reasons.remove("industry_code")
         reasons.append("industry_code")
@@ -266,7 +266,7 @@ def explain(row: dict, others: list, thesis: dict, texts: dict | None = None) ->
         more = len(reasons) - 1
         why = "Why: " + lead[0].upper() + lead[1:]
         why += f"; {more} more reason{'s' if more != 1 else ''}." if more else "."
-        return {"reasons": reasons, "strength": "strong", "why": why}
+        return {"reasons": reasons, "strength": "strong", "why": why, "parts": parts}   # parts: each reason's phrase (the memo names the one that sets the band, D78)
     lob = f"'{desc}' ({code})" if desc and code else (f"'{desc}'" if desc else (f"code {code}" if code else "not in public records"))
     if name_hits:
         why = (f"Weak: only the legal name ('{row['name']}') contains '{name_hits[0]}'; "

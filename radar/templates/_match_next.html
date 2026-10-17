@@ -6,8 +6,12 @@
 <link rel="stylesheet" href="/static/match.css?v={{ asset_v }}">
 <section class="cc-sec mn" aria-labelledby="mn-h">
   <h2 id="mn-h" class="cc-h">Next steps</h2>
-  <p class="mn-lede">On the {{ mn.company.verdict | lower }} path this startup meets {{ mn.company.meets | map("lower") | join(", ") if mn.company.meets else "pilot partners only" }}{% if mn.company.meets %}, and pilot partners{% endif %}.
-    {% if mn.listed %}{{ mn.listed }} counterparts pass the filters; the three with the most reasons:{% else %}No counterpart passes the filters with a reason for this startup.{% endif %}</p>
+  {% set who = "this startup" if mn.company.startup else "this company" %}
+  {% set shown = mn.counterparts | length %}
+  {% set nword = {1: "one", 2: "two", 3: "three"}.get(shown, shown) %}
+  <p class="mn-lede">On the {{ mn.company.verdict | lower }} path {{ who }} meets {{ mn.company.meets | map("lower") | join(", ") if mn.company.meets else "pilot partners only" }}{% if mn.company.meets %}, and pilot partners{% endif %}.
+    {% if not mn.company.startup and mn.company.not_startup %}It is not a startup on the thesis' rule ({{ mn.company.not_startup }}), so no investor or accelerator is offered to it.{% endif %}
+    {% if mn.listed %}{% if mn.listed == shown %}{{ mn.listed }} counterpart{{ "s" if mn.listed != 1 }} pass{{ "es" if mn.listed == 1 }} the filters:{% else %}{{ mn.listed }} counterparts pass the filters; the {{ nword }} with the most reasons:{% endif %}{% else %}No counterpart passes the filters with a reason for {{ who }}.{% endif %}</p>
   {% if mn.counterparts %}
   <ol class="mn-list">
   {% for r in mn.counterparts %}

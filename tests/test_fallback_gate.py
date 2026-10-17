@@ -55,7 +55,7 @@ def _memo(conn, key):
 def test_gate_is_configured_as_data_and_every_name_is_known():
     th = thesis.load()
     fb = th["memo"]["decisions"]["fallback"]
-    assert set(fb["requires_any"]) == {"declared_member", "own_text", "line_of_business", "corroborated_signal"}
+    assert set(fb["requires_any"]) == {"declared_member", "own_text", "corroborated_signal"}   # D78: the line of business is code-level evidence
     for path in thesis.available().values():
         cfg = (thesis.load(path)["memo"]["decisions"].get("fallback") or {})
         assert set(cfg.get("requires_any") or []) <= set(memo.SUPPORT_KEYS), path
@@ -117,8 +117,12 @@ def test_corroborated_name_word_gets_the_fallback_but_a_same_family_record_does_
 
 
 def test_a_row_or_rule_match_never_reaches_the_gate(conn):
-    # a code-only company whose levels the team's rules decide keeps that decision: the gate only guards pass 3
+    # a code-only company whose levels the team's rules decide keeps that decision: the gate only guards pass 3. Technology High comes
+    # from a BlueInvest profile's stated TRL (a public contract sets no TRL since D77); the contract sets business readiness Medium.
     _company(conn, "9400005-5", "Plain Rule Oy", extra=[("public_contract", "hilma", None)])
+    conn.execute("INSERT INTO blueinvest_profiles (profile_id, company_key, title, trl, url, fetched_at) VALUES "
+                 "('p-9400005-5', '9400005-5', 'Plain Rule', 8, 'https://example.test/bi/9400005-5', '2026-10-16T00:00:00Z')")
+    conn.commit()
     r = _memo(conn, "9400005-5")["recommendation"]
     assert r["kind"] == "rule" and r["decision"] == "PARTNER INTRODUCTION" and r["fallback_blocked"] is False
 

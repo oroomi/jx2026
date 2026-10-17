@@ -84,6 +84,7 @@
   {% elif result.startups %}
   <h3 class="mt-sub">Startups that fit, not yet connected ({{ result.listed }} checked in full pass the filters{% if result.startups | length < result.listed %}, the top {{ result.startups | length }} shown{% endif %}{% if result.unprofiled %}; {{ result.unprofiled }} more passed the first pass and were not checked in full{% endif %})</h3>
   {% if result.pipeline and result.pipeline.note %}<p class="mt-note mt-pipeline" id="mt-pipeline">{{ result.pipeline.note }}</p>{% endif %}
+  {% if result.not_startups %}<p class="mt-note" id="mt-not-startups">{{ "{:,}".format(result.not_startups) }} companies on the radar are not startups on the thesis' rule (founded more than {{ age_cut }} years ago, or listed as a counterpart organisation) and are not offered to {{ o.name }}.</p>{% endif %}
   <ol class="mt-results">
   {% for s in result.startups %}
     <li class="mt-res">
@@ -98,6 +99,7 @@
   {% set k = result.company %}
   <p class="mt-kind">{{ k.verdict | lower }} path · {{ k.country or "country not in records" }}{% if k.age_band %} · {{ k.age_band }} old{% endif %}</p>
   <h2 class="mt-title"><a href="{{ k.url }}">{{ k.name }}</a></h2>
+  {% if not k.startup and k.not_startup %}<p class="mt-note" id="mt-not-startup">Not a startup on the thesis' rule ({{ k.not_startup }}), so no investor or accelerator is offered to it.</p>{% endif %}
   <p class="mt-focus">On this path it meets {{ k.meets | map("lower") | join(", ") if k.meets else "no investors or programmes" }}; every startup also meets pilot partners. Read from the startup: industry group {{ k.industry_family or "unknown" }}{% if k.sector_groups %}, sector {{ k.sector_groups | join(", ") }}{% endif %}{% if k.words %}, words {{ k.words[:6] | join(", ") }}{% endif %}.</p>
   {% if result.connected %}<p class="mt-note">Already connected: {% for c in result.connected %}<a href="/match?org={{ c.id }}">{{ c.name }}</a> ({{ c.why }}){% if not loop.last %}; {% endif %}{% endfor %}. Not listed below.</p>{% endif %}
   {% if result.counterparts %}

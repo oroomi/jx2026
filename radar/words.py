@@ -64,6 +64,11 @@ def _when(when: dict, labels: dict) -> str:
     return " and ".join(f"{str(labels.get(k, k)).lower()} {_or(v)}" for k, v in (when or {}).items())
 
 
+def condition_words(when: dict | None, labels: dict) -> str:
+    """The cells of a condition rule in words, the same phrase rule_phrases uses (the memo names a matched rule this way, D79)."""
+    return _when(when or {}, labels)
+
+
 def rule_phrases(thesis: dict) -> dict[tuple[str, str], str]:
     """{('row', '7'): 'the Watchlist row of the decision table', ('rule', 'e'): 'the rule for technology readiness High and business
     readiness Low or Medium', ('fallback', 'c2'): 'the fallback rule for business readiness Low or Medium'} from the thesis file."""

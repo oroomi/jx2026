@@ -105,7 +105,7 @@ def match_page(request: Request, view: str = "org", org: str = "", company: str 
         shown = [o for o in orgs if not kind or o["kind"] == kind]
         ctx = dict(view=view, thesis=th, orgs=shown, org_total=len(orgs), kinds=kinds, kind=kind, q=q, message=None, rule=matchmaker.RULE,
                    weights=cfg["weights"], labels=matchmaker.LABELS, result=None, selected=None, companies=[], components=matchmaker.COMPONENTS,
-                   tab="connected" if tab == "connected" else "fit")
+                   tab="connected" if tab == "connected" else "fit", age_cut=(th.get("geography") or {}).get("stage_max_company_age_years"))
         if view == "org":
             sel = org or max(orgs, key=lambda o: (o["members_in_records"], o["kind"] == "accelerator"))["id"]
             res = matchmaker.match_org(sel, th, conn=conn)         # the default limit is the one the home Top matching tab prints (matching.show_startups)

@@ -70,6 +70,12 @@ memo:
       medium: [line_of_business, corroborated_keyword]
       medium_codes: []                 # code families whose code match is Medium, not High (none in this thesis; see thesis.yaml, D22)
       declared_member_band: High       # a declared cohort or portfolio company has at least this fit (it was selected for the programme; D47)
+      # D66, D78 (as in thesis.yaml): a High fit whose every reason is code-level (the industry code, the register's line-of-business label
+      # for a code) is capped here, so the confidence rule every company page prints ("a thesis fit that rests on the industry code alone
+      # is at most Medium") holds in this sector too. A declared member is excepted (the floor above applies after the cap).
+      code_alone_band: Medium
+      code_alone_reasons: [industry_code, line_of_business]
+      code_alone_note: "the industry code alone gives at most a Medium fit"
   decisions:
     source: "The team's decision table (pass 1: exact match on all four, first match wins; pass 2: the team's condition rules; otherwise WATCHLIST). Level mapping to Low / Medium / High is the chief's configuration."
     rows:
@@ -86,6 +92,11 @@ memo:
     rules:
       - {id: e, when: {technology: High, business: [Low, Medium]}, decision: PARTNER INTRODUCTION, action: "Technology High, business Low or Medium."}
       - {id: f, when: {business: Medium, investment: Medium, fit: Medium}, decision: WATCHLIST, action: "Business, investment and fit all Medium."}
+    # After the table (D76, as in thesis.yaml): the accelerator verdict is for startups.
+    stage_cut:
+      verdicts: [ACCELERATOR]
+      decision: WATCHLIST
+      text: "Startup cut (after the table): the accelerator verdict is for startups. A company founded more than {years} years ago, or one that is itself a counterpart organisation in the declared lists, stays on the watchlist instead; a declared cohort or portfolio company is a startup by declaration."
 
 # Sector taxonomy (D42): none for this sector. The store holds 489 companies, 162 of them human-health practice (TOL 86, left out by A4), and the home
 # list has 1 row, so a sub-sector facet would offer nothing to choose from. An empty list means no sub-sectors are derived and the facet hides.

@@ -36,9 +36,9 @@ def test_pass_one_exact_row_then_pass_two_rules_then_watchlist():
     row, _ = memo.decide(bands("High", "Medium", "Low", "High"), CFG)
     assert row["text"] == "row 2, H/M/L/H"
     row, _ = memo.decide(bands("High", "Medium", "High", "Medium"), CFG)       # no row: rule c
-    assert row["decision"] == "ACCELERATOR" and row["text"] == "rule c"
+    assert row["decision"] == "ACCELERATOR" and row["text"] == "the rule for impact High and business Medium"   # D79: words, no letter (this config has no labels)
     row, _ = memo.decide(bands("Medium", "Low", "Low", "Medium", "High"), CFG)  # rule e needs technology High
-    assert row["decision"] == "PARTNER INTRODUCTION" and row["text"] == "rule e"
+    assert row["decision"] == "PARTNER INTRODUCTION" and row["text"] == "the rule for technology High and business Low or Medium"
     row, unknown = memo.decide(bands("Medium", "High", "High", "Medium"), CFG)
     assert row is None and unknown == []                                        # unmatched: the caller falls to WATCHLIST
 

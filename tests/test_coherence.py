@@ -344,8 +344,8 @@ def test_the_matchmakers_light_verdict_is_the_memos_for_every_home_row(snap, hom
     for r in home["rows"]:
         m = memo.build(conn, snap, r["company_key"])
         v = matchmaker._verdict(conn, snap, r["company_key"])
-        if m["recommendation"]["matched"] != "rule e":  # the light verdict decides before it sets the technology band, so it cannot reach rule e (matchmaker.py)
-            assert v["decision"] == m["recommendation"]["decision"], r["name"]
+        assert v["decision"] == m["recommendation"]["decision"], r["name"]   # D75: one engine, rule e included (it reads the technology band)
+        assert v["bands"]["technology"] == m["levels"]["technology"]["band"], r["name"]
         assert v["bands"]["impact"] == m["levels"]["impact"]["band"], r["name"]
     conn.close()
     from app import app

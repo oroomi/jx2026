@@ -11,7 +11,7 @@ What happens, in order:
   2. The thesis store is read through a read-only connection and copied to a scratch file (sqlite backup), which gets the
      current schema applied. The live store is never written.
   3. Tables with the `radar_` prefix are appended: radar_companies, radar_signals, radar_readiness (the levels
-     frameworks.page_levels gives the company page), radar_verdicts (radar.memo.build), radar_ocean_impact (the Ocean Impact Assessment from the same memo), radar_briefs, radar_meta. The view
+     frameworks.page_levels gives the company page), radar_verdicts (radar.memo.build), radar_ocean_impact (the Ocean Impact Assessment from the same memo), radar_briefs, radar_subsectors (the sector taxonomy links, D42), radar_meta. The view
      v_entity_public_record joins the dataset's entities to radar_companies by Finnish business id (entity.business_id).
   4. Companies only: nothing from the `person` table is joined, copied or exported. Before the file is moved into place a guard
      scans every text column of every radar_ table for the people's names and the run stops on a hit.
@@ -35,7 +35,7 @@ from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 
-from radar import blueinvest, db as db_mod, frameworks, memo, store
+from radar import blueinvest, db as db_mod, frameworks, memo, sectors, store
 from radar import thesis as thesis_mod
 from radar.adapters.ecosystem import DB_PATH as ECO_PATH
 
@@ -136,6 +136,18 @@ CREATE TABLE radar_briefs (
   slots_json  TEXT NOT NULL,            -- the verified brief slots, JSON text, as the store holds them
   imported_at TEXT NOT NULL
 );
+CREATE TABLE radar_subsectors (         -- radar.sectors.assign (D42): one row per (company, sub-sector, basis); a company with no row is "Not yet classified"
+  company_key  TEXT NOT NULL REFERENCES radar_companies(company_key),
+  sector_slug  TEXT NOT NULL,
+  sector_label TEXT NOT NULL,
+  parent_slug  TEXT,                    -- the top-level sector, e.g. blue_economy
+  parent_label TEXT,
+  basis        TEXT NOT NULL,           -- code | own_text | name_corroborated | declared | notice
+  source_url   TEXT NOT NULL,           -- the public page the link rests on
+  source_label TEXT NOT NULL,           -- what that page shows, in words
+  assigned_at  TEXT NOT NULL,
+  PRIMARY KEY (company_key, sector_slug, basis)
+);
 CREATE TABLE radar_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 """
 
@@ -152,6 +164,9 @@ WITH ent AS (
   SELECT company_key, COUNT(*) AS n_signals, COUNT(DISTINCT signal_type) AS n_signal_types, MIN(date) AS first_signal,
          MAX(date) AS last_signal, group_concat(DISTINCT signal_type) AS signal_types
   FROM radar_signals GROUP BY company_key
+), ss AS (
+  SELECT company_key, group_concat(sector_label, '; ') AS subsectors
+  FROM (SELECT DISTINCT company_key, sector_label FROM radar_subsectors ORDER BY sector_label) GROUP BY company_key
 ), lv AS (
   SELECT company_key,
          MAX(CASE WHEN dimension = 'technology' THEN level END) AS technology_level,
@@ -170,7 +185,7 @@ SELECT e.id AS entity_id, e.name AS entity_name, e.entity_type, e.side, e.busine
        lv.technology_level, lv.business_level, lv.investment_level, lv.category AS radar_category,
        v.decision AS radar_decision, v.matched AS radar_decision_row, v.note AS radar_decision_note,
        oi.area AS radar_ocean_area, oi.level AS radar_ocean_level, oi.band AS radar_ocean_band, oi.confidence AS radar_ocean_confidence,
-       (b.company_key IS NOT NULL) AS has_brief
+       (b.company_key IS NOT NULL) AS has_brief, ss.subsectors AS radar_subsectors
 FROM ent e
 LEFT JOIN radar_companies rc ON rc.company_key = (SELECT MIN(r.company_key) FROM radar_companies r WHERE r.business_id = e.join_business_id)
 LEFT JOIN sig ON sig.company_key = rc.company_key
@@ -178,6 +193,7 @@ LEFT JOIN lv ON lv.company_key = rc.company_key
 LEFT JOIN radar_verdicts v ON v.company_key = rc.company_key
 LEFT JOIN radar_ocean_impact oi ON oi.company_key = rc.company_key
 LEFT JOIN radar_briefs b ON b.company_key = rc.company_key
+LEFT JOIN ss ON ss.company_key = rc.company_key
 ORDER BY e.id
 """
 
@@ -311,6 +327,17 @@ def verdict_row(conn: sqlite3.Connection, thesis: dict, key: str) -> tuple:
     return memo_rows(conn, thesis, key)[0]
 
 
+def subsector_rows(conn: sqlite3.Connection):
+    """The sub-sector links of the scratch copy (derived there by radar.sectors.assign, so the file has them whether or not the live store was backfilled)."""
+    try:
+        yield from (tuple(r) for r in conn.execute(
+            """SELECT cs.company_key, s.slug, s.label, p.slug, p.label, cs.basis, cs.source_url, cs.source_label, cs.assigned_at
+               FROM company_sector cs JOIN sector s ON s.id = cs.sector_id LEFT JOIN sector p ON p.id = s.parent_id
+               ORDER BY cs.company_key, s.id, cs.basis"""))
+    except sqlite3.OperationalError:
+        return
+
+
 def brief_rows(conn: sqlite3.Connection):
     try:
         yield from (tuple(r) for r in conn.execute("SELECT company_key, written, slots_json, imported_at FROM company_brief_slots ORDER BY company_key"))
@@ -441,6 +468,8 @@ def run(thesis_id: str, out_path: Path | str | None = None, *, store_path: Path 
                 out.executemany("INSERT INTO radar_companies VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", company_rows(conn))
                 out.executemany("INSERT INTO radar_signals VALUES (?,?,?,?,?,?,?,?,?,?,?)", signal_rows(conn))
                 out.executemany("INSERT INTO radar_briefs VALUES (?,?,?,?)", brief_rows(conn))
+                sectors.assign(conn, thesis)   # on the scratch copy only; a thesis without a taxonomy writes nothing
+                out.executemany("INSERT INTO radar_subsectors VALUES (?,?,?,?,?,?,?,?,?)", subsector_rows(conn))
                 keys = [r[0] for r in conn.execute("SELECT company_key FROM companies ORDER BY company_key")]
                 progress(f"companies {len(keys)}, signals {out.execute('SELECT COUNT(*) FROM radar_signals').fetchone()[0]}; building readiness and memo verdicts")
                 errors = []
@@ -476,7 +505,7 @@ def run(thesis_id: str, out_path: Path | str | None = None, *, store_path: Path 
 
         # 4. the meta table
         counts = {t: out.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in
-                  ("radar_companies", "radar_signals", "radar_readiness", "radar_verdicts", "radar_ocean_impact", "radar_briefs")}
+                  ("radar_companies", "radar_signals", "radar_readiness", "radar_verdicts", "radar_ocean_impact", "radar_briefs", "radar_subsectors")}
         st = store_path.stat()
         meta = {"built_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "thesis_id": thesis["id"],
                 "thesis_file": thesis["_path"], "source_store_path": str(store_path.resolve()), "source_store_bytes": str(st.st_size),

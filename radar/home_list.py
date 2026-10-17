@@ -11,7 +11,8 @@ WATCHLIST), then thesis-fit band, then the latest record; "New this quarter" sta
   ready   = memo investment readiness band High
   country = companies.country
 Each row also carries `ocean`: the Ocean Impact Assessment's area, level, band and confidence (None when the thesis defines no impact areas).
-Each row also carries `criteria` (impact, trl, brl, irl, fit, verdict as the row prints them) and `facets` (what the filter rail offers).
+Each row also carries `criteria` (impact, trl, brl, irl, fit, verdict as the row prints them) and `facets` (what the filter rail offers),
+and `subsectors` (the taxonomy's sub-sectors of D42, [] when the thesis has none or the store was not backfilled).
 Memos are the slow part (about 0.1 s each), so the list is cached per thesis and database file modification time,
 and every thesis in config/ is warmed in one background thread when the app starts. A request that arrives while its list is
 still being built waits 3 seconds at most and then gets the plain feed with a one-line note (D26).
@@ -23,7 +24,7 @@ import os
 import threading
 from datetime import date, timedelta
 
-from radar import matching, memo, store
+from radar import matching, memo, sectors, store
 
 TOP_VERDICTS = ("INVEST", "DUE DILIGENCE", "ACCELERATOR")
 VERDICT_ORDER = ("INVEST", "DUE DILIGENCE", "ACCELERATOR", "PARTNER INTRODUCTION", "GRANT SUPPORT", "WATCHLIST")
@@ -183,6 +184,7 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
     main = [r for r in store.feed(conn, thesis, limit=500) if r["strength"] == "strong"]
     declared = [k for (k,) in conn.execute("SELECT company_key FROM companies WHERE group_tag IN ('cohort','portfolio')")]
     keys = list(dict.fromkeys([r["company_key"] for r in main] + declared))
+    smap = sectors.home_map(conn, thesis)   # sub-sectors per company (D42); None when the thesis has no taxonomy or the store is not backfilled
     rows = []
     for key in keys:
         c = conn.execute("SELECT company_key, name, country, industry_desc, group_tag FROM companies WHERE company_key=?", (key,)).fetchone()
@@ -215,6 +217,8 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
         })
         # the five judging criteria plus the verdict, and the rail's facets (computed once per cache warm, from the same memo)
         rows[-1]["criteria"], rows[-1]["facets"] = criteria(m, matching.company_context(conn, key), nxt, thesis, today)
+        rows[-1]["subsectors"] = sectors.row_subsectors(smap, thesis, key)   # [{slug, label, basis}]; "Not yet classified" when no link
+        rows[-1]["facets"]["subsector"] = [x["slug"] for x in rows[-1]["subsectors"]]
     def strength(r):
         """Verdict strength, then thesis-fit band, then the latest record (newest first), then name."""
         v = VERDICT_ORDER.index(r["verdict"]) if r["verdict"] in VERDICT_ORDER else len(VERDICT_ORDER)

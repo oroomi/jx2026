@@ -53,3 +53,14 @@ Open the pages straight from disk. Fonts load from `radar/static/fonts`, so noth
 
 Example companies: Viva Jets Oy (2962040-6) for the company pages; Arctic Fry Oy (3166759-6) first in the lists, because both lists order portfolio and cohort companies A to Z ahead of feed finds.
 Rebuild: `python3 docs/design_v2/build_ab.py && python3 docs/design_v2/shoot.py a_home a_company b_home b_company`.
+
+## jx37: direction C, the Trading 212 feel on B's structure (phone first)
+| File | What it is |
+|---|---|
+| `c_home.html` | Segmented country tabs (Finland, Baltic), "On the radar" count with a "+N this quarter" badge, search, the feed's main-tier rows (initials, name, one-liner, 12-month signal sparkline, verdict pill, "New" and "N d ago"), weak matches and "no thesis evidence yet" as closed disclosures, Lists cards (Nordic Blue 19, Redstone portfolio 9, New this quarter, No thesis evidence yet), bottom tab bar |
+| `c_company.html` | Viva Jets Oy as an instrument page: verdict as the big word with its reason, life-line step chart with 1Y, 3Y and MAX chips, "Ask Aava" and "Print memo", Key statistics, About (the six-row card), News (dated signals), Analysts (decision-table bands) |
+| `c.css` | The C skin on top of tokens.css |
+| `build_c.py` | Embeds snapshot data; rows are the feed's main tier per the chief's rule for "/" |
+
+Rebuild: `python3 docs/design_v2/build_c.py && python3 docs/design_v2/shoot.py c_home c_company`.
+The Baltic tab shows an honest "no data" because the snapshot holds no Baltic store. "No thesis evidence yet" reads 0 because the snapshot predates the wide intake.

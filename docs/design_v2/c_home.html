@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ocean Opportunity Radar</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="c.css">
+<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body class="c">
+<div class="shell">
+  <main class="col-main">
+    <header class="c-top">
+      <span class="c-brand"><i class="brand-mark" aria-hidden="true"></i>Radar</span>
+      <button class="c-icon" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
+    </header>
+
+    <nav class="seg" role="tablist" id="tabs" aria-label="Country"></nav>
+
+    <section class="hero-c" id="hero"></section>
+
+    <label class="c-search"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input type="search" id="q" placeholder="Company or Business ID" aria-label="Search company or Business ID"></label>
+
+    <div class="list-head"><span>Startups</span><label class="c-sort">Sort <select id="sort"><option value="newest">Newest signal</option><option value="name">Name</option></select></label></div>
+    <ol class="rows-c" id="rows"></ol>
+
+    <details class="disc"><summary>Weak matches <span id="n-weak"></span></summary><p class="small muted">Name-only matches with no second source. Closed by default.</p></details>
+    <details class="disc"><summary>New startups, no thesis evidence yet <span id="n-intake"></span></summary><p class="small muted" id="intake-note"></p></details>
+  </main>
+
+  <aside class="col-side" aria-label="Lists">
+    <h2 class="side-h">Lists</h2>
+    <div class="lists" id="lists"></div>
+    <p class="small muted side-note" id="fetched"></p>
+  </aside>
+</div>
+
+<nav class="tabbar" aria-label="Main">
+  <a href="c_home.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" class="f"/></svg>Radar</a>
+  <a href="#q" id="tab-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>Search</a>
+  <a href="#lists"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg>Lists</a>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Backtest</a>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>Data</a>
+</nav>
+
+<script id="data" type="application/json">{"tabs":[{"id":"redstone_apelago_blue","label":"Finland","available":true,"rows":[{"key":"3661460-2","name":"Maatz rakennnus & kumppanit Oy","line":{"text":"Remediation activities and other waste management service activities (industry code 39000).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661460-2","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-10-09","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661460-2","src_label":"PRH/YTJ register","dates":["2026-10-09"]},{"key":"3658264-7","name":"SU Engineering Oy","line":{"text":"Engineering design and technical consultancy incidental to urban planning (industry code 71121).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658264-7","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-09-27","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658264-7","src_label":"PRH/YTJ register","dates":["2026-09-27"]},{"key":"3657918-1","name":"Kustservice i Finland Ab Oy","line":{"text":"Sea and coastal freight water transport (industry code 50200).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657918-1","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-09-25","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657918-1","src_label":"PRH/YTJ register","dates":["2026-09-25"]},{"key":"3656103-7","name":"Hazero Oy","line":{"text":"Remediation activities and other waste management service activities (industry code 39000).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656103-7","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-09-17","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656103-7","src_label":"PRH/YTJ register","dates":["2026-09-17"]},{"key":"3655639-3","name":"Pollari Works Oy","line":{"text":"Repair and maintenance of civilian ships and boats (industry code 33150).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655639-3","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-09-15","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655639-3","src_label":"PRH/YTJ register","dates":["2026-09-15"]},{"key":"3654770-2","name":"Keski-Suomen Laiturirakentajat Oy","line":{"text":"Building of civilian ships and floating structures (industry code 30110).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654770-2","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-09-12","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654770-2","src_label":"PRH/YTJ register","dates":["2026-09-12"]},{"key":"3650691-9","name":"Alanamman vesiosuuskunta","line":{"text":"Water collection, treatment and supply (industry code 36000).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3650691-9","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-25","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3650691-9","src_label":"PRH/YTJ register","dates":["2026-08-25"]},{"key":"3649936-8","name":"Boat Services Finland Oy","line":{"text":"Repair and maintenance of civilian ships and boats (industry code 33150).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-25","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8","src_label":"PRH/YTJ register","dates":["2026-08-25"]},{"key":"3649670-6","name":"MIRVIKA Oy","line":{"text":"Building of civilian ships and floating structures (industry code 30110).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649670-6","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-24","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649670-6","src_label":"PRH/YTJ register","dates":["2026-08-24"]},{"key":"3649116-3","name":"JSL Konsultointi Oy","line":{"text":"Engineering design and technical consultancy incidental to urban planning (industry code 71121).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649116-3","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-22","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649116-3","src_label":"PRH/YTJ register","dates":["2026-08-22"]},{"key":"3648578-3","name":"Paattikiiltoon Oy","line":{"text":"Repair and maintenance of civilian ships and boats (industry code 33150).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3648578-3","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-20","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3648578-3","src_label":"PRH/YTJ register","dates":["2026-08-20"]},{"key":"3648675-1","name":"VOLNOR OY","line":{"text":"Building of civilian ships and floating structures (industry code 30110).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3648675-1","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-20","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3648675-1","src_label":"PRH/YTJ register","dates":["2026-08-20"]},{"key":"3647844-4","name":"FerroNord Oy","line":{"text":"Building of civilian ships and floating structures (industry code 30110).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647844-4","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-18","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647844-4","src_label":"PRH/YTJ register","dates":["2026-08-18"]},{"key":"3646410-6","name":"Aggriv Oy","line":{"text":"Building of civilian ships and floating structures (industry code 30110).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646410-6","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-13","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646410-6","src_label":"PRH/YTJ register","dates":["2026-08-13"]},{"key":"3645602-6","name":"Sahara Solutions Oy","line":{"text":"Building of civilian ships and floating structures (industry code 30110).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3645602-6","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-10","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3645602-6","src_label":"PRH/YTJ register","dates":["2026-08-10"]},{"key":"3644889-4","name":"Otter Marine Operations Oy","line":{"text":"Other service activities incidental to water transportation (industry code 52229).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-07","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4","src_label":"PRH/YTJ register","dates":["2026-08-07"]},{"key":"3644849-9","name":"Styrbord service Oy","line":{"text":"Repair and maintenance of civilian ships and boats (industry code 33150).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644849-9","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-07","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644849-9","src_label":"PRH/YTJ register","dates":["2026-08-07"]},{"key":"3644250-5","name":"Crw Boats Oy Ab","line":{"text":"Building of pleasure and sporting boats (industry code 30120).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644250-5","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-08-06","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644250-5","src_label":"PRH/YTJ register","dates":["2026-08-06"]},{"key":"3642235-2","name":"Drainlogic Oy","line":{"text":"Sewerage (industry code 37000).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642235-2","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-07-29","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642235-2","src_label":"PRH/YTJ register","dates":["2026-07-29"]},{"key":"3641969-8","name":"MittaTopi Oy","line":{"text":"Engineering design and technical consultancy incidental to urban planning (industry code 71121).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641969-8","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-07-28","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641969-8","src_label":"PRH/YTJ register","dates":["2026-07-28"]},{"key":"3641964-7","name":"BB Ships AB","line":{"text":"Building of civilian ships and floating structures (industry code 30110).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641964-7","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-07-28","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641964-7","src_label":"PRH/YTJ register","dates":["2026-07-28"]},{"key":"3640856-9","name":"Kåhlman Marine Oy","line":{"text":"Repair and maintenance of civilian ships and boats (industry code 33150).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640856-9","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-07-22","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640856-9","src_label":"PRH/YTJ register","dates":["2026-07-22"]},{"key":"3640750-7","name":"TM-työt Oy","line":{"text":"Sewerage (industry code 37000).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640750-7","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-07-21","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640750-7","src_label":"PRH/YTJ register","dates":["2026-07-21"]},{"key":"3640416-2","name":"New Shipbuilding Oy","line":{"text":"Building of civilian ships and floating structures (industry code 30110).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640416-2","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-07-20","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640416-2","src_label":"PRH/YTJ register","dates":["2026-07-20"]},{"key":"3508136-5","name":"Suomen Vesistökunnostus Oy","line":{"text":"Construction of water projects (industry code 42910).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5","src_label":"PRH/YTJ register"},"verdict":"PARTNER INTRODUCTION","date":"2026-07-20","label":"Public contract","src":"https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675","src_label":"Hilma notice","dates":["2025-02-03","2026-07-20"]},{"key":"3640248-2","name":"Barone sanitation Oy","line":{"text":"Sewerage (industry code 37000).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640248-2","src_label":"PRH/YTJ register"},"verdict":"WATCHLIST","date":"2026-07-19","label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640248-2","src_label":"PRH/YTJ register","dates":["2026-07-19"]}],"weak":66,"intake":0,"window_start":"2026-07-19","window_end":"2026-10-17","fetched":"2026-10-16T21:03:56Z"},{"id":"baltic_blue","label":"Baltic","available":false}],"lists":{"cohort":19,"portfolio":9}}</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent);
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function dt(s){ var p = s.split('-'); return Date.UTC(+p[0], +(p[1]||1)-1, +(p[2]||1)); }
+  function ago(s, today){ var d = Math.round((dt(today) - dt(s)) / 864e5); return d <= 0 ? 'today' : d < 45 ? d + ' d ago' : d < 548 ? Math.round(d/30.4) + ' mo ago' : Math.round(d/365) + ' y ago'; }
+  function day(s){ return (+s.slice(8,10))+' '+M[+s.slice(5,7)-1]+' '+s.slice(0,4); }
+  var VERDICT = {'WATCHLIST':['Watchlist','v-grey'], 'PARTNER INTRODUCTION':['Partner intro','v-teal'], 'ACCELERATOR':['Accelerator','v-teal'],
+                 'INVEST':['Invest','v-green'], 'DUE DILIGENCE':['Due diligence','v-green'], 'REJECT':['Reject','v-red']};
+  function pill(v){ var p = VERDICT[v] || [v ? v.charAt(0) + v.slice(1).toLowerCase() : 'No verdict', 'v-grey']; return '<span class="vpill '+p[1]+'">'+esc(p[0])+'</span>'; }
+  function initials(n){ var w = n.replace(/\b(Oy|Ab|AB|Oyj|Ltd)\b/g, '').trim().split(/\s+/); return ((w[0]||'')[0] + ((w[1]||'')[0] || (w[0]||'')[1] || '')).toUpperCase(); }
+  function spark(dates, today){
+    // Cumulative count of dated public signals over the last 12 months; flat line when nothing moved.
+    var W = 64, H = 24, t1 = dt(today), t0 = t1 - 365 * 864e5, before = dates.filter(function(d){ return dt(d) < t0; }).length;
+    var inWin = dates.filter(function(d){ var x = dt(d); return x >= t0 && x <= t1; }), total = before + inWin.length || 1;
+    var y = function(n){ return H - 3 - (n / total) * (H - 6); }, x = function(t){ return 1 + (t - t0) / (t1 - t0) * (W - 2); };
+    var n = before, d = 'M1 ' + y(n).toFixed(1);
+    inWin.forEach(function(s){ var X = x(dt(s)).toFixed(1); d += ' H' + X + ' V' + y(++n).toFixed(1); });
+    d += ' H' + (W - 1);
+    var last = inWin.length ? '<circle cx="'+x(dt(inWin[inWin.length-1])).toFixed(1)+'" cy="'+y(n).toFixed(1)+'" r="2.2" class="sp-dot"/>' : '';
+    return '<svg class="spark" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" aria-hidden="true"><path d="'+d+'" class="sp-line'+(inWin.length ? '' : ' flat')+'"/>'+last+'</svg>';
+  }
+  var cur = 0;
+  function render(){
+    var T = D.tabs[cur];
+    if (!T.available) {
+      $('hero').innerHTML = '<p class="hero-label">On the radar</p><p class="hero-num">no data</p><p class="small muted">The '+esc(T.label)+' store is not in this snapshot. It opens from the same tab once its data is loaded.</p>';
+      $('rows').innerHTML = ''; $('n-weak').textContent = ''; $('n-intake').textContent = ''; return;
+    }
+    var newN = T.rows.filter(function(r){ return r.date >= T.window_start; }).length;
+    $('hero').innerHTML = '<p class="hero-label">On the radar · '+esc(T.label)+'</p><p class="hero-num">'+T.rows.length+'</p>'
+      + '<p class="hero-sub"><span class="chg">+'+newN+' this quarter</span> <span class="muted">startups found with a stated reason, '+esc(day(T.window_start))+' to '+esc(day(T.window_end))+'</span></p>';
+    var q = ($('q').value || '').toLowerCase(), by = $('sort').value;
+    var rows = T.rows.filter(function(r){ return !q || r.name.toLowerCase().indexOf(q) > -1 || r.key.indexOf(q) > -1; })
+      .sort(by === 'name' ? function(a, b){ return a.name.localeCompare(b.name); } : function(a, b){ return a.date < b.date ? 1 : a.date > b.date ? -1 : a.name.localeCompare(b.name); });
+    $('rows').innerHTML = rows.map(function(r){
+      var isNew = r.date >= T.window_start;
+      return '<li><a class="row-c" href="c_company.html">'
+        + '<span class="mark" aria-hidden="true">'+esc(initials(r.name))+'</span>'
+        + '<span class="who"><span class="nm">'+esc(r.name)+'</span><span class="sub">'+(r.line ? esc(r.line.text.replace(/ \(industry code \d+\)\.$/, '')) : 'no description on record')+'</span></span>'
+        + spark(r.dates, T.window_end)
+        + '<span class="rt">'+pill(r.verdict)+'<span class="ago">'+(isNew ? '<b class="new">New</b> · ' : '')+esc(ago(r.date, T.window_end))+'</span></span>'
+        + '</a></li>';
+    }).join('') || '<li class="empty-c">No startup matches that search.</li>';
+    $('n-weak').textContent = T.weak;
+    $('n-intake').textContent = T.intake == null ? '' : T.intake;
+    $('intake-note').textContent = T.intake ? 'Registered recently in an ocean industry family, but no second source yet.' : 'None in this snapshot.';
+    $('fetched').textContent = 'Data as stored ' + T.fetched.slice(0, 10) + '. Every number traces to a stored record.';
+  }
+  $('tabs').innerHTML = D.tabs.map(function(t, i){ return '<button role="tab" aria-selected="'+(i===0)+'" data-i="'+i+'">'+esc(t.label)+'</button>'; }).join('');
+  $('tabs').addEventListener('click', function(e){ var b = e.target.closest('button'); if (!b) return; cur = +b.dataset.i; [].forEach.call(this.children, function(x){ x.setAttribute('aria-selected', x === b); }); render(); });
+  $('q').addEventListener('input', render); $('sort').addEventListener('change', render);
+  $('tab-search').addEventListener('click', function(e){ e.preventDefault(); $('q').focus(); });
+  var L = D.lists, T0 = D.tabs[0];
+  $('lists').innerHTML = [['Nordic Blue', L.cohort, 'cohort companies'], ['Redstone portfolio', L.portfolio, 'portfolio companies'],
+     ['New this quarter', T0.rows ? T0.rows.length : 0, 'found with a stated reason'], ['No thesis evidence yet', T0.intake || 0, 'new startups, waiting for a second source']]
+    .map(function(l){ return '<a class="list-card" href="#"><span class="lc-n">'+l[1]+'</span><span class="lc-t">'+esc(l[0])+'</span><span class="lc-s">'+esc(l[2])+'</span></a>'; }).join('');
+  render();
+  $('theme').addEventListener('click', function(){ var r = document.documentElement, c = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = c === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('theme', n); } catch (e) {} });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ocean Opportunity Radar</title>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="c.css">
+<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body class="c">
+<div class="shell inst">
+  <main class="col-main">
+    <header class="c-top">
+      <a class="c-back" href="c_home.html"><svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4L6.5 10l6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Radar</a>
+      <button class="c-icon" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
+    </header>
+
+    <div class="inst-head"><span class="mark" id="mark" aria-hidden="true"></span><div><h1 id="name"></h1><div class="tick" id="tick"></div></div></div>
+
+    <div class="big"><span class="bn" id="bn"></span></div>
+    <p class="reason" id="reason"></p>
+
+    <figure class="chart-c" aria-labelledby="chart-cap">
+      <svg id="chart" role="img" viewBox="0 0 360 180"></svg>
+      <div class="chips" role="group" aria-label="Time range"><button type="button" data-r="1">1Y</button><button type="button" data-r="3">3Y</button><button type="button" data-r="0" aria-pressed="true">MAX</button></div>
+      <figcaption class="small muted" id="chart-cap"></figcaption>
+    </figure>
+
+    <div class="actions">
+      <button class="btn btn-primary" type="button" id="aava"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M10 2.5a3 3 0 0 1 3 3v4a3 3 0 0 1-6 0v-4a3 3 0 0 1 3-3zM4.5 9.5a5.5 5.5 0 0 0 11 0M10 15v2.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>Ask Aava</button>
+      <button class="btn btn-secondary" type="button" id="print"><svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M5.5 7V2.5h9V7M5.5 14.5H3.5v-6a1.5 1.5 0 0 1 1.5-1.5h10a1.5 1.5 0 0 1 1.5 1.5v6h-2M5.5 11.5h9v6h-9z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>Print memo</button>
+    </div>
+    <p class="aava-note" id="aava-note" aria-live="polite"></p>
+
+    <section class="sec"><h2>Key statistics</h2><div class="stats" id="stats"></div></section>
+
+  </main>
+  <aside class="col-side">
+    <section class="sec"><h2>About</h2>
+      <div class="card-c"><ol class="rows6" id="card"></ol><ol class="srcs" id="srcs"></ol></div>
+      <p class="small muted" style="margin-top:8px">What the public record says: six partner questions, each answered from the numbered sources.</p>
+    </section>
+
+    <section class="sec"><h2>News</h2><ol class="news" id="news"></ol></section>
+
+    <section class="sec"><h2>Analysts</h2><div class="analysts" id="an"></div><p class="an-note" id="an-note"></p></section>
+  </aside>
+</div>
+
+<nav class="tabbar" aria-label="Main">
+  <a href="c_home.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" class="f"/></svg>Radar</a>
+  <a href="c_home.html#q"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>Search</a>
+  <a href="c_home.html#lists"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg>Lists</a>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Backtest</a>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>Data</a>
+</nav>
+
+<script id="data" type="application/json">{"thesis":{"id":"redstone_apelago_blue","title":"Blue economy, Finland and Nordics (Redstone Blue x A'Pelago)"},"company":{"company_key":"2962040-6","name":"Viva Jets Oy","y_tunnus":"2962040-6","country":"FI","founded":"2018-12-28","industry_code":"30120","industry_desc":"Building of pleasure and sporting boats","website":"www.vivaelectricjets.com","group_tag":"portfolio","register_status":"active","source_url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6","fetched_at":"2026-10-16T20:51:38Z","links":{"api":"/api/company/2962040-6","page":"/c/2962040-6"}},"counts":{"signals":4,"by_type":{"bf_funding":3,"register_entry":1},"first_signal":"2018-12-28","last_signal":"2024-01-01"},"signals":[{"id":2350,"signal_type":"bf_funding","type_label":"Business Finland funding","date":"2024-01-01","date_label":"2024 (year only)","date_precision":"year","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Business Finland funding granted in 2024 (year only; the export has no decision date): grant EUR 3 600, loan EUR 163 800. Row from the manual dashboard export, no per-row link.","amount_eur":167400.0,"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","adapter":"businessfinland","fetched_at":"2026-10-16T21:03:56Z"},{"id":2299,"signal_type":"bf_funding","type_label":"Business Finland funding","date":"2021-01-01","date_label":"2021 (year only)","date_precision":"year","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Business Finland funding granted in 2021 (year only; the export has no decision date): grant EUR 50 000. Row from the manual dashboard export, no per-row link.","amount_eur":50000.0,"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","adapter":"businessfinland","fetched_at":"2026-10-16T21:03:56Z"},{"id":2298,"signal_type":"bf_funding","type_label":"Business Finland funding","date":"2019-01-01","date_label":"2019 (year only)","date_precision":"year","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Business Finland funding granted in 2019 (year only; the export has no decision date): grant EUR 6 200. Row from the manual dashboard export, no per-row link.","amount_eur":6200.0,"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","adapter":"businessfinland","fetched_at":"2026-10-16T21:03:56Z"},{"id":308,"signal_type":"register_entry","type_label":"New register entry","date":"2018-12-28","date_label":"2018-12-28","date_precision":"day","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Registered in PRH/YTJ on 2018-12-28 (Y-tunnus 2962040-6).","amount_eur":null,"source_url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6","source_label":"PRH/YTJ register","adapter":"prh","fetched_at":"2026-10-16T17:34:23Z"}],"fit":{"rule":"Reasons come from the thesis file and the database only: an industry code on the thesis list is low confidence, a thesis keyword matching a whole word of the legal name (or the start of a longer word, for thesis words of 5 or more characters) is medium, and each feed signal keeps the confidence its adapter gave it. There is no score and no ranking.","reasons":[{"kind":"industry_code","confidence":"low","text":"Industry code 30120 is on the thesis list (Building of pleasure and sporting boats).","source_url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"},{"kind":"signal","confidence":"high","text":"Business Finland funding on 2024 (year only): Business Finland funding granted in 2024 (year only; the export has no decision date): grant EUR 3 600, loan EUR 163 800. Row from the manual dashboard export, no per-row link.","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"kind":"signal","confidence":"high","text":"Business Finland funding on 2021 (year only): Business Finland funding granted in 2021 (year only; the export has no decision date): grant EUR 50 000. Row from the manual dashboard export, no per-row link.","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"kind":"signal","confidence":"high","text":"Business Finland funding on 2019 (year only): Business Finland funding granted in 2019 (year only; the export has no decision date): grant EUR 6 200. Row from the manual dashboard export, no per-row link.","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"kind":"signal","confidence":"high","text":"New register entry on 2018-12-28: Registered in PRH/YTJ on 2018-12-28 (Y-tunnus 2962040-6).","source_url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"}]},"readiness":{"technology":{"framework":"Technology Readiness Level (Aalto TRL) 1-9","framework_url":"https://www.aalto.fi/en/services/technology-readiness-level-trl","level":4,"because":"Business Finland or EU project funding: a funded development project","evidence":[{"signal_id":2350,"date":"2024 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2299,"date":"2021 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2298,"date":"2019 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"}],"rules":[{"level":3,"rule":"patent filing: a protected concept"},{"level":4,"rule":"Business Finland or EU project funding: a funded development project"},{"level":5,"rule":"listed in the BlueInvest pipeline: screened for investment"},{"level":7,"rule":"public contract awarded: a buyer purchased in an operational setting"}]},"business":{"framework":"Business Readiness Level (KTH BRL) 1-9","framework_url":"https://kthinnovationreadinesslevel.com/wp-content/uploads/sites/9/2018/10/Business-readiness-Level.pdf","level":4,"because":"first grant: Business Finland funding decision or EU project participation","evidence":[{"signal_id":2350,"date":"2024 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2299,"date":"2021 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2298,"date":"2019 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"}],"rules":[{"level":2,"rule":"register entry exists (PRH/YTJ)"},{"level":3,"rule":"VAT registered: no VAT source in this radar, never assumed"},{"level":4,"rule":"first grant: Business Finland funding decision or EU project participation"},{"level":6,"rule":"first public contract or named customer on own site"},{"level":7,"rule":"repeat contracts: two or more public contracts"}]},"investment":{"framework":"Investment Readiness 1-9, read from the ten Investment Potential dimensions","framework_url":null,"level":4,"because":"two or more funding records","evidence":[{"signal_id":2350,"date":"2024 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2299,"date":"2021 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2298,"date":"2019 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"}],"rules":[{"level":3,"rule":"public non-dilutive funding (Business Finland decision or EU project)"},{"level":4,"rule":"two or more funding records"},{"level":5,"rule":"listed in the BlueInvest investor pipeline"}]},"ocean_impact":{"framework":"Ocean Impact Readiness (Ocean Impact Navigator)","framework_url":"https://www.1000oceanstartups.org/navigator","category":null,"keyword":null,"source_url":null,"because":"no public evidence"},"declared_dataset":null,"investment_dimensions":[{"name":"Market","evidence_count":0,"note":"public buyers in the category","evidence":[]},{"name":"Product","evidence_count":0,"note":null,"evidence":[]},{"name":"Team","evidence_count":0,"note":null,"evidence":[]},{"name":"Business Model","evidence_count":0,"note":null,"evidence":[]},{"name":"Competition","evidence_count":0,"note":null,"evidence":[]},{"name":"Marketing & Distribution","evidence_count":0,"note":null,"evidence":[]},{"name":"Financials","evidence_count":3,"note":"grants and contracts","evidence":[{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2024 (year only)"},{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2021 (year only)"},{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2019 (year only)"}]},{"name":"Tech","evidence_count":3,"note":"TRL evidence classes","evidence":[{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2024 (year only)"},{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2021 (year only)"},{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2019 (year only)"}]},{"name":"Deal Dynamics","evidence_count":0,"note":"register capital events: none recorded in this radar","evidence":[]},{"name":"Impact","evidence_count":0,"note":"Navigator category match","evidence":[]}]},"connections":[{"date":"2018-12-28","text":"Registered in the trade register in December 2018","source":"PRH","url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6","type":"register_entry"},{"date":"2019-01-01","text":"received a Business Finland funding decision in 2019 (year only), and 2 more of the same type","source":"Business Finland","url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","type":"bf_funding"}],"who_comes_next":{"investors":[],"funding":[{"name":"BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)","kind":"accelerator","reason":"Open: pitch event; deadline: 2026-11-12","score":null,"source_url":"https://blueinvest-community.converve.io/all_events.html","confidence":null,"deadline":"2026-11-12","deadline_text":"2026-11-12","origin":"programmes_grants.csv","facts":null,"rank":1},{"name":"Helsinki Blue Economy Studio by A'Pelago 2027","kind":"accelerator","reason":"Open: pre-seed, seed or early-stage with an MVP; deadline: 2026-11-30; amount: equity-free","score":null,"source_url":"https://www.apelago.fi/helsinki-blue-economy-studio/","confidence":null,"deadline":"2026-11-30","deadline_text":"2026-11-30","origin":"programmes_grants.csv","facts":null,"rank":2},{"name":"A'Pelago Lab2Impact 2027","kind":"accelerator","reason":"Open: researchers and research-based innovations (incubator); deadline: TBA","score":null,"source_url":"https://www.apelago.fi/laboff/","confidence":null,"deadline":null,"deadline_text":"TBA","origin":"programmes_grants.csv","facts":null,"rank":3},{"name":"A'Pelago Nordic Ocean Accelerator Programme (NOCA) 2027","kind":"accelerator","reason":"Open: ocean economy startups and SMEs; deadline: applications open; deadline not stated","score":null,"source_url":"https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/","confidence":null,"deadline":null,"deadline_text":"applications open; deadline not stated","origin":"programmes_grants.csv","facts":null,"rank":4},{"name":"A'Pelago Northern Blue 2027","kind":"accelerator","reason":"Open: growth and scale-up companies; deadline: applications open; deadline not stated; amount: equity-free (no money given)","score":null,"source_url":"https://www.apelago.fi/apelago-northern-blue/","confidence":null,"deadline":null,"deadline_text":"applications open; deadline not stated","origin":"programmes_grants.csv","facts":null,"rank":5}],"partners":[],"rank_rule":"Rank = the dataset's match score (highest first), then the nearest open deadline from programmes_grants.csv, then name. Open programmes and public buyers have no dataset score and follow the scored rows. A closed programme, a past deadline, a TRL outside the programme's stated window or a company older than the programme's age limit is left out. The last slot of the funding list is kept for the soonest open programme."},"next_step":{"sentence":"Check in: no public signal since 2024-01-01","rule":4,"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","because":"portfolio company whose latest dated public event is older than 12 months","rule_text":"4. Cohort or portfolio company with no dated public event in 12 months: check in.","rules":["1. No grant on record, TRL 4 to 6 and an open programme in the funding list: introduce them to that programme before its deadline.","2. A public buyer in the company's category awarded a contract in the last 12 months: ask about that buyer's contract.","3. Readiness gap (TRL 7 or more and investment level 3 or less): meet now to judge a raise, and introduce them to the top investor in the list.","4. Cohort or portfolio company with no dated public event in 12 months: check in.","5. Otherwise: watch; there is not enough public evidence for a next step yet."]},"connector_slots":{"status":"not connected","names":["LinkedIn","Dealroom","Crunchbase","PitchBook","Tracxn"]},"memo":{"company_key":"2962040-6","name":"Viva Jets Oy","recommendation":{"decision":"WATCHLIST","row_id":null,"table_action":null,"matched":null,"team_label":null,"because":"unknown / Medium / Low / High","because_labels":[{"label":"Ocean impact","band":"unknown"},{"label":"Business readiness","band":"Medium"},{"label":"Investment readiness","band":"Low"},{"label":"Thesis fit","band":"High"}],"table_source":"The team's decision table (pass 1: exact match on all four, first match wins; pass 2: the team's condition rules; otherwise WATCHLIST). Level mapping to Low / Medium / High is the chief's configuration.","needs":["Ocean impact"],"note":"more public evidence needed: Ocean impact"},"why":[{"text":"Business readiness Medium (level 4): first grant: Business Finland funding decision or EU project participation","url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"text":"Investment readiness Low (level 2): 2 of the 10 investment dimensions have public evidence","url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"text":"Technology readiness Medium (level 4): Business Finland or EU project funding: a funded development project","url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"text":"Thesis fit: Industry code 30120 (Building of pleasure and sporting boats, PRH) is on the thesis list.","url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"},{"text":"Thesis fit: declared portfolio company","url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"},{"text":"Why now: BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) closes 2026-11-12","url":"https://blueinvest-community.converve.io/all_events.html"}],"risks":[{"text":"No public evidence for ocean impact","url":null},{"text":"Investment readiness is Low on the stored evidence","url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"text":"No public market evidence (public buyers in the category)","url":null}],"actions":[{"text":"Revisit when the radar finds public evidence for: Ocean impact","url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6","source":"company record"},{"text":"Check in: no public signal since 2024-01-01","url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source":"decision table, rule 4"}],"levels":{"impact":{"band":"unknown"},"business":{"band":"Medium"},"investment":{"band":"Low"},"fit":{"band":"High"},"technology":{"band":"Medium"}},"as_of":"2026-10-17"},"what_it_does":{"text":"Building of pleasure and sporting boats (industry code 30120).","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6","src_label":"PRH/YTJ register"},"today":"2026-10-17"}</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent), co = D.company, m = D.memo || {}, rec = m.recommendation || {};
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function day(d){ return (+d.slice(8,10))+' '+M[+d.slice(5,7)-1]+' '+d.slice(0,4); }
+  function when(s){ return s.date_precision === 'year' ? s.date.slice(0,4) : s.date_precision === 'month' ? M[+s.date.slice(5,7)-1]+' '+s.date.slice(0,4) : day(s.date); }
+  function dt(s){ var p = s.split('-'); return Date.UTC(+p[0], +(p[1]||1)-1, +(p[2]||1)); }
+  function eur(n){ return 'EUR ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  var HOSTS = {'tietopankki.businessfinland.fi': 'Business Finland export', 'avoindata.prh.fi': 'PRH/YTJ register', 'cordis.europa.eu': 'CORDIS', 'blueinvest-community.converve.io': 'BlueInvest events', 'www.apelago.fi': "A'Pelago", 'apelago.fi': "A'Pelago"};
+  function host(u){ var h = (u || '').replace(/^https?:\/\//, '').split('/')[0]; return HOSTS[h] || h.replace(/^www\./, ''); }
+  function src(url, label){ return url ? '<a href="'+esc(url)+'" rel="noopener">'+esc(label || host(url))+'</a>' : esc(label || ''); }
+  var VERDICT = {'WATCHLIST':['Watchlist','v-grey'], 'PARTNER INTRODUCTION':['Partner introduction','v-teal'], 'INVEST':['Invest','v-green'], 'DUE DILIGENCE':['Due diligence','v-green'], 'REJECT':['Reject','v-red']};
+  var v = VERDICT[rec.decision] || [rec.decision || 'No verdict', 'v-grey'];
+  var S = D.signals.slice(), R = D.readiness || {};
+
+  document.title = co.name + ' · ' + document.title;
+  $('mark').textContent = co.name.replace(/\b(Oy|Ab)\b/g, '').trim().split(/\s+/).map(function(w){ return w[0]; }).join('').slice(0, 2).toUpperCase();
+  $('name').textContent = co.name;
+  $('tick').textContent = co.y_tunnus + ' · ' + (co.group_tag === 'portfolio' ? 'Portfolio' : co.group_tag === 'cohort' ? 'Cohort' : 'Found by the feed');
+  $('bn').textContent = v[0];
+  if (v[1] !== 'v-grey') $('bn').insertAdjacentHTML('afterend', '<span class="vpill big '+v[1]+'">'+esc(v[0])+'</span>');
+  var note = rec.note ? rec.note.charAt(0).toUpperCase() + rec.note.slice(1) + '.' : '';
+  $('reason').innerHTML = esc(note) + ' <span class="muted small">Fund memo verdict from the team’s decision table.</span>';
+
+  // Life-line: cumulative dated public records, step line, funding records as dots sized by nothing (no invented scale).
+  var asc = S.slice().sort(function(a, b){ return a.date < b.date ? -1 : 1; });
+  var today = D.today || asc[asc.length-1].date;
+  function drawChart(years){
+    var W = Math.max(300, Math.round($('chart').getBoundingClientRect().width) || 360), H = 180, L = 4, Rp = 4, T = 24, B = 26;
+    $('chart').setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    var t1 = dt(today), t0 = years ? t1 - years * 365.25 * 864e5 : dt(asc[0].date) - 120 * 864e5;
+    var pts = asc.filter(function(s){ return dt(s.date) <= t1; });
+    var before = pts.filter(function(s){ return dt(s.date) < t0; }).length, inWin = pts.filter(function(s){ return dt(s.date) >= t0; });
+    var total = pts.length, x = function(t){ return L + (t - t0) / (t1 - t0) * (W - L - Rp); }, y = function(n){ return (H - B) - n / total * (H - T - B); };
+    var n = before, d = 'M' + L + ' ' + y(n).toFixed(1), dots = '';
+    inWin.forEach(function(s){ var X = x(dt(s.date)); d += ' H' + X.toFixed(1) + ' V' + y(++n).toFixed(1); dots += '<circle cx="'+X.toFixed(1)+'" cy="'+y(n).toFixed(1)+'" r="3.2" fill="var(--accent)"><title>'+esc(when(s))+': '+esc(s.type_label)+'</title></circle>'; });
+    d += ' H' + (W - Rp);
+    var area = d + ' V' + (H - B) + ' H' + L + ' Z';
+    var o = '<defs><linearGradient id="g" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="var(--accent)" stop-opacity=".22"/><stop offset="1" stop-color="var(--accent)" stop-opacity="0"/></linearGradient></defs>';
+    o += '<path d="'+area+'" fill="url(#g)"/><path d="'+d+'" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linejoin="round"/>' + dots;
+    var y0 = new Date(t0).getUTCFullYear() + 1, y1 = new Date(t1).getUTCFullYear(), step = Math.max(1, Math.ceil((y1 - y0 + 1) / 4));
+    for (var yr = y0; yr <= y1; yr += step) { var X = x(Date.UTC(yr, 0, 1)); o += '<text x="'+X.toFixed(1)+'" y="'+(H-6)+'" font-size="11" fill="var(--muted)" text-anchor="middle">'+yr+'</text>'; }
+    o += '<text x="'+(W-Rp)+'" y="'+Math.max(14, y(total)-8).toFixed(1)+'" font-size="12" fill="var(--text)" text-anchor="end" font-weight="600">'+total+' public records</text>';
+    $('chart').innerHTML = o;
+    $('chart-cap').textContent = (inWin.length ? inWin.length + ' in this range. ' : 'None in this range. ') + 'Each step is one dated public record (register, Business Finland, EU projects, contracts). Business Finland rows carry a year only.';
+  }
+  drawChart(0);
+  [].forEach.call(document.querySelectorAll('.chips button'), function(b){ b.addEventListener('click', function(){ [].forEach.call(document.querySelectorAll('.chips button'), function(x){ x.setAttribute('aria-pressed', x === b); }); drawChart(+b.dataset.r); }); });
+
+  $('aava').addEventListener('click', function(){ $('aava-note').textContent = 'In the live app Aava reads this card aloud and answers questions from its sources. Not wired in this static prototype.'; });
+  $('print').addEventListener('click', function(){ window.print(); });
+
+  // Key statistics: the four readiness levels, founded, Business ID, first public record, last signal.
+  function lvl(k, label){ var r = R[k] || {}, ev = (r.evidence || [])[0];
+    if (r.level == null) return '<div class="stat-c hz"><span class="l">'+label+'</span><span class="v">no public evidence yet</span><span class="s">'+src(r.framework_url, 'framework')+'</span></div>';
+    var extra = k === 'investment' && R.investment_dimensions ? ' · ' + R.investment_dimensions.filter(function(d){ return d.evidence_count > 0; }).length + ' of 10 dimensions' : '';
+    return '<div class="stat-c"><span class="l">'+label+'</span><span class="v">'+r.level+' <small>/ 9</small></span><span class="s">'+(ev ? src(ev.source_url, ev.source_label) : '')+esc(extra)+'</span></div>'; }
+  var first = asc[0], last = S[0];
+  $('stats').innerHTML = lvl('technology', 'Technology (TRL)') + lvl('business', 'Business (BRL)') + lvl('investment', 'Investment') + lvl('ocean_impact', 'Ocean impact')
+    + '<div class="stat-c"><span class="l">Founded</span><span class="v">'+esc(co.founded ? co.founded.slice(0,4) : 'no data')+'</span><span class="s">'+src(co.source_url, 'PRH/YTJ')+'</span></div>'
+    + '<div class="stat-c"><span class="l">Business ID</span><span class="v">'+esc(co.y_tunnus)+'</span><span class="s">'+src(co.source_url, 'PRH/YTJ')+'</span></div>'
+    + '<div class="stat-c"><span class="l">First public record</span><span class="v">'+esc(when(first))+'</span><span class="s">'+src(first.source_url, first.source_label)+'</span></div>'
+    + '<div class="stat-c"><span class="l">Last signal</span><span class="v">'+esc(when(last))+'</span><span class="s">'+src(last.source_url, last.source_label)+'</span></div>';
+
+  // About: the six-row card with numbered sources.
+  var SRC = [], idx = {};
+  function cite(url, label){ if (!url) return ''; if (!(url in idx)) { SRC.push([url, label || host(url)]); idx[url] = SRC.length; } return '<sup><a href="#s'+idx[url]+'" title="'+esc(label || host(url))+'">'+idx[url]+'</a></sup>'; }
+  var EMPTY = '<span class="empty6">no public evidence yet</span>';
+  var wid = D.what_it_does;
+  var a1 = wid ? esc(wid.text) + cite(wid.src, wid.src_label) : EMPTY;
+  var fitB = (rec.because_labels || []).filter(function(b){ return /fit/i.test(b.label); })[0];
+  var fitWhy = (m.why || []).filter(function(w){ return /^Thesis fit/.test(w.text); });
+  var a2 = fitB && fitB.band !== 'unknown' ? esc(fitB.band) + '. ' + fitWhy.map(function(w){ var t = w.text.replace(/^Thesis fit:\s*/, '').replace(/\.$/, ''); return esc(t.charAt(0).toUpperCase() + t.slice(1)) + '.' + cite(w.url); }).join(' ') : EMPTY;
+  var a3 = ['technology','business','investment','ocean_impact'].map(function(k){ var r = R[k] || {}, ev = (r.evidence || [])[0], nm = {technology:'Technology',business:'Business',investment:'Investment',ocean_impact:'Ocean impact'}[k];
+    return r.level == null ? nm + ': no public evidence' : nm + ' ' + r.level + '/9' + (ev ? cite(ev.source_url, ev.source_label) : ''); }).join(' · ');
+  var N = D.who_comes_next || {}, meet = (N.investors || []).concat(N.funding || []).slice(0, 3);
+  var a4 = meet.length ? meet.map(function(x){ return esc(x.name) + (x.deadline ? ' (deadline ' + esc(day(x.deadline)) + ')' : '') + cite(x.source_url); }).join('; ') + '.' : EMPTY;
+  var ns = D.next_step || {};
+  var a5 = ns.sentence ? esc(ns.sentence) + '.' + cite(ns.source_url || co.source_url, 'decision table, rule ' + ns.rule) : EMPTY;
+  var miss = (m.risks || []).filter(function(r){ return /^No public/.test(r.text); }).map(function(r){ var t = r.text.replace(/^No public (evidence for )?/, ''); return esc(t.charAt(0).toUpperCase() + t.slice(1)); });
+  miss.push('Town (not stored yet)');
+  var a6 = 'No public evidence yet for: ' + miss.join('; ') + '.';
+  $('card').innerHTML = [['What it does', a1], ['Thesis fit', a2], ['Readiness', a3], ['Who to meet', a4], ['What the fund should do', a5], ["What's missing", a6]]
+    .map(function(q){ return '<li><span class="q6">'+q[0]+'</span><div class="a6">'+q[1]+'</div></li>'; }).join('');
+  $('srcs').innerHTML = SRC.map(function(x, i){ return '<li id="s'+(i+1)+'"><a href="'+esc(x[0])+'" rel="noopener">'+esc(x[1])+'</a></li>'; }).join('');
+
+  // News: dated signals, newest first.
+  $('news').innerHTML = S.map(function(s){
+    var amt = s.amount_eur ? ' <span class="amt">' + eur(s.amount_eur) + (/loan/.test(s.detail) ? ' loan' : s.signal_type === 'bf_funding' ? ' grant' : '') + '</span>' : '';
+    return '<li><span class="t">'+esc(s.type_label)+amt+'</span><span class="d">'+esc(when(s))+'</span><span class="s">'+src(s.source_url, s.source_label)+'</span></li>';
+  }).join('');
+
+  // Analysts: the decision-table match.
+  var BAND = {Low: 1, Medium: 2, High: 3};
+  $('an').innerHTML = (rec.because_labels || []).map(function(b){
+    var w = BAND[b.band];
+    return '<div class="an-row"><span>'+esc(b.label)+'</span>'+(w ? '<span class="an-bar"><i style="width:'+(w/3*100).toFixed(0)+'%"></i></span>' : '<span class="an-bar hz"></span>')+'<span class="an-v">'+(w ? esc(b.band) : 'unknown')+'</span></div>';
+  }).join('');
+  $('an-note').textContent = 'Because: ' + (rec.because || '') + '. ' + (rec.table_source || '');
+
+  $('theme').addEventListener('click', function(){ var r = document.documentElement, c = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = c === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('theme', n); } catch (e) {} });
+})();
+</script>
+</body>
+</html>

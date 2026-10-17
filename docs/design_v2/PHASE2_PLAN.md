@@ -1,4 +1,23 @@
-# Phase 2 plan: apply B with the summary card to the real templates
+# Phase 2 plan
+
+**Current direction: C (jx37), the Trading 212 feel on B's structure, phone first.** The C plan below replaces the B plan's skin steps. B's structural decisions ("/" is the country list of feed main-tier rows, the six-row card, evidence folded under it) still hold.
+
+## Direction C: files and order
+| # | Files | What changes | About |
+|---|---|---|---|
+| C1 | `radar/static/app.css` (+ **new** `radar/static/c.css`, from `docs/design_v2/c.css`) | Tokens plus the C skin: 16 px cards, segmented tabs, big numbers, verdict pills coloured like change pills (grey Watchlist, teal Partner or Accelerator, green Invest or Due diligence, red Reject; the only status colours), 52 px action buttons, the bottom tab bar | 40 min |
+| C2 | `radar/templates/base.html` | Bottom tab bar on phone (Radar `/`, Search `/company-search`, Lists `/radar`, Backtest `/backtest`, Data `/data`), a top tab bar at 960 px and up. Keeps `#theme-toggle` and the `theme` localStorage key. The health thesis becomes a quiet "Sector" switch. `/method` and `/how` stay linked from the footer | 30 min |
+| C3 | **new** `radar/svg.py` (pure functions, unit tested in **new** `tests/test_svg.py`) | Server-side inline SVG: `sparkline(dates, today)` (cumulative dated signals over 12 months, about 72x24) and `lifeline(signals, today, years)` (the step chart). Rendered without JavaScript. The 1Y, 3Y and MAX chips are plain links (`?range=1y`) that htmx swaps in place | 50 min |
+| C4 | **new** `radar/card.py` + **new** `radar/routes/card.py` + **new** `radar/templates/company_card.html` | The six-row card as in the B plan (template global, no edit to `company.py`, `memo.py` or `matching.py`). On the C page it is the "About" section | 50 min |
+| C5 | `radar/templates/company.html`, `company.css`, `company_memo.html`, `memo.css` | The instrument page: initials mark, name, Business ID and group; the verdict as the big word with its one-line reason; the life-line SVG with chips; "Ask Aava" (a plain button, so the browser gets the user gesture speech needs) and "Print memo" (`window.print()` plus a print stylesheet); Key statistics grid (4 readiness levels, founded, Business ID, first public record, last signal, each sourced); About (the card); News (dated signals, newest first, sourced); Analysts (the decision-table bands as bars, "because: ..."). The existing 01 to 04 sections, stitcher block and sources fold under "Evidence" with their ids kept for tests | 70 min |
+| C6 | `radar/templates/feed.html`, `feed_rows.html`, `feed.css` | "/" as the C home: segmented country tabs (Finland, Baltic; they switch `?thesis=`), "On the radar" count with a "+N this quarter" badge, search, rows (initials, name, one-liner, sparkline, verdict pill, "New" plus "N d ago"), weak matches and "no thesis evidence yet" as two closed disclosures. On laptop the Lists cards sit on the right | 60 min |
+| C7 | Every other template | Tokens only, no structure change. Then screenshots of every route at 390x844 and 1440x900 in both themes, one critique round, and a first-paint check under 2 s on a phone profile | 45 min |
+
+About 6 hours in total. C1 to C6 are the demo path for the QR code (phone, then laptop).
+
+---
+
+# Earlier plan for B (structure still applies)
 
 Starts on the chief's "main merged, go". Branch `cloud/design_v2_apply` from the new main. Prototype to match: `b_home.html` and `b_company.html` (Viva Jets).
 Ground rule: every fact, number, link and test stays intact. Tests that pin page markup (about 400 `in r.text` assertions) are read before each file is touched, and any wording they check is kept. They live in `test_company.py`, `test_feed.py`, `test_visual_polish.py`, `test_judge_fixes.py`, `test_first_traction.py`, `test_frameworks.py`, `test_stitcher.py`, `test_app.py`, `test_intake.py` and `test_thesis_swap.py`.

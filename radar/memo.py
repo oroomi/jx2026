@@ -81,11 +81,20 @@ def _fallback_match(bands: dict[str, str], cfg: dict) -> dict | None:
     the evidence gate. None when the fallback does not reach this company at all."""
     fb = cfg.get("fallback") or {}
     when = fb.get("when") or {}
-    if not fb.get("rules") or not all(bands.get(k, UNKNOWN) == v for k, v in when.items()):
+    level = fb.get("implied_impact", "Medium")
+    measured = bands.get("impact", UNKNOWN) == level   # D53: impact on record at the implied level is never weaker than implied
+
+    def ok(k, v):
+        return bands.get(k, UNKNOWN) == v or (k == "impact" and measured)
+
+    if not fb.get("rules") or not all(ok(k, v) for k, v in when.items()):
         return None
-    implied = dict(bands, impact=fb.get("implied_impact", "Medium"))
+    implied = dict(bands, impact=level)
     for r in fb["rules"]:
         if all(_cell_matches(v, implied.get(k, UNKNOWN)) for k, v in (r.get("when") or {}).items()):
+            if measured:
+                return {**r, "kind": "fallback", "implied_impact": None, "measured_impact": level,
+                        "text": f"the High-fit rule, impact {level} on record"}
             return {**r, "kind": "fallback", "implied_impact": implied["impact"],
                     "text": f"fallback {r['id']}, impact implied by sector"}
     return None
@@ -376,7 +385,7 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
     labels = cfg["labels"]
     needed = [d for d in unknown]  # dimensions with no public evidence while no row matched
     shown = dict(bands)
-    if row and row.get("kind") == "fallback":
+    if row and row.get("kind") == "fallback" and row.get("implied_impact"):
         shown["impact"] = f"{row['implied_impact']}, implied by sector"
     because = " / ".join(f"{shown[d]}" for d in TABLE_DIMS)
     rec = {"decision": decision, "row_id": row["id"] if row else None, "table_action": row.get("action") if row else None,
@@ -384,7 +393,10 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
            "because": because, "because_labels": [{"label": labels.get(d, d), "band": shown[d]} for d in TABLE_DIMS],
            "table_source": cfg["source"], "needs": [labels.get(d, d) for d in needed],
            "dimensions": dimensions_line(ctx["fw"]), "fallback_blocked": blocked}
-    if row and row.get("kind") == "fallback":
+    if row and row.get("kind") == "fallback" and not row.get("implied_impact"):
+        rec["note"] = (f"Ocean impact {str(row['measured_impact']).lower()} on record; thesis fit is High, so the decision table's "
+                       f"High-fit rule applies.")
+    elif row and row.get("kind") == "fallback":
         rec["note"] = (f"Impact not yet evidenced; thesis fit is High, so impact is read as {row['implied_impact']}, implied by the "
                        f"sector, and fallback {row['id']} of the decision rules applies.")
     if row is None:

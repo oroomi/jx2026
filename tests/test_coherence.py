@@ -115,7 +115,7 @@ def aava_segments(html: str) -> list[dict]:
 def test_arctic_fry_reads_the_ladder_and_a_declared_member_reads_high_fit(snap):
     m = _memo(snap, ARCTIC)
     assert m["levels"]["fit"]["band"] == "High" and m["levels"]["impact"]["band"] == "Medium" and m["ocean_impact"]["level"] == 5
-    assert m["recommendation"]["decision"] == "WATCHLIST" and "more public evidence needed" in m["recommendation"]["note"]
+    assert m["recommendation"]["decision"] == "ACCELERATOR" and "on record" in m["recommendation"]["note"]   # D53: impact Medium on record reaches the fallback
 
 
 def test_a_sector_implied_level_stays_unknown_and_the_fallback_gate_still_holds(snap):
@@ -130,7 +130,7 @@ def test_a_sector_implied_level_stays_unknown_and_the_fallback_gate_still_holds(
 def test_next_step_view_states_the_verdict_and_keeps_a_concrete_lead(snap):
     m = _memo(snap, VIVA)
     v = memo.next_step_view(m, {"rule": 5, "sentence": "Watch: not enough public evidence for a next step yet", "source_url": None, "because": "x"}, snap)
-    assert v["sentence"].startswith("Watchlist: ") and v["concrete"] is None and "not enough public evidence" not in str(v)
+    assert v["sentence"].startswith("Accelerator: ") and "not enough public evidence" not in str(v)   # D53
     assert v["table"] and v["table"][0].startswith("Row 1:") and v["decision"] == m["recommendation"]["decision"]
     lead = {"rule": 1, "sentence": "Introduce them to X before 2026-12-01", "source_url": "https://example.test/x", "because": "open call"}
     v2 = memo.next_step_view(m, lead, snap)
@@ -346,4 +346,4 @@ def test_the_matchmakers_light_verdict_is_the_memos_for_every_home_row(snap, hom
     conn.close()
     from app import app
     page = _text(TestClient(app).get(f"/c/{VIVA}").text)
-    assert "On the watchlist path" in page and "On the accelerator path" not in page
+    assert "On the accelerator path" in page and "On the watchlist path" not in page   # D53

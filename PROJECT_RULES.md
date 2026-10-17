@@ -216,6 +216,8 @@ and `git log`. Times are UTC commit times. Counts are the ones the repo states; 
 
 **D52. 2026-10-17 (fix/coherence). "To raise it" never asks for a second source family when two are already on file.** *Rule:* at level 5 with a programme or portfolio listing, `ocean_impact._raise` counts the families the confidence line counts (the area records, the programme page, a declared reading at medium or high confidence); with two or more it names the next rung's record, the text `raise_next_rung` of that rung in the thesis file ("Rung 6 needs a record from a source family other than the register whose own text names the area ..."); with one it keeps "A second independent source family that names the same area." *Why:* Viva Jets and Arctic Fry read "2 independent source families agree" and then "To raise it: A second independent source family". *Affected:* the raise line of those two companies and every level-5 company with a programme listing and a second family; no level, band or confidence changes.
 
+**D53. 2026-10-17 15:00Z (chief, merge gate). More evidence never lowers a verdict.** *Rule:* D46, D47; `memo._fallback_match`. When the Ocean Impact ladder puts impact at the fallback's implied level (Medium) on record, the fallback rules apply with the measured band, worded "impact Medium on record" and "the decision table's High-fit rule", never a rule id. *Why:* after D46 the ladder made Viva Jets and Valkama (level 5, Medium) read WATCHLIST while sixteen declared members with no impact evidence read ACCELERATOR through the implied band: evidence was penalised. *Affected:* Viva Jets, Valkama and Arctic Fry read ACCELERATOR; verdicts with impact unknown or Low are unchanged.
+
 ## T. Taxonomy
 
 ### Signal types

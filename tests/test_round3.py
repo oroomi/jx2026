@@ -127,13 +127,13 @@ def test_viva_jets_memo_matches_its_readiness_section_and_reads_the_ladder(snap)
     assert inv_why and f"(level {irl})" in inv_why[0]
     r = m["recommendation"]
     # D46: the impact band is the Ocean Impact ladder's. Viva Jets is listed on the Redstone Blue page (level 5, Medium), so impact is no
-    # longer implied by the sector and the fallback does not apply; no row or rule covers Medium / Medium / Medium / High.
+    # longer implied by the sector. D53: impact Medium on record is never weaker than implied, so the fallback applies with the measured band.
     assert m["ocean_impact"]["level"] == 5 and m["levels"]["impact"]["band"] == "Medium"
-    assert r["decision"] == "WATCHLIST" and r["matched"] is None and "no row or rule of the decision table covers" in r["note"]
+    assert r["decision"] == "ACCELERATOR" and r["kind"] == "fallback" and "on record" in r["note"] and "implied" not in r["note"]
     assert "Medium" in r["because"] and "implied" not in r["because"]
     from app import app
     html = TestClient(app).get("/c/2962040-6").text
-    assert "no row or rule of the decision table covers" in html and "fallback c2" not in html
+    assert "on record" in html and "fallback c2" not in html   # D53: the memo states the measured impact, never the rule id
     assert f"investment {irl} of 9" in html and "of 10 investment dimensions have public evidence" in html
 
 
@@ -146,7 +146,9 @@ def test_fallback_rules():
     assert memo.decide(b(business="Medium", technology="Low"), cfg, ev)[0]["decision"] == "GRANT SUPPORT"   # TRL 1-3
     assert memo.decide(b(business="High", investment="High"), cfg, ev)[0]["decision"] == "DUE DILIGENCE"
     assert memo.decide(b(fit="Medium"), cfg, ev)[0] is None                               # fit not High: no fallback
-    assert memo.decide(b(impact="Medium"), cfg, ev)[0] is None                            # impact known: the team's table decides
+    mr = memo.decide(b(impact="Medium"), cfg, ev)[0]                                       # D53: impact Medium on record is never weaker than implied
+    assert mr and mr["kind"] == "fallback" and mr["measured_impact"] == "Medium" and mr["implied_impact"] is None
+    assert memo.decide(b(impact="Low"), cfg, ev)[0] is None or memo.decide(b(impact="Low"), cfg, ev)[0].get("kind") != "fallback"
     assert memo.decide(b(business="unknown"), cfg, ev)[0] is None
     assert memo.decide(b(), cfg)[0] is None                                               # the industry code alone: the gate is shut
 

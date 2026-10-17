@@ -1,32 +1,24 @@
-{# The home list's filter: a left rail on a desktop, a bottom sheet behind a Filter button on a phone. Included once by feed.html, inside
-   .hc just before the rows. H.rail comes from radar/home_filter.py: every option is a plain link to the filtered URL (so a view can be
-   shared and works without scripts) and htmx swaps only the .hc section when a link is followed, the pattern the feed's kind pills use. #}
-{% set R = H.rail if (H and H.rail) else none %}
-{% if R %}
-{% if not (request.headers.get("hx-request")) %}<link rel="stylesheet" href="/static/criteria.css?v={{ asset_v }}"><script src="/static/criteria.js?v={{ asset_v }}" defer></script>{% endif %}
-<div class="hc-filterbar" hx-target=".hc" hx-select=".hc" hx-swap="outerHTML">
-  <button type="button" class="hc-fbtn" data-rail-toggle aria-controls="hc-rail" aria-expanded="false">Filter{% if R.n_active %} <span class="hc-fn">{{ R.n_active }}</span>{% endif %}</button>
-  <p class="hc-fcount" role="status">{{ R.shown }} of {{ R.of }} startups{% if R.n_active %} match <a class="hc-fclear" href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-push-url="{{ R.clear_href }}">Clear filters</a>{% endif %}</p>
-</div>
+{# The home list's filter: a left rail on a desktop, a bottom sheet behind a Filter button on a phone. Included by _home_list.html, inside
+   #hc-list. H.rail comes from radar/home_filter.py: every option is a link to the next state's URL (so a view can be shared and works
+   without scripts); with htmx a click asks /home/list for the next state, swaps only #hc-list and rewrites the address bar with
+   hx-replace-url (never a pushed history entry). #}
 <div class="hc-rail-backdrop" data-rail-toggle></div>
-<aside class="hc-rail" id="hc-rail" aria-label="Filter startups" hx-target=".hc" hx-select=".hc" hx-swap="outerHTML">
+<aside class="hc-rail" id="hc-rail" aria-label="Filter startups">
   <div class="hr-head">
-    <p class="hr-title">Filter <span class="hr-shown" role="status">{{ R.shown }} of {{ R.of }}</span></p>
-    {% if R.n_active %}<a class="hr-clear" href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-push-url="{{ R.clear_href }}">Clear</a>{% endif %}
+    <p class="hr-title">Filter <span class="hr-shown">{{ R.shown }} of {{ R.total }}</span></p>
+    {% if R.n_active %}<a class="hr-clear" href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-replace-url="{{ R.clear_href }}">Clear all</a>{% endif %}
     <button type="button" class="hr-close" data-rail-toggle aria-label="Close the filter">Done</button>
   </div>
   {% for f in R.facets %}
-  {% if loop.first or loop.previtem.section != f.section %}<p class="hr-sec">{{ "What the judges score" if f.section == "criteria" else "Narrow down" }}</p>{% endif %}
+  {% if (loop.first or loop.previtem.section != f.section) and R.sections.get(f.section, f.section) %}<p class="hr-sec">{{ R.sections.get(f.section, f.section) }}</p>{% endif %}
   <details class="hr-f" data-f="{{ f.param }}"{% if f.open %} open{% endif %}>
     <summary><span>{{ f.heading }}</span>{% if f.active %}<span class="hr-on">{{ f.active }}</span>{% endif %}</summary>
-    <ul>
+    <ul{% if f.single %} role="radiogroup" aria-label="{{ f.heading }}"{% endif %}>
       {% for o in f.options %}
-      <li><a id="{{ o.id }}" class="hr-o{{ ' on' if o.on }}{{ ' zero' if (not o.count and not o.on) }}" href="{{ o.href }}" hx-get="{{ o.hx }}" hx-push-url="{{ o.href }}"{% if o.on %} aria-current="true"{% endif %}><span class="hr-box" aria-hidden="true"></span><span class="hr-t">{{ o.label }}</span><span class="hr-n">{{ o.count }}</span></a></li>
+      <li><a id="{{ o.id }}" class="hr-o{{ ' on' if o.on }}{{ ' hr-radio' if f.single }}{{ ' zero' if (o.count == 0 and not o.on) }}" href="{{ o.href }}" hx-get="{{ o.hx }}" hx-replace-url="{{ o.href }}" role="{{ 'radio' if f.single else 'checkbox' }}" aria-checked="{{ 'true' if o.on else 'false' }}"><span class="hr-box" aria-hidden="true"></span><span class="hr-t">{% if o.flag %}<img class="hc-flag" src="{{ o.flag }}" width="16" height="12" alt="" loading="lazy">{% endif %}{{ o.label }}</span><span class="hr-n">{{ o.count if o.count is not none }}</span></a></li>
       {% endfor %}
     </ul>
   </details>
   {% endfor %}
   <p class="hr-foot">Choices inside one group are alternatives; different groups all have to hold. Numbers show how many startups would remain.</p>
 </aside>
-{% if R.shown == 0 %}<p class="hc-empty">No startup in this view matches those filters. <a href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-push-url="{{ R.clear_href }}" hx-target=".hc" hx-select=".hc" hx-swap="outerHTML">Clear the filters</a> to see all {{ R.of }}.</p>{% endif %}
-{% endif %}

@@ -21,10 +21,6 @@ def _current_thesis(request) -> dict:
     return th if th is not None else thesis_mod.load()
 
 
-def _thesis_options() -> list[tuple[str, str]]:
-    return [(tid, thesis_mod.load(path)["title"]) for tid, path in thesis_mod.available().items()]
-
-
 def _country_info(th: dict) -> dict:
     """Active countries and the depth we hold for each, for the header, the feed note and /method."""
     depth = thesis_mod.country_depth(th)
@@ -38,7 +34,6 @@ def _country_info(th: dict) -> dict:
 
 templates.env.globals["country_info"] = _country_info
 templates.env.globals["current_thesis"] = _current_thesis
-templates.env.globals["thesis_options"] = _thesis_options
 
 # store.context() records a valid ?thesis= choice on request.state; the cookie is attached when the page renders.
 _orig_template_response = templates.TemplateResponse

@@ -1,0 +1,3 @@
+{# The result count, a polite live region that is NEVER swapped away: the list section comes back with hx-swap="outerHTML" and this
+   node's text is replaced in place (hx-swap-oob="innerHTML"), so a screen reader hears "12 of 58 startups" after every change. #}
+<p id="hc-count" class="hc-fcount" role="status" aria-live="polite" aria-atomic="true" tabindex="-1"{% if oob %} hx-swap-oob="innerHTML"{% endif %}>{{ text }}</p>

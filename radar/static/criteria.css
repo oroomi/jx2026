@@ -31,11 +31,9 @@
   background: transparent; color: var(--text); border: 1px solid var(--text); font: 600 15px var(--sans); cursor: pointer; }
 :root .hc-rail .hr-close { background: var(--text); color: var(--bg); }
 .hc-fn, .hr-on { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--accent); color: var(--bg); font-size: 13px; font-weight: 700; }
-.hc-fcount { margin: 0; font-size: 14px; color: var(--muted); }
-.hc-fclear, .hr-clear { color: var(--accent); font-weight: 600; text-underline-offset: 3px; }
-.hc-fclear { display: inline-flex; align-items: center; min-height: 44px; margin-left: 6px; }
-.hc-empty { margin: 14px 0 0; padding-top: 12px; border-top: 1px solid var(--text); font-size: 16px; color: var(--muted); }
-.hc-empty a { color: var(--accent); font-weight: 600; }
+.hc-fcount { margin: 12px 0 0; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.hc-fcount:focus { outline: none; }
+.hr-clear { color: var(--accent); font-weight: 600; text-underline-offset: 3px; }
 
 .hc-rail { font-size: 15px; }
 .hr-head { display: flex; align-items: center; gap: 12px; padding: 10px 0 8px; border-bottom: 1px solid var(--text); }
@@ -58,7 +56,7 @@
 .hr-o.on .hr-box::after { content: ""; position: absolute; left: 5px; top: 1px; width: 5px; height: 10px; border: solid var(--bg); border-width: 0 2px 2px 0; transform: rotate(45deg); }
 .hr-o.on .hr-t { font-weight: 600; }
 .hr-o.zero { opacity: .5; }
-.hr-o:focus-visible, .hr-f > summary:focus-visible, .hr-clear:focus-visible, .hc-fclear:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hr-o:focus-visible, .hr-f > summary:focus-visible, .hr-clear:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 @media (hover: hover) { .hr-o:hover .hr-t { color: var(--accent); } .hr-o:hover .hr-box { border-color: var(--accent); } }
 .hr-foot { margin: 16px 0 0; font-size: 14px; color: var(--muted); }
 :root[data-skin="terminal"] .hc-rail { font-family: var(--mono); }
@@ -82,13 +80,15 @@
 @media (prefers-reduced-motion: reduce) { .hc-rail { transition: none !important; } }
 
 /* ---- 3. desktop: the rail sits left of the list, sticky --------------------------------------------------------------------------------- */
+/* #hc-list is the swapped section; display: contents lets its children (the rail, the tabs, the rows) take part in the grid of .hc */
+.hc-list { display: contents; }
 @media (min-width: 960px) {
   html:has(.hc-rail) .wrap { max-width: 1180px; }
-  :root .hc:has(> .hc-rail), :root[data-skin] .hc:has(> .hc-rail) { max-width: none; display: grid; grid-template-columns: 272px minmax(0, 1fr); column-gap: 48px; }
-  .hc:has(> .hc-rail) > * { grid-column: 2; }
-  .hc:has(> .hc-rail) > .hc-rail { grid-column: 1; grid-row: 1 / span 12; align-self: start; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; padding-right: 6px; }
-  .hc:has(> .hc-rail) > .hc-filterbar { display: none; }
-  .hc:has(> .hc-rail) .hc-src { max-width: 44rem; }
+  :root .hc:has(.hc-rail), :root[data-skin] .hc:has(.hc-rail) { max-width: none; display: grid; grid-template-columns: 272px minmax(0, 1fr); column-gap: 48px; }
+  .hc:has(.hc-rail) > *, .hc:has(.hc-rail) > .hc-list > * { grid-column: 2; }
+  .hc:has(.hc-rail) > .hc-list > .hc-rail { grid-column: 1; grid-row: 1 / span 14; align-self: start; position: sticky; top: 12px; max-height: calc(100vh - 24px); overflow-y: auto; padding-right: 6px; }
+  .hc:has(.hc-rail) > .hc-list > .hc-filterbar { display: none; }
+  .hc:has(.hc-rail) .hc-src { max-width: 44rem; }
   .hr-close { display: none !important; }
   .hr-head { padding-top: 0; }
 }

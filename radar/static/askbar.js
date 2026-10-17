@@ -10,7 +10,7 @@
   if (!root) return;
   var $ = function (id) { return document.getElementById(id); };
   var form = $("ask-form"), input = $("ask-q"), micBtn = $("ask-mic"), card = $("ask-card");
-  var thesis = root.dataset.thesis || "";
+  var thesisNow = function () { return root.dataset.thesis || ""; };   /* the sector can change in place (radar/static/filters.js) */
   var mq = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
   var reduced = function () { return !!mq.matches; };
   var synth = "speechSynthesis" in window ? window.speechSynthesis : null;
@@ -48,6 +48,22 @@
     a.href = href;
     if (blank) { a.target = "_blank"; a.rel = "noopener"; }
     return a;
+  }
+  /* The answer's own link. A filter answer ("12 of 58 match: ...") changes the home list in place: the filters become the page's state and only the
+     list section is swapped (radar/static/filters.js), nothing is loaded. Off the home page, or without scripts, it stays a plain link. */
+  function goLink(a, after) {
+    var n = link(a.url, a.label || "Open", "ask-go");
+    if (a.intent === "filter" && a.filters && window.Filters && window.Filters.available()) {
+      n.addEventListener("click", function (e) {
+        e.preventDefault();
+        window.Filters.apply({ filters: a.filters }).then(function () {
+          var list = document.getElementById("hc-list"), top = list && list.querySelector(".hc-rows, .hc-empty");
+          if (top && top.scrollIntoView) top.scrollIntoView({ behavior: reduced() ? "auto" : "smooth", block: "start" });
+        });
+        if (after) after();
+      });
+    }
+    return n;
   }
 
   /* ---- placeholder cycling ------------------------------------------------------------------------------------------------------ */
@@ -246,7 +262,7 @@
   /* ---- the answer ---------------------------------------------------------------------------------------------------------------- */
   var seq = 0;
   function fetchAnswer(q) {
-    var url = "/api/ask?q=" + encodeURIComponent(q) + (thesis ? "&thesis=" + encodeURIComponent(thesis) : "");
+    var url = "/api/ask?q=" + encodeURIComponent(q) + (thesisNow() ? "&thesis=" + encodeURIComponent(thesisNow()) : "");
     return fetch(url, { headers: { Accept: "application/json" } }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
   }
 
@@ -276,7 +292,7 @@
       card.appendChild(ul);
     }
     var row = el("p", "ask-links");
-    if (a.url && !(a.intent === "filter" && a.count === 0)) row.appendChild(link(a.url, a.label || "Open", "ask-go"));   /* no link to an empty list */
+    if (a.url && !(a.intent === "filter" && a.count === 0)) row.appendChild(goLink(a));   /* no link to an empty list */
     sourceLinks(a).forEach(function (n) { row.appendChild(n); });
     var listen = null;
     if (demo && (synth || (a.segments || []).length)) {
@@ -343,6 +359,30 @@
   form.addEventListener("submit", function (e) { e.preventDefault(); ask(input.value); });
   root.querySelectorAll(".ask-chip").forEach(function (b) {
     b.addEventListener("click", function () { input.value = b.dataset.q; ask(b.dataset.q); });
+  });
+
+  /* The sector changed in place (radar/static/filters.js): ask about that sector from now on, with its example questions. */
+  document.addEventListener("filters:swapped", function (e) {
+    var d = e.detail || {};
+    if (d.thesis && d.thesis !== (root.dataset.thesis || "")) {
+      root.dataset.thesis = d.thesis;
+      card.hidden = true;
+      if (d.examples && d.examples.length) {
+        examples = d.examples;
+        root.dataset.examples = JSON.stringify(examples);
+        input.placeholder = examples[0];
+        var ul = root.querySelector(".ask-try");
+        if (ul) {
+          ul.textContent = "";
+          examples.slice(0, 5).forEach(function (q) {
+            var li = el("li"), b = el("button", "ask-chip", q);
+            b.type = "button"; b.dataset.q = q;
+            b.addEventListener("click", function () { input.value = q; ask(q); });
+            li.appendChild(b); ul.appendChild(li);
+          });
+        }
+      }
+    }
   });
 
   /* Ctrl or Cmd + K focuses the bar (the Linear and Raycast habit). */
@@ -590,7 +630,7 @@
     sayWords = words(elSay, a.say);
     elLinks.textContent = ""; elLinks.hidden = true;
     (a.items || []).forEach(function (it) { elLinks.appendChild(link(it.url, it.label)); });
-    if (a.url && !(a.intent === "filter" && a.count === 0)) elLinks.appendChild(link(a.url, a.label || "Open", "ask-go"));
+    if (a.url && !(a.intent === "filter" && a.count === 0)) elLinks.appendChild(goLink(a, closeVoice));
     sourceLinks(a).forEach(function (n) { elLinks.appendChild(n); });
     var spoken = reduced();   /* reduced motion: the whole answer at once, then the voice */
     if (spoken) { reveal(sayWords, sayWords.length); elLinks.hidden = false; }

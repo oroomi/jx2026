@@ -48,8 +48,9 @@ def keys_in(html: str) -> list[str]:
 
 
 def section(html: str) -> str:
-    """The .hc section of a page, from its opening tag to the first closing </section>."""
-    return html[html.index('<section class="hc"'):html.index("</section>", html.index('<section class="hc"'))]
+    """The list section (#hc-list) of a page or of the /home/list fragment: from its opening tag to the note that closes it."""
+    start = html.index('<div id="hc-list"')
+    return html[start:html.index("</p>\n</div>", html.index('class="hc-note"', start)) + len("</p>\n</div>")]
 
 
 # ---- 1. rows carry the criteria -----------------------------------------------------------------------------------------------------
@@ -147,7 +148,7 @@ def test_counts_hold_the_other_facets_and_equal_the_rows_that_would_show(H):
 
 def test_the_rail_offers_every_asked_for_filter(H):
     R = home_filter.rail(H["rows"], {}, {})
-    assert [f["param"] for f in R["facets"]] == ["verdict", "impact", "trl", "brl", "irl", "fit", "country", "sector", "age", "src", "deadline", "member"]
+    assert [f["param"] for f in R["facets"]] == ["verdict", "impact", "trl", "brl", "irl", "fit", "country", "sector", "age", "source", "deadline", "member"]
     irl = next(f for f in R["facets"] if f["param"] == "irl")
     assert {o["value"] for o in irl["options"]} == {"known", "none"}
 
@@ -169,20 +170,20 @@ def test_page_renders_without_filters_with_box_and_rail(client, H):
     html = r.text
     assert len(keys_in(html)) == len(H["rows"])
     assert html.count('class="hc-crit"') == len(H["rows"])
-    assert 'id="hc-rail"' in html and "Clear filters" not in html and f'{len(H["rows"])} of {len(H["rows"])} startups' in html
-    for label in ("Verdict", "Ocean impact", "Technology readiness (TRL)", "Business readiness (BRL)", "Investment readiness (IRL)", "Thesis fit", "Country", "Sector", "Registered", "Source records", "Programme deadline", "Declared company"):
+    assert 'id="hc-rail"' in html and "Clear all" not in html and f'>{len(H["rows"])} of {len(H["rows"])} startups</p>' in html
+    for label in ("Verdict", "Ocean impact", "Technology readiness (TRL)", "Business readiness (BRL)", "Investment readiness (IRL)", "Thesis fit", "Country", "Impact category", "Registered", "Source records", "Programme deadline", "Declared company"):
         assert f"<span>{label}</span>" in html, label
-    assert 'hx-select=".hc"' in html and 'hx-get="/home/list' in html
+    assert 'hx-replace-url="/?' in html and 'hx-get="/home/list' in html and "hx-push-url" not in html
 
 
 def test_page_with_filters_shows_the_subset_and_can_be_cleared(client, H):
     expected = [r["company_key"] for r in H["rows"] if r["verdict"] == "ACCELERATOR" and r["country"] == "FI"]
     r = client.get("/?verdict=ACCELERATOR&country=FI")
     assert r.status_code == 200 and keys_in(r.text) == expected
-    assert "Clear filters" in r.text and f'{len(expected)} of {len(H["rows"])} startups match' in r.text
-    assert 'aria-current="true"' in r.text
+    assert "Clear all" in r.text and f'>{len(expected)} of {len(H["rows"])} startups</p>' in r.text
+    assert 'aria-checked="true"' in r.text
     # a group, a filter and the headline number: the headline counts the whole window, the list shrinks
-    g = client.get("/?group=fit&verdict=ACCELERATOR")
+    g = client.get("/?group=fit&for=any&verdict=ACCELERATOR")        # for=any: the plain Top matching list (the sponsor's ranking is tested in test_filters_inplace)
     fit_keys = {r["company_key"] for r in H["rows"] if r["verdict"] in home_list.TOP_VERDICTS or r["fit"] == "High"}
     assert set(keys_in(g.text)) == {k for k in fit_keys if next(x for x in H["rows"] if x["company_key"] == k)["verdict"] == "ACCELERATOR"}
 
@@ -192,7 +193,7 @@ def test_a_filter_that_matches_nothing_says_so_and_offers_the_way_back(client, H
     assert r.status_code == 200
     if keys_in(r.text):
         pytest.skip("the snapshot has a company matching that combination")
-    assert "No startup in this view matches those filters" in r.text and 'class="hc-rows"' in r.text
+    assert "No startup matches these filters" in r.text and 'class="hc-rows"' not in r.text
     assert client.get("/?verdict=%3Cscript%3E&country=ZZ").status_code == 200
 
 
@@ -201,7 +202,4 @@ def test_the_htmx_partial_returns_the_same_section_as_the_full_page(client):
         full = client.get("/" + q)
         part = client.get("/home/list" + q, headers={"HX-Request": "true"})
         assert part.status_code == 200
-        # the partial does not repeat the stylesheet and script the page already loaded
-        assert "criteria.css" in full.text and "criteria.css" not in part.text
-        a = re.sub(r'<link rel="stylesheet" href="/static/criteria\.css[^>]*><script[^>]*></script>', "", section(full.text))
-        assert a == section(part.text)
+        assert section(full.text) == section(part.text)

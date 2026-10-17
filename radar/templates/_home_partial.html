@@ -1,0 +1,2 @@
+{# GET /home/list: the list section, then the count line for the live region that stays on the page (swapped out of band). #}
+{% include "_home_list.html" %}{% with text = H.rail.count_text, oob = true %}{% include "_home_count.html" %}{% endwith %}{% with oob = true %}{% include "_ask_count.html" %}{% endwith %}

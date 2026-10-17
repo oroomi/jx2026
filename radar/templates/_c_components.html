@@ -2,7 +2,7 @@
   Direction C components (jx37, the Trading 212 feel), phone first.
 
   Server-rendered, dependency-free: every macro returns plain HTML or inline SVG and
-  needs no JavaScript. Colours come from the tokens in radar/static/app.css; the only
+  needs no JavaScript. Colours come from the tokens in radar/static/tokens.css; the only
   additions are the verdict pill's green and red, which DESIGN.md allows nowhere else.
 
   Dates are ISO strings. A rough day number from the string is enough to place a mark
@@ -57,7 +57,7 @@
 {%- macro lifeline(signals, uid, today=None, width=320, height=64) -%}
 {%- set rows = (signals or [])|sort(attribute='date') -%}
 {%- if not rows -%}
-<p class="c-ll-empty"><span class="hatch">no public evidence yet</span></p>
+<p class="c-ll-empty"><span class="c-none">no public evidence yet</span></p>
 {%- else -%}
 {%- set end = today or rows[-1].date -%}
 {%- set tend = _day(end)|float -%}
@@ -119,7 +119,7 @@
 {%- if verdict -%}
 <span class="c-pill c-pill-{{ tone }}"{% if reason %} title="{{ reason }}"{% endif %}>{{ verdict }}</span>
 {%- else -%}
-<span class="hatch">no verdict yet</span>
+<span class="c-none">no verdict yet</span>
 {%- endif -%}
 {%- endmacro -%}
 
@@ -138,7 +138,7 @@
           {%- if r.source_url -%}<a href="{{ r.source_url }}">{{ r.value }}</a>
           {%- else -%}{{ r.value }}{%- endif -%}
         {%- else -%}
-        <span class="hatch">no public evidence yet</span>
+        <span class="c-none">no public evidence yet</span>
         {%- endif -%}
       </dd>
     </div>

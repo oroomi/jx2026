@@ -8,6 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATES = ROOT / "radar" / "templates"
 CSS = ROOT / "radar" / "static" / "c_components.css"
+TOKENS = ROOT / "radar" / "static" / "tokens.css"
 
 # Viva Jets Oy 2962040-6, exactly as the committed snapshot holds it.
 VIVA = [
@@ -33,7 +34,7 @@ def test_sparkline_with_no_signals_is_hatched_not_empty():
 
 def test_lifeline_with_no_signals_says_so():
     out = str(_mod().lifeline([], "x"))
-    assert "no public evidence yet" in out and "hatch" in out
+    assert "no public evidence yet" in out and "c-none" in out
     assert "<svg" not in out
 
 
@@ -105,14 +106,39 @@ def test_verdict_pill_tones():
 
 # --- the stylesheet ------------------------------------------------------------
 
-def test_css_only_adds_namespaced_rules_and_the_two_verdict_colours():
+def test_css_only_adds_namespaced_rules():
     css = CSS.read_text()
     selectors = re.findall(r"(?m)^([.#][^{\n]+)\{", css)
     for sel in selectors:
         assert ".c-" in sel, f"{sel} is not namespaced to this task"
-    assert "--c-pos" in css and "--c-neg" in css
     assert 'env(safe-area-inset-bottom' in css, "the tab bar clears the home indicator"
-    assert "var(--tap)" in css, "tap targets come from the shared token"
+    assert "var(--c-tap)" in css, "tap targets go through one variable"
+
+
+def test_every_variable_comes_from_tokens_css_or_is_a_c_addition():
+    """The design session owns tokens.css. Anything this task needs beyond it must be --c-."""
+    tokens = set(re.findall(r"(--[a-z0-9-]+)\s*:", TOKENS.read_text()))
+    assert "--accent" in tokens and "--ok" in tokens, "tokens.css did not parse"
+    used = set(re.findall(r"var\((--[a-z0-9-]+)", CSS.read_text()))
+    unknown = {v for v in used if v not in tokens and not v.startswith("--c-")}
+    assert not unknown, f"not in tokens.css and not prefixed --c-: {sorted(unknown)}"
+
+
+def test_the_c_additions_are_declared_and_minimal():
+    css = CSS.read_text()
+    declared = set(re.findall(r"(--c-[a-z0-9-]+)\s*:", css))
+    used = {v for v in re.findall(r"var\((--c-[a-z0-9-]+)", css)}
+    assert used <= declared, f"used but never declared: {sorted(used - declared)}"
+    # tokens.css has ok, warn, info and none but no red, so the pill supplies exactly that
+    assert "--c-reject" in declared
+    assert declared == {"--c-reject", "--c-reject-soft", "--c-tap", "--c-tabbar-h"}, sorted(declared)
+
+
+def test_verdict_pill_green_and_grey_come_from_tokens_not_from_new_colours():
+    css = CSS.read_text()
+    assert "var(--ok)" in css, "green is the tokens status colour"
+    assert "var(--none)" in css, "grey is the tokens status colour"
+    assert "var(--accent)" in css, "teal is the one accent"
 
 
 def test_tabbar_has_five_destinations_and_no_emoji():

@@ -80,6 +80,7 @@
       {% endif %}
     </g>
     {% endfor %}
+    {% if chart.ref_anchor == 'end' %}<text class="bt-ann" x="{{ chart.ref_x + 6 }}" y="12">found later &#8594;</text>{% else %}<text class="bt-ann" x="{{ chart.ref_x - 6 }}" y="12" text-anchor="end">&#8592; found earlier</text>{% endif %}
     <g class="bt-ref"><line x1="{{ chart.ref_x }}" x2="{{ chart.ref_x }}" y1="{{ chart.top - 4 }}" y2="{{ chart.h - 4 }}"/><text x="{{ chart.ref_x + (-4 if chart.ref_anchor == 'end' else 4) }}" y="12" text-anchor="{{ chart.ref_anchor }}">reference {{ chart.ref_label }}</text></g>
   </svg>
   {# jx30: the same lanes as HTML for a phone, where the SVG text would shrink below 10 px. Positions come from the chart geometry above. #}
@@ -93,8 +94,9 @@
       {% if l.blank %}<span class="bt-llabel bt-lblank">no public signal</span>{% else %}<span class="bt-llabel">{{ l.label }}</span>{% endif %}
     </div>
     {% endfor %}
-    <p class="bt-lnote">The vertical line is the reference date, {{ chart.ref_label }}.</p>
+    <p class="bt-lnote">The vertical line is the reference date, {{ chart.ref_label }}. Left of it: found earlier; right of it: found later.</p>
   </div>
+  <p class="bt-source" id="bt-source">Source: first counted public record per company from the radar's stored signals, each linked in the table below; reference date {{ res.reference_date }} ({{ res.reference_source }}).</p>
 </section>
 
 <section aria-labelledby="tbl-h">

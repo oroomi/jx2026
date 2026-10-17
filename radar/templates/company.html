@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% from "_chip.html" import chip, missing %}
 {% block title %}{{ c.name }} | Ocean Opportunity Radar{% endblock %}
-{% block head %}<link rel="stylesheet" href="/static/c_components.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/company.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/matching.css?v={{ asset_v }}">
-<link rel="stylesheet" href="/static/skins.css?v={{ asset_v }}">
-{% include "_skin_head.html" %}{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/company.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/matching.css?v={{ asset_v }}">
+
+{% endblock %}
 {% block content %}
 {% from "_c_components.html" import verdict_pill, key_stats %}
 {% set m = memo_for(c.company_key, thesis) %}

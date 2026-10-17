@@ -677,6 +677,15 @@ def main(argv: list[str] | None = None) -> int:
     if a.cmd == "build":
         rows, stats = collect(conn, th, caches=cache_dirs(a.cache_dir))
         n = write(conn, rows)
+        from radar import provenance
+        conf = conflicts(rows)
+        provenance.record(conn, rule_id=WINNING_RULE, kind="run", scope=f"field_candidates, thesis {th['id']}",
+                          action="field candidates built; live values left as A1 picks them, competing values marked "
+                                 "PENDING_DECISION under the open issues",
+                          affected=f"{n} candidate rows, {stats['companies']} companies; conflicts "
+                                   + ", ".join(f"{f} {len(v)}" for f, v in conf.items())
+                                   + f"; {stats['pending']} rows PENDING_DECISION",
+                          evidence="python3 -m radar.candidates build")
         print(f"wrote {n:,} candidate rows for {stats['companies']:,} companies into {path} "
               f"({stats['person_shaped_skipped']:,} companies with a person-shaped name left out; "
               f"{stats['pending']:,} rows PENDING_DECISION under {len(OPEN_ISSUES)} open issues)")

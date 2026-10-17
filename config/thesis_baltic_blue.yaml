@@ -24,6 +24,7 @@ themes:                          # Redstone Blue's four areas plus A'Pelago's wo
 # TOL 2008 (NACE) codes. A code match alone is only LOW confidence (codes are coarse: Emission-Eye is 62100).
 industry_codes:
   - {code: "03210", note: "Marine aquaculture"}
+  - {code: "03220", note: "Freshwater aquaculture"}
   - {code: "03110", note: "Marine fishing"}
   - {code: "03211", note: "Marine aquaculture (Estonian EMTAK code)"}
   - {code: "03111", note: "Marine fishing (Estonian EMTAK code)"}
@@ -124,7 +125,7 @@ impact_readiness:
   title: Ocean Impact Assessment
   label: Ocean Impact Readiness
   level_max: 9
-  bands: {low_max: 2, high_min: 8}       # level -> Low (1-2, sector-implied only), Medium (3-7), High (8-9, a measured outcome is on record); no level = no band
+  bands: {evidenced_min: 3, low_max: 2, high_min: 8}   # level 1-2 (sector-implied only) = no band, shown as "not yet evidenced" with the record that would raise it; Medium (3-7); High (8-9, a measured outcome is on record); no level = no band (same ladder as thesis.yaml, D36)
   # Declared research (the ecosystem dataset) may set rungs 7 and 8 only, and only when its own confidence is at least min_confidence;
   # a low-confidence reading is listed as a lead and sets nothing (A24). Its score runs 0-5 on the dataset's own scale:
   # assessment_min_score = a reading with evidence is on record; measured_min_score = a quantified outcome with a stated method.
@@ -183,7 +184,7 @@ memo:
       high: [industry_code, own_text]
       medium: [line_of_business, corroborated_keyword]
       medium_codes: []                 # code families whose code match is Medium, not High (none in this thesis; see thesis.yaml, D22)
-      declared_member_band: Medium     # a declared cohort or portfolio company has at least this fit (it was selected for the programme)
+      declared_member_band: High       # a declared cohort or portfolio company has at least this fit (it was selected for the programme; D33)
   decisions:
     source: "The team's decision table (pass 1: exact match on all four, first match wins; pass 2: the team's condition rules; otherwise WATCHLIST). Level mapping to Low / Medium / High is the chief's configuration."
     rows:

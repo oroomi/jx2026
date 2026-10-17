@@ -26,6 +26,7 @@ themes:                          # Redstone Blue's four areas plus A'Pelago's wo
 # TOL 2008 (NACE) codes. A code match alone is only LOW confidence (codes are coarse: Emission-Eye is 62100).
 industry_codes:
   - {code: "03210", note: "Marine aquaculture"}
+  - {code: "03220", note: "Freshwater aquaculture"}
   - {code: "03110", note: "Marine fishing"}
   - {code: "30110", note: "Building of ships and floating structures"}
   - {code: "30120", note: "Building of pleasure and sporting boats"}
@@ -371,7 +372,7 @@ memo:
       # 39 remediation are municipal utility codes: a company registered there is a sector match, but not a High fit on the code alone.
       # The company's own text, or a name word corroborated by a different source family, can still lift it to High.
       medium_codes: ["36", "37", "39"]
-      declared_member_band: Medium     # a declared cohort or portfolio company has at least this fit (it was selected for the programme)
+      declared_member_band: High       # a declared cohort or portfolio company has at least this fit (it was selected for the programme; D33)
   decisions:
     source: "The team's decision table (pass 1: exact match on all four, first match wins; pass 2: the team's condition rules; pass 3: the fallback for High thesis fit with no impact evidence, only when that fit rests on more than the industry code; otherwise WATCHLIST). Level mapping to Low / Medium / High is the chief's configuration."
     rows:

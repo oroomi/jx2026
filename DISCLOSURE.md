@@ -59,6 +59,7 @@ Named by the official Redstone x A'Pelago brief; levels on the company page are 
 ## Third-party services
 | Service | Purpose | Account pre-existed? |
 |---|---|---|
+| ElevenLabs | text-to-speech, the Aava narration rendered once at build time into MP3 files (free plan, attribution: audio generated with ElevenLabs) | yes, the owner's existing free account, opened before the event |
 | Anthropic Claude (Claude Code + API) | Pair programmer and in-product LLM calls | yes |
 | Cloudflare tunnel + VPS jx.hankintaviikko.fi | Public URL for the demo | yes |
 | GitHub (oroomi/jx2026) | Source hosting | account yes, repo created at the bell |

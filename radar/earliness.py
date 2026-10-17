@@ -239,7 +239,7 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
     for r in res["stitcher"]["rows"]:
         r["name"] = names.get(r["company_key"], r["company_key"])
     if intake_mod.settings(th) is not None:
-        s = intake_mod.summary([r["intake"] for r in rows])
+        s = intake_mod.summary([r["intake"] for r in rows], [r["name"] for r in rows])
         res["intake"] = {**s, "headline": intake_mod.headline(s), "rule": intake_mod.rule_text(th), "note": intake_mod.tuning_note(th)}
     else:
         res["intake"] = None

@@ -3,8 +3,12 @@ token on a company page, the backtest ranks are stated per company, and the home
 Synthetic companies for the rules; the committed snapshot (and, when RADAR_LIVE_COPY names a copy of the live store, that copy) for pages."""
 import html
 import os
+import json
 import re
 import shutil
+import sqlite3
+import threading
+import time
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -222,3 +226,191 @@ def test_company_pages_on_the_live_copy_have_no_raw_token(monkeypatch):
     monkeypatch.setenv("RADAR_DB", str(LIVE))
     import app
     _check_pages(TestClient(app.app))
+
+
+# ---- D23: a company's own name is never taken for a person's ----------------------------------------------------------------
+
+def _names_conn(companies, candidates=()):
+    c = sqlite3.connect(":memory:")
+    c.execute("CREATE TABLE companies (company_key TEXT PRIMARY KEY, name TEXT, group_tag TEXT)")
+    c.execute("CREATE TABLE field_candidates (company_key TEXT, field TEXT, value TEXT)")
+    c.executemany("INSERT INTO companies VALUES (?,?,?)", companies)
+    c.executemany("INSERT INTO field_candidates VALUES (?,?,?)", [(k, "name", v) for k, v in candidates])
+    c.commit()
+    return c
+
+
+STORE = [("2962040-6", "Viva Jets Oy", "portfolio"), ("2902007-2", "Kelluu Oy", "cohort"), ("3508136-5", "Suomen Vesistökunnostus Oy", "feed"),
+         ("3999999-9", "Pekka Virtanen Oy", "intake")]
+
+
+def test_a_company_name_and_a_person_in_one_sentence():
+    from radar import fit, names
+    th = thesis.load()
+    c = _names_conn(STORE)
+    s = "Viva Jets Oy, founded in Oulu in 2018, was joined by Jane Doe."
+    for page in ("2962040-6", "2902007-2"):  # its own page, and another company's page
+        out = fit.redact_person_names(s, dict((k, n) for k, n, _ in STORE)[page], th, known=names.known_names(c, th, page))
+        assert out == "Viva Jets Oy, founded in Oulu in 2018, was joined by [name redacted]."
+    # with no store read, as before: another company's name is hidden, but the legal form is no part of a name
+    assert fit.redact_person_names(s, "Kelluu Oy", th) == "[name redacted] Oy, founded in Oulu in 2018, was joined by [name redacted]."
+
+
+def test_a_name_without_its_legal_form_and_a_former_name_survive():
+    from radar import fit, names
+    th = thesis.load()
+    c = _names_conn(STORE, [("2962040-6", "SNOWSUS OY")])
+    known = names.known_names(c, th, "2962040-6")
+    r = lambda t, own="Viva Jets Oy", k=known: fit.redact_person_names(t, own, th, known=k)  # noqa: E731
+    assert r("Snowsus Ltd., founded in Oulu in 2018, is set to start production") == "Snowsus Ltd., founded in Oulu in 2018, is set to start production"
+    assert r("Viva Jets announced a dealer", "Kelluu Oy", names.known_names(c, th, "2902007-2")) == "Viva Jets announced a dealer"
+    assert r('OR "Suomen Vesistökunnostus" OR "Matti Meikalainen"', "Kelluu Oy") == 'OR "Suomen Vesistökunnostus" OR "[name redacted]"'
+    assert r("Kelluu's Canadian subsidiary", "Kelluu Oy") == "Kelluu's Canadian subsidiary"
+
+
+def test_a_register_name_that_could_be_a_persons_is_kept_only_with_its_legal_form():
+    from radar import fit, names
+    th = thesis.load()
+    known = names.known_names(_names_conn(STORE), th, "2962040-6")
+    assert fit.redact_person_names("Pekka Virtanen Oy won it", "Viva Jets Oy", th, known=known) == "Pekka Virtanen Oy won it"
+    assert fit.redact_person_names("Pekka Virtanen said", "Viva Jets Oy", th, known=known) == "[name redacted] said"  # a person who shares a register name
+
+
+def test_the_declared_lists_and_a_stray_bracket_fragment():
+    from radar import fit, names
+    th = thesis.load()
+    declared = names.declared_names(th)
+    assert declared  # the investor, corporate and programme lists named under `matching`
+    idx = names.known_names(_names_conn([]), th, None)
+    assert ("funding",) not in idx.base and ("business", "finland", "young", "innovative", "company", "funding") in idx.base  # "(NIY)" is read out
+    protected = [n for n in declared if fit.redact_person_names(n, "", th) != n and fit.redact_person_names(n, "", th, known=idx) == n]
+    assert protected, "a declared name the plain redactor hides is kept when the declared lists are read"
+
+
+def test_the_write_time_redactor_keeps_a_known_name_inside_a_longer_run():
+    from radar import names
+    from radar.adapters import stitcher
+    th = thesis.load()
+    known = names.known_names(_names_conn(STORE), th, "2902007-2")
+    assert stitcher.redact_people("Today Viva Jets said Jane Doe", "Kelluu Oy", known) == "Today Viva Jets said [name]"
+    assert stitcher.redact_people("Jane Doe joined Kelluu Oy", "Kelluu Oy", known) == "[name] joined Kelluu Oy"
+    assert stitcher.redact_people("Jane Doe met Viva Jets", "Kelluu Oy") == "[name] met [name]"  # no store read: as before
+
+
+def _repair_fixture(tmp_path):
+    db = tmp_path / "s.sqlite"
+    c = _names_conn(STORE)
+    disk = sqlite3.connect(db)
+    c.backup(disk)
+    disk.executescript("""CREATE TABLE stitch_log (id INTEGER PRIMARY KEY, run_id TEXT, company_key TEXT, step TEXT, outcome TEXT, reason TEXT,
+                          query TEXT, quote TEXT);
+                          CREATE TABLE signals (id INTEGER PRIMARY KEY, company_key TEXT, adapter TEXT, detail TEXT);
+                          CREATE TABLE company_brief_slots (company_key TEXT PRIMARY KEY, written TEXT, slots_json TEXT, imported_at TEXT);""")
+    disk.execute("INSERT INTO stitch_log VALUES (1,'r','2902007-2','search','llm_query',NULL,?,NULL)", ('"[name]" OR "[name]"',))
+    disk.execute("INSERT INTO stitch_log VALUES (2,'r','2902007-2','read','proposed',NULL,NULL,?)", ("[name] announced a deal with [name]",))
+    disk.execute("INSERT INTO stitch_log VALUES (3,'r','2902007-2','read','proposed',NULL,NULL,?)", ("kept as it is: [name] only",))
+    disk.execute("INSERT INTO signals VALUES (9,'2902007-2','stitcher',?)", ('"[name] announced a deal with [name]" (kelluu.com) Page first archived 2026-01-01.',))
+    disk.execute("INSERT INTO company_brief_slots VALUES ('2902007-2','2026-10-17',?, 'x')",
+                 (json.dumps({"what_it_does": {"text": "[name redacted] makes airships.", "cites": []}}),))
+    disk.commit()
+    disk.close()
+    f = tmp_path / "fetched"
+    (f / "stitcher" / "proposals").mkdir(parents=True)
+    (f / "briefs" / "out2").mkdir(parents=True)
+    (f / "stitcher" / "proposals" / "2902007-2.json").write_text(json.dumps({
+        "queries_run": ['"Viva Jets" OR "Jane Doe"'],
+        "events": [{"quote": "Viva Jets announced a deal with Jane Doe"}]}), encoding="utf-8")
+    (f / "briefs" / "out2" / "2902007-2.json").write_text(json.dumps({"slots": {"what_it_does": {"text": "Viva Jets makes airships."}}}), encoding="utf-8")
+    return db, f
+
+
+def test_repair_restores_company_names_and_keeps_the_person_redacted(tmp_path):
+    from radar import repair_redaction
+    db, f = _repair_fixture(tmp_path)
+    before = sqlite3.connect(db).execute("SELECT group_concat(coalesce(query,quote,detail,'')) FROM (SELECT query, quote, NULL AS detail FROM stitch_log "
+                                         "UNION ALL SELECT NULL, NULL, detail FROM signals)").fetchone()
+    dry = repair_redaction.run(db, dry_run=True, fetched=f)
+    assert dry["texts_changed"] == 4 and dry["restored"] == 4  # the query, the quote, the signal detail and the brief slot
+    assert sqlite3.connect(db).execute("SELECT group_concat(coalesce(query,quote,detail,'')) FROM (SELECT query, quote, NULL AS detail FROM stitch_log "
+                                       "UNION ALL SELECT NULL, NULL, detail FROM signals)").fetchone() == before  # a dry run writes nothing
+    r = repair_redaction.run(db, dry_run=False, fetched=f)
+    assert (r["markers"], r["restored"], r["left"], r["unrecoverable"]) == (8, 4, 4, 1)  # row 3 has no saved original; every person stays hidden
+    c = sqlite3.connect(db)
+    assert c.execute("SELECT query FROM stitch_log WHERE id=1").fetchone()[0] == '"Viva Jets" OR "[name]"'
+    assert c.execute("SELECT quote FROM stitch_log WHERE id=2").fetchone()[0] == "Viva Jets announced a deal with [name]"
+    assert c.execute("SELECT quote FROM stitch_log WHERE id=3").fetchone()[0] == "kept as it is: [name] only"
+    assert c.execute("SELECT detail FROM signals").fetchone()[0].startswith('"Viva Jets announced a deal with [name]" (kelluu.com) Page first')
+    assert json.loads(c.execute("SELECT slots_json FROM company_brief_slots").fetchone()[0])["what_it_does"]["text"] == "Viva Jets makes airships."
+    again = repair_redaction.run(db, dry_run=False, fetched=f)
+    assert again["restored"] == 0 and again["texts_changed"] == 0  # safe to run twice
+
+
+@pytest.mark.skipif(LIVE is None or not LIVE.is_file(), reason="set RADAR_LIVE_COPY to a copy of the live store")
+def test_viva_jets_stitcher_block_names_the_former_company_on_the_live_copy(monkeypatch):
+    monkeypatch.setenv("RADAR_DB", str(LIVE))
+    import app
+    page = _page_text(TestClient(app.app), "2962040-6")
+    assert "Snowsus Ltd., founded in Oulu in 2018" in page and "[name redacted]., founded" not in page
+
+
+# ---- D26: every sector's home list is warm, and no request waits more than 3 seconds for it ---------------------------------
+
+@pytest.fixture
+def warm_env(tmp_path, monkeypatch):
+    for n in ("radar_redstone_apelago_blue.sqlite", "radar_health_tech_turku.sqlite"):
+        shutil.copy(SNAP / n, tmp_path / n)
+    monkeypatch.setenv("RADAR_DATA_DIR", str(tmp_path))
+    monkeypatch.delenv("RADAR_DB", raising=False)
+    from radar import home_list
+    monkeypatch.setattr(home_list, "_cache", {})
+    monkeypatch.setattr(home_list, "_building", {})
+    return home_list
+
+
+def _wait_idle(hl, seconds=20):
+    end = time.time() + seconds
+    while hl._building and time.time() < end:
+        time.sleep(0.05)
+    assert not hl._building
+
+
+@needs_snapshot
+def test_warm_all_builds_every_thesis_with_a_store_default_first(warm_env, monkeypatch):
+    hl, seen = warm_env, []
+    monkeypatch.setattr(hl, "build", lambda conn, th, today=None: seen.append(th["id"]) or {"rows": [], "groups": [], "countries": []})
+    assert set(thesis.available()) >= {"redstone_apelago_blue", "baltic_blue", "health_tech_turku"}  # three sectors in config/
+    hl.warm_all()
+    end = time.time() + 20
+    while len(seen) < 2 and time.time() < end:
+        time.sleep(0.05)
+    _wait_idle(hl)
+    assert seen[0] == "redstone_apelago_blue" and sorted(seen) == ["health_tech_turku", "redstone_apelago_blue"]  # baltic has no store in this folder
+    assert len(hl._cache) == 2
+
+
+@needs_snapshot
+def test_a_request_during_warming_gets_the_plain_feed_and_a_note(warm_env, monkeypatch):
+    hl, gate = warm_env, threading.Event()
+    monkeypatch.setattr(hl, "WAIT_SECONDS", 0.3)
+    monkeypatch.setattr(hl, "build", lambda conn, th, today=None: gate.wait(30) and {"rows": [], "groups": [], "countries": []})
+    import app
+    client = TestClient(app.app)
+    t0 = time.time()
+    r = client.get("/?thesis=health_tech_turku")
+    assert r.status_code == 200 and time.time() - t0 < 3
+    assert 'id="home-warming"' in r.text and "Every line links to the public record" in r.text  # the plain feed, one note
+    assert client.get("/?thesis=health_tech_turku").text.count('id="home-warming"') == 1  # still building: no second build, same answer
+    assert sum(1 for k in hl._building if k[0] == "health_tech_turku") == 1
+    gate.set()
+    _wait_idle(hl)
+    assert 'id="home-warming"' not in client.get("/?thesis=health_tech_turku").text and any(k[0] == "health_tech_turku" for k in hl._cache)
+
+
+@needs_snapshot
+def test_a_failed_build_gives_the_plain_feed_without_a_note_and_is_tried_again(warm_env, monkeypatch):
+    hl, calls = warm_env, []
+    monkeypatch.setattr(hl, "build", lambda conn, th, today=None: calls.append(1) or (_ for _ in ()).throw(RuntimeError("boom")))
+    th = thesis.load(thesis.available()["health_tech_turku"])
+    assert hl.for_template(th) is None
+    _wait_idle(hl)
+    assert hl.for_template(th) is None and len(calls) == 2

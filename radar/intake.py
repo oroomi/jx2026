@@ -12,7 +12,6 @@ earlier intake date, then by business id. Rank 1 is the strongest."""
 from __future__ import annotations
 
 import sqlite3
-import statistics
 from datetime import date
 
 from radar import labels
@@ -216,26 +215,27 @@ def cohort_row(conn, th: dict, c, ref: str, first_evidence: str | None) -> dict:
     return out
 
 
-def summary(rows: list[dict]) -> dict:
-    """Headline numbers over the per-company intake dicts: how many entered before cohort entry, median rank and intake size of those."""
-    early = [r for r in rows if r["state"] == "entered" and r["before_entry"] and r["rank"] and r["size"]]
-    ranks = [r["rank"] for r in early]
-    sizes = [r["size"] for r in early]
-    return {"total": len(rows), "entered": sum(1 for r in rows if r["state"] == "entered"), "before": len([r for r in rows if r["state"] == "entered" and r["before_entry"]]),
-            "with_rank": len(early), "median_rank": statistics.median(ranks) if ranks else None, "median_size": statistics.median(sizes) if sizes else None}
+def summary(rows: list[dict], names: list[str] | None = None) -> dict:
+    """Headline numbers over the per-company intake dicts (`names` runs beside them): how many entered before cohort entry, and the
+    rank and intake size of each of those, one by one. A median rank beside a median size would pair two numbers that never
+    belong to one company, so none is computed (D25)."""
+    early = [(r, (names[i] if names and i < len(names) else None)) for i, r in enumerate(rows)
+             if r["state"] == "entered" and r["before_entry"] and r["rank"] and r["size"]]
+    ranks = sorted(({"name": n, "rank": r["rank"], "size": r["size"]} for r, n in early), key=lambda x: (x["rank"], -x["size"], x["name"] or ""))
+    return {"total": len(rows), "entered": sum(1 for r in rows if r["state"] == "entered"),
+            "before": len([r for r in rows if r["state"] == "entered" and r["before_entry"]]), "with_rank": len(early), "ranks": ranks}
 
 
 def headline(s: dict) -> str:
     base = (f"Entered wide intake before cohort entry: {s['before']} of {s['total']}. ")
     if s["with_rank"]:
-        base += (f"Their median rank among same-year, same-family intake companies is {_n(s['median_rank'])} of {_n(s['median_size'])}. ")
+        parts = [(f"{x['name']} " if x["name"] else "") + f"{x['rank']:,} of {x['size']:,}" for x in s["ranks"]]
+        listed = parts[0] if len(parts) == 1 else ", ".join(parts[:-1]) + " and " + parts[-1]
+        base += ("Their ranks among the same-year, same-family intake companies that had entered intake by each company's reference date: "
+                 f"{listed}. ")
     else:
         base += "No rank can be shown yet. "
     return base + "A company is never counted as found early without its rank and the intake size beside it."
-
-
-def _n(x) -> str:
-    return str(int(x)) if float(x).is_integer() else f"{x:.1f}"
 
 
 # ---- the third feed tier ---------------------------------------------------------------------------------------------

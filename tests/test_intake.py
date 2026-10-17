@@ -273,10 +273,12 @@ def test_summary_headline_and_medians(bt_db):
     th = {**TH, "backtest": {"cohort_group": "cohort", "reference_date": "2026-01-01"}}
     s = earliness.backtest(bt_db, th)["intake"]
     assert s["total"] == 4 and s["entered"] == 2 and s["before"] == 1 and s["with_rank"] == 1
-    assert s["median_rank"] == 3 and s["median_size"] == 4
-    assert "before cohort entry: 1 of 4" in s["headline"] and "median rank among same-year, same-family intake companies is 3 of 4" in s["headline"]
+    assert s["ranks"] == [{"name": s["ranks"][0]["name"], "rank": 3, "size": 4}] and "median" not in s["headline"]
+    assert "before cohort entry: 1 of 4" in s["headline"] and f"{s['ranks'][0]['name']} 3 of 4." in s["headline"]
     assert "never counted as found early without its rank" in s["headline"]
-    assert intake.summary([])["median_rank"] is None and "No rank can be shown yet" in intake.headline(intake.summary([]))
+    assert intake.summary([])["ranks"] == [] and "No rank can be shown yet" in intake.headline(intake.summary([]))
+    four = [{"state": "entered", "before_entry": True, "rank": r, "size": z} for r, z in ((132, 1176), (3, 8), (1, 104), (3, 16))]
+    assert "1 of 104, 3 of 16, 3 of 8 and 132 of 1,176." in intake.headline(intake.summary(four))  # one rank beside its own pool, never two medians
 
 
 def test_never_early_without_rank_when_no_pool_is_stored(tmp_path):

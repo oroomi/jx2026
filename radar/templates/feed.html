@@ -43,6 +43,7 @@
 <summary>All public records in the window, weak matches and the rules</summary>
 {% endif %}
 <h1 class="hero">Early signals of {{ thesis.sector_label or "new" }} startups, for fund and accelerator teams.</h1>
+{% if H and H.warming %}<p class="meta hc-warming" id="home-warming">The grouped view of this sector is still being prepared; this is the plain feed. Reload in a minute.</p>{% endif %}
 <p class="lede">Every line links to the public record. {% if counts %}Window: {{ counts.window_start }} to {{ counts.window_end }} ({{ counts.window_days }} days), newest first.{% else %}Window: last {{ thesis.geography.feed_window_days }} days.{% endif %}</p>
 
 {% set ci = country_info(thesis) %}{% if ci.multi %}<p class="country-note meta">Countries: {{ ci.note }}. <a href="/method#countries">What this means</a></p>{% endif %}

@@ -72,8 +72,8 @@ SEED = (
          affected="the 19 cohort and 9 portfolio companies (28)", evidence="commit a2b8eb6; ce502ed"),
     dict(rule_id="D11", at="2026-10-17T01:18:00Z", commit_sha="0cbe141", scope="intake code_prefixes, thesis.yaml and baltic",
          action="intake families 582 (software publishing) and 03 (fishing and aquaculture) added and labelled in-sample (tuning_note)",
-         affected="intake before cohort entry 2 of 19 (store copy) to 4 of 19 on the live store (Kilocode, Sireness, Arctic Fry, "
-                  "Emission-Eye; median rank 3 of 60); 16,385 prh_intake signals live",
+         affected="intake before cohort entry 2 of 19 (store copy) to 4 of 19 on the live store (Sireness 1 of 104, Arctic Fry 3 of "
+                  "16, Kilocode 3 of 8, Emission-Eye 132 of 1,176 by rank and pool size); 16,385 prh_intake signals live",
          evidence="EVAL.md; README.md; config/thesis.yaml tuning_note"),
     dict(rule_id="D12", at="2026-10-17T02:30:00Z", commit_sha="ada70c5", scope="feed corroboration",
          action="a thesis word in the legal name is corroborated only by a record from a different source family; the PRH register, "

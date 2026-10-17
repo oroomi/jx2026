@@ -11,10 +11,12 @@ WATCHLIST), then thesis-fit band, then the latest record; "New this quarter" sta
   ready   = memo investment readiness band High
   country = companies.country
 Memos are the slow part (about 0.1 s each), so the list is cached per thesis and database file modification time,
-and warmed once in a background thread when the app starts.
+and every thesis in config/ is warmed in one background thread when the app starts. A request that arrives while its list is
+still being built waits 3 seconds at most and then gets the plain feed with a one-line note (D26).
 """
 from __future__ import annotations
 
+import logging
 import os
 import threading
 from datetime import date, timedelta
@@ -27,7 +29,11 @@ FIT_ORDER = ("High", "Medium", "Low")
 COUNTRY_NAMES = {"FI": "Finland", "SE": "Sweden", "NO": "Norway", "DK": "Denmark", "EE": "Estonia", "IS": "Iceland",
                  "DE": "Germany", "PL": "Poland", "LV": "Latvia", "LT": "Lithuania", "ES": "Spain", "BG": "Bulgaria", "CH": "Switzerland"}
 
+log = logging.getLogger(__name__)
+WAIT_SECONDS = 3.0  # the longest a request waits for a list that is still being built
+_DEFAULT_WAIT = object()
 _cache: dict[tuple, dict] = {}
+_building: dict[tuple, threading.Event] = {}  # lists being built right now, by cache key
 _lock = threading.Lock()
 
 
@@ -109,33 +115,85 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
     }
 
 
-def for_template(thesis: dict) -> dict | None:
-    """Template hook: the cached list for this thesis, built from its own read-only connection."""
+def _cache_key(conn, thesis: dict) -> tuple:
+    return (thesis.get("id"), _db_stamp(conn), store._today(None).isoformat())
+
+
+def _build_and_store(thesis: dict, key: tuple, done: threading.Event) -> dict | None:
+    """Build the list on its own read-only connection, cache it, and release everyone waiting for it. A failure caches nothing."""
+    conn = store.open_db(thesis=thesis)
+    try:
+        data = build(conn, thesis) if conn is not None else None
+        if data is not None:
+            with _lock:
+                _cache.clear() if len(_cache) > 8 else None
+                _cache[key] = data
+        return data
+    except Exception:  # noqa: BLE001  (the page shows the plain feed; the next request tries again)
+        log.exception("home list for thesis %s could not be built", thesis.get("id"))
+        return None
+    finally:
+        if conn is not None:
+            conn.close()
+        with _lock:
+            _building.pop(key, None)
+        done.set()
+
+
+def for_template(thesis: dict, wait=_DEFAULT_WAIT) -> dict | None:
+    """Template hook: the cached list for this thesis. A list that is not cached is built in a background thread (once, however many
+    requests ask) and the caller waits for it at most `wait` seconds (D26); after that it gets {"warming": True, "rows": []}, which the
+    page prints as the plain feed with a one-line note. `wait=None` builds here and blocks (the warm-up thread, tests)."""
+    if wait is _DEFAULT_WAIT:
+        wait = WAIT_SECONDS
     conn = store.open_db(thesis=thesis)
     if conn is None:
         return None
     try:
-        key = (thesis.get("id"), _db_stamp(conn), store._today(None).isoformat())
-        with _lock:
-            hit = _cache.get(key)
-        if hit is not None:
-            return hit
-        data = build(conn, thesis)
+        key = _cache_key(conn, thesis)
     finally:
         conn.close()
     with _lock:
-        _cache.clear() if len(_cache) > 8 else None
-        _cache[key] = data
-    return data
+        hit = _cache.get(key)
+        if hit is not None:
+            return hit
+        done = _building.get(key)
+        mine = done is None
+        if mine:
+            done = _building[key] = threading.Event()
+    if mine and wait is None:
+        return _build_and_store(thesis, key, done)
+    if mine:
+        threading.Thread(target=_build_and_store, args=(thesis, key, done), name=f"home-list-{thesis.get('id')}", daemon=True).start()
+    done.wait(wait)
+    with _lock:
+        hit = _cache.get(key)
+        busy = key in _building
+    if hit is not None:
+        return hit
+    return {"warming": True, "rows": []} if busy else None  # not cached and not building: the build failed, the page shows the plain feed
 
 
 def warm(thesis: dict) -> None:
-    """Build the default thesis' list once in the background so the first visitor does not wait for the memos."""
+    """Build one thesis' list now, on this thread (skips what is cached; waits for a build another thread already started)."""
+    for_template(thesis, wait=None)
+
+
+def warm_all() -> None:
+    """Warm every thesis in config/ in one background thread, the default thesis first, so no sector's first visitor waits for the
+    memos (D26). One thread, not one per thesis: the server has two CPUs."""
     def run():
+        from radar import thesis as thesis_mod
         try:
-            for_template(thesis)
-        except Exception:  # noqa: BLE001  (a warm-up failure only means the first request builds it)
-            pass
+            default = thesis_mod.load()
+            todo = [default] + [t for t in (thesis_mod.load(p) for p in thesis_mod.available().values()) if t["id"] != default["id"]]
+        except Exception:  # noqa: BLE001  (no readable thesis: nothing to warm)
+            return
+        for th in todo:
+            try:
+                warm(th)
+            except Exception:  # noqa: BLE001  (a warm-up failure only means that sector builds on its first request)
+                pass
     threading.Thread(target=run, name="home-list-warm", daemon=True).start()
 
 

@@ -122,7 +122,8 @@ notice, share issue, public funding). Nothing about intake says the company fits
   used to tune the net, and `/method` and `/backtest` print that sentence.
 - **Live today**: the intake rows are in the live store (16,385 from `prh_intake`), so `/backtest` reads
   "Entered wide intake before cohort entry: 4 of 19": 4 of the 7 Finnish cohort startups entered intake before the cohort entry
-  (Kilocode, Sireness, Arctic Fry, Emission-Eye; median rank 3 of 60).
+  (each with its own rank among the same-year, same-family intake companies that had entered intake by the cohort entry date: Sireness 1 of 104,
+  Arctic Fry 3 of 16, Kilocode 3 of 8, Emission-Eye 132 of 1,176; no median is stated, because a median rank beside a median pool size belongs to no company, D25).
 
 ## AI stitcher
 

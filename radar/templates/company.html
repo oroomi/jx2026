@@ -25,9 +25,9 @@
   </header>
 
   <div class="cc-verdict">
-    {% if rec %}<p class="cc-big">{{ rec.decision | capitalize }}</p>{% if rec.decision != "WATCHLIST" %}{{ verdict_pill(rec.decision | capitalize, rec.note) }}{% endif %}{% endif %}
+    {% if rec %}<p class="cc-big">{{ rec.decision | capitalize }}</p>{% if rec.matched %}<span class="cc-rule" title="The decision-table entry that matched">{{ rec.matched }}</span>{% endif %}{% endif %}
   </div>
-  {% if rec and rec.note %}<p class="cc-reason">{{ rec.note[0] | upper }}{{ rec.note[1:] }}.</p>{% endif %}
+  {% if rec and rec.note %}<p class="cc-reason">{{ rec.note[0] | upper }}{{ rec.note[1:] }}{{ "" if rec.note.rstrip().endswith((".", "!", "?")) else "." }}</p>{% endif %}
   {% if sig_asc %}
   <p class="cc-line">Public record: first <a href="#sig-{{ sig_asc[0].id }}">{{ sig_asc[0].date_label or sig_asc[0].date }}</a> · {{ signals | length }} dated signal{{ "s" if signals | length != 1 }} · latest <a href="#sig-{{ sig_asc[-1].id }}">{{ sig_asc[-1].date_label or sig_asc[-1].date }}</a></p>
   {% endif %}
@@ -55,7 +55,7 @@
     {% if _brief %}{% include "company_brief.html" %}{% else %}{% include "company_card.html" %}{% endif %}
   </section>
 
-  {% set groups = [("investors", "Investors"), ("buyers", "Public buyers"), ("eu_partners", "EU project partners"), ("research", "Research institutes"), ("funding", "Programmes and accelerators"), ("partners", "Partners and clients")] %}
+  {% set groups = [("investors", "Investors"), ("public_funding", "Public funding"), ("buyers", "Public buyers"), ("project_partners", "EU project partners"), ("research_institutes", "Research institutes")] %}
   {% set shown = [] %}{% for k, t in groups %}{% if nxt[k] %}{% set _ = shown.append((k, t)) %}{% endif %}{% endfor %}
   {% if shown %}
   <section class="cc-sec" aria-labelledby="meet-h">

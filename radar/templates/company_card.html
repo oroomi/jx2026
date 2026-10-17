@@ -14,7 +14,7 @@
 {% for name, r in (("Technology", fw.trl), ("Business", fw.brl), ("Investment", fw.irl)) %}{% if r.level %}{% set _ = lv.append(name ~ " " ~ r.level ~ "/9" ~ (cite(r.evidence[0].evidence.url, r.evidence[0].evidence.label) if r.evidence else "")) %}{% endif %}{% endfor %}
 {% if lv %}{% set _ = rows.append(("Readiness", lv | join(" · "))) %}{% endif %}
 {% set meet = [] %}
-{% for k in ("investors", "buyers", "eu_partners", "research", "funding", "partners") %}{% if nxt[k] %}{% set x = nxt[k][0] %}{% set _ = meet.append((x.name | e) ~ (" (deadline " ~ x.deadline ~ ")" if x.deadline else "") ~ cite(x.source_url, x.name)) %}{% endif %}{% endfor %}
+{% for k in ("investors", "public_funding", "buyers", "project_partners", "research_institutes") %}{% if nxt[k] %}{% set x = nxt[k][0] %}{% set _ = meet.append((x.name | e) ~ (" (deadline " ~ x.deadline ~ ")" if x.deadline else "") ~ cite(x.source_url, x.name)) %}{% endif %}{% endfor %}
 {% if meet %}{% set _ = rows.append(("Who to meet", meet | join("; ") ~ ".")) %}{% endif %}
 {% set latest = signals | sort(attribute="date") | last if signals else none %}
 {% if step.rule == 4 and latest %}{% set todo = "Check in with the company. Its latest public record is from " ~ (latest.date_label or latest.date) ~ "." %}

@@ -159,3 +159,7 @@ body.c { --r-card: 20px; --r-pill: 8px; padding-bottom: calc(72px + env(safe-are
   .c .shell.inst { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); }
   .c .shell.inst .col-side .sec:first-child { margin-top: 72px; }
 }
+
+.recline { margin: 14px 0 0; font-size: var(--fs-14); color: var(--muted); font-variant-numeric: tabular-nums; }
+.recline a { color: var(--text-2); text-underline-offset: 3px; }
+.news li:target { background: var(--accent-soft); border-radius: 8px; }

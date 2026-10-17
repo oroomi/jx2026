@@ -75,7 +75,7 @@ Live `/api/backtest` (17 Oct 2026, 17:38 UTC): "would have shown 1 before Januar
 
 **Line:** "Before we added that one code, 0 of your 19 from live records; now 1, and it is the one we tuned. We tell you so because the number is only worth quoting if it is honest. The other 6 Finnish ones are registered as software, retail, wholesale, consulting and research, and the sector list does not hold those codes."
 
-Do not say "we find 1 in 19 early". Say it was tuned, in the same breath. The `/backtest` headline reads "1 before January 2026"; since 17:24 UTC (D74) a tuning note sits directly under it ("The families 582 (software publishing) and 03 (fishing and aquaculture) were added after the backtest showed the net missed two cohort companies, so results for those two are measured on the companies used to tune the net"). It names the intake families, and Arctic Fry's code 03220 is in family 03, so point at the note and say the Arctic Fry sentence above in your own words.
+Do not say "we find 1 in 19 early". Say it was tuned, in the same breath. The `/backtest` headline reads "1 before January 2026"; since the 17:37 UTC deploy (D74) a tuning note sits directly under it ("The families 582 (software publishing) and 03 (fishing and aquaculture) were added after the backtest showed the net missed two cohort companies, so results for those two are measured on the companies used to tune the net"). It names the intake families, and Arctic Fry's code 03220 is in family 03, so point at the note and say the Arctic Fry sentence above in your own words.
 
 ## The wide intake line (say it exactly this strong, no stronger)
 

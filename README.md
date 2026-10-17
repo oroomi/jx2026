@@ -47,7 +47,7 @@ missed. Before that change the live-records figure was **0 of 19**, the one we d
 finds 12 more before January 2026 (13 of 19 with a counted signal in all), 5 appear only after it and 1 has none. The reason the number
 is low is the finding: of the 7 cohort companies with a Finnish business ID, only Arctic Fry is registered under a code on the sector list,
 and only since that addition; the other six are registered as software, retail, wholesale, consulting and R&D. Method and every
-caveat: [EVAL.md](EVAL.md). Since 17:24 UTC the `/backtest` page prints a tuning note directly under its headline (D74): the intake families 582 and 03 were added after the backtest showed the net missed two cohort companies, so results for those two are measured on the companies used to tune the net (Arctic Fry's code 03220 sits in family 03).
+caveat: [EVAL.md](EVAL.md). Since the 17:37 UTC deploy the `/backtest` page prints a tuning note directly under its headline (D74): the intake families 582 and 03 were added after the backtest showed the net missed two cohort companies, so results for those two are measured on the companies used to tune the net (Arctic Fry's code 03220 sits in family 03).
 The wide intake (it takes startup-shaped companies in before any sector test) held 4 of those 7 before January 2026 (Kilocode,
 Sireness, Arctic Fry and Emission-Eye), and we claim less than that: Kilocode's intake date is a 2003 VAT registration, Kilocode and
 Arctic Fry are there only because we added their code families after seeing them (in-sample, labelled on `/backtest`), Sireness

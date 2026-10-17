@@ -138,3 +138,16 @@ memo:
       - {id: e, when: {technology: High, business: [Low, Medium]}, decision: PARTNER INTRODUCTION, action: "Technology High, business Low or Medium."}
       - {id: f, when: {impact: Medium, business: Medium, investment: Medium, fit: Medium}, decision: WATCHLIST, action: "All four Medium."}
       - {id: g, when: {impact: Low, fit: Low}, decision: REJECT / LOW FIT, action: "Impact and thesis fit both Low."}
+
+# Wide intake (jx28): startup-shaped companies are taken in wide, then thesis fit is graded by evidence. Config only: no code reads these words.
+# A company enters intake on the date its `min_signals`-th startup signal (a type from `startup_signals`, not the register entry) is dated,
+# provided its legal form is in `company_forms` (limited companies and cooperatives, never sole traders) and its industry code starts with
+# one of `code_prefixes` or is a code listed under industry_codes.
+intake:
+  company_forms:
+    - {code: "16", note: "Limited company (PRH company form 16)"}
+    - {code: "14", note: "Cooperative (PRH company form 14)"}
+  code_prefixes: ["03", "26", "27", "28", "29", "30", "582", "62", "63", "71", "72"]
+  tuning_note: "The families 582 (software publishing) and 03 (fishing and aquaculture) were added after the backtest showed the net missed two cohort companies, so results for those two are measured on the companies used to tune the net."   # printed on /method and /backtest; the two families were added after the backtest, so say so
+  min_signals: 1
+  startup_signals: [first_sales, first_hire, eu_project, eu_grant, research_output, bf_funding, startup_notice, equity_event, public_funding]

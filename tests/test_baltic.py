@@ -151,7 +151,7 @@ from datetime import date, timedelta  # noqa: E402
 from radar.adapters import estonia_register as ee  # noqa: E402
 
 eefx = _fx("estonia_fixture")
-EE_THESIS = {"countries": ["FI", "EE"], "industry_codes": [{"code": "03211"}],
+EE_THESIS = {"countries": ["FI", "EE"], "industry_codes": [{"code": "03210"}],
              "name_keywords": {"et": ["mere", "laev"], "en": ["marine"]}}
 
 

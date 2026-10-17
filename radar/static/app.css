@@ -120,3 +120,7 @@ details.why-box>summary{display:flex;align-items:center;min-height:44px;cursor:p
 .ll-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 .ll-speed{margin:12px 0 0}
 @media (max-width:480px){.ll-lane{grid-template-columns:5.5rem 1fr;gap:8px}}
+
+/* Wide intake (jx28): the third feed tier reads like the Weak list, with a hatched fit chip */
+.intake .rule{margin:8px 0 12px;color:var(--muted);font-size:.875rem}
+.intake .hatch{display:inline-block;margin-left:6px;font-size:.875rem}

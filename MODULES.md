@@ -72,7 +72,7 @@ On the 16 Oct snapshot (`RADAR_DATA_DIR=data/snapshot`, measured locally): `/api
 | `radar/fit.py` | thesis fit: does a company belong, with ordered reasons (industry code, name keyword, feed signals) | `fit(company, signals, thesis) -> [reason]`; the feed's one-line why is `store.explain` |
 | `radar/frameworks.py` | readiness: TRL (Aalto), BRL (KTH), investment readiness over ten dimensions, ocean impact category; each level is a printed evidence-class rule, no evidence means no level | `assess(company, signals) -> levels`, `connections(signals)` |
 | `radar/earliness.py` | the backtest: first counted public signal per cohort company against its entry date, blanks kept | `backtest(conn, thesis) -> rows and counts` |
-| `radar/matching.py` | who comes next: investors, funding and programmes, partners and clients, ranked with the reason beside each; and what should happen next from a five-rule decision table | `who_comes_next(company_key, thesis, limit=5) -> {"investors", "funding", "partners"}`, `next_step(company_key, thesis) -> {sentence, because, source_url, rule}` |
+| `radar/matching.py` | who comes next: investors, public funding, buyers, project partners and research institutes (plus the earlier funding and partners lists), ranked with the reason and a source link beside each; and what should happen next from a five-rule decision table | `who_comes_next(company_key, thesis, limit=5) -> {"investors", "funding", "partners", "public_funding", "buyers", "project_partners", "research_institutes"}` (`GROUPS`, `GROUP_RULES`, `RANK_RULE`), `next_step(company_key, thesis) -> {sentence, because, source_url, rule}` |
 
 | | |
 |---|---|

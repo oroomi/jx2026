@@ -47,7 +47,8 @@ GROUP_RULES = {
     "project_partners": "Organisations in the same EU projects as the company (CORDIS project page), then participants of EU projects "
                         "whose title holds the company's topic words (its category words, its keywords in the declared dataset).",
     "research_institutes": "Universities and research institutes in the declared ecosystem dataset: the dataset's own scored matches "
-                           "first, then institutes that work on the company's capability codes.",
+                           "first, then institutes that work on the company's capability codes. OpenAlex rows in the store name only "
+                           "the company's own affiliation, so they add no institute yet.",
 }
 NEXT_RULES = (
     "1. No grant on record, TRL 4 to 6 and an open programme in the funding list: introduce them to that programme before its deadline.",

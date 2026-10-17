@@ -148,17 +148,18 @@ memo:
     # Impact is then read as implied by the sector (Medium) and the team's rows are applied with measured impact relaxed to that.
     # Gate: an industry code alone must not carry it. At least one of requires_any must hold, else the company stays on the watchlist:
     #   declared_member = declared cohort or portfolio company; own_text = a fit reason from the source's own text (bands.fit.high);
+    #   line_of_business = the registered line of business names the sector (the company's own declaration at PRH);
     #   corroborated_signal = a name word backed by a record from a different source family (the feed's corroborated_keyword reason).
     fallback:
       when: {fit: High, impact: unknown}
-      requires_any: [declared_member, own_text, corroborated_signal]
+      requires_any: [declared_member, own_text, line_of_business, corroborated_signal]
       blocked_note: "fit rests on the industry code alone"
       implied_impact: Medium
       rules:
         - {id: c1, when: {business: [Low, Medium], technology: Low}, team: "Early-Stage Impact Startup", decision: GRANT SUPPORT, action: "TRL 1-3: recommend grants and incubation support"}
         - {id: c2, when: {business: [Low, Medium]}, team: "Accelerator Candidate", decision: ACCELERATOR, action: "Accept into accelerator and provide mentoring"}
         - {id: c3, when: {business: High, investment: High}, team: "Investment Preparation", decision: DUE DILIGENCE, action: "Help prepare fundraising and connect with investors"}
-    fallback_text: "Fallback (pass 3): when thesis fit is High and there is no public evidence of impact, impact is read as Medium, implied by the sector, but only if the fit rests on more than an industry code: the company is a declared cohort or portfolio company, or a fit reason comes from the source's own text, or a name word is corroborated by a record from a different source family. A company whose fit rests on the industry code alone stays on the watchlist (more public evidence needed: ocean impact). Then business Low or Medium gives ACCELERATOR (c2), except TRL 1-3 gives GRANT SUPPORT (c1); business High and investment High gives DUE DILIGENCE (c3). The memo prints which one matched."
+    fallback_text: "Fallback (pass 3): when thesis fit is High and there is no public evidence of impact, impact is read as Medium, implied by the sector, but only if the fit rests on more than an industry code: the company is a declared cohort or portfolio company, or a fit reason comes from the source's own text or its registered line of business, or a name word is corroborated by a record from a different source family. A company whose fit rests on the industry code alone stays on the watchlist (more public evidence needed: ocean impact). Then business Low or Medium gives ACCELERATOR (c2), except TRL 1-3 gives GRANT SUPPORT (c1); business High and investment High gives DUE DILIGENCE (c3). The memo prints which one matched."
 
 # Sources the /data page's Refresh button re-reads (names from radar/refresh.py STEPS): the fast live ones only.
 refresh_adapters: [prh_notices, prh_recent]

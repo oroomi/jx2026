@@ -35,7 +35,7 @@ retail, wholesale, consulting, R&D and freshwater aquaculture. Method and every 
 Corroboration rule (17 Oct): a sector word in a legal name is backed only by a record from a different source family, and PRH register
 entries, PRH notices and PRH tax registers count as one registry; with that rule the live store shows 0 of 19 (the one hit was the word
 "marin" plus a PRH tax-register record).
-Decision fallback (17 Oct): when thesis fit is High on more than an industry code (a declared member, the source's own text or a corroborated
+Decision fallback (17 Oct): when thesis fit is High on more than an industry code (a declared member, the source's own text, the registered line of business or a corroborated
 name word) and there is no impact evidence, the memo reads impact as Medium, implied by the sector, and says so ("because: fallback c2, impact implied by sector"); the rule is printed on `/method`.
 
 ## The demo path (what to click)

@@ -25,7 +25,7 @@ MAX_ACTIONS = 3
 DEADLINE_DAYS = 120
 _ACCEL = ("accelerator", "incubator")
 # What can satisfy `fallback.requires_any` (names in the thesis file): the evidence behind a High fit that is more than the industry code.
-SUPPORT_KEYS = ("declared_member", "own_text", "corroborated_signal")
+SUPPORT_KEYS = ("declared_member", "own_text", "line_of_business", "corroborated_signal")
 
 
 def _cfg(thesis: dict) -> dict:
@@ -173,7 +173,7 @@ def _fit(conn, ctx: dict, thesis: dict, spec: dict) -> dict:
         bullets.append({"text": ex["why"].removeprefix("Weak: "), "url": c["source_url"]})
     else:
         b = UNKNOWN
-    support = {"own_text": "own_text" in reasons, "corroborated_signal": "corroborated_keyword" in reasons}
+    support = {"own_text": "own_text" in reasons, "line_of_business": "line_of_business" in reasons, "corroborated_signal": "corroborated_keyword" in reasons}
     if c["group_tag"] in ("cohort", "portfolio") and c.get("source_url"):
         support["declared_member"] = True
         floor = spec.get("declared_member_band")

@@ -55,7 +55,7 @@ def _memo(conn, key):
 def test_gate_is_configured_as_data_and_every_name_is_known():
     th = thesis.load()
     fb = th["memo"]["decisions"]["fallback"]
-    assert set(fb["requires_any"]) == {"declared_member", "own_text", "corroborated_signal"}
+    assert set(fb["requires_any"]) == {"declared_member", "own_text", "line_of_business", "corroborated_signal"}
     for path in thesis.available().values():
         cfg = (thesis.load(path)["memo"]["decisions"].get("fallback") or {})
         assert set(cfg.get("requires_any") or []) <= set(memo.SUPPORT_KEYS), path

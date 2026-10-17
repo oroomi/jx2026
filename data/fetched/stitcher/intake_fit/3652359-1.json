@@ -1,0 +1,12 @@
+{
+ "company_key": "3652359-1",
+ "name": "Meriva Oy",
+ "thesis_evidence": "yes",
+ "quote": "Meriva Oy provides independent, expert, and practical-experience-based consulting services for aquaculture companies, investors, and authorities.",
+ "source_url": "https://meriva.fi/services/",
+ "public_since": null,
+ "archive_url": null,
+ "thesis_word": "aquacultur",
+ "llm_answer": "yes",
+ "checked": "page names the company by legal_name; quote on the page word for word; thesis word 'aquacultur' in the quote"
+}

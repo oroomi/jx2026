@@ -468,3 +468,23 @@ def test_an_unmapped_label_is_never_an_early_find(conn):
                                   capture=lambda u: ("2025-03-06", "https://web.archive.org/x"), refetch=pages.get, today="2026-10-16")
     assert res["confirmed"] == 1 and res["not_emitted"] == 1
     assert earliness.backtest(conn, thesis.load())["stitcher"]["companies"] == 0
+
+
+
+def test_evidence_words_come_from_configuration():
+    from radar import thesis
+    th = thesis.load()
+    assert "aquacultur" in stitcher.evidence_words(" consulting services for aquaculture companies ", th)
+    assert stitcher.evidence_words(" consulting services for accounting firms ", th) == []
+    c = dict(FIT_CO, name="Meriva Oy", company_key="9100003-3", y_tunnus="9100003-3")
+    page = "Meriva Oy provides consulting services for aquaculture companies, investors, and authorities."
+    r = stitcher.check_fit(c, {"thesis_evidence": "yes", "quote": page, "source_url": "https://meriva.example/"}, th,
+                           fetch=lambda u: page, capture=lambda u: (None, None))
+    assert r["thesis_evidence"] == "yes" and r["thesis_word"] == "aquacultur"  # 'meri' in the name never counts
+
+
+
+def test_long_dashes_become_hyphens_and_still_match():
+    q = stitcher.redact_people("the serum mist \u2014 one of seven new products", "Fixture Oy")
+    assert q == "the serum mist - one of seven new products"
+    assert stitcher._quote_span(q, " " + stitcher.fold("the serum mist \u2014 one of seven new products") + " ") is not None

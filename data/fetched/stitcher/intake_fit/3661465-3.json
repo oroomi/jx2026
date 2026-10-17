@@ -1,0 +1,12 @@
+{
+ "company_key": "3661465-3",
+ "name": "Noriai Oy",
+ "thesis_evidence": "no",
+ "quote": "Noriai on suomalainen ohjelmistoyritys, joka kehittää tekoälyä hyödyntäviä digitaalisia palveluita yrityksille ja kuluttajille.",
+ "source_url": "https://noriai.fi/yritys",
+ "public_since": null,
+ "archive_url": null,
+ "thesis_word": null,
+ "llm_answer": "no",
+ "checked": "page names the company by core_name; quote on the page word for word"
+}

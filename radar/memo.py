@@ -34,7 +34,10 @@ SUPPORT_KEYS = ("declared_member", "own_text", "line_of_business", "corroborated
 def _cfg(thesis: dict) -> dict:
     m = thesis.get("memo") or {}
     d = m.get("decisions") or {}
-    return {"labels": m.get("labels") or {}, "bands": m.get("bands") or {}, "rows": d.get("rows") or [], "rules": d.get("rules") or [],
+    # The impact spec carries the thesis itself (`_thesis`) so a caller that reads only `cfg["bands"]["impact"]` and calls `_impact` (the
+    # matchmaker's light verdict) gets the same ladder band as memo.build, with no edit of its own (D32).
+    bands = {**(m.get("bands") or {}), "impact": {**((m.get("bands") or {}).get("impact") or {}), "_thesis": thesis}}
+    return {"labels": m.get("labels") or {}, "bands": bands, "rows": d.get("rows") or [], "rules": d.get("rules") or [],
             "source": d.get("source") or "", "fallback": d.get("fallback") or {}}
 
 
@@ -142,6 +145,8 @@ def _impact(conn, ctx: dict, key: str, spec: dict, oi: dict | None = None) -> di
     evidenced") or no level at all stays unknown, so the fallback applies; the page's headline, bullets, ocean block, criteria cell and
     Aava then cannot disagree. Without an assessment (a sector that defines no impact areas) the band is the Navigator-style category
     the frameworks rule finds. The declared dataset's own impact score is declared research, never a level, so it never sets this band."""
+    if oi is None and spec.get("_thesis") is not None and ocean_impact.settings(spec["_thesis"]):
+        oi = ocean_impact.assess(conn, ctx, key, spec["_thesis"])
     if oi is not None:
         if oi.get("band") in BANDS and oi.get("level") is not None:
             url = next((e["url"] for e in oi.get("evidence") or [] if e.get("url")), None)
@@ -456,8 +461,9 @@ def table_lines(thesis: dict) -> list[str]:
         cells = ", ".join(f"{lb.get(d, d).lower()} {r.get(d)}" for d in TABLE_DIMS)
         out.append(f"Row {r['id']}: {cells} gives {r['decision'].lower()}.")
     out += [f"Condition rule {r['id']}: {str(r.get('action') or '').rstrip('.')} gives {r['decision'].lower()}." for r in cfg["rules"]]
-    if cfg["fallback"].get("fallback_text"):
-        out.append(cfg["fallback"]["fallback_text"])
+    text = ((thesis.get("memo") or {}).get("decisions") or {}).get("fallback_text")
+    if text:
+        out.append(text)
     return out
 
 

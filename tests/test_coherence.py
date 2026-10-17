@@ -331,3 +331,18 @@ def test_the_raise_line_still_asks_for_a_second_family_when_only_one_is_on_file(
     two = [{"family": "ecosystem", "kind": "programme"}]
     assert ocean_impact._raise(5, cfg, rec, two, None).startswith("Rung 6 needs a record")
     assert ocean_impact._raise(5, cfg, rec + [{"family": "cordis", "kind": "own_text"}], [], None) == "A listing on a blue programme or portfolio page."
+
+
+def test_the_matchmakers_light_verdict_is_the_memos_for_every_home_row(snap, home):
+    """The company page's 'On the <verdict> path' line and the memo headline must name the same verdict (the light verdict calls memo._impact)."""
+    from radar import matchmaker
+    conn = store.open_db(thesis=snap)
+    for r in home["rows"]:
+        m = memo.build(conn, snap, r["company_key"])
+        v = matchmaker._verdict(conn, snap, r["company_key"])
+        assert v["decision"] == m["recommendation"]["decision"], r["name"]
+        assert v["bands"]["impact"] == m["levels"]["impact"]["band"], r["name"]
+    conn.close()
+    from app import app
+    page = _text(TestClient(app).get(f"/c/{VIVA}").text)
+    assert "On the watchlist path" in page and "On the accelerator path" not in page

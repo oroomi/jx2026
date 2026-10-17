@@ -409,3 +409,50 @@ def test_llm_query_strings_are_redacted_before_logging(conn):
     run(conn, payload)
     qs = [r[0] for r in conn.execute("SELECT query FROM stitch_log WHERE outcome='llm_query'")]
     assert qs == ['"Kelluu Oy" [name] interview', '"Kelluu Oy" Business Finland']
+
+
+# ---- intake thesis-evidence pass ---------------------------------------------------------------------------------------
+FIT_CO = {"company_key": "9100001-1", "name": "Fixture Harbour Oy", "y_tunnus": "9100001-1", "country": "FI",
+          "website": "https://fixture-harbour.example/", "aliases": []}
+FIT_PAGES = {
+    "https://fixture-harbour.example/": "Fixture Harbour Oy builds electric work boats for port operators. Founded 2026.",
+    "https://other.example/x": "Fixture Harbour Oy sells accounting software to retailers.",
+}
+
+
+def _fit(ans):
+    from radar import thesis
+    return stitcher.check_fit(FIT_CO, ans, thesis.load(), fetch=lambda u: FIT_PAGES[u], capture=lambda u: ("2026-09-01", "https://web.archive.org/x"))
+
+
+def test_intake_fit_yes_only_when_code_confirms_it():
+    r = _fit({"thesis_evidence": "yes", "quote": "Fixture Harbour Oy builds electric work boats for port operators.",
+              "source_url": "https://fixture-harbour.example/"})
+    assert r["thesis_evidence"] == "yes" and r["thesis_word"] == "port" and r["public_since"] == "2026-09-01"
+    r = _fit({"thesis_evidence": "yes", "quote": "Fixture Harbour Oy sells accounting software to retailers.", "source_url": "https://other.example/x"})
+    assert r["thesis_evidence"] == "unclear" and "no thesis word" in r["checked"]
+    r = _fit({"thesis_evidence": "yes", "quote": "Fixture Harbour Oy builds ships", "source_url": "https://fixture-harbour.example/"})
+    assert r["thesis_evidence"] == "unclear" and "not on the page" in r["checked"]
+    r = _fit({"thesis_evidence": "yes", "quote": "x", "source_url": "https://www.linkedin.com/company/x"})
+    assert r["thesis_evidence"] == "unclear"
+
+
+def test_intake_fit_no_and_unclear():
+    r = _fit({"thesis_evidence": "no", "quote": "Fixture Harbour Oy sells accounting software to retailers.", "source_url": "https://other.example/x"})
+    assert r["thesis_evidence"] == "no" and r["public_since"] is None
+    assert _fit({"thesis_evidence": "unclear", "quote": "", "source_url": ""})["thesis_evidence"] == "unclear"
+    assert _fit({"thesis_evidence": "no"})["thesis_evidence"] == "unclear"  # a 'no' without a checkable page is unclear
+
+
+def test_intake_fit_writes_one_file_per_company(tmp_path):
+    from radar import thesis
+    tsv = tmp_path / "top.tsv"
+    tsv.write_text("9100001-1\tFixture Harbour Oy\n9100002-2\tFixture Two Oy\n", encoding="utf-8")
+    (tmp_path / "p").mkdir()
+    (tmp_path / "p" / "9100001-1.json").write_text(json.dumps({"thesis_evidence": "yes", "source_url": "https://fixture-harbour.example/",
+                                                               "quote": "Fixture Harbour Oy builds electric work boats for port operators."}))
+    counts = stitcher.intake_fit(tsv, tmp_path / "p", tmp_path / "out", thesis.load(), fetch=lambda u: FIT_PAGES[u],
+                                 capture=lambda u: (None, None), company=lambda k, n: dict(FIT_CO, company_key=k, name=n, y_tunnus=k))
+    assert counts == {"yes": 1, "no": 0, "unclear": 1}
+    rec = json.loads((tmp_path / "out" / "9100002-2.json").read_text())
+    assert rec["thesis_evidence"] == "unclear" and rec["checked"] == "no saved LLM answer"

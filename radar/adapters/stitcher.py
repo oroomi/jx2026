@@ -925,6 +925,147 @@ def archived_before(conn: sqlite3.Connection, refs: list[tuple[str, str]]) -> di
     return {"companies": len(found), "runs": len(rows), "rows": found}
 
 
+# ---------------------------------------------------------------- intake thesis-evidence pass (writes files, emits nothing)
+
+FIT_ANSWERS = ("yes", "no", "unclear")
+
+
+def register_record(yt: str) -> dict:
+    """The PRH/YTJ open-data record for a business ID (same cached call as registered_names), {} when unreachable."""
+    if not yt or not re.fullmatch(r"\d{7}-\d", yt):
+        return {}
+    try:
+        data, _ = cached_get(NAME, PRH_API, interval=INTERVAL, params={"businessId": yt})
+    except Blocked:
+        return {}
+    cs = (data or {}).get("companies") or []
+    return cs[0] if cs else {}
+
+
+def intake_company(company_key: str, name: str) -> dict:
+    """A company from the wide-intake list, which is not in the store: register facts from PRH, other names, website."""
+    rec = register_record(company_key)
+    web = ((rec.get("website") or {}).get("url") or "").strip() or None
+    line = next((d.get("description") for d in ((rec.get("mainBusinessLine") or {}).get("descriptions") or [])
+                 if str(d.get("languageCode")) == "3"), None)
+    c = {"company_key": company_key, "name": name, "y_tunnus": company_key if re.fullmatch(r"\d{7}-\d", company_key) else None,
+         "country": "FI", "website": web if web and "://" in web else (f"https://{web}" if web else None), "business_line": line}
+    c["aliases"] = aliases(c)
+    return c
+
+
+def fit_queries(company: dict, thesis: dict) -> list[str]:
+    from radar import fit
+    core = core_name(company["name"]) or fold(company["name"])
+    words = " OR ".join(fit._keywords(thesis)[:12])
+    qs = [f'"{company["name"]}"', f'"{core}" {words}']
+    if company.get("y_tunnus"):
+        qs.append(f'"{company["y_tunnus"]}"')
+    dom = domain_of(company.get("website"))
+    if dom:
+        qs.append(f"site:{dom}")
+    for a in company.get("aliases") or []:
+        qs.append(f'"{a["name"]}"')
+    return list(dict.fromkeys(qs))
+
+
+def build_fit_prompt(company: dict, queries: list[str], thesis: dict) -> str:
+    from radar import fit
+    themes = "\n".join(f"  - {t.get('label')}" for t in thesis.get("themes") or [])
+    known = "; ".join(a["name"] for a in company.get("aliases") or [])
+    return f"""Decide whether ONE company has PUBLIC evidence of an activity in this investment thesis: {thesis['title']}.
+Company: {company['name']} | business ID: {company.get('y_tunnus') or 'none'} | website: {company.get('website') or 'unknown'}
+Registered line of business: {company.get('business_line') or 'not stated'}{f" | also registered as: {known}" if known else ""}
+
+Thesis themes:
+{themes}
+Thesis words (a page about the company's own activity should use words like these): {', '.join(fit._keywords(thesis))}
+
+Use WebSearch on these queries (at most two searches in total) and WebFetch to open the pages you cite; open the website first when one is given:
+{chr(10).join('  ' + q for q in queries)}
+
+Return ONLY one JSON object, no prose, no code fence:
+{{"company_key": "{company['company_key']}", "thesis_evidence": "yes|no|unclear", "quote": "...", "source_url": "https://...", "queries_run": ["..."]}}
+
+Rules, all mandatory:
+1. "yes" only when a page you opened with WebFetch names the company AND says the company itself works in one of the themes
+   (its own product, service, customers or project at sea, on water, in ports, shipping, aquaculture, water treatment ...).
+   The quote is at most {MAX_QUOTE_WORDS} words copied verbatim from that page, naming the company and containing a thesis word.
+2. "no" when a page that names the company shows what it does and that is outside the thesis; quote that sentence.
+3. "unclear" when nothing public describes the company's activity. quote and source_url are then empty strings.
+4. Companies only: never search for founders or other people, never quote a sentence that names a private person.
+5. No LinkedIn, Facebook, Instagram, X/Twitter, Crunchbase, Dealroom, PitchBook, Tracxn, CB Insights, Nordic9.
+"""
+
+
+def check_fit(company: dict, answer: dict, thesis: dict, *, fetch=None, capture=first_capture) -> dict:
+    """Code decides the label. A 'yes' stands only when the re-fetched page names the company, holds the quote word for
+    word and the quote holds a thesis word; a 'no' only when the page names the company and holds the quote. Anything that
+    fails becomes 'unclear' with the reason. Never emits a signal."""
+    from radar import fit
+    fetch = fetch or (lambda url: fetch_page(url, fresh=True))
+    said = str(answer.get("thesis_evidence") or "").strip().lower()
+    quote = redact_people(" ".join(str(answer.get("quote") or "").split()[:MAX_QUOTE_WORDS]), company["name"])
+    url = str(answer.get("source_url") or "").strip()
+    out = {"company_key": company["company_key"], "name": company["name"], "thesis_evidence": "unclear", "quote": None,
+           "source_url": None, "public_since": None, "archive_url": None, "thesis_word": None, "llm_answer": said or None}
+    if said not in ("yes", "no"):
+        return dict(out, checked="the LLM found no public description of the company's activity")
+    host = (urlparse(url).hostname or "").lower()
+    if not url.startswith(("http://", "https://")) or not quote:
+        return dict(out, checked=f"llm said {said} without a quote and a link: not checkable")
+    if any(host == h or host.endswith("." + h) for h in BLOCKED_HOSTS):
+        return dict(out, checked=f"llm said {said} from a source behind a login or paywall: not used")
+    try:
+        text = fetch(url)
+    except Blocked as e:
+        return dict(out, checked=f"llm said {said}; page could not be read: {e}")
+    folded = " " + fold(text) + " "
+    if _quote_span(quote, folded) is None:
+        return dict(out, checked=f"llm said {said}; the quote is not on the page word for word")
+    if name_match(company, text) is None:
+        return dict(out, checked=f"llm said {said}; the page does not name the company")
+    # the thesis word must describe the activity: words of the company's own names never count (a name-only match is weak)
+    rest = " " + fold(quote.replace("[name]", " ")) + " "
+    for n in [company["name"], *(x["name"] for x in company.get("aliases") or [])]:
+        for form in {fold(n), core_name(n)}:
+            if form:
+                rest = rest.replace(f" {form} ", " ")
+    words = fit.matched_keywords(rest, thesis)
+    if said == "yes" and not words:
+        return dict(out, checked="llm said yes; the quote holds no thesis word, so it is not evidence")
+    since, arch = capture(url) if said == "yes" else (None, None)
+    return dict(out, thesis_evidence=said, quote=quote, source_url=url, public_since=since, archive_url=arch,
+                thesis_word=words[0] if words else None,
+                checked=f"page names the company by {name_match(company, text)}; quote on the page word for word"
+                        + (f"; thesis word '{words[0]}' in the quote" if words else ""))
+
+
+def intake_fit(tsv: str | Path, proposals: str | Path, out_dir: str | Path, thesis: dict, *, fetch=None, capture=first_capture,
+               company=intake_company) -> dict:
+    """Read the intake list (company_key TAB name), check each saved LLM answer <proposals>/<key>.json, write the checked
+    record to <out_dir>/<key>.json. Returns the counts. A missing answer is 'unclear'."""
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    counts = {a: 0 for a in FIT_ANSWERS}
+    for line in Path(tsv).read_text(encoding="utf-8").splitlines():
+        if not line.strip() or line.startswith("#"):
+            continue
+        key, _, name = line.partition("\t")
+        c = company(key.strip(), name.strip())
+        f = Path(proposals) / f"{key.strip()}.json"
+        try:
+            ans = _extract_json(f.read_text(encoding="utf-8")) if f.exists() else {}
+        except ValueError:
+            ans = {}
+        rec = check_fit(c, ans, thesis, fetch=fetch, capture=capture) if ans else \
+            {"company_key": c["company_key"], "name": c["name"], "thesis_evidence": "unclear", "quote": None, "source_url": None,
+             "public_since": None, "archive_url": None, "thesis_word": None, "llm_answer": None, "checked": "no saved LLM answer"}
+        counts[rec["thesis_evidence"]] += 1
+        (out / f"{c['company_key']}.json").write_text(json.dumps(rec, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    return counts
+
+
 def _resolve_db(arg: str | None, th: dict) -> Path:
     from radar import db, thesis as thesis_mod
     p = Path(arg or os.environ.get("RADAR_DB") or thesis_mod.db_path(th))
@@ -941,13 +1082,26 @@ def main(argv: list[str] | None = None) -> int:
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--company", help="company_key in the store")
     g.add_argument("--batch", help="file with one company_key per line (# comments allowed)")
+    g.add_argument("--intake-fit", help="intake list (company_key TAB name): thesis-evidence pass, writes files, emits nothing")
     ap.add_argument("--db", help="store path (default: env RADAR_DB, else the thesis store)")
     ap.add_argument("--thesis", help="thesis yaml path (default: radar.thesis.load())")
     ap.add_argument("--proposals", help="directory of saved LLM answers <company_key>.json instead of claude -p")
     ap.add_argument("--print-prompt", action="store_true", help="print the read-step prompt for each company and stop")
     ap.add_argument("--recheck-run", help="run only the adversarial second pass over the kept rows of this past run_id")
+    ap.add_argument("--out", help="--intake-fit only: directory for the checked records (default data/fetched/stitcher/intake_fit)")
     a = ap.parse_args(argv)
     th = thesis_mod.load(a.thesis) if a.thesis else thesis_mod.load()
+    if a.intake_fit:
+        rows = [l.split("\t") for l in Path(a.intake_fit).read_text(encoding="utf-8").splitlines() if l.strip() and not l.startswith("#")]
+        if a.print_prompt:
+            for key, name in ((r[0].strip(), r[1].strip()) for r in rows):
+                c = intake_company(key, name)
+                print(f"===== {key}\n{build_fit_prompt(c, fit_queries(c, th), th)}")
+            return 0
+        out = a.out or str(ROOT / "data" / "fetched" / "stitcher" / "intake_fit")
+        counts = intake_fit(a.intake_fit, a.proposals or str(Path(out) / "proposals"), out, th)
+        print("RESULT " + json.dumps({"intake_fit": counts, "out": out}, ensure_ascii=False))
+        return 0
     conn = db.connect(_resolve_db(a.db, th))
     keys = [a.company] if a.company else [l.split("#")[0].strip() for l in Path(a.batch).read_text().splitlines() if l.split("#")[0].strip()]
     if a.print_prompt:

@@ -16,7 +16,10 @@ def test_every_decision_has_rule_reason_and_records_affected():
     ds = [t for k, t in rules_pdf.blocks(md) if k == "para" and re.match(r"^\*\*D\d+\. ", t)]
     parts = [rules_pdf.decision_parts(t) for t in ds]
     assert len(parts) >= 21 and all(p and p["rule"] and p["why"] and p["affected"] for p in parts)
-    assert [p["id"] for p in parts] == [f"D{i}" for i in range(1, len(parts) + 1)]
+    # Parallel branches reserve their numbers ahead (a branch takes the highest seen plus 20), so the sequence may have gaps; it must still
+    # be unique and ascending, which is what the PDF's table of decisions relies on.
+    nums = [int(p["id"][1:]) for p in parts]
+    assert nums == sorted(set(nums)) and nums[0] == 1
 
 
 def test_fonts_are_vendored():

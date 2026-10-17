@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+import threading
 import time
 from datetime import date
 
@@ -41,7 +42,7 @@ class ToolContext:
         self.calls: list[dict] = []             # {name, ms, ok} for the log
         self.urls: set[str] = set()             # every address a tool result held: the only external links the answer may keep
         self._home: dict | None = None
-        self._conn = None
+        self._conns: dict[int, object] = {}     # one read-only connection per thread: the streaming response may call us from several
         self._view: dict | None = None
 
     # -- resources, opened on first use --------------------------------------------------------------------------------------------------------
@@ -59,14 +60,19 @@ class ToolContext:
         return self.home().get("rows") or []
 
     def conn(self):
-        if self._conn is None:
-            self._conn = store.open_db(thesis=self.th)
-        return self._conn
+        tid = threading.get_ident()
+        if tid not in self._conns:
+            self._conns[tid] = store.open_db(thesis=self.th)
+        return self._conns[tid]
 
     def close(self) -> None:
-        if self._conn is not None:
-            self._conn.close()
-            self._conn = None
+        for c in self._conns.values():
+            try:
+                if c is not None:
+                    c.close()
+            except Exception:  # noqa: BLE001  (a connection owned by another thread: it is released with that thread)
+                pass
+        self._conns.clear()
 
     def see(self, key: str | None, name: str | None) -> None:
         if key and name:
@@ -510,9 +516,10 @@ def run_tool(ctx: ToolContext, name: str, args) -> tuple[str, bool]:
     try:
         fn = HANDLERS.get(name)
         if fn is None:
-            raise KeyError(f"no tool named {name}; the tools are {', '.join(HANDLERS)}")
-        res = fn(ctx, args if isinstance(args, dict) else {})
-        ok = not (isinstance(res, dict) and "error" in res and len(res) <= 3)
+            res, ok = {"error": f"no tool named {name}; the tools are {', '.join(HANDLERS)}"}, False
+        else:
+            res = fn(ctx, args if isinstance(args, dict) else {})
+            ok = not (isinstance(res, dict) and "error" in res and len(res) <= 3)
     except Exception as e:  # noqa: BLE001  (the model gets the message and can try something else)
         log.exception("tool %s failed", name)
         res, ok = {"error": f"{name} failed: {type(e).__name__}"}, False

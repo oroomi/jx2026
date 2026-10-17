@@ -35,3 +35,10 @@ effort_from_budget:                   # [largest budget, effort]; a budget of 0 
   - [1024, low]
   - [4096, medium]
   - [null, high]
+# Dollars per million tokens, from Anthropic's pricing page (https://platform.claude.com/docs/en/about-claude/pricing, read 2026-10-17):
+# Claude Sonnet 5.5 $2 input, $2.50 five-minute cache write, $0.10 cache read (0.05x base), $10 output. Used only by the selftest's cost line.
+prices:
+  claude-sonnet-5-5: {input: 2.00, output: 10.00, cache_write_5m: 2.50, cache_read: 0.10}
+  claude-sonnet-5: {input: 2.00, output: 10.00, cache_write_5m: 2.50, cache_read: 0.20}
+  claude-opus-5-5: {input: 4.00, output: 20.00, cache_write_5m: 5.00, cache_read: 0.20}
+  claude-haiku-5-5: {input: 0.10, output: 0.50, cache_write_5m: 0.125, cache_read: 0.01}

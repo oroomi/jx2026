@@ -1,0 +1,592 @@
+{
+  "version": 1,
+  "key": "2962040-6",
+  "model": "eleven_multilingual_v2",
+  "voice_id": "pFZP5JQG7iQjIQuC4Bku",
+  "output_format": "mp3_44100_64",
+  "segments": [
+    {
+      "n": 0,
+      "target": "aava-who",
+      "text_sha": "66b42b81594b5fe6",
+      "file": "0_66b42b81.mp3",
+      "chars": 134,
+      "duration_s": 11.781,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 1,
+      "target": "signals",
+      "text_sha": "d0b3d6f975c66fbd",
+      "file": "1_d0b3d6f9.mp3",
+      "chars": 28,
+      "duration_s": 1.698,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 2,
+      "target": "aava-sig-25",
+      "text_sha": "eeec012a9af09c8c",
+      "file": "2_eeec012a.mp3",
+      "chars": 106,
+      "duration_s": 12.852,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 3,
+      "target": "aava-sig-24",
+      "text_sha": "4ee163bc333124c5",
+      "file": "3_4ee163bc.mp3",
+      "chars": 234,
+      "duration_s": 23.301,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 4,
+      "target": "aava-sig-23",
+      "text_sha": "d1a6a2dd7d6af79d",
+      "file": "4_d1a6a2dd.mp3",
+      "chars": 254,
+      "duration_s": 23.719,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 5,
+      "target": "aava-sig-22",
+      "text_sha": "9b9ecb44eff6c6ae",
+      "file": "5_9b9ecb44.mp3",
+      "chars": 238,
+      "duration_s": 23.719,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 6,
+      "target": "aava-sig-21",
+      "text_sha": "abfd952503cd5707",
+      "file": "6_abfd9525.mp3",
+      "chars": 235,
+      "duration_s": 21.316,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 7,
+      "target": "aava-sig-20",
+      "text_sha": "3094a1e6b49c928c",
+      "file": "7_3094a1e6.mp3",
+      "chars": 181,
+      "duration_s": 23.719,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 8,
+      "target": "aava-sig-19",
+      "text_sha": "b5ea56714bfe3aa4",
+      "file": "8_b5ea5671.mp3",
+      "chars": 233,
+      "duration_s": 23.719,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 9,
+      "target": "aava-sig-18",
+      "text_sha": "4f052e7fdc0b26a3",
+      "file": "9_4f052e7f.mp3",
+      "chars": 183,
+      "duration_s": 23.719,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 10,
+      "target": "signals",
+      "text_sha": "b0eca6f18b670781",
+      "file": "10_b0eca6f1.mp3",
+      "chars": 45,
+      "duration_s": 2.534,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 11,
+      "target": "signals",
+      "text_sha": "a677679bb4d35b4d",
+      "file": "11_a677679b.mp3",
+      "chars": 26,
+      "duration_s": 1.437,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 12,
+      "target": "q1",
+      "text_sha": "4dfe8939c6ebd49c",
+      "file": "12_4dfe8939.mp3",
+      "chars": 181,
+      "duration_s": 15.047,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 13,
+      "target": "q2",
+      "text_sha": "1f2e46a381605c2e",
+      "file": "13_1f2e46a3.mp3",
+      "chars": 176,
+      "duration_s": 14.942,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 14,
+      "target": "q2",
+      "text_sha": "761720c9564bf51b",
+      "file": "14_761720c9.mp3",
+      "chars": 122,
+      "duration_s": 8.255,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 15,
+      "target": "q2",
+      "text_sha": "ee68d38c714f87e4",
+      "file": "15_ee68d38c.mp3",
+      "chars": 101,
+      "duration_s": 7.941,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 16,
+      "target": "q2",
+      "text_sha": "5fbeddbb0f985e54",
+      "file": "16_5fbeddbb.mp3",
+      "chars": 45,
+      "duration_s": 2.926,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 17,
+      "target": "q3",
+      "text_sha": "c8c69be52dec99bf",
+      "file": "17_c8c69be5.mp3",
+      "chars": 127,
+      "duration_s": 10.162,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "talk",
+        "meet"
+      ]
+    },
+    {
+      "n": 18,
+      "target": "q3",
+      "text_sha": "1fef44629ec058ff",
+      "file": "18_1fef4462.mp3",
+      "chars": 234,
+      "duration_s": 20.611,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "talk",
+        "meet"
+      ]
+    },
+    {
+      "n": 19,
+      "target": "q3",
+      "text_sha": "ebea9640722a56d9",
+      "file": "19_ebea9640.mp3",
+      "chars": 227,
+      "duration_s": 19.409,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "talk",
+        "meet"
+      ]
+    },
+    {
+      "n": 20,
+      "target": "q3",
+      "text_sha": "56ba717f7361e192",
+      "file": "20_56ba717f.mp3",
+      "chars": 274,
+      "duration_s": 23.719,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "talk",
+        "meet"
+      ]
+    },
+    {
+      "n": 21,
+      "target": "q3",
+      "text_sha": "465e141ff860256a",
+      "file": "21_465e141f.mp3",
+      "chars": 215,
+      "duration_s": 20.741,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "talk",
+        "meet"
+      ]
+    },
+    {
+      "n": 22,
+      "target": "q3",
+      "text_sha": "b1db3d0b1d14fb78",
+      "file": "22_b1db3d0b.mp3",
+      "chars": 236,
+      "duration_s": 20.741,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "talk",
+        "meet"
+      ]
+    },
+    {
+      "n": 23,
+      "target": "q3",
+      "text_sha": "65495b7234ee02e8",
+      "file": "23_65495b72.mp3",
+      "chars": 254,
+      "duration_s": 21.969,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "talk",
+        "meet"
+      ]
+    },
+    {
+      "n": 24,
+      "target": "q4",
+      "text_sha": "b27216cd3d657326",
+      "file": "24_b27216cd.mp3",
+      "chars": 176,
+      "duration_s": 11.128,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "next"
+      ]
+    },
+    {
+      "n": 25,
+      "target": "memo",
+      "text_sha": "a1783d715b4c84b4",
+      "file": "25_a1783d71.mp3",
+      "chars": 237,
+      "duration_s": 19.069,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "next",
+        "why"
+      ]
+    },
+    {
+      "n": 26,
+      "target": "memo",
+      "text_sha": "5d07cb6fb3bd2ac5",
+      "file": "26_5d07cb6f.mp3",
+      "chars": 148,
+      "duration_s": 11.128,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "next",
+        "why"
+      ]
+    },
+    {
+      "n": 27,
+      "target": "memo",
+      "text_sha": "14773796904ddd73",
+      "file": "27_14773796.mp3",
+      "chars": 129,
+      "duration_s": 10.58,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "next",
+        "why"
+      ]
+    },
+    {
+      "n": 28,
+      "target": "memo",
+      "text_sha": "495742ef7e9c0b53",
+      "file": "28_495742ef.mp3",
+      "chars": 145,
+      "duration_s": 11.233,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief",
+        "next",
+        "why"
+      ]
+    },
+    {
+      "n": 29,
+      "target": "aava-who",
+      "text_sha": "292da65e1480efda",
+      "file": "29_292da65e.mp3",
+      "chars": 74,
+      "duration_s": 4.859,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 30,
+      "target": "memo",
+      "text_sha": "feb61b404053b3ab",
+      "file": "30_feb61b40.mp3",
+      "chars": 89,
+      "duration_s": 6.635,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "why"
+      ]
+    },
+    {
+      "n": 31,
+      "target": "memo",
+      "text_sha": "902b5e4584c2dda3",
+      "file": "31_902b5e45.mp3",
+      "chars": 67,
+      "duration_s": 4.78,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "why"
+      ]
+    },
+    {
+      "n": 32,
+      "target": "memo",
+      "text_sha": "cc179e25f90093f0",
+      "file": "32_cc179e25.mp3",
+      "chars": 108,
+      "duration_s": 7.34,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "why"
+      ]
+    },
+    {
+      "n": 33,
+      "target": "memo",
+      "text_sha": "008c04f8f3f513ff",
+      "file": "33_008c04f8.mp3",
+      "chars": 84,
+      "duration_s": 5.512,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "why"
+      ]
+    },
+    {
+      "n": 34,
+      "target": "memo",
+      "text_sha": "1938d31a927210c5",
+      "file": "34_1938d31a.mp3",
+      "chars": 123,
+      "duration_s": 8.777,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "meet"
+      ]
+    },
+    {
+      "n": 35,
+      "target": "memo",
+      "text_sha": "af1d34ee9add2020",
+      "file": "35_af1d34ee.mp3",
+      "chars": 139,
+      "duration_s": 10.162,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "meet"
+      ]
+    },
+    {
+      "n": 36,
+      "target": "memo",
+      "text_sha": "297b0a0a71583889",
+      "file": "36_297b0a0a.mp3",
+      "chars": 86,
+      "duration_s": 5.198,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "missing"
+      ]
+    },
+    {
+      "n": 37,
+      "target": "memo",
+      "text_sha": "2d9341f1ee6af8ba",
+      "file": "37_2d9341f1.mp3",
+      "chars": 58,
+      "duration_s": 3.422,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "missing"
+      ]
+    },
+    {
+      "n": 38,
+      "target": "q2",
+      "text_sha": "9135f69addf57a0f",
+      "file": "38_9135f69a.mp3",
+      "chars": 158,
+      "duration_s": 11.729,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "missing"
+      ]
+    },
+    {
+      "n": 39,
+      "target": "memo",
+      "text_sha": "8466c14b29e69dde",
+      "file": "39_8466c14b.mp3",
+      "chars": 51,
+      "duration_s": 3.239,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "missing"
+      ]
+    }
+  ]
+}

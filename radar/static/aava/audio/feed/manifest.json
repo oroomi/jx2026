@@ -1,0 +1,79 @@
+{
+  "version": 1,
+  "key": "feed",
+  "model": "eleven_multilingual_v2",
+  "voice_id": "pFZP5JQG7iQjIQuC4Bku",
+  "output_format": "mp3_44100_64",
+  "segments": [
+    {
+      "n": 0,
+      "target": "aava-feed-3636115-8",
+      "text_sha": "4dd38c72c8519b2c",
+      "file": "0_4dd38c72.mp3",
+      "chars": 194,
+      "duration_s": 20.088,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 1,
+      "target": "aava-feed-3656103-7",
+      "text_sha": "83b10ff2dd6cfd7a",
+      "file": "1_83b10ff2.mp3",
+      "chars": 192,
+      "duration_s": 19.304,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 2,
+      "target": "aava-feed-3655639-3",
+      "text_sha": "6a04f42173ea6ca9",
+      "file": "2_6a04f421.mp3",
+      "chars": 181,
+      "duration_s": 20.297,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 3,
+      "target": "aava-feed-3654770-2",
+      "text_sha": "b86bab71fd01e845",
+      "file": "3_b86bab71.mp3",
+      "chars": 198,
+      "duration_s": 21.969,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 4,
+      "target": "aava-feed-3638597-7",
+      "text_sha": "a8484a05e9aa161b",
+      "file": "4_a8484a05.mp3",
+      "chars": 187,
+      "duration_s": 19.722,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    }
+  ]
+}

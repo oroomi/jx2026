@@ -205,7 +205,10 @@ def test_inside_a_verdict_the_home_list_orders_by_evidence(home):
         flags = [r["group_tag"] in ("cohort", "portfolio") for r in grp]
         assert flags == sorted(flags, reverse=True), verdict       # declared members come before everyone else in the same verdict
     freight = next(r for r in rows if r["company_key"] == "3657918-1")                    # level 1, low confidence, found three weeks ago
-    assert rows.index(freight) > 0 and all(r["group_tag"] in ("cohort", "portfolio") for r in rows[:rows.index(freight)] if r["verdict"] == freight["verdict"])
+    lvl = lambda r: (r["ocean"] or {}).get("level")  # noqa: E731
+    # D66 moved it from ACCELERATOR to WATCHLIST, where non-declared companies precede it only by a ladder level at least as high as its own
+    assert rows.index(freight) > 0 and all(r["group_tag"] in ("cohort", "portfolio") or (lvl(r) is not None and lvl(r) >= lvl(freight))
+                                          for r in rows[:rows.index(freight)] if r["verdict"] == freight["verdict"])
 
 
 def test_the_top_fits_group_keeps_the_same_order(home):

@@ -9,7 +9,7 @@ import sqlite3
 
 from markupsafe import Markup, escape
 
-from radar import blueinvest, fit as fit_mod, frameworks, intake as intake_mod, lifeline, matching, store, thesis as thesis_mod
+from radar import blueinvest, fit as fit_mod, frameworks, intake as intake_mod, lifeline, matching, memo, store, thesis as thesis_mod
 from radar.adapters import stitcher
 from radar.routes.home import _has_route, templates
 from radar.routes.radar import EVENT_TYPES as RADAR_EVENT_TYPES
@@ -174,7 +174,9 @@ def company_page(request: Request, company_key: str):
                  fw=fw, connections=frameworks.connections(rule_sigs),
                  nxt=nxt, step=step, rank_rule=matching.RANK_RULE, eco=eco,
                  type_labels=store.TYPE_LABELS, lifeline=lifeline.build(c, sigs), speed=speed, min_sample=lifeline.MIN_SAMPLE,
-                 stitch=stitch, radar_n=radar_n)
+                 stitch=stitch, radar_n=radar_n,
+                 record_checks=memo.record_checks({x["signal_type"] for x in sigs}, (fw.get("category") or {}).get("category"), nxt.get("investors"),
+                                                  ((thesis.get("memo") or {}).get("labels") or {}).get("impact") or "Ocean impact"))
 
 
 @router.get("/company-search")

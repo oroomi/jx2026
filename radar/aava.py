@@ -225,6 +225,8 @@ def what_if(memo: dict | None, thesis: dict | None) -> dict | None:
     rec = memo["recommendation"]
     lv = {d: ((memo.get("levels") or {}).get(d) or {}).get("band", UNKNOWN) for d in WHATIF_DIMS}
     support = frozenset((cfg.get("fallback") or {}).get("requires_any") or ["declared_member"]) if rec.get("kind") == "fallback" else frozenset()
+    if rec.get("kind") == "member":  # pass 0 (D65): the declared list decides, so the what-if keeps the membership
+        support = frozenset({"declared_member", f"declared_{rec.get('row_id')}"})
 
     def decision(bands: dict) -> str:
         row, _ = memo_mod.decide(bands, cfg, support)
@@ -307,6 +309,7 @@ def _lifts(wi: dict, dim: str) -> str | None:
 OPINION = {
     "INVEST": "it deserves an investment conversation",
     "DUE DILIGENCE": "it deserves a proper due diligence look",
+    "PORTFOLIO SUPPORT": "it needs portfolio support, not an entry decision",
     "ACCELERATOR": "it is a good accelerator candidate",
     "GRANT SUPPORT": "it is a case for grants and incubation support",
     "PARTNER INTRODUCTION": "it needs introductions to pilot customers and strategic partners",
@@ -396,6 +399,8 @@ def think(c: dict, signals: list[dict], memo: dict | None, counted=None) -> dict
     conf, top = _strongest(signals, counted)
     watch = rec.get("decision") == "WATCHLIST"
     parts: list[tuple[int, str]] = [(0, f"Based on what the radar holds on {c['name']}, I think {opinion}{', and here is why:' if watch else '.'}")]
+    if rec.get("kind") == "member" and rec.get("note"):  # D65: the same sentence the page's headline prints
+        parts[0] = (0, f"Based on what the radar holds on {c['name']}, I think {opinion}: {_lc(clean(rec['note']).rstrip('.'))}.")
     if watch:
         bits = []
         needs, impact_gap = _needs(memo)
@@ -479,7 +484,9 @@ def _plain_rule(rec: dict) -> str:
         core = re.sub(r",?\s*(?:and )?fallback \S+ of the decision rules applies$", "", note)
         core = re.sub(r",\s*so impact is read as .*$", "", core)
         core = re.sub(r",\s*so the decision table's High-fit rule applies$", "", core).replace("; ", ", and ")
-        return "The rule that fired is the table's fallback: " + _lc(_plain(core)) + "."
+        return "The rule that fired is the table's High-fit rule: " + _lc(_plain(core)) + "."   # the page's rule chip names it the same way
+    if kind == "member":
+        return "The rule that fired is the member rule for declared companies."
     if kind == "row":
         return "The rule that fired is a row of the team's decision table that matches all four bands exactly."
     if kind == "rule":
@@ -509,6 +516,8 @@ def score(memo: dict | None) -> dict:
     pick = lambda d: f"{_lc(bands[d]['label'])} is {_words(bands[d]['band'])}" if d in bands else None  # noqa: E731
     action = (rec.get("table_action") or "").rstrip(".")
     verdict = f"The verdict is {_dec(rec['decision'])}" + (f": {_lc(action)}." if action and rec.get("kind") != "rule" else ".")
+    if rec.get("kind") == "member" and rec.get("note"):
+        verdict = f"The verdict is {_dec(rec['decision'])}: {_lc(clean(rec['note']).rstrip('.'))}."
     got = [p for p in (pick("fit"), pick("business")) if p]
     parts = [(0, _ocean_words(memo, bands)), (0, verdict),
              (0, (_uc(_list(got)) + ".") if got else ""),
@@ -519,6 +528,13 @@ def score(memo: dict | None) -> dict:
 
 def _member(c: dict) -> str | None:
     return {"cohort": "a Nordic Blue cohort company", "portfolio": "a Redstone portfolio company"}.get(c.get("group_tag") or "")
+
+
+MEMBER_FIXED = "The verdict rests on the declared member list, not on the bands, so only a change to that list would change it."
+
+
+def rec_kind(memo: dict | None) -> str | None:
+    return ((memo or {}).get("recommendation") or {}).get("kind")
 
 
 def sure(c: dict, signals: list[dict], memo: dict | None, wi: dict | None, counted=None) -> dict:
@@ -543,7 +559,9 @@ def sure(c: dict, signals: list[dict], memo: dict | None, wi: dict | None, count
         parts.append((1, "Weak or missing: " + _list(gaps) + "."))
     if weak:
         parts.append((2, _uc(f"{_records(weak, False)} is only low confidence") + "."))
-    if wi:
+    if rec_kind(memo) == "member":
+        parts.append((0, MEMBER_FIXED))
+    elif wi:
         down = _moves(wi, better=False)[:2]
         if down:
             first = f"I would drop it to {_dec(down[0][1])} if {_cond(wi, down[0][0])}"
@@ -592,15 +610,18 @@ def meet(nxt: dict | None, memo: dict | None) -> dict:
     rows = [(r, kind) for key, kind in (("investors", "investor"), ("funding", "programme or funder"), ("partners", "partner")) for r in (nxt or {}).get(key) or []]
     rec = (memo or {}).get("recommendation") or {}
     picks: list[dict] = []
-    for a in (memo or {}).get("actions") or []:
+    if (memo or {}).get("meet") is not None:  # D67: the memo's one top-three list, the same rows the memo's actions name
+        picks = list(memo["meet"])
+    for a in ((memo or {}).get("actions") or []) if not picks else []:
         hit = max((r for r, _ in rows if r["name"] in a.get("text", "") and r not in picks), key=lambda r: len(r["name"]), default=None)
         if hit:
             picks.append(hit)
     watching = rec.get("decision") in ("WATCHLIST", "REJECT / LOW FIT")
     if not picks or watching:
-        scored = sorted((r for r, _ in rows if r.get("score") is not None), key=lambda r: -r["score"])
-        picks = scored[:2] or [r for r, _ in rows][:2]
-    picks = picks[:2]
+        if not picks:
+            scored = sorted((r for r, _ in rows if r.get("score") is not None), key=lambda r: -r["score"])
+            picks = scored[:3] or [r for r, _ in rows][:3]
+    picks = picks[:3]
     if not picks:
         return seg("The radar has no investor, programme or partner match for this company yet, so I have nobody to point you to.", "q3", "highlight", None, q=4)
     parts: list[tuple[int, str]] = []
@@ -680,7 +701,9 @@ def change(memo: dict | None, wi: dict | None) -> dict:
     weak = [g for g in gaps if not g.startswith("no ")]
     if weak:
         parts.append((1, _uc(_list(weak)) + "."))
-    if wi:
+    if rec_kind(memo) == "member":
+        parts.append((0, MEMBER_FIXED))
+    elif wi:
         unk = [d for d in WHATIF_DIMS if wi["bands"][d] == UNKNOWN]
         said = {d: _lifts(wi, d) for d in unk}
         moves = [d for d in unk if said[d] and "could lift it" in said[d]]

@@ -20,7 +20,7 @@ from datetime import date, timedelta
 from radar import labels as lbl
 from radar import matching, ocean_impact, store
 
-DECISIONS = ("INVEST", "DUE DILIGENCE", "ACCELERATOR", "GRANT SUPPORT", "PARTNER INTRODUCTION", "WATCHLIST", "REJECT / LOW FIT")
+DECISIONS = ("PORTFOLIO SUPPORT", "INVEST", "DUE DILIGENCE", "ACCELERATOR", "GRANT SUPPORT", "PARTNER INTRODUCTION", "WATCHLIST", "REJECT / LOW FIT")
 BANDS = ("Low", "Medium", "High")
 TABLE_DIMS = ("impact", "business", "investment", "fit")
 UNKNOWN = "unknown"
@@ -38,7 +38,7 @@ def _cfg(thesis: dict) -> dict:
     # matchmaker's light verdict) gets the same ladder band as memo.build, with no edit of its own (D46).
     bands = {**(m.get("bands") or {}), "impact": {**((m.get("bands") or {}).get("impact") or {}), "_thesis": thesis}}
     return {"labels": m.get("labels") or {}, "bands": bands, "rows": d.get("rows") or [], "rules": d.get("rules") or [],
-            "source": d.get("source") or "", "fallback": d.get("fallback") or {}}
+            "source": d.get("source") or "", "fallback": d.get("fallback") or {}, "members": d.get("members") or {}}
 
 
 def band(value, spec: dict | None) -> str:
@@ -63,7 +63,11 @@ def _cell_matches(cell, value: str) -> bool:
 def decide(bands: dict[str, str], cfg: dict, support=frozenset()) -> tuple[dict | None, list[str]]:
     """Pass 1: the first table row whose four cells all equal the bands. Pass 2: the first condition rule that holds. Pass 3: the
     fallback, when `support` (what the High fit rests on beyond the industry code) passes its gate. A cell that needs a band never
-    matches "unknown". Returns ({kind, id, ...row} or None, unknown dimensions)."""
+    matches "unknown". Pass 0 (D65): a declared portfolio or cohort company (`declared_<group>` in `support`) is already inside, so
+    it gets the member verdict and is not assessed for entry. Returns ({kind, id, ...row} or None, unknown dimensions)."""
+    mem = member_rule(cfg, support)
+    if mem is not None:
+        return mem, []
     for r in cfg["rows"]:
         if all(_cell_matches(r.get(d), bands[d]) for d in TABLE_DIMS):
             return {**r, "kind": "row", "text": f"row {r['id']}, " + "/".join(LETTER[bands[d]] for d in TABLE_DIMS)}, []
@@ -74,6 +78,17 @@ def decide(bands: dict[str, str], cfg: dict, support=frozenset()) -> tuple[dict 
     if fb is not None:
         return fb, []
     return None, [d for d in (*TABLE_DIMS, "technology") if bands.get(d) == UNKNOWN]
+
+
+def member_rule(cfg: dict, support=frozenset()) -> dict | None:
+    """Pass 0 (D65, `memo.decisions.members` in the thesis file): the member verdict for a declared portfolio or cohort company, with the
+    relationship it names and the organisations it already belongs to (left out of its next support). None for any other company."""
+    m = cfg.get("members") or {}
+    for tag, rel in (m.get("relation") or {}).items():
+        if f"declared_{tag}" in support and m.get("decision"):
+            return {"id": tag, "kind": "member", "decision": m["decision"], "team": m.get("team"), "action": m.get("action"),
+                    "relation": rel.get("says") or "", "own": list(rel.get("own") or []), "text": f"declared {tag} company"}
+    return None
 
 
 def _fallback_match(bands: dict[str, str], cfg: dict) -> dict | None:
@@ -216,9 +231,17 @@ def _fit(conn, ctx: dict, thesis: dict, spec: dict) -> dict:
         bullets.append({"text": ex["why"].removeprefix("Weak: "), "url": c["source_url"]})
     else:
         b = UNKNOWN
+    # D66: a High fit that rests on the industry code alone (every reason is in `code_alone_reasons`: the code and the register's own
+    # label for it) is capped at `code_alone_band`; a declared member is excepted below (D47 floor).
+    cap, alone = spec.get("code_alone_band"), set(spec.get("code_alone_reasons") or ["industry_code"])
+    if cap in BANDS and b == "High" and "industry_code" in reasons and set(reasons) <= alone:
+        b = cap
+        if bullets:
+            bullets[0] = {**bullets[0], "text": bullets[0]["text"].rstrip(". ") + "; " + (spec.get("code_alone_note") or "the industry code alone gives at most a Medium fit")}
     support = {"own_text": "own_text" in reasons, "line_of_business": "line_of_business" in reasons, "corroborated_signal": "corroborated_keyword" in reasons}
     if c["group_tag"] in ("cohort", "portfolio") and c.get("source_url"):
         support["declared_member"] = True
+        support[f"declared_{c['group_tag']}"] = True   # pass 0 of the decision (D65) reads which list declares it
         floor = spec.get("declared_member_band")
         if floor and BANDS.index(floor) > (BANDS.index(b) if b in BANDS else -1):
             b = floor
@@ -278,6 +301,90 @@ def _actions(decision: str, nxt: dict, step: dict, unknown: list[str], labels: d
     if decision in ("INVEST", "DUE DILIGENCE") and step["rule"] in (1, 2) and step.get("source_url"):
         add(step["sentence"], step["source_url"], f"decision table, rule {step['rule']}")
     return out[:MAX_ACTIONS]
+
+
+_DECLARED_PART = re.compile(r"\(([^)]*)\)")
+MEET_GROUPS = (("investors", "investor"), ("funding", "programme or funder"), ("partners", "partner"))
+
+
+def sector_mismatch(name: str | None, company_sectors, sector_labels) -> bool:
+    """D67: True when a counterpart's name declares a sector in brackets (a pitch session '(energy transition in aquaculture and
+    fisheries)') and that sector is none of the company's own sub-sectors. Both sides are labels from the thesis file, lower case."""
+    declared = {lab for part in _DECLARED_PART.findall(name or "") for lab in sector_labels if lab and lab in part.lower()}
+    return bool(declared) and not (declared & set(company_sectors))
+
+
+def _sector_words(conn, thesis: dict, key: str) -> tuple[frozenset, frozenset]:
+    """(the company's sub-sector labels, every sector label the thesis names), lower case, for sector_mismatch."""
+    from radar import sectors
+    try:
+        own = frozenset(str(x.get("label") or "").lower() for x in sectors.company_subsectors(conn, thesis, key))
+    except Exception:  # noqa: BLE001 - a store without the taxonomy table: no sub-sectors, so nothing is filtered
+        own = frozenset()
+    labels = {str(g.get("label") or "").lower() for g in (thesis.get("matching") or {}).get("keyword_groups") or []}
+    labels |= {str(x.get("label") or "").lower() for x in ((thesis.get("taxonomy") or {}).get("subsectors") or []) if isinstance(x, dict)}
+    return own, frozenset(x for x in labels if x)
+
+
+def filter_next(nxt: dict, *, own=(), company_sectors=frozenset(), sector_labels=frozenset()) -> dict:
+    """The who-comes-next lists without the organisations the company already belongs to (`own`, name starts) and without a counterpart
+    whose declared sector is not the company's (D67). The page, the memo and Aava then read the same rows."""
+    starts = tuple(o.lower() for o in own if o)
+
+    def keep(r):
+        n = (r.get("name") or "").lower()
+        return not (starts and n.startswith(starts)) and not sector_mismatch(r.get("name"), company_sectors, sector_labels)
+    return {k: ([r for r in v if keep(r)] if isinstance(v, list) else v) for k, v in nxt.items()}
+
+
+def meet_list(nxt: dict, actions: list[dict], n: int = 3) -> list[dict]:
+    """The one top-three who-to-meet list (D67) the memo and Aava both read: the organisations the memo's actions name, in their order,
+    then the best-scored rows, then the rest. Each row is the who-comes-next row with its group's `role`."""
+    rows = [{**r, "role": role} for key, role in MEET_GROUPS for r in nxt.get(key) or []]
+    out: list[dict] = []
+    for a in actions:
+        hit = max((r for r in rows if r["name"] in (a.get("text") or "") and r not in out), key=lambda r: len(r["name"]), default=None)
+        if hit:
+            out.append(hit)
+    for r in sorted((r for r in rows if r.get("score") is not None), key=lambda r: -r["score"]) + rows:
+        if r not in out:
+            out.append(r)
+    return out[:n]
+
+
+def member_support(rule: dict, nxt: dict) -> tuple[str, list[dict]]:
+    """The member verdict's sentence and actions (D65): the relationship, then the next support from the records, a pilot partner and a
+    grant (never an accelerator: the company is already inside a programme)."""
+    partner = next(iter(nxt.get("partners") or []), None)
+    grant = next((f for f in nxt.get("funding") or [] if not any(w in (f.get("kind") or "") for w in _ACCEL)), None)
+    bits = ([f"a pilot with {partner['name']}"] if partner else []) + ([f"a grant from {grant['name']}"] if grant else [])
+    rel = rule.get("relation") or "Declared member"
+    note = f"{rel}, and the next support is {_and(bits)}" if bits else f"{rel}; the records name no next support yet"
+    acts = []
+    if partner and partner.get("source_url"):
+        acts.append({"text": f"Line up a pilot with {partner['name']}", "url": partner["source_url"],
+                     "source": lbl.origin_label(partner.get("origin")) if partner.get("origin") else "ecosystem dataset"})
+    if grant and grant.get("source_url"):
+        when = f" before {grant['deadline']}" if grant.get("deadline") else f" (deadline: {grant.get('deadline_text') or 'not stated'})"
+        acts.append({"text": f"Point them to {grant['name']}{when}", "url": grant["source_url"],
+                     "source": lbl.origin_label(grant.get("origin")) if grant.get("origin") else "ecosystem dataset"})
+    return note, acts
+
+
+# D68: the six public-record checks the company page and the home list both count, from this one function.
+CHECK_TYPES = (("a trade register record", ("register_entry",)), ("public funding", ("bf_funding", "eu_grant", "public_funding")),
+               ("EU project participation", ("eu_project",)),
+               ("a public contract or named customer", ("public_contract", "first_sales", "pilot_named", "site_customer")))
+
+
+def record_checks(types, category: str | None, investors, impact_label: str = "Ocean impact") -> list[tuple[str, bool]]:
+    """[(label, covered)] for the six checks: four signal-type checks, a category match for ocean impact (the frameworks rule the page's
+    question 02 prints) and an investor match on the who-comes-next list. `types` is every signal type the company holds."""
+    t = set(types or [])
+    out = [(label, bool(t & set(kinds))) for label, kinds in CHECK_TYPES]
+    out.append((f"a category match for {impact_label.lower()}", bool(category)))
+    out.append(("an investor match", bool(investors)))
+    return out
 
 
 _LEVEL_TAG = re.compile(r"\s*\(level \d+\)")
@@ -372,6 +479,9 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
     bands["technology"] = tech_band
     nxt = matching.who_comes_next(company_key, thesis, 5, conn=conn, today=t)
     step = matching.next_step(company_key, thesis, conn=conn, today=t)
+    own_secs, sec_labels = _sector_words(conn, thesis, company_key)
+    mem_rule = member_rule(cfg, fit["support"])
+    nxt = filter_next(nxt, own=(mem_rule or {}).get("own") or (), company_sectors=own_secs, sector_labels=sec_labels)
 
     blocked = False
     if ctx["status"] in matching.INACTIVE:
@@ -393,7 +503,11 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
            "because": because, "because_labels": [{"label": labels.get(d, d), "band": shown[d]} for d in TABLE_DIMS],
            "table_source": cfg["source"], "needs": [labels.get(d, d) for d in needed],
            "dimensions": dimensions_line(ctx["fw"]), "fallback_blocked": blocked}
-    if row and row.get("kind") == "fallback" and not row.get("implied_impact"):
+    member_acts = None
+    if row and row.get("kind") == "member":
+        rec["note"], member_acts = member_support(row, nxt)
+        rec["relation"] = row.get("relation")
+    elif row and row.get("kind") == "fallback" and not row.get("implied_impact"):
         rec["note"] = (f"Ocean impact {str(row['measured_impact']).lower()} on record; thesis fit is High, so the decision table's "
                        f"High-fit rule applies.")
     elif row and row.get("kind") == "fallback":
@@ -436,14 +550,22 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
         elif bands[d] == "Low":
             src = {"business": lv["business"], "investment": lv["investment"]}.get(d) or (imp if d == "impact" else None)
             risks.append({"text": f"{labels.get(d, d)} is Low on the stored evidence", "url": (src or {}).get("url") or c.get("source_url")})
+    # D67: the market gap reads the record the page's business readiness shows: a customer the company names on its own site is market
+    # evidence, so the gap then says only that no public buyer is on record yet, beside that record's link.
+    biz_ev = [e for e in ctx["fw"]["brl"].get("evidence") or [] if e.get("signal_type") and e.get("source_url")]
     for dim in ctx["fw"]["dimensions"]:
         if dim["name"] in ("Market", "Financials") and not dim["evidence"]:
+            if dim["name"] == "Market" and biz_ev:
+                kind = lbl.signal_label(biz_ev[0]["signal_type"]).lower()
+                risks.append({"text": f"No public buyer on record yet; market evidence on file: {kind}", "url": biz_ev[0]["source_url"]})
+                continue
             risks.append({"text": f"No public {dim['name'].lower()} evidence ({dim['note']})", "url": None})
     if tech_band == UNKNOWN:
         risks.append({"text": f"No public evidence for {labels.get('technology', 'technology').lower()}", "url": None})
 
+    actions = member_acts if member_acts is not None else _actions(decision, nxt, step, unknown, labels, c, ctx["sigs"])
     out = {"company_key": company_key, "name": c["name"], "recommendation": rec, "why": why, "risks": risks,
-           "actions": _actions(decision, nxt, step, unknown, labels, c, ctx["sigs"]),
+           "actions": actions, "meet": meet_list(nxt, actions),
            "levels": {**{d: {"band": bands[d]} for d in TABLE_DIMS}, "technology": {"band": tech_band}}, "as_of": t.isoformat(),
            "plain_why": plain_bullets(rec, why, oi, labels)}
     if oi is not None:  # a thesis that defines no impact areas (the health swap) has no assessment and no such key
@@ -459,6 +581,8 @@ def rule_label(rec: dict) -> str:
         return matched.replace("row ", "decision table row ", 1)
     if kind == "rule":
         return matched.replace("rule ", "decision table condition rule ", 1)
+    if kind == "member":
+        return "the member rule: " + matched
     if kind == "fallback":
         return matched.replace("fallback ", "rule ", 1).replace(", impact implied by sector", ": impact implied by the sector")
     return "no row or rule of the decision table matched"

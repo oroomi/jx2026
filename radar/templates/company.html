@@ -11,13 +11,7 @@
 {% set impact_lbl = (thesis.memo.labels.impact if thesis.memo and thesis.memo.labels and thesis.memo.labels.impact else "Ocean impact") %}
 {% set sig_asc = signals | sort(attribute="date") %}
 {% set types = signals | map(attribute="signal_type") | list %}
-{% set checks = [
-  ("a trade register record", "register_entry" in types),
-  ("public funding", "bf_funding" in types or "eu_grant" in types or "public_funding" in types),
-  ("EU project participation", "eu_project" in types),
-  ("a public contract or named customer", "public_contract" in types or "first_sales" in types or "pilot_named" in types),
-  ("a category match for " ~ (impact_lbl | lower), fw.category.category is not none and fw.category.category != ""),
-  ("an investor match", (nxt.investors or []) | length > 0)] %}
+{% set checks = record_checks %}{# radar.memo.record_checks: the one count the home list also uses (D68) #}
 {% set covered = checks | selectattr(1) | list %}
 {% set watch = checks | rejectattr(1) | map(attribute=0) | list %}
 <article class="co-c">
@@ -91,7 +85,7 @@
   </section>
   {% endif %}
   {% if sig_asc %}
-  <p class="cc-line">Public record: first <a href="#sig-{{ sig_asc[0].id }}">{{ sig_asc[0].date_label or sig_asc[0].date }}</a> · {{ signals | length }} dated signal{{ "s" if signals | length != 1 }} of every kind{% if c.group_tag in ("cohort", "portfolio") %} ({{ radar_n }} of the seven kinds <a href="/radar">the cohort radar</a> ranks){% endif %} · latest <a href="#sig-{{ sig_asc[-1].id }}">{{ sig_asc[-1].date_label or sig_asc[-1].date }}</a></p>
+  <p class="cc-line">Public record: first <a href="#sig-{{ sig_asc[0].id }}">{{ sig_asc[0].date_label or sig_asc[0].date }}</a> · {{ signals | length }} dated signal{{ "s" if signals | length != 1 }} of every kind{% if c.group_tag in ("cohort", "portfolio") %} ({{ radar_n }} of them in the seven kinds <a href="/radar">the cohort radar</a> ranks){% endif %} · latest <a href="#sig-{{ sig_asc[-1].id }}">{{ sig_asc[-1].date_label or sig_asc[-1].date }}</a></p>
   {% endif %}
   <p class="cc-line">Public record covers {{ covered | length }} of {{ checks | length }} checks.</p>
 

@@ -139,7 +139,7 @@ each value beside the `source_url` of the row it came from, and counts are compu
   company page), so a judge can check a row by hand.
 - The stitcher keeps an LLM's proposal only after two code checks against the page it cites, and logs every drop with its reason.
 - Partner organisations and capital sources are never shown as discovered startups (71 names on 17 Oct, listed on `/method`).
-- Tests: `python3 -m pytest -q` (880 passed, 1 failed, 5 skipped on 17 Oct at 15:19 to 15:26 UTC, main 1b6c857, one latency test left out, before the j3 merges and not re-run in full since; the one failure is an intermittent timing test of the audio player) and CI on every push (`.github/workflows/ci.yml`). The deployed site:
+- Tests: `python3 -m pytest -q` (957 passed, 0 failed, 6 skipped on 17 Oct from 21:25 to 21:32 UTC, branch fix/copy_ci at d2a312f, one latency test left out) and CI on every push (`.github/workflows/ci.yml` runs `python -m pytest` with the same deselect; `pytest.ini` puts the repository root on the path, without which a fresh clone failed at collection with 63 errors, `No module named 'radar'`). The deployed site:
   `/root/hack/bin/smoke.py https://jx.hankintaviikko.fi` loads 15 pages with no error (PASS 15/15 on 17 Oct at 15:19 UTC and at 17:49 UTC on build ac49cd8).
 - Anything a model writes is checked by code for names and links before it is shown, and the model can be switched off without a restart (D61).
 - Every number in the judged documents has a row in [docs/NUMBERS.md](docs/NUMBERS.md) with the page or query it was read from.

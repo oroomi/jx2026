@@ -14,7 +14,7 @@ router = APIRouter()
 W, NAME_W, X0, X1 = 680, 0, 200, 668   # viewBox width (drawn 1:1 on a desktop), name column start, track start and end
 TOP, LANE_H, HEAD_H = 34, 34, 34        # axis band height, one compact lane, one group header
 GROUPS = (("earlier", "Found earlier by live public records"), ("declared", "Found earlier only by declared research"),
-          ("later", "Found later"), ("none", "No public signal"))
+          ("later", "Found later"), ("none", "No counted signal"))
 
 
 def _months_back(d: date, n: int) -> date:
@@ -42,6 +42,8 @@ def chart(res: dict) -> dict:
         y += HEAD_H
         for r in rows:
             lane = {"key": r["company_key"], "name": r["name"], "y": y, "ty": y + 17, "blank": r["first_signal"] is None, "group": gkey}
+            n_file = len(r["others"])   # stored records that were not counted; a blank lane says how many are on file (D74)
+            lane["blank_label"] = "no counted signal, " + (f"{n_file} record{'s' if n_file != 1 else ''} on file" if n_file else "no record on file")
             f = r["first_signal"]
             if f:
                 d = date.fromisoformat(f["date"])

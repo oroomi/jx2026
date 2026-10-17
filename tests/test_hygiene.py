@@ -339,7 +339,7 @@ def test_what_is_new_is_read_by_the_home_feed_reader(site, monkeypatch):
 def test_method_names_both_counts_of_the_home_list(site):
     client, d = site
     t = _visible(client.get("/method").text)
-    m = re.search(r"Now: (\d+) new companies in the main list .*? The list on the home page is these (\d+) plus the (\d+) declared cohort and portfolio companies, (\d+) in all", t)
+    m = re.search(r"Now: (\d+) companies in the main list .*? The list on the home page is these (\d+) plus the (\d+) declared cohort and portfolio companies, (\d+) in all", t)
     assert m, t[t.find("Now:"):t.find("Now:") + 400]
     main, again, declared, total = map(int, m.groups())
     assert main == again and main + declared == total

@@ -226,8 +226,9 @@ def test_the_tab_row_is_gone_from_the_header_and_lives_in_the_menu_and_the_foote
     assert 'aria-label="Main"' not in head and "<nav" not in head
     assert '<details class="navmenu"' in head and "<summary" in head and ">Menu<" in head
     for href in OLD_NAV:
-        assert f'href="{href}"' in head, href     # the menu sheet
-        assert f'href="{href}"' in foot, href     # plain links in the footer
+        want = "/?group=new" if href == "/" else href      # "New this quarter" opens the tab of that name (D73), not the unsorted home page
+        assert f'href="{want}"' in head, href     # the menu sheet
+        assert f'href="{want}"' in foot, href     # plain links in the footer
     for label in ("New this quarter", "The Nordic Blue 19", "Earliness test", "Rules", "Data"):
         assert label in head and label in foot, label
     assert "c-tabbar" in t and 'aria-label="Sections"' in t   # the phone bottom tab bar stays

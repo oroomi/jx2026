@@ -3,10 +3,11 @@ Also owns two cross-page hooks: the thesis switcher helpers for base.html and th
 from __future__ import annotations
 
 from pathlib import Path
+from urllib.parse import quote
 
 from fastapi import APIRouter, Request
 
-from radar import emit, fit, frameworks, labels, intake as intake_mod, matching, store, thesis as thesis_mod
+from radar import emit, fit, frameworks, home_list, labels, intake as intake_mod, matching, store, thesis as thesis_mod
 from radar.routes.home import ROOT, _has_route, templates
 
 router = APIRouter()
@@ -34,6 +35,32 @@ def _country_info(th: dict) -> dict:
 
 templates.env.globals["country_info"] = _country_info
 templates.env.globals["current_thesis"] = _current_thesis
+
+
+def _held_by(th: dict, company_key: str) -> bool:
+    """True when this sector's store holds the company (read only; False when the sector has no store)."""
+    conn = store.open_db(thesis=th)
+    if conn is None:
+        return False
+    try:
+        return store.company(conn, company_key) is not None
+    finally:
+        conn.close()
+
+
+def sector_reading(th: dict, company_key: str) -> dict:
+    """Which sector thesis a company page is read against (D71). The verdict is a function of the thesis, and the sector cookie picks the thesis,
+    so the page says which one it is. `switch_href` reads the same company against the default thesis; it is None when the page is already the
+    default or the default sector's store does not hold the company (the link would land on the same reading)."""
+    from radar.home_filter import short_title
+    default = thesis_mod.load()
+    is_default = th.get("id") == default.get("id")
+    href = f"/c/{quote(company_key, safe='/')}?thesis={default['id']}" if not is_default and _held_by(default, company_key) else None
+    return {"id": th.get("id"), "title": short_title(th.get("title") or ""), "is_default": is_default,
+            "default_id": default.get("id"), "default_title": short_title(default.get("title") or ""), "switch_href": href}
+
+
+templates.env.globals["sector_reading"] = sector_reading
 
 # store.context() records a valid ?thesis= choice on request.state; the cookie is attached when the page renders.
 _orig_template_response = templates.TemplateResponse
@@ -112,6 +139,7 @@ def method(request: Request):
         # The home page lists the main matches AND the declared cohort and portfolio companies; /method names both parts (D41).
         declared_n = conn.execute("SELECT COUNT(*) FROM companies WHERE group_tag IN ('cohort','portfolio')").fetchone()[0] if conn is not None else 0
         eco = matching.dataset_summary(conn) if conn is not None else None
+        wc = home_list.window_counts(conn, th) if conn is not None else None   # the home page's counts, from the same function (D72)
     finally:
         if conn is not None:
             conn.close()
@@ -121,7 +149,7 @@ def method(request: Request):
     return templates.TemplateResponse(request, "method.html", {
         "thesis": th, "confidence_rules": store.CONFIDENCE_RULES, "kinds": kinds, "feed_rule": store.rule_text(th), "corroboration_rule": store.CORROBORATION_RULE, "match_rule": fit.MATCH_RULE, "own_text_sources": ", ".join(store.OWN_TEXT_SOURCES),
         "window_days": geo["feed_window_days"], "age_cut": geo.get("stage_max_company_age_years"),
-        "counts": counts, "declared_n": declared_n, "eco": eco, "partners": store.partner_orgs(), "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
+        "counts": counts, "wc": wc, "declared_n": declared_n, "eco": eco, "partners": store.partner_orgs(), "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
         "declared": declared, "sources": src, "no_db": conn is None, "connectors": CONNECTOR_SLOTS, "fw": frameworks.assess({}, []),
         "intake_rule": intake_mod.rule_text(th), "intake_note": intake_mod.tuning_note(th),
         "active": "method", "has_route": _has_route(request)})

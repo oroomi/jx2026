@@ -75,7 +75,7 @@ def test_counts_and_footer_equal_rendered_rows(tmp_path, monkeypatch):
     assert (c["main"], c["weak"]) == (main_n, weak_n)
     assert set(c["by_reason"]) == set(store.REASON_IDS)
     m = TestClient(app.app).get("/method").text
-    assert "Feed precision" in m and "a hint, not proof" in m and f"{c['main']} new companies in the main list" in m
+    assert "Feed precision" in m and "a hint, not proof" in m and f"{c['main']} companies in the main list" in m and "new companies in the main list" not in m      # D72: the sentence no longer says "new"
 
 
 def test_health_swap_main_feed_non_empty(tmp_path, monkeypatch):

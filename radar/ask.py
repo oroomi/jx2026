@@ -7,7 +7,7 @@ One question in, one answer out: {intent, say, url, action, ...}. The intent is 
   3. filter phrases (verdict words, countries, sector words, "TRL above 4"): the querystring of the home filter rail, and how many companies
      of the cached home list match.
   3b. "top startups", "best investment", "who should <org> invest in" (thesis `ask.top_phrases`, `ask.top_patterns`): the Top matching ranking of the
-     default organisation, or of the investor or accelerator named; the same list the home tab and the Match page print (D70).
+     default organisation, or of the investor or accelerator named; the same list the home tab and the Match page print (D63).
   4. "what is new / latest / recent": the feed answer, read by the same function as the home page's own (radar.routes.aava.feed_reader).
   5. an organisation name alone: the match view.
   6. a company name that only partly matches, once: that company. Anything else: the search page when it lists something for those letters, else

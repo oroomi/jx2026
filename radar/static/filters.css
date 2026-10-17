@@ -62,13 +62,23 @@
 .hc-whyc { display: inline-block; max-width: 100%; padding: 2px 8px; border: 1px solid var(--hairline); border-radius: 999px; font-size: 13px; line-height: 1.35; color: var(--muted); overflow-wrap: anywhere; }
 :root[data-skin="editorial"] .hc-whyc { border-radius: 0; }
 :root[data-skin="terminal"] .hc-whyc { border-radius: 2px; font-family: var(--mono); }
+/* the first reason a row prints, in words (D70): visible text, so a phone shows it as well as a desktop; three lines at most (110 characters fill three lines on a phone), the sentence is already cut at a clause */
+.hc-reason { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin-top: 6px; font-size: 14px; line-height: 1.4; color: var(--text); opacity: .88; }
+/* the list's sort order, one line above it (D70); the whole rule opens under it */
+.hc-sort { margin: 12px 0 2px; font-size: 14px; line-height: 1.45; color: var(--muted); }
+details.hc-sort > summary { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; list-style: none; }
+details.hc-sort > summary::-webkit-details-marker { display: none; }
+details.hc-sort > summary::after { content: "How"; flex: none; padding: 0 8px; border: 1px solid var(--hairline); font-size: 13px; line-height: 22px; color: var(--accent); }
+details.hc-sort[open] > summary::after { content: "Less"; }
+details.hc-sort > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+details.hc-sort > p { margin: 0 0 8px; max-width: 70ch; }
 
 /* the sub-sectors of the sector in view: a multi-select inside the Sector group, set in under the single choice (D42) */
 .hr-sub { margin: 2px 0 10px 9px; padding-left: 12px; border-left: 2px solid var(--hairline); }
 .hr-sub-h { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
 /* wide screens: every country link is visible (the row wraps); on a phone it stays one row that scrolls sideways */
 @media (min-width: 600px) { .hc-countries { flex-wrap: wrap; overflow-x: visible; } }
-/* Top matching tab for one organisation: the matchmaker's ranking (D70) */
+/* Top matching tab for one organisation: the matchmaker's ranking (D63) */
 .hc-pipeline, .hc-pipeline-f { margin: 14px 0 0; padding-left: 12px; border-left: 2px solid var(--accent); color: var(--muted); font-size: 14px; max-width: 70ch; }
 .hc-pipeline-f { border-left-color: var(--hairline); margin-top: 8px; }
 .hc-rank { font-variant-numeric: tabular-nums; }

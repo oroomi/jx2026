@@ -44,6 +44,8 @@
   <div class="cc-verdict v-{{ vk }}">
     {% if rec %}<p class="cc-big">{{ rec.decision | capitalize }}</p>{% if rec.matched %}<span class="cc-rule" title="The decision-table entry that matched">{{ rec.matched | replace("fallback ", "rule ", 1) | replace(", impact implied by sector", ": impact implied by the sector") | replace("row ", "decision table row ", 1) }}</span>{% endif %}{% endif %}
   </div>
+  {% set SR = sector_reading(thesis, c.company_key) if sector_reading is defined else none %}
+  {% if SR and SR.title %}<p class="cc-sector" id="cc-sector">Read against the sector thesis <strong>{{ SR.title }}</strong>.{% if SR.switch_href %} The verdict depends on the sector. <a href="{{ SR.switch_href }}">Read it against the default thesis, {{ SR.default_title }}</a>.{% endif %}</p>{% endif %}
   {% if m and m.plain_why %}
   <ul class="cc-why-list" id="why-this-verdict" aria-label="Why this verdict">
     {% for b in m.plain_why %}<li>{% if b.url %}<a href="{{ b.url }}" target="_blank" rel="noopener">{{ b.text }}</a>{% else %}<span>{{ b.text }}</span>{% endif %}</li>{% endfor %}

@@ -57,8 +57,8 @@ def rule_lines(th: dict) -> list[str]:
         "Year-only dates (Business Finland funding) count as 1 January of that year and are labelled year only.",
         f"First counted signal = the earliest counted signal date. Months = days between that date and the reference date, divided by {DAYS_PER_MONTH}, rounded down, shown as N months before or N months after.",
         "Found earlier by live public records = a live counted signal strictly before the reference date. Found earlier only by declared research = no such live signal, but a counted declared research event strictly before it. "
-        "Found later = counted signals exist but none is before the reference date (a year-only date in the reference year is later or same). No public signal = no counted signal at all, shown blank. "
-        "The four groups always add up to the cohort size.",
+        "Found later = counted signals exist but none is before the reference date (a year-only date in the reference year is later or same). No counted signal = none of the company's stored records passes the rules above, shown blank; "
+        "the company can still have records on file, and each is listed with the reason it was not counted. The four groups always add up to the cohort size.",
         "Undated profile evidence (a BlueInvest profile with a TRL and no listing date) is shown as a note and never moves a company between groups.",
         "AI stitcher events (proposed by an LLM, checked by code) never count in the four groups. They are counted on a separate line, only when the event "
         "passed both code checks, is of a type the radar emits, and the Internet Archive captured its page before the company's reference date (public since, not the event date).",
@@ -140,7 +140,7 @@ def headline(res: dict) -> str:
     """The verdict sentence, built only from the computed counts."""
     return (f"Of {res['total']} cohort companies, the radar, applying its own feed rule, would have shown {res['earlier']} before {res['reference_label']} "
             f"using live public records. Declared research alone finds {res['declared']} earlier; {res['later']} are found only after; "
-            f"{res['none']} have no public signal.")
+            f"{res['none']} have no counted signal.")
 
 
 def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES_CSV) -> dict:
@@ -273,7 +273,7 @@ def _main(argv=None) -> int:
     print(f"reference {res['reference_date']} ({res['reference_source']})")
     for r in res["rows"]:
         f = r["first_signal"]
-        print(f"{r['name']:34} {r['group']:8} {r['timing'] or 'no public signal':24} "
+        print(f"{r['name']:34} {r['group']:8} {r['timing'] or 'no counted signal':24} "
               + (f"{f['date']} {f['type']} ({f['confidence']}) {f['source_url']}" if f else ""))
     print(f"earlier {res['earlier']}, declared {res['declared']}, later {res['later']}, none {res['none']}, total {res['total']}")
     return 0

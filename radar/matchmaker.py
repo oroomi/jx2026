@@ -534,7 +534,7 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
                     continue
                 cand.append((ev["_w"], ev["met"], ev["_s"], tiers.get(base["group_tag"], 9), base["name"].casefold(), key))
             cand.sort(key=lambda c: (-c[0], -c[1], -c[2], c[3], c[4]))
-            if pc:        # D70: an investor is shown the early pipeline (every verdict path the thesis lists), those that are ready first
+            if pc:        # D63: an investor is shown the early pipeline (every verdict path the thesis lists), those that are ready first
                 kinds_ok = lambda dec: dec in set(pc["verdicts"]) or org["kind"] in set(cfg.get("always_kinds") or [])
             else:
                 kinds_ok = lambda dec: org["kind"] in set(cfg["path_kinds"].get(dec) or []) | set(cfg.get("always_kinds") or [])

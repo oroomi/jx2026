@@ -1,4 +1,4 @@
-"""Judge round 3, matching (D70): an investor's early pipeline, one ranking behind the Match page and the home Top matching tab,
+"""Judge round 3, matching (D63): an investor's early pipeline, one ranking behind the Match page and the home Top matching tab,
 and an Ask bar that answers "top startups". Data: the committed snapshot store and the declared lists."""
 import html as htmllib
 import re

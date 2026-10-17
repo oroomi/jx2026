@@ -678,21 +678,34 @@ def company_script(c: dict, signals: list[dict], intent: str = "brief", **kw) ->
 
 
 # ---- the feed ----------------------------------------------------------------------------------------------------------------------
-def feed_script(rows: list[dict], limit: int = 5, today=None) -> dict:
+def code_only_skip(thesis: dict | None):
+    """The predicate feed_script skips by (D22 applied to the reader): a row whose thesis fit rests on a municipal utility code and on
+    nothing more. The code families are read from `memo.bands.fit.medium_codes` of the sector file; a sector that lists none skips nothing."""
+    spec = ((thesis or {}).get("memo") or {}).get("bands", {}).get("fit") or {}
+    if not spec.get("medium_codes"):
+        return None
+    return lambda r: memo_mod.code_only_fit(r.get("reasons"), r.get("industry_code"), spec)
+
+
+def feed_script(rows: list[dict], limit: int = 5, today=None, skip=None) -> dict:
     """'What is new this week': four or five companies of the feed, newest first, each with its line of business in words and the date of its
-    record. Only records from the last FEED_DAYS days are called this week; when there are none the answer says so and names the newest."""
+    record. Only records from the last FEED_DAYS days are called this week; when there are none the answer says so and names the newest.
+    `skip(row)` is true for a row the reader does not name (see code_only_skip); the feed list and its counts are not touched. When every
+    row would be skipped the reader names the rows anyway rather than say there is nothing."""
     t = store._today(today)
     if not rows:
         return {"kind": "feed", "title": "Ask Aava what is new", "intent": "brief",
                 "segments": [seg("No public record in this window.", "feed-rows", "none", None, q=1)]}
+    named = [r for r in rows if not (skip and skip(r))] or list(rows)
+    named = sorted(sorted(named, key=lambda r: r.get("name") or ""), key=lambda r: r.get("date") or "", reverse=True)
     cut = (t - timedelta(days=FEED_DAYS)).isoformat()
-    fresh = [r for r in rows if (r.get("date") or "") >= cut]
-    newest = say_date(rows[0].get("date")) or "an earlier date"
+    fresh = [r for r in named if (r.get("date") or "") >= cut]
+    newest = say_date(named[0].get("date")) or "an earlier date"
     if fresh:
         opener = "Here is what is new this week."
     else:
         opener = f"Here are the newest records on the radar, the latest from {newest}."
-    chosen = (fresh + [r for r in rows if r not in fresh])[:limit]
+    chosen = (fresh + [r for r in named if r not in fresh])[:limit]
     out, used = [], 0
     for r in chosen:
         desc = _lc((r.get("industry_desc") or "").strip())

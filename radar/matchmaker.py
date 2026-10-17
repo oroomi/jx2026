@@ -382,7 +382,8 @@ def _org_row(org: dict, cfg: dict) -> dict:
     kind = cfg["kinds"][org["kind"]]
     dl = org["deadline"]
     return {"id": org["id"], "name": org["name"], "kind": org["kind"], "kind_label": kind["label"], "role": kind.get("role"),
-            "focus": org["focus"] or ("no declared text: its demand is revealed from its portfolio only" if org["lookalikes"] else "no declared text"),
+            "focus": org["focus"] or (kind["label"] if org.get("focus_dropped") else
+                                      "no declared text: its demand is revealed from its portfolio only" if org["lookalikes"] else "no declared text"),
             "demand": _demand(org), "url": org["url"], "deadline": dl.get("date"), "deadline_text": dl.get("text") or None,
             "open": dl.get("open", True), "members_in_records": len(org["members"]), "declared_companies": org["declared_total"],
             "geography": org.get("geo_text"), "sources": org["sources"]}

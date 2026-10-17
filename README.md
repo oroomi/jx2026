@@ -166,7 +166,7 @@ Licences, snapshot dates and the full list are in [DISCLOSURE.md](DISCLOSURE.md)
 ## Honesty lines
 
 - **No scraping behind logins.** LinkedIn, Dealroom, Crunchbase, PitchBook and Tracxn appear only as connector slots marked
-  "not connected". Nothing was scraped or bought from them. A few facts in the declared research (`data/declared/ecosystem/blue_economy_fi.sqlite`, table `source`) cite 19 public pages of Tracxn (8), PitchBook (6), Dealroom (3) and Crunchbase (2) as their source.
+  "not connected". Nothing was scraped or bought from them. A few facts in the declared research (`data/declared/ecosystem/blue_economy_fi.sqlite`, table `source`) cite 19 public pages of Tracxn (8), PitchBook (6), Dealroom (3) and Crunchbase (2) as their source. The same table also lists LinkedIn page addresses; the radar's code blocks that host and never opens it.
 - **Companies only, by rule.** Legal names shaped like a private person's name are hidden, the stitcher builds its own queries from
   register facts only and redacts person-shaped names in the quotes it stores, but never a company's own name, former names or legal-form
   words (D23), and the ecosystem dataset's people fields are not imported.

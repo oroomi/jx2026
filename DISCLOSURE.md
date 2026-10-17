@@ -45,7 +45,7 @@ Declared datasets are copied unchanged into `data/declared/` with their `source_
 | OpenAlex works by affiliation string (radar/adapters/openalex.py, cohort, portfolio and ecosystem companies only) | live | https://api.openalex.org/works | CC0 | fetch date stored per row |
 | Internet Archive Wayback CDX captures of company websites (radar/adapters/webarchive.py) | live | https://web.archive.org/cdx/search/cdx | public archive index, links to captures only | fetch date stored per row |
 
-Not connected, shown only as "connector slot": LinkedIn, Dealroom, Crunchbase, PitchBook, Tracxn. Nothing was scraped or bought from them. A few facts in the declared research (`data/declared/ecosystem/blue_economy_fi.sqlite`, table `source`) cite 19 public pages of Tracxn (8), PitchBook (6), Dealroom (3) and Crunchbase (2) as their source.
+Not connected, shown only as "connector slot": LinkedIn, Dealroom, Crunchbase, PitchBook, Tracxn. Nothing was scraped or bought from them. A few facts in the declared research (`data/declared/ecosystem/blue_economy_fi.sqlite`, table `source`) cite 19 public pages of Tracxn (8), PitchBook (6), Dealroom (3) and Crunchbase (2) as their source. The same table also lists LinkedIn page addresses; the radar's code blocks that host and never opens it.
 
 ## Frameworks cited
 Named by the official Redstone x A'Pelago brief; levels on the company page are our own evidence-class rules over public records, printed on /method.

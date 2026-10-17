@@ -35,6 +35,7 @@
 <section class="empty" aria-label="Empty state"><p class="answer">{{ reason }}</p></section>
 {% else %}
 <p class="answer" id="rd-head">{{ cohort | length }} cohort companies, {{ cohort_with }} with at least one dated public event of the seven kinds this page ranks (register entry, Business Finland funding year, EU project start, public contract, BlueInvest listing, patent, job ad; a name-only match is never counted). The earliness test counts more kinds and declared research, so there more of them show a signal: <a href="/backtest">see the test</a>.</p>
+<p class="rule" id="rd-vs-test">Records are counted here before the thesis rule: every dated record of those seven kinds counts, whatever the company does. The earliness test applies the thesis rule to each record first, so a company can have records here and still read "no counted signal" there; its row in the test lists each record with the reason it was not counted.</p>
 <p class="rule rd-rule" id="rd-rule">{{ rule }}</p>
 <p><a class="btnlink" href="/backtest">See the earliness test</a>. Year-only events are drawn as hollow ticks; filled ticks have a stated day.</p>
 {% if nonfi %}<p class="muted">Countries other than FI ({{ nonfi | join(", ") }}): the register adapters cover Finland only, so those rows are often empty by construction.</p>{% endif %}

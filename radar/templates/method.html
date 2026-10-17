@@ -3,7 +3,7 @@
 {% block head %}<link rel="stylesheet" href="/static/feed.css?v={{ asset_v }}">{% endblock %}
 {% block content %}
 <h1>Rules</h1>
-<p class="plain">How the list is built, in full. For the 60-second version, <a href="/how">read this first</a>. Every rule and dated decision behind the numbers: <a href="https://github.com/oroomi/jx2026/blob/main/PROJECT_RULES.md" rel="noopener">the assumptions register</a>.</p>
+<p class="plain">How the list is built, in full. Every rule and dated decision behind the numbers: <a href="https://github.com/oroomi/jx2026/blob/main/PROJECT_RULES.md" rel="noopener">the assumptions register</a>.</p>
 <h2>Sector</h2>
 <p class="answer">{{ thesis.title }}</p>
 <p class="rule">Everything that depends on the sector, such as which industry codes and words count, lives in one sector file. You can switch sector in the header.</p>
@@ -23,7 +23,8 @@
 <dl class="reasons">
 {% for rid, meaning in reasons %}<dt><strong>{{ rid }}</strong>{% if counts %} ({{ counts.by_reason[rid] }}){% endif %}</dt><dd>{{ meaning }}</dd>
 {% endfor %}</dl>
-{% if counts %}<p>Now: {{ counts.main }} new companies in the main list (found by this rule, outside the declared cohort and portfolio), {{ counts.weak }} weak matches, {{ counts.year_only_not_entry }} year-only Business Finland records not used as entry dates. A company can have more than one reason. The list on the home page is these {{ counts.main }} plus the {{ declared_n }} declared cohort and portfolio companies, {{ counts.main + declared_n }} in all.</p>
+{% if counts %}<p>Now: {{ counts.main }} companies in the main list (found by this rule, outside the declared cohort and portfolio), {{ counts.weak }} weak matches, {{ counts.year_only_not_entry }} year-only Business Finland records not used as entry dates. A company can have more than one reason. The list on the home page is these {{ counts.main }} plus the {{ declared_n }} declared cohort and portfolio companies, {{ counts.main + declared_n }} in all.</p>
+{% if wc %}<p id="first-seen">Two measures of "new" are printed, and they differ on purpose. The main list counts a company when a record of a kind the feed watches is dated inside the last {{ wc.window_days }} days. The home page's "first seen" line counts a company when its first dated public record of any kind falls inside the window, so a company with an older record, such as a register entry from before the window, is not first seen. Both are counted from the same list of companies: {{ wc.first_seen }} of the {{ wc.on_list }} companies on the home list were first seen in the last {{ wc.window_days }} days ({{ wc.first_seen_main }} from the main list, {{ wc.first_seen_declared }} declared), and the other {{ wc.main - wc.first_seen_main }} companies of the main list have an older record.</p>{% endif %}
 {% else %}<p><span class="hatch">no data</span> No database for this thesis yet.</p>{% endif %}
 <p id="corroboration">Corroboration rule: {{ corroboration_rule }}</p>
 <p id="left-out">Listed companies (legal form Oyj or Abp) are left out of the feed: a company on the stock exchange is not an early signal.{% if thesis.feed_exclude_code_prefixes %} The sector file also leaves out companies whose industry code starts with {{ thesis.feed_exclude_code_prefixes | join(", ") }}.{% endif %}{% if counts %} Now left out: {{ counts.excluded_listed }} listed, {{ counts.excluded_codes }} by industry code.{% endif %}</p>

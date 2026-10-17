@@ -254,3 +254,8 @@ body:has(.co-layout) .top .wrap,body:has(.co-layout) .foot{max-width:1360px}
 .oi-foot { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
 .oi-foot a { display: inline-block; min-height: 44px; line-height: 44px; margin: -12px 0; }
 @media (min-width: 900px) { .co-c { max-width: 720px; } .oi { padding: 22px 24px 14px; } }
+
+/* which sector thesis the verdict is read against (D71): one quiet line under the verdict, with the way back to the default reading */
+.cc-sector { margin: 6px 0 0; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.cc-sector strong { color: var(--text); font-weight: 600; }
+.cc-sector a { display: inline-block; min-height: 24px; color: var(--accent); }

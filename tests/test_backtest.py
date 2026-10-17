@@ -28,7 +28,7 @@ def test_counts_equal_module_totals(client):
     html = c.get("/backtest").text
     assert t["headline"] in html
     for label, n in (("Found earlier by live public records", t["earlier"]), ("Found earlier only by declared research", t["declared"]),
-                     ("Found later", t["later"]), ("No public signal", t["none"])):
+                     ("Found later", t["later"]), ("No counted signal", t["none"])):
         assert f"{label}: <strong>{n}</strong>" in html
     assert earliness.rule_lines(thesis.load(thesis.resolve(None)))[0].split(":")[0] in html
 
@@ -46,7 +46,7 @@ def test_blank_lane_has_words_and_no_marker(client):
     lanes = re.findall(r'<g class="bt-lane blank".*?</g>', html, flags=re.S)
     assert len(lanes) == t["none"] == 6
     for lane in lanes:
-        assert "no public signal" in lane and 'class="mk' not in lane and "<circle" not in lane
+        assert "no counted signal" in lane and 'class="mk' not in lane and "<circle" not in lane
 
 
 def test_year_only_marker_is_hollow_and_labelled(client):

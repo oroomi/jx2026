@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 import threading
 from datetime import date, timedelta
 
@@ -58,6 +59,69 @@ SCALE_MAX = 9            # TRL, BRL, IRL and the ocean impact level all run 1 to
 DEADLINE_DAYS = 90       # "has a programme deadline in 90 days"
 BANDS = ("Low", "Medium", "High")
 NONE = "none"            # facet value for "no public record"
+REASON_MAX = 110         # the longest first reason a row prints, in characters (D70); the full sentence stays on the company page
+
+# The words the sort line prints. They follow `strength()` in build() term by term (declared member, Ocean Impact level, its confidence,
+# business readiness, number of dated records, newest record); tests/test_j3_ui.py checks the real rows against this order.
+SORT_TIES = ("declared cohort and portfolio companies first", "a higher ocean impact level", "higher confidence in that level",
+             "a higher business readiness level", "more dated public records", "the newest record")
+
+
+def shorten(text: str | None, limit: int = REASON_MAX) -> str | None:
+    """One reason as a single short line: the whole sentence when it fits; otherwise without its long brackets (the row already prints the
+    industry and the name); otherwise cut at the last clause that fits ("; " first, then ", "), otherwise at the last word with three dots.
+    A bracket left open is cut away. Never mid-word, never a made-up word."""
+    t = " ".join((text or "").split())
+    if not t:
+        return None
+    if len(t) <= limit:
+        return t
+    t = re.sub(r"\s*\([^)]{12,}\)", "", t)   # a long bracket (the industry text, the legal name) is already printed on the row: drop it before cutting
+    if len(t) <= limit:
+        return t
+    head = t[: limit + 1]
+    for sep in ("; ", ", "):
+        at = head.rfind(sep)
+        if at >= limit * 0.4:
+            out, tail = t[:at].rstrip(" ,;:"), "."
+            break
+    else:
+        at = head.rfind(" ")
+        out, tail = t[: at if at > 0 else limit].rstrip(" ,;:"), "..."
+    while out.count("(") > out.count(")") and "(" in out:
+        out = out[: out.rfind("(")].rstrip(" ,;:")
+    if tail == "..." and len(re.findall(r"(?:^|[\s(])'", out)) > len(re.findall(r"'(?=[\s.,;:)]|$)", out)):
+        tail = "...'"   # a quotation cut in the middle is closed, so it reads as a quotation
+    return out + ("" if out.endswith(".") else tail)
+
+
+def first_reason(m: dict | None) -> str | None:
+    """The first reason the memo gives for the verdict, in the words the company page prints under "Why this verdict" (memo plain_why, else
+    the first why line, else the decision's note), shortened to one line. None when the memo has no reason (the row then prints none)."""
+    m = m or {}
+    for pool in (m.get("plain_why"), m.get("why")):
+        for w in pool or []:
+            text = (w or {}).get("text") if isinstance(w, dict) else w
+            if text and str(text).strip():
+                out = shorten(str(text), REASON_MAX)
+                return out + "." if out and out[-1].isalnum() else out
+    note = (m.get("recommendation") or {}).get("note")
+    out = shorten(note, REASON_MAX) if note else None
+    return (out[0].upper() + out[1:] + ("." if out[-1].isalnum() else "")) if out else None
+
+
+def sort_brief() -> str:
+    """The one visible line above a list that is in verdict order; sort_text() is the whole rule behind it."""
+    return f"Sorted by verdict, strongest first ({VERDICT_ORDER[0].capitalize()} to {VERDICT_ORDER[-1].capitalize()}), then by evidence."
+
+
+def sort_text(group: str = "all") -> str:
+    """The sort order of a group in words, read from the ordering code in build() (D70). 'new' is newest record first; every other group is
+    verdict strength, then the evidence terms in SORT_TIES."""
+    if group == "new":
+        return "Sorted by the date of each company's newest public record, newest first."
+    verdicts = ", ".join(v.capitalize() for v in VERDICT_ORDER)
+    return f"Sorted by verdict, strongest first ({verdicts}). Within one verdict: {', then '.join(SORT_TIES)}."
 
 
 def _band_range(level: int | None, spec: dict | None) -> str:
@@ -177,6 +241,30 @@ def criteria(m: dict, ctx: dict, nxt: dict, thesis: dict, today: date) -> tuple[
     return crit, facets
 
 
+def first_seen(first: str | None, start: str) -> bool:
+    """A company is 'first seen' in the window when its first dated public record, of any kind, falls on or after the window start (D72).
+    The one test behind the home page's "N companies first seen in the last 90 days" and the New this quarter tab."""
+    return bool(first) and first >= start
+
+
+def window_counts(conn, thesis: dict, today: date | None = None) -> dict:
+    """The counts the home page and /method both print, from the same keys the list is built from (D72): `main` = companies found by the feed
+    rule (outside the declared cohort and portfolio), `declared` = cohort and portfolio companies, `on_list` = both, `first_seen` = those of
+    them whose first dated public record of any kind is inside the window. No memo is built, so it is cheap."""
+    today = store._today(today)
+    start, end = _window(thesis, today)
+    main = [r["company_key"] for r in store.feed(conn, thesis, limit=500) if r["strength"] == "strong"]
+    declared = [k for (k,) in conn.execute("SELECT company_key FROM companies WHERE group_tag IN ('cohort','portfolio')")]
+    firsts = dict(conn.execute("SELECT company_key, MIN(date) FROM signals WHERE date IS NOT NULL GROUP BY company_key").fetchall())
+    keys = [k for k in dict.fromkeys(main + declared) if conn.execute("SELECT 1 FROM companies WHERE company_key=?", (k,)).fetchone()]
+    in_main = set(main)
+    new = [k for k in keys if first_seen(firsts.get(k), start)]
+    return {"window_days": int((thesis.get("geography") or {}).get("feed_window_days") or 90), "window_start": start, "window_end": end,
+            "main": len(main), "declared": sum(1 for k in keys if k not in in_main), "on_list": len(keys),
+            "first_seen": len(new), "first_seen_main": sum(1 for k in new if k in in_main),
+            "first_seen_declared": sum(1 for k in new if k not in in_main)}
+
+
 def build(conn, thesis: dict, today: date | None = None) -> dict:
     """Rows and groups for one thesis store. Pure read; no row is invented, empty fields stay None."""
     today = store._today(today)
@@ -218,6 +306,7 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
         })
         # the five judging criteria plus the verdict, and the rail's facets (computed once per cache warm, from the same memo)
         rows[-1]["criteria"], rows[-1]["facets"] = criteria(m, matching.company_context(conn, key), nxt, thesis, today)
+        rows[-1]["reason"] = first_reason(m)   # the one-line first reason a row prints (D70)
         rows[-1]["subsectors"] = sectors.row_subsectors(smap, thesis, key)   # [{slug, label, basis}]; "Not yet classified" when no link
         rows[-1]["facets"]["subsector"] = [x["slug"] for x in rows[-1]["subsectors"]]
     def strength(r):
@@ -239,19 +328,19 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
     groups = [("all", home_config.group_label("all"), rows),
               ("fit", home_config.group_label("fit"), fit),
               ("ready", home_config.group_label("ready"), [r for r in rows if r["investment"] == "High"]),
-              ("new", home_config.group_label("new"), [r for r in by_date if r["first"] and r["first"] >= start])]
+              ("new", home_config.group_label("new"), [r for r in by_date if first_seen(r["first"], start)])]
     countries = {}
     for r in rows:
         if r["country"]:
             countries.setdefault(r["country"], []).append(r)
     country_groups = [(f"cc-{cc}", home_config.country_name(cc), rs) for cc, rs in sorted(countries.items(), key=lambda x: (-len(x[1]), x[0]))]
-    new = [r for r in rows if r["first"] and r["first"] >= start]
+    new = [r for r in rows if first_seen(r["first"], start)]
     return {
         "rows": rows,
         "groups": [g for g in groups if g[2]],
         "countries": country_groups if len(country_groups) > 1 else [],
         "headline": {"new": len(new), "month": sum(1 for r in new if r["first"] >= month)},
-        "window": (start, end), "fetched": ((store.feed_counts(conn, thesis) or {}).get("last_fetched") or "")[:10],
+        "sort": {k: sort_text(k) for k, _, _ in groups}, "sort_brief": sort_brief(), "window": (start, end), "fetched": ((store.feed_counts(conn, thesis) or {}).get("last_fetched") or "")[:10],
     }
 
 

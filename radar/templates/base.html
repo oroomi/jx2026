@@ -35,7 +35,7 @@
 <footer class="wrap foot">
   <span>{{ build_line }}</span>
   <span>Public records only. Companies only.</span>
-  <nav class="foot-links" aria-label="Pages"><a class="foot-link" href="/how">How to read this (60 seconds)</a>{% for href, label, key in site_pages(request, cur) %} <a class="foot-link" href="{{ href }}">{{ label }}</a>{% endfor %}</nav>
+  <nav class="foot-links" aria-label="Pages">{% for href, label, key in site_pages(request, cur) %} <a class="foot-link" href="{{ "/?group=new" if key == "feed" else href }}">{{ label }}</a>{% endfor %}</nav>
 </footer>
 {% from "_tabbar.html" import tabbar %}{{ tabbar("search" if searching else {"feed": "radar", "radar": "lists", "match": "match", "backtest": "backtest", "data": "data"}.get(active, ""), "c-tab") }}
 {% block scripts %}{% endblock %}

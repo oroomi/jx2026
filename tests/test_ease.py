@@ -70,14 +70,14 @@ def test_not_found_pages_are_styled_plain_words(dbpath):
     assert c.get("/healthz").json() == {"ok": True}
 
 
-def test_how_page_has_five_steps_and_footer_link(dbpath):
+def test_how_is_gone_and_old_links_land_on_the_rules(dbpath):
+    """The 60-second guide described a start page that no longer exists (D73): /how sends visitors to the rules page, and no page links to it."""
     import app
     c = TestClient(app.app)
-    t = c.get("/how").text
-    assert t.count("<li>") == 5 and t.count("<img") == 4
-    assert 'href="/how"' in c.get("/").text
-    for img in re.findall(r'src="(/static/how/[^"]+)"', t):
-        assert (ROOT / "radar" / img.lstrip("/")).is_file(), img
+    r = c.get("/how", follow_redirects=False)
+    assert r.status_code == 302 and r.headers["location"] == "/method"
+    assert "Rules" in c.get("/how").text and 'href="/how"' not in c.get("/").text
+    assert not (ROOT / "radar" / "templates" / "how.html").exists() and not (ROOT / "radar" / "static" / "how").exists()
 
 
 def test_company_questions_in_order_with_see_why(dbpath):

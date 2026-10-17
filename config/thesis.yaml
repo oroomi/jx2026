@@ -535,7 +535,7 @@ ask:
     - "Tell me about Viva Jets"
     - "Who should A'Pelago meet?"
     - "Show accelerator candidates in Finland"
-    - "Aquaculture startups with a TRL above 4"
+    - "Aquaculture startups with TRL at least 4"
     - "Show high thesis fit companies in Finland"            # the bar shows the first five that have a non-empty answer in the store (D40)
     - "Show companies on the watchlist"
   lead_ins: [tell me about, what do you know about, what about, show me, find me, find, open, about, give me, list]

@@ -33,13 +33,17 @@
   {% if (R.n_active and cur[2]) or R.sector_chip %}<div class="hc-active">{{ chip_list(R, true, cur[2] | length > 0) }}{% if R.n_active and cur[2] %}<a class="hc-clearall" href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-replace-url="{{ R.clear_href }}">Clear all</a>{% endif %}</div>{% endif %}
   {% include "_filter_rail.html" %}
   {% if cur[2] %}
+  {% set SORT = H.sort or {} %}
+  {% if cur[0] == "fit" and H.picker and H.picker.org and not H.picker.pending %}<p class="hc-sort" id="hc-sort">Sorted by how well each startup matches {{ H.picker.name }}, best match first. The reasons for the match are under each name.</p>
+  {% elif cur[0] == "new" %}<p class="hc-sort" id="hc-sort">{{ SORT.new or "Sorted by the date of each company's newest public record, newest first." }}</p>
+  {% else %}<details class="hc-sort" id="hc-sort"><summary>{{ H.sort_brief or "Sorted by verdict, strongest first, then by evidence." }}</summary><p>{{ SORT.get(cur[0]) or SORT.all }}</p></details>{% endif %}
   <ol class="hc-rows">
   {% for r in cur[2] %}
     {% set w = (r.name | replace(" Oyj", "") | replace(" Oy", "") | replace(" Ab", "") | replace(" AB", "") | trim).split() %}
     {% set vk = (r.verdict or "none") | lower | replace(" ", "-") %}
     <li id="row-{{ r.company_key }}" data-key="{{ r.company_key }}" style="--i: {{ loop.index0 if loop.index0 < 12 else 12 }}"><a class="hc-row" href="/c/{{ r.company_key }}">
       <span class="hc-mark" aria-hidden="true" style="--pct: {{ ((r.covered / r.checks) * 100) | round | int }}%" title="{{ r.covered }} of {{ r.checks }} public-record checks covered">{{ ((w[0][:1] if w else "") ~ (w[1][:1] if w | length > 1 else (w[0][1:2] if w else ""))) | upper }}</span>
-      <span class="hc-who"><span class="hc-name">{{ r.name }}</span>{% set second = [r.sector] | select | list %}{% if second %}<span class="hc-sub">{{ second | join(" · ") }}</span>{% endif %}{% if r.ocean %}<span class="hc-oi{{ '' if r.ocean.area else ' hc-oi-none' }}" title="Ocean impact area; the dot shows how many independent source families agree: filled high, half medium, ring low"><i class="oi-dot oi-dot-{{ r.ocean.confidence }}" aria-hidden="true"></i><span class="hc-oi-t">{{ r.ocean.area.split(":")[0] if r.ocean.area else "impact area not on record" }}<span class="sr-only">, confidence {{ r.ocean.confidence }}</span></span></span>{% endif %}{% if r.why %}<span class="hc-why" aria-label="Why it is listed">{% for w in r.why %}<span class="hc-whyc">{{ w }}</span>{% endfor %}</span>{% endif %}</span>
+      <span class="hc-who"><span class="hc-name">{{ r.name }}</span>{% set second = [r.sector] | select | list %}{% if second %}<span class="hc-sub">{{ second | join(" · ") }}</span>{% endif %}{% if r.ocean %}<span class="hc-oi{{ '' if r.ocean.area else ' hc-oi-none' }}" title="Ocean impact area; the dot shows how many independent source families agree: filled high, half medium, ring low"><i class="oi-dot oi-dot-{{ r.ocean.confidence }}" aria-hidden="true"></i><span class="hc-oi-t">{{ r.ocean.area.split(":")[0] if r.ocean.area else "impact area not on record" }}<span class="sr-only">, confidence {{ r.ocean.confidence }}</span></span></span>{% endif %}{% if r.why %}<span class="hc-why" aria-label="Why it is listed">{% for w in r.why %}<span class="hc-whyc">{{ w }}</span>{% endfor %}</span>{% elif r.reason %}<span class="hc-reason"><span class="sr-only">First reason: </span>{{ r.reason }}</span>{% endif %}</span>
       <span class="hc-right">
         {% if r.signals %}<span class="hc-spark">{{ sparkline(r.signals, 72, 26) }}</span>{% endif %}
         {% set L = lifeline_dots(r.signals | map(attribute="date") | list) if lifeline_dots is defined else none %}{% if L %}<span class="hc-dots" role="img" aria-label="{{ L.n }} dated public record{{ "s" if L.n != 1 }} since {{ L.first }}">{% for x in L.dots %}<i class="{{ 'd-last' if x == L.latest else 'd' }}" style="left: {{ x }}%"></i>{% endfor %}</span>{% endif %}
@@ -58,5 +62,5 @@
     {% else %}<p class="hc-empty-h">There is nothing in this group yet</p>{% endif %}
   </div>
   {% endif %}
-  <p class="hc-note">{{ "Newest public record first." if cur[0] == "new" else "Strongest verdict first." }}{% if not (H.groups | selectattr(0, "equalto", "ready") | list) %} Investor-ready appears once a company's investment readiness reads High.{% endif %} Every row opens its sourced company page.</p>
+  <p class="hc-note">{% if not (H.groups | selectattr(0, "equalto", "ready") | list) %} Investor-ready appears once a company's investment readiness reads High.{% endif %} Every row opens its sourced company page.</p>
 </div>

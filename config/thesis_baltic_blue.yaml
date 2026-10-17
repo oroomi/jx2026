@@ -356,4 +356,4 @@ ask:
   examples:
     - "What is new on the radar?"
     - "Show accelerator companies in Estonia"
-    - "Aquaculture startups with a TRL above 4"
+    - "Aquaculture startups with TRL at least 4"

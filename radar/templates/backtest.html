@@ -11,8 +11,9 @@
   <li>Found earlier by live public records: <strong>{{ res.earlier }}</strong></li>
   <li>Found earlier only by declared research: <strong>{{ res.declared }}</strong></li>
   <li>Found later: <strong>{{ res.later }}</strong></li>
-  <li>No public signal: <strong>{{ res.none }}</strong></li>
+  <li>No counted signal: <strong>{{ res.none }}</strong></li>
 </ul>
+<p class="rule" id="bt-nocount">"No counted signal" does not mean there is no record. A company in that group can have records on file that the thesis rule does not count (a register entry in an industry code the thesis does not list, a routine filing); each is listed with its reason under "Show every company" below. The cohort radar counts seven kinds of record before the thesis rule, so it can show events for a company that has no counted signal here: <a href="/radar">see the cohort radar</a>.</p>
 {% if res.stitcher and res.stitcher.runs %}
 <div class="bt-stitch" id="stitcher-early">
   <p>Counted apart, never added to the groups above: <strong>{{ res.stitcher.companies }}</strong> of {{ res.total }} cohort companies have an event found by the AI stitcher and checked by code whose page the Internet Archive captured before the company's reference date ({{ res.stitcher.runs }} of {{ res.total }} have a stitcher run).</p>
@@ -62,7 +63,7 @@
 
 <section aria-labelledby="chart-h">
   <h2 id="chart-h">First public signal per cohort company</h2>
-  <p class="lede">Time runs left to right. Filled circle: first counted signal with a stated day. Hollow circle: year only, counted as 1 January. Hatched lane: no public signal, drawn blank.</p>
+  <p class="lede">Time runs left to right. Filled circle: first counted signal with a stated day. Hollow circle: year only, counted as 1 January. Hatched lane: no counted signal, drawn blank.</p>
   <svg class="bt-chart" viewBox="0 0 {{ chart.w }} {{ chart.h }}" role="img" aria-labelledby="bt-t bt-d">
     <title id="bt-t">First public signal date per cohort company against the reference date {{ chart.ref_label }}</title>
     <desc id="bt-d">{{ res.earlier + res.declared }} of {{ res.total }} companies have a first counted signal before the reference date ({{ res.declared }} of them only from declared research), {{ res.later }} after, {{ res.none }} have none.</desc>
@@ -77,7 +78,7 @@
       <line class="bt-track" x1="{{ chart.x0 }}" x2="{{ chart.x1 }}" y1="{{ l.ty }}" y2="{{ l.ty }}"/>
       {% if l.blank %}
       <rect class="bt-blank" x="{{ chart.x0 }}" y="{{ l.ty - 9 }}" width="{{ chart.x1 - chart.x0 }}" height="18" fill="url(#bt-hatch)"/>
-      <text class="bt-blanktext" x="{{ chart.x0 + 6 }}" y="{{ l.ty + 4 }}">no public signal</text>
+      <text class="bt-blanktext" x="{{ chart.x0 + 6 }}" y="{{ l.ty + 4 }}">{{ l.blank_label }}</text>
       {% else %}
       <circle class="mk{% if l.hollow %} hollow{% endif %}" cx="{{ l.mx }}" cy="{{ l.ty }}" r="5.5"/>
       <text class="bt-mlabel" x="{{ l.lx }}" y="{{ l.ty + 4 }}" text-anchor="{{ l.anchor }}">{{ l.label }}</text>
@@ -98,7 +99,7 @@
     <div class="bt-lrow{% if l.blank %} blank{% endif %}">
       <a class="bt-lname" href="/c/{{ l.key }}">{{ l.name }}</a>
       <div class="bt-ltrack"><span class="bt-lref" style="left:{{ pct(chart.ref_x) }}"></span>{% if not l.blank %}<span class="bt-lmk{% if l.hollow %} hollow{% endif %}" style="left:{{ pct(l.mx) }}"></span>{% endif %}</div>
-      {% if l.blank %}<span class="bt-llabel bt-lblank">no public signal</span>{% else %}<span class="bt-llabel">{{ l.label }}</span>{% endif %}
+      {% if l.blank %}<span class="bt-llabel bt-lblank">{{ l.blank_label }}</span>{% else %}<span class="bt-llabel">{{ l.label }}</span>{% endif %}
     </div>
     {% endfor %}
     {% endfor %}
@@ -124,12 +125,12 @@
         <a class="ev-chip" href="{{ f.source_url }}" target="_blank" rel="noopener"><span class="ev-src">{{ f.label }}</span> <time datetime="{{ f.date }}">{{ f.date_label }}</time></a>
         <span class="muted">{{ f.source_label }}, confidence: {{ f.confidence }}</span>
         <div class="muted bt-rulewhy">admitted by: {{ f.rule }}</div>
-        {% else %}<span class="hatch">no public signal</span>{% endif %}
+        {% else %}<span class="hatch">no counted signal</span>{% endif %}
         {% for o in r.others %}<div class="muted bt-other">{% if o.counted %}also counted: {{ o.label }}, {{ o.date_label }}, <a href="{{ o.source_url }}" target="_blank" rel="noopener">{{ o.source_label }}</a>{% else %}{{ o.reason }} (<a href="{{ o.source_url }}" target="_blank" rel="noopener">{{ o.source_label }}</a>){% endif %}</div>{% endfor %}
         {% for n in r.notes %}<div class="muted bt-other">{{ n.text }}{% if n.source_url %} (<a href="{{ n.source_url }}" target="_blank" rel="noopener">profile</a>){% endif %}</div>{% endfor %}
       </td>
       <td class="bt-months">{% if r.timing %}{{ r.timing }}{% else %}<span class="muted">no data</span>{% endif %}</td>
-      <td>{% if r.group == 'earlier' %}found earlier by live public records{% elif r.group == 'declared' %}found earlier only by declared research{% elif r.group == 'later' %}found later{% else %}no public signal{% endif %}</td>
+      <td>{% if r.group == 'earlier' %}found earlier by live public records{% elif r.group == 'declared' %}found earlier only by declared research{% elif r.group == 'later' %}found later{% else %}no counted signal{% endif %}</td>
     </tr>
     {% endfor %}
     </tbody>
@@ -140,7 +141,7 @@
 
 <section aria-labelledby="lim-h">
   <h2 id="lim-h">Limits</h2>
-  <p>The reference date is a programme start month, not a company's entry date; individual pipeline entry dates are not public. A register entry shows that a company exists, not that anyone was interested in it. {{ res.total - res.none }} of {{ res.total }} companies have a counted signal (every kind counted on this page, declared research included; the cohort radar ranks only seven kinds, so it shows fewer), and {{ res.none }} have none in the sources we connected, which says nothing about whether they were findable elsewhere.</p>
+  <p>The reference date is a programme start month, not a company's entry date; individual pipeline entry dates are not public. A register entry shows that a company exists, not that anyone was interested in it. {{ res.total - res.none }} of {{ res.total }} companies have a counted signal (every kind counted on this page, declared research included; the cohort radar ranks only seven kinds, so it shows fewer), and {{ res.none }} have no counted signal in the sources we connected, which says nothing about whether they were findable elsewhere.</p>
   <p>Not connected, no signals stored: {% if not_connected %}{% for t in not_connected %}{{ t | signal_label | lower }}{{ ", " if not loop.last }}{% endfor %}{% else %}none of the feed signal types is empty{% endif %}; connector slots, not connected: {{ slots | join(", ") }}. BlueInvest pipeline profiles carry no listing date, so they are noted and never counted.</p>
 </section>
 {% endif %}

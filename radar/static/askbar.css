@@ -203,3 +203,10 @@ html.ask-voice-open { overflow: hidden; }
 
 /* phone polish (chief, 17 Oct): no keyboard hint on touch screens */
 @media (hover: none), (max-width: 639px) { .ask-key { display: none !important; } }
+
+/* Judge round 3 (D71): on a phone the floating Ask Aava button covered "Source for this sentence" under the bar's answer. While an answer card is open the
+   button steps aside (the bar above it is the same assistant), and the page keeps room under its last line so the button never hides the footer links. */
+@media (max-width: 639px) {
+  body:has(.ask-card:not([hidden])) .aava-fab { display: none; }
+  body:has(.aava-fab) .foot { padding-bottom: 76px; }
+}

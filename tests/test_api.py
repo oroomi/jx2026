@@ -142,7 +142,8 @@ META = ROOT / "deploy" / "datasette" / "metadata.yml"
 
 def _person_marks(conn) -> list:
     import re
-    names = [r[0] for r in conn.execute("SELECT name FROM person") if r[0] and len(r[0]) > 5]
+    from tests.people import person_names
+    names = person_names(5)
     email = re.compile(r"[\w.+-]+@[\w-]+\.[a-z]{2,}", re.I)
     return [lambda v, n=n: n in v for n in names] + [lambda v: "linkedin.com" in v.casefold(), lambda v: bool(email.search(v))]
 

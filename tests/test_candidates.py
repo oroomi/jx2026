@@ -87,7 +87,8 @@ def test_known_candidates(built):
 def test_no_person_data(built):
     _, rows, _, _ = built
     eco = sqlite3.connect(f"file:{ECO}?mode=ro", uri=True)
-    people = {r[0] for r in eco.execute("SELECT name FROM person") if r[0] and len(r[0]) > 5}
+    from tests.people import person_names
+    people = set(person_names(5))
     th = thesis.load()
     from radar import fit
     for r in rows:

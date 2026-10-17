@@ -49,7 +49,7 @@ def _count(c, table):
 def test_every_table_of_the_ecosystem_file_arrives_with_equal_rows(conn):
     src = _ro(ECO)
     tables = combined._tables(src)
-    assert "person" in tables and len(tables) >= 20
+    assert "person" not in tables and "entity" in tables and len(tables) >= 20     # the public copy has no person table (D80)
     for t in tables:
         assert _count(conn, t) == _count(src, t), t
     assert combined._digests(src) == {t: d for t, d in combined._digests(conn).items() if not t.startswith("radar_")}
@@ -123,8 +123,8 @@ def test_the_memoised_checks_are_put_back(built):
 
 def test_no_person_data_in_any_radar_table(conn):
     src = _ro(ECO)
-    names = [r[0] for r in src.execute("SELECT DISTINCT name FROM person WHERE name IS NOT NULL ORDER BY name LIMIT 50")]
-    assert len(names) == 50
+    from tests.people import person_names
+    names = person_names()[:50]                     # none in the public file (D80); the full copy via RADAR_PERSON_GUARD_DB
     company_names = {r[0].casefold().strip() for r in conn.execute("SELECT name FROM radar_companies")}
     detail = "\n".join(r[0].casefold() for r in conn.execute("SELECT detail FROM radar_signals WHERE detail IS NOT NULL"))
     for n in names:

@@ -43,7 +43,8 @@ def test_every_row_has_reason_link_date_and_rank(nxt, key):
 
 
 def test_organisations_only(nxt):
-    people = {r[0] for r in sqlite3.connect(f"file:{ECO}?mode=ro", uri=True).execute("SELECT name FROM person") if r[0]}
+    from tests.people import person_names
+    people = set(person_names())
     for key in (VIVA, ARCTIC):
         n = nxt(key, limit=50)
         names = {r["name"] for g in GROUP_KEYS for r in n[g]}

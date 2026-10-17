@@ -105,6 +105,7 @@
   {% if result.connected %}<p class="mt-note">Already connected: {% for c in result.connected %}<a href="/match?org={{ c.id }}">{{ c.name }}</a> ({{ c.why }}){% if not loop.last %}; {% endif %}{% endfor %}. Not listed below.</p>{% endif %}
   {% if result.counterparts %}
   <h3 class="mt-sub">Next steps ({{ result.listed }} pass the filters{% if result.counterparts | length < result.listed %}, the top {{ result.counterparts | length }} shown{% endif %})</h3>
+  {% include "_match_weights.html" %}
   <ol class="mt-results">
   {% for r in result.counterparts %}
     <li class="mt-res">

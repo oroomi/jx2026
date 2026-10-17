@@ -1,0 +1,41 @@
+{# Weigh the reasons (PROJECT_RULES D90): the weight simulator above a startup's counterparts on /match. One include line in match.html.
+   Hidden until radar/static/match_weights.js runs; without JavaScript the list keeps the server's order and nothing here shows.
+   The weights change the order, never a score: no total, no percentage beside a counterpart. Data: match_weights() in
+   radar/routes/match_weights.py. #}
+{% set mw = match_weights() if match_weights is defined else none %}
+{% if mw %}
+<link rel="stylesheet" href="/static/match_weights.css?v={{ asset_v }}">
+<details class="mw" id="mw" hidden>
+  <summary><span class="mw-title">Weigh the reasons</span> <span class="mw-state" id="mw-state">{{ mw.state }}</span></summary>
+  <div class="mw-body">
+    <p class="mw-lede">Your weights change the order, never a score: each bar shows which reasons hold, as wide as you weigh them.</p>
+    <div class="mw-presets" role="group" aria-label="Weights to start from">
+      <button type="button" data-preset="thesis" aria-pressed="{{ 'true' if mw.preset == 'thesis' else 'false' }}">The thesis file's weights</button>
+      <button type="button" data-preset="brief" aria-pressed="{{ 'true' if mw.preset == 'brief' else 'false' }}">The brief's weights</button>
+      <button type="button" class="mw-reset" data-preset="thesis" data-reset>Reset</button>
+    </div>
+    <ul class="mw-factors">
+    {% for f in mw.factors %}
+      {% if f.on %}
+      <li class="mw-f">
+        <label class="mw-l" for="mw-{{ f.key }}"><span class="mw-n">{{ f.label }}</span> <span class="mw-e">{{ f.engine }}: {{ f.gloss }}</span></label>
+        <input class="mw-r" type="range" id="mw-{{ f.key }}" data-k="{{ f.key }}" min="0" max="{{ mw.max }}" step="1" value="{{ f.value }}" autocomplete="off">
+        <output class="mw-o" id="mw-o-{{ f.key }}" for="mw-{{ f.key }}">{{ mw.shares[f.key] }}%</output>
+      </li>
+      {% else %}
+      <li class="mw-f mw-off">
+        <span class="mw-l"><span class="mw-n">{{ f.label }}</span> <span class="mw-e">{{ f.gloss }}</span></span>
+        <span class="mw-slot" role="img" aria-label="{{ f.label }}: not in public records, not counted"></span>
+        <span class="mw-o">not counted</span>
+      </li>
+      {% endif %}
+    {% endfor %}
+    </ul>
+    <p class="mw-legend"><span class="mw-key" data-s="met" aria-hidden="true"></span> holds, as wide as its weight <span class="mw-key" data-s="no" aria-hidden="true"></span> does not hold <span class="mw-key" data-s="none" aria-hidden="true"></span> no record</p>
+    <p class="mw-note">{% if mw.rows | length > mw.shown %}Orders all {{ mw.rows | length }} counterparts that pass the filters and shows the top {{ mw.shown }}{% else %}Orders the {{ mw.shown }} counterparts shown{% endif %}; a tie keeps the thesis file's order. The brief gives {{ mw.factors | map(attribute="brief") | join(", ") }} in this order; ticket size cannot be counted, so the other six are rescaled.</p>
+    <p class="mw-status" id="mw-status" role="status"></p>
+  </div>
+</details>
+<script type="application/json" id="mw-data">{{ mw.data | tojson }}</script>
+<script src="/static/match_weights.js?v={{ asset_v }}" defer></script>
+{% endif %}

@@ -230,5 +230,5 @@ def test_show_the_searches_redacts_person_names(built, client):
     assert 'id="stitch"' in t and "[name" not in t
     for person in ("Matti Virtanen", "Liisa Korhonen", "Pekka Niemi", "Jussi Lahtinen"):
         assert person not in t, person
-    assert "2 more not listed" in t and "st-quote" not in t, "no quote with a gap is shown"
+    assert "2 searches are not listed, because they hold a name we do not print." in t and "st-quote" not in t, "no quote with a gap is shown"
     assert "Synthetic Harbour Boats" in t

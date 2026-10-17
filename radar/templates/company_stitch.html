@@ -10,8 +10,9 @@
     <li><span class="st-n">{{ stitch.queries_run }}</span> searches run
       {% if stitch.queries or stitch.llm_queries %}<details><summary>show the searches</summary>
         <ul class="st-queries">{% for q in stitch.queries %}<li>{{ q }}</li>{% endfor %}{% for q in stitch.llm_queries %}<li>{{ q }} <span class="st-by">(run by the LLM)</span></li>{% endfor %}</ul>
-        {% if stitch.queries_hidden %}<p class="st-by">{{ stitch.queries_hidden }} more not listed: {{ "it" if stitch.queries_hidden == 1 else "they" }} held a name we do not print.</p>{% endif %}
-      </details>{% endif %}</li>
+
+      </details>{% endif %}
+      {% if stitch.queries_hidden %}<p class="st-by">{{ stitch.queries_hidden }} {{ "search is" if stitch.queries_hidden == 1 else "searches are" }} not listed, because {{ "it holds" if stitch.queries_hidden == 1 else "they hold" }} a name we do not print.</p>{% endif %}</li>
     <li><span class="st-n">{{ stitch.proposed }}</span> events proposed{% if stitch.rejected %}, {{ stitch.rejected }} more without a usable link or date{% endif %}{% if stitch.read_failed %}; the search step failed, nothing was proposed{% endif %}</li>
     <li><span class="st-n">{{ stitch.pages_read }}</span> pages read by code</li>
     <li><span class="st-n">{{ stitch.kept }}</span> kept by the first check, <span class="st-n">{{ stitch.dropped }}</span> dropped</li>

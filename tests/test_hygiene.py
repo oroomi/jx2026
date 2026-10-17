@@ -139,7 +139,7 @@ def test_a_marked_quote_query_or_signal_text_is_not_shown(site):
     assert "Viva Jets showed its jets at the sea fair" in t, "a quote without a marker stays"
     assert "(quote not shown: it names a person or place we do not print)" in t
     assert '"WESI System"' in t and "WESI [name]" not in t, "the marked OR-term goes, the rest of the query stays"
-    assert "1 more not listed: it held a name we do not print." in t, "the query that is not made of OR-terms is not listed, and the page says so"
+    assert "1 search is not listed, because it holds a name we do not print." in t, "the query that is not made of OR-terms is not listed, and the page says so"
     assert int(re.search(r"(\d+) searches run", t).group(1)) == 3, "the count is of searches run, not of searches listed"
 
 

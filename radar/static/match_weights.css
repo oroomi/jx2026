@@ -1,0 +1,49 @@
+/* Weigh the reasons (D90): the weight panel above a startup's counterparts on /match, and the bar on each row. Tokens only (app.css,
+   skins.css, site.css): dark by default, light through [data-theme]. Tap targets 44 px; no horizontal scroll at 390 px; no motion
+   except the movement note fading out, and none under prefers-reduced-motion. */
+.mw[hidden] { display: none; }
+.mw { margin: 8px 0 16px; border: 1px solid var(--hairline); background: var(--surface); }
+.mw > summary { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; min-height: 44px; padding: 4px 12px; cursor: pointer; font-weight: 600; }
+.mw > summary::marker { color: var(--muted); }
+.mw-state { font-weight: 400; font-size: 14px; color: var(--muted); }
+.mw-body { padding: 0 12px 12px; }
+.mw-lede { margin: 0 0 10px; font-size: 15px; max-width: 64ch; }
+.mw-presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 6px; }
+#mw .mw-presets button { min-height: 44px; padding: 0 12px; background: transparent; color: var(--text); border: 1px solid var(--hairline); border-radius: 0; font: 500 14px var(--sans); cursor: pointer; }
+#mw .mw-presets button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+#mw .mw-presets .mw-reset { color: var(--muted); }
+#mw .mw-presets button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mw-factors { list-style: none; margin: 0; padding: 0; }
+.mw-f { display: grid; grid-template-columns: minmax(0, 1fr) 4.5rem; grid-template-areas: "l l" "r o"; gap: 0 12px; align-items: center; padding: 6px 0 2px; border-top: 1px solid var(--hairline); }
+@media (min-width: 640px) { .mw-f { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) 4.5rem; grid-template-areas: "l r o"; } }
+.mw-l { grid-area: l; display: flex; flex-direction: column; min-width: 0; }
+.mw-n { font-weight: 500; font-size: 15px; }
+.mw-e { font-size: 13px; line-height: 1.35; color: var(--muted); overflow-wrap: anywhere; }
+.mw-r { grid-area: r; width: 100%; min-height: 44px; margin: 0; accent-color: var(--accent); cursor: pointer; }
+.mw-o { grid-area: o; text-align: right; font-size: 14px; font-variant-numeric: tabular-nums; }
+.mw-slot { grid-area: r; display: block; height: 12px; border: 1px solid var(--hairline); background: repeating-linear-gradient(135deg, transparent 0 5px, var(--muted) 5px 6px); opacity: .6; }
+.mw-off .mw-n, .mw-off .mw-o { color: var(--muted); }
+.mw-off .mw-o { font-size: 13px; line-height: 1.2; }
+.mw-off { padding-bottom: 10px; }
+@media (max-width: 639px) { .mw-off .mw-slot { margin: 10px 0; } }
+.mw-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin: 10px 0 4px; font-size: 13px; color: var(--muted); }
+.mw-key { display: inline-block; width: 22px; height: 10px; }
+.mw-legend .mw-key:not(:first-child) { margin-left: 8px; }
+.mw-note { margin: 4px 0 0; font-size: 13px; color: var(--muted); max-width: 72ch; }
+.mw-status { margin: 4px 0 0; font-size: 13px; min-height: 1px; }
+.mw-status:empty { display: none; }
+
+/* the bar on each counterpart row: segments are its reasons, as wide as the visitor weighs them; no number at its end */
+.mw-bar { display: flex; gap: 2px; height: 10px; max-width: 480px; margin: 0 0 4px; }
+.mw-seg { flex: 1 1 0; min-width: 0; }
+.mw-seg[hidden] { display: none; }
+.mw-seg[data-s="met"], .mw-key[data-s="met"] { background: var(--accent); }
+.mw-seg[data-s="no"], .mw-key[data-s="no"] { box-shadow: inset 0 0 0 1px var(--muted); opacity: .55; }
+.mw-seg[data-s="none"], .mw-key[data-s="none"] { background: repeating-linear-gradient(135deg, transparent 0 3px, var(--muted) 3px 4px); opacity: .55; }
+.mw-holds { margin: 0 0 8px; font-size: 13px; color: var(--muted); }
+.mw-move { font-size: 13px; font-weight: 600; color: var(--text); border: 1px solid var(--accent); padding: 0 6px; line-height: 1.6; }
+@media (prefers-reduced-motion: no-preference) { .mw-move { transition: opacity .3s; } }
+.mw-move.mw-fade { opacity: 0; }
+
+:root[data-skin="product"] .mw, :root[data-skin="product"] #mw .mw-presets button { border-radius: 10px; }
+:root[data-skin="product"] .mw-seg, :root[data-skin="product"] .mw-move { border-radius: 3px; }

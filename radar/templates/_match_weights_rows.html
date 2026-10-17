@@ -1,0 +1,10 @@
+{# One counterpart row of the Match page's "Next steps" list, for the rows that GET /match/weights/rows sends when a new order brings a
+   counterpart up from below the shown cut. Same markup and macros as the list in match.html. #}
+{% from "_match_parts.html" import chips, why %}
+{% macro row(r) -%}
+<li class="mt-res">
+  <p class="mt-res-h"><a class="mt-res-n" href="/match?org={{ r.id }}">{{ r.name }}</a> <span class="mt-meta">{{ r.kind_label }} · demand is {{ r.demand }}{% if r.deadline %} · deadline {{ r.deadline }}{% endif %}</span></p>
+  {{ chips(r.components) }}
+  {{ why(r.components) }}
+</li>
+{%- endmacro %}

@@ -203,11 +203,12 @@ def call_closed(dl: dict | None, today: date) -> str | None:
 
 def closed_words(reason: str) -> str:
     """The only way a closed programme is described (D76): no open call on record, so watch for the next call."""
-    return f"no open call on record ({_plain(re.sub(r'^closed:\s*', '', reason or ''))}): {WATCH_NEXT_CALL}"
+    said = _plain(re.sub(r"^closed:\s*", "", reason or ""))
+    return f"no open call on record ({said}): {WATCH_NEXT_CALL}"
 
 
 def _name_words(name: str | None) -> list[str]:
-    return [w for w in (fold(x) for x in re.split(r"[\s(),:;/–-]+", name or "")) if w]
+    return [w for w in (fold(x) for x in re.split(r"[\s(),:;/\u2013-]+", name or "")) if w]
 
 
 @lru_cache(maxsize=8192)

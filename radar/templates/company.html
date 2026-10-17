@@ -26,6 +26,15 @@
   </header>
 
   {% set vk = ((rec.decision if rec else none) or "none") | lower | replace(" ", "-") %}
+  {% set LL = lifeline_dots(signals | map(attribute="date") | list, m.as_of if m else none, cohort_entry_for(c.company_key, c.name) if cohort_entry_for is defined else none) if lifeline_dots is defined else none %}
+  {% if LL %}<figure class="cc-life sk-editorial" aria-label="{{ LL.n }} dated public records from {{ LL.first }} to today">
+    <div class="cc-life-axis" aria-hidden="true">
+      {% for y in LL.years %}<b class="yt" style="left: {{ y.x }}%"></b>{% endfor %}
+      {% if LL.entry is not none %}<b class="en" style="left: {{ LL.entry }}%"></b>{% endif %}
+      {% for x in LL.dots %}<i class="{{ 'd-last' if x == LL.latest else 'd' }}" style="left: {{ x }}%"></i>{% endfor %}
+    </div>
+    <div class="cc-life-years">{% for y in LL.years %}<span style="left: {{ y.x }}%">{{ y.label }}</span>{% endfor %}{% if LL.entry is not none %}<span class="en" style="left: {{ LL.entry }}%">cohort entry</span>{% endif %}</div>
+  </figure>{% endif %}
   <p class="cc-status sk-terminal" aria-label="Data status"><span class="hc-live">LIVE</span> record {{ (c.fetched_at or "")[:10] }} · {{ signals | length }} signal{{ "s" if signals | length != 1 }} · {{ covered | length }}/{{ checks | length }} checks</p>
   {% if rec %}{% set ev = (m.why | selectattr("url") | first) if m and m.why else none %}
   <div class="cc-lede sk-editorial">

@@ -29,6 +29,7 @@
       <span class="hc-who"><span class="hc-name">{{ r.name }}</span>{% set second = [r.sector] | select | list %}{% if second %}<span class="hc-sub">{{ second | join(" · ") }}</span>{% endif %}</span>
       <span class="hc-right">
         {% if r.signals %}<span class="hc-spark">{{ sparkline(r.signals, 72, 26) }}</span>{% endif %}
+        {% set L = lifeline_dots(r.signals | map(attribute="date") | list) if lifeline_dots is defined else none %}{% if L %}<span class="hc-dots" role="img" aria-label="{{ L.n }} dated public record{{ "s" if L.n != 1 }} since {{ L.first }}">{% for x in L.dots %}<i class="{{ 'd-last' if x == L.latest else 'd' }}" style="left: {{ x }}%"></i>{% endfor %}</span>{% endif %}
         {% if r.tape %}<svg class="hc-tape" viewBox="0 0 100 12" preserveAspectRatio="none" role="img" aria-label="{{ r.tape | length }} public record{{ "s" if r.tape | length != 1 }} in the last 12 months"><line x1="0" y1="11.5" x2="100" y2="11.5"/>{% for x in r.tape %}<line class="{{ 'tk-last' if loop.last else 'tk' }}" x1="{{ x }}" y1="{{ 1 if loop.last else 5 }}" x2="{{ x }}" y2="11"/>{% endfor %}</svg>{% endif %}
         {% if r.verdict %}<span class="hc-pill hc-{{ vk }} v-{{ vk }}">{{ r.verdict | capitalize }}</span>{% endif %}
       </span>

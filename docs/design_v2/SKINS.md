@@ -25,3 +25,6 @@ The layout, every number, every link and every test are unchanged. A skin is CSS
 
 ## References
 Linear, Raycast, Stripe, Mercury, The Pudding and the FT Visual Vocabulary were reachable by HTTP from the build container. The headless browser here rejects the environment's TLS proxy certificate, though, so reference screenshots could not be captured into `docs/design_v2/refs/`. That needs a browser that trusts the proxy, or screenshots from Dayo. Bloomberg's terminal page returned 403.
+
+## Lifeline (folded into editorial only)
+The concept session's lifeline is in **editorial** only, because it suits that skin's calm, ruled pages best. On a company page it is a full-width strip under the header: every dated public record is a dot on one time axis from the first record to today, with year ticks only and the latest record larger in the accent. A dashed cohort-entry marker is drawn when `data/declared/cohort_entry_dates.csv` has the company (that file is absent today, so none shows). Home rows in editorial draw the same dots in place of the sparkline, so the mark is one identity across both pages. There is no motion, no axes beyond year ticks, and no chart chips. Terminal keeps its tape and product keeps its sparkline.

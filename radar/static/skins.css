@@ -199,3 +199,21 @@
 :root:not([data-skin="editorial"]) .cc-lede-more { display: none; }
 /* product: the header sits on the same layered surface */
 :root[data-skin="product"] header.top { background: rgba(19,19,22,.72); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border-bottom: 1px solid var(--hairline); }
+
+/* Lifeline (editorial only): every dated public record as a dot on one time axis, first record to today,
+   latest emphasised, year ticks only. The same mark on home rows and under the company header. */
+.hc-dots, .cc-life { display: none; }
+:root[data-skin="editorial"] .hc-spark { display: none; }
+:root[data-skin="editorial"] .hc-dots { display: block; position: relative; width: 96px; height: 12px; }
+:root[data-skin="editorial"] .hc-dots::before, :root[data-skin="editorial"] .cc-life-axis::before { content: ""; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid var(--hairline); }
+:root[data-skin="editorial"] .hc-dots i, :root[data-skin="editorial"] .cc-life-axis i { position: absolute; top: 50%; width: 5px; height: 5px; margin: -2.5px 0 0 -2.5px; border-radius: 50%; background: var(--muted); }
+:root[data-skin="editorial"] .hc-dots i.d-last, :root[data-skin="editorial"] .cc-life-axis i.d-last { width: 8px; height: 8px; margin: -4px 0 0 -4px; background: var(--accent); }
+:root[data-skin="editorial"] figure.cc-life { display: block; margin: 16px 0 4px; }
+:root[data-skin="editorial"] .cc-life-axis { position: relative; height: 22px; }
+:root[data-skin="editorial"] .cc-life-axis i { width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; }
+:root[data-skin="editorial"] .cc-life-axis i.d-last { width: 11px; height: 11px; margin: -5.5px 0 0 -5.5px; }
+:root[data-skin="editorial"] .cc-life-axis b.yt { position: absolute; top: 50%; height: 6px; margin-top: 3px; border-left: 1px solid var(--muted); }
+:root[data-skin="editorial"] .cc-life-axis b.en { position: absolute; top: 0; bottom: 0; border-left: 1px dashed var(--text); }
+:root[data-skin="editorial"] .cc-life-years { position: relative; height: 18px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+:root[data-skin="editorial"] .cc-life-years span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+:root[data-skin="editorial"] .cc-life-years span.en { top: -40px; color: var(--text); font-style: italic; }

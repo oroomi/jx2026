@@ -8,6 +8,8 @@ from radar.routes.home import templates
 
 router = APIRouter()
 templates.env.globals["home_list_for"] = home_list.for_template
+templates.env.globals["lifeline_dots"] = home_list.dots
+templates.env.globals["cohort_entry_for"] = home_list.cohort_entry
 if __import__("os").environ.get("RADAR_NO_WARM") is None:
     try:
         home_list.warm(thesis_mod.load())

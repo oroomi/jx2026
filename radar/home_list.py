@@ -137,3 +137,31 @@ def warm(thesis: dict) -> None:
         except Exception:  # noqa: BLE001  (a warm-up failure only means the first request builds it)
             pass
     threading.Thread(target=run, name="home-list-warm", daemon=True).start()
+
+
+def dots(dates: list[str], today: str | None = None, entry: str | None = None) -> dict | None:
+    """One time axis from the first dated public record to today: each record as a dot (percent along the axis),
+    the latest marked, year ticks, and the cohort-entry marker when a declared entry date exists. Used by the
+    editorial skin on both pages, so the mark is one identity across home and company."""
+    ds = sorted(d[:10] for d in dates if d and len(d) >= 4)
+    if not ds:
+        return None
+    def day(s):
+        p = (s + "-01-01")[:10].split("-")
+        return date(int(p[0]), int(p[1] or 1), int(p[2] or 1)).toordinal()
+    t1 = day(today or store._today(None).isoformat())
+    t0 = min(day(ds[0]), t1 - 365)
+    span = max(1, t1 - t0)
+    pct = lambda s: round((day(s) - t0) / span * 100, 2)  # noqa: E731
+    years = [{"label": str(y), "x": pct(f"{y}-01-01")} for y in range(date.fromordinal(t0).year + 1, date.fromordinal(t1).year + 1)]
+    step = max(1, len(years) // 4 + (1 if len(years) % 4 else 0)) if len(years) > 4 else 1
+    return {"dots": [pct(d) for d in ds], "latest": pct(ds[-1]), "years": years[::-1][::step][::-1],
+            "entry": pct(entry) if entry else None, "first": ds[0], "n": len(ds)}
+
+
+def cohort_entry(company_key: str, name: str | None) -> str | None:
+    """The declared cohort-entry date (data/declared/cohort_entry_dates.csv), when that file has the company."""
+    from radar import earliness
+    e = earliness._entry_dates(earliness.ENTRY_DATES_CSV)
+    hit = e.get((company_key or "").casefold()) or e.get((name or "").casefold())
+    return hit[0] if hit else None

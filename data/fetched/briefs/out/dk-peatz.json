@@ -1,44 +1,37 @@
 {
  "company_key": "dk-peatz",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "PEATZ is a cohort company whose country is recorded as DK, and the sources we read hold no register entry for it.",
    "cites": [
     "https://peatz.eu/"
    ]
   },
-  {
-   "text": "The record shows grant or public funding of EUR 118 000 dated 2024-11-30, and a first customer or pilot named on the same date at low confidence.",
-   "cites": [
-    "https://philab.esa.int/wp-content/uploads/sites/3/2024/12/Pitch-Deck_PEATZ_final.pdf",
-    "https://philab.esa.int/wp-content/uploads/sites/3/2024/12/Pitch-Deck_PEATZ_final.pdf"
-   ]
-  },
-  {
-   "text": "It also holds a programme-entry record for 2024 and an award record for 2022, both with the year only.",
-   "cites": [
-    "https://philab.esa.int/wp-content/uploads/sites/3/2024/12/Pitch-Deck_PEATZ_final.pdf",
-    "https://philab.esa.int/wp-content/uploads/sites/3/2024/12/Pitch-Deck_PEATZ_final.pdf"
-   ]
-  },
-  {
-   "text": "A programme-entry record on the apelago.fi site is dated 2026-02-09.",
-   "cites": [
-    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/"
-   ]
-  },
-  {
-   "text": "Technology, business and investment readiness are unknown on the radar's rules because the funding is not from a source those rules read.",
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
    "cites": [
     "https://peatz.eu/"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case, and the funding record is the first thing to check at its source.",
+  "readiness": null,
+  "who_to_meet": {
+   "text": "The who-comes-next lists name EIC Accelerator 2026 as a programme or funding source.",
    "cites": [
-    "https://philab.esa.int/wp-content/uploads/sites/3/2024/12/Pitch-Deck_PEATZ_final.pdf"
+    "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness unknown, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://peatz.eu/"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; no public evidence for business readiness; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://peatz.eu/"
    ]
   }
- ]
+ }
 }

@@ -1,30 +1,42 @@
 {
  "company_key": "bg-redget-io",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "RedGet.io is a cohort company whose country is recorded as BG, and the sources we read hold no register entry for it.",
    "cites": [
     "https://redget.io/"
    ]
   },
-  {
-   "text": "The only dated record is a programme-entry record on the apelago.fi site, dated 2026-02-09.",
-   "cites": [
-    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/"
-   ]
-  },
-  {
-   "text": "No business or investment evidence is on file, so those levels are unknown.",
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
    "cites": [
     "https://redget.io/"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case, and more public evidence on ocean impact, business and investment readiness is needed.",
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, while business readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://redget.io/"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name BlueInvest E-Pitching Session as a programme or funding source.",
+   "cites": [
+    "https://blueinvest-community.converve.io/all_events.html"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness unknown, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://redget.io/"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; no public evidence for business readiness; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
    "cites": [
     "https://redget.io/"
    ]
   }
- ]
+ }
 }

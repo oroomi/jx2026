@@ -1,38 +1,37 @@
 {
  "company_key": "dk-klimate",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Klimate is a portfolio company whose country is recorded as DK, and the sources we read hold no register entry for it.",
    "cites": [
     "https://www.klimate.co/"
    ]
   },
-  {
-   "text": "Three funding rounds are on record: EUR 730 000 dated 2021-09-08, EUR 3 500 000 dated 2023-10-17, and another for 2023 with the year only.",
-   "cites": [
-    "https://rockstart.pr.co/202348-klimate-raises-730k-pre-seed-round-from-rockstart-the-footprint-firm-grow-ventures-and-vaekstfonden/",
-    "https://tech.eu/2023/10/17/klimate-secures-eur35-million-seed-funding-for-carbon-removal-platform/",
-    "https://www.redstone.vc/portfolio/klimate"
-   ]
-  },
-  {
-   "text": "A first customer or pilot record is dated 2025-04-22.",
-   "cites": [
-    "https://cleanenergyventures.com/news/klimate-partnership-carbon-offtake"
-   ]
-  },
-  {
-   "text": "Every readiness level is unknown on the radar's rules because the funding is not from a source those rules read.",
+  "thesis_fit": {
+   "text": "It is a declared portfolio company, and the memo reads thesis fit as Medium.",
    "cites": [
     "https://www.klimate.co/"
    ]
   },
-  {
-   "text": "For the fund the company stays on the watchlist, and the rounds should be checked at their sources.",
+  "readiness": null,
+  "who_to_meet": {
+   "text": "The who-comes-next lists name EIC Accelerator 2026 as a programme or funding source.",
    "cites": [
-    "https://tech.eu/2023/10/17/klimate-secures-eur35-million-seed-funding-for-carbon-removal-platform/"
+    "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness unknown, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://www.klimate.co/"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; no public evidence for business readiness; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://www.klimate.co/"
    ]
   }
- ]
+ }
 }

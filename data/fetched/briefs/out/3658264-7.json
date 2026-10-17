@@ -1,33 +1,39 @@
 {
  "company_key": "3658264-7",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "SU Engineering Oy is a newly registered company, entered in the register on 2026-09-27 under the industry code 71121, engineering design and technical consultancy.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658264-7",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658264-7"
    ]
   },
-  {
-   "text": "First sales are recorded on 2026-09-27, and a start-up notification and a board change were registered on 2026-10-02.",
+  "thesis_fit": {
+   "text": "Industry code 71121 (Engineering design and technical consultancy incidental to urban planning, PRH) is on the thesis list; the memo reads thesis fit as High.",
    "cites": [
-    "https://tietopalvelu.ytj.fi/yritys/3658264-7",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3658264-7",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3658264-7"
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658264-7",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658264-7"
    ]
   },
-  {
-   "text": "No grant, EU project, public contract or funding record is on file, and the register confidence for the entry is low.",
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658264-7"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case, and the record does not show what the firm engineers.",
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit High), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658264-7"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658264-7"
    ]
   }
- ]
+ }
 }

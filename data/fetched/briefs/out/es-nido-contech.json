@@ -1,47 +1,42 @@
 {
  "company_key": "es-nido-contech",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "NIDO Contech is a cohort company whose country is recorded as ES, and the sources we read hold no register entry for it.",
    "cites": [
     "https://www.nido.eco/"
    ]
   },
-  {
-   "text": "CORDIS lists an EU project that started on 2026-06-01 with EUR 202 125 attached to it, and the radar reads that as a first public grant.",
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://www.nido.eco/"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 4 and investment readiness is level 3; ocean impact reads Medium.",
    "cites": [
     "https://cordis.europa.eu/project/id/101292324"
    ]
   },
-  {
-   "text": "The record has four award entries, the latest two dated 2026-08-25 and 2026-08-31, and a first customer or pilot named on 2023-10-31.",
+  "who_to_meet": {
+   "text": "The who-comes-next lists name BlueInvest E-Pitching Session as a programme or funding source.",
    "cites": [
-    "https://www.apelago.fi/press-release-apelago-initiative-2026-brought-together-350-blue-economy-leaders-in-turku/",
-    "https://www.descubre.vc/noticia/la-startup-con-ra-ces-chilenas-nido-contech-triunfa-en-el-a-pelago-pitch-challenge-en-finlandia-2026-08-25",
-    "https://www.df.cl/capital/cultura/la-startup-de-una-chilena-que-busca-crear-una-casa-completamente"
+    "https://blueinvest-community.converve.io/all_events.html"
    ]
   },
-  {
-   "text": "A programme-entry record on the apelago.fi site is dated 2026-02-09 and an exhibitor or demo entry is dated 2026-08-19.",
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact Medium, business readiness Medium, investment readiness Low, thesis fit Medium), so the fund should reassess it when a new public record appears.",
    "cites": [
-    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
-    "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/774063"
+    "https://www.nido.eco/"
    ]
   },
-  {
-   "text": "On the radar's rules technology and business readiness are both level 4 and investment readiness is level 3, resting on the EU project.",
+  "whats_missing": {
+   "text": "Gaps on the record: investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category); no public financials evidence (grants and contracts).",
    "cites": [
-    "https://cordis.europa.eu/project/id/101292324",
-    "https://cordis.europa.eu/project/id/101292324",
-    "https://cordis.europa.eu/project/id/101292324"
-   ]
-  },
-  {
-   "text": "For the fund this is a watchlist case, but with more dated evidence than most of the cohort.",
-   "cites": [
-    "https://cordis.europa.eu/project/id/101292324"
+    "https://www.nido.eco/"
    ]
   }
- ]
+ }
 }

@@ -1,34 +1,38 @@
 {
  "company_key": "3622627-1",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Astrum Vene Oy is a company registered on 2026-05-05 under the industry code 70100, activities of head offices.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622627-1",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622627-1"
    ]
   },
-  {
-   "text": "A start-up notification and a board change were registered on 2026-09-30, and a further board change on 2026-10-02.",
-   "cites": [
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3622627-1",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3622627-1",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3622627-1"
-   ]
-  },
-  {
-   "text": "No grant, EU project, public contract or funding record is on file.",
+  "thesis_fit": {
+   "text": "The memo reads thesis fit as Medium, but the stored record gives no reason text for it.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622627-1"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case, and the record shows a head-office company and nothing about its activity.",
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
    "cites": [
-    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622627-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622627-1"
+   ]
+  },
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622627-1"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
+   "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622627-1"
    ]
   }
- ]
+ }
 }

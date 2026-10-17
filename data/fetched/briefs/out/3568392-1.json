@@ -1,39 +1,45 @@
 {
  "company_key": "3568392-1",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Sireness Oy is a cohort company registered on 2025-09-29 under the industry code 72100, research and experimental development.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
    ]
   },
-  {
-   "text": "A grant or public funding record of EUR 70 000 is dated 2025-04-30, which is earlier than the registration date, and the record does not say how the two relate.",
-   "cites": [
-    "https://www.alandsbanken.fi/news/alandsbankenin_itameriprojekti_jakaa_550_000_euroa_itameren_tilaa/pdf",
-    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
-   ]
-  },
-  {
-   "text": "The register shows a start-up notification dated 2025-10-08, and a programme-entry record is dated 2026-02-09.",
-   "cites": [
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3568392-1",
-    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/"
-   ]
-  },
-  {
-   "text": "No EU project, Business Finland decision or public contract is on file, so investment readiness is unknown.",
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case, and the funding record should be checked at its source before anyone relies on it.",
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4 and business readiness is level 2, while investment readiness has no level on those rules; ocean impact reads Medium.",
    "cites": [
-    "https://www.alandsbanken.fi/news/alandsbankenin_itameriprojekti_jakaa_550_000_euroa_itameren_tilaa/pdf"
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Valmet as an investor, Baltic Sea Action Plan as a programme or funding source and Evac Oy as a partner.",
+   "cites": [
+    "https://www.valmet.com",
+    "https://www.nib.int/about/cooperation/bsap-fund",
+    "https://news.cision.com/altor/r/altor-acquires-a-majority-stake-in-evac-and-partners-with-management,c4278541"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact Medium, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category); no public financials evidence (grants and contracts).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
    ]
   }
- ]
+ }
 }

@@ -1,33 +1,38 @@
 {
  "company_key": "3647748-4",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Heino Marine Brokerage Oy is a company registered on 2026-08-18 under the industry code 47631, retail sale of boats and boating accessories.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647748-4",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647748-4"
    ]
   },
-  {
-   "text": "First sales are recorded on 2026-08-17, and a start-up notification and a board change were registered on 2026-08-21.",
-   "cites": [
-    "https://tietopalvelu.ytj.fi/yritys/3647748-4",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3647748-4",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3647748-4"
-   ]
-  },
-  {
-   "text": "No grant, EU project, public contract or funding record is on file.",
+  "thesis_fit": {
+   "text": "The registered industry is boat retail, which is trade rather than technology, and no other record is on file; the memo reads thesis fit as Medium.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647748-4"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case: the registered industry is boat retail, which is trade rather than technology, and no other record is on file.",
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647748-4"
+   ]
+  },
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647748-4"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647748-4"
    ]
   }
- ]
+ }
 }

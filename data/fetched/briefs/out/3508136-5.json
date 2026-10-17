@@ -1,34 +1,39 @@
 {
  "company_key": "3508136-5",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Suomen Vesistökunnostus Oy is a company registered on 2025-02-03 under the industry code 42910, construction of water projects.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5"
    ]
   },
-  {
-   "text": "First sales are recorded on 2025-02-01, and a start-up notification and a board change were registered on 2025-02-19.",
+  "thesis_fit": {
+   "text": "The registered line of business 'Construction of water projects' contains 'water'; the memo reads thesis fit as High.",
    "cites": [
-    "https://tietopalvelu.ytj.fi/yritys/3508136-5",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3508136-5",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3508136-5"
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5"
    ]
   },
-  {
-   "text": "A public contract record dated 2026-07-20 shows EUR 278 600, and the radar reads it as a buyer purchasing in an operational setting, which sets the technology level at 7.",
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 7 and business readiness is level 6, while investment readiness has no level on those rules.",
    "cites": [
-    "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675",
     "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
    ]
   },
-  {
-   "text": "For the fund the memo points to a partner introduction, and the contract notice is the first thing to open to see who the buyer is.",
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo points to a partner introduction under rule e, and the fund should open the contract notice of EUR 278 600 first to see who the buyer is.",
    "cites": [
     "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; investment readiness is Low on the stored evidence.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5"
    ]
   }
- ]
+ }
 }

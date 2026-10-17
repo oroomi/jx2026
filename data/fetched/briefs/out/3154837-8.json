@@ -1,42 +1,43 @@
 {
  "company_key": "3154837-8",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Redkik Oy is a portfolio company registered on 2020-08-28 under the industry code 62200, computer consultancy and facilities management.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8"
    ]
   },
-  {
-   "text": "Two funding rounds are on record, dated 2021-06-25 and 2022-02-09, and a Business Finland decision of EUR 50 000 for 2020.",
+  "thesis_fit": {
+   "text": "It is a declared portfolio company, and the memo reads thesis fit as Medium.",
    "cites": [
-    "https://fintech.global/2021/06/25/insurtech-redkik-reels-in-fresh-investment-to-transform-marine-cargo-insurance/",
-    "https://www.logisticsbusiness.com/it-in-logistics/redkik-attracts-investment-dollarm/",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 4 and investment readiness is level 3.",
+   "cites": [
     "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
    ]
   },
-  {
-   "text": "A first customer or pilot record is dated 2024-05-15 and another dated event is 2025-11-27.",
+  "who_to_meet": {
+   "text": "The who-comes-next lists name BlueInvest E-Pitching Session as a programme or funding source.",
    "cites": [
-    "https://airfreight.news/articles/full/new-digital-partnership-stablished-between-conqueror-and-redkik",
-    "https://www.hellenicshippingnews.com/?p=1114422"
+    "https://blueinvest-community.converve.io/all_events.html"
    ]
   },
-  {
-   "text": "On the radar's rules technology and business readiness are level 4 and investment readiness is level 3.",
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Medium, investment readiness Low, thesis fit Medium), so the fund should reassess it when a new public record appears.",
    "cites": [
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8"
    ]
   },
-  {
-   "text": "The registered industry is software consultancy and no ocean category is found, so ocean impact is unknown and the memo keeps it on the watchlist.",
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category).",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8"
    ]
   }
- ]
+ }
 }

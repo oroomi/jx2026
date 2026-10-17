@@ -1,33 +1,38 @@
 {
  "company_key": "3656878-1",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Rannikon Sähkö- ja Kylmäasennus Oy is a newly registered company, entered in the register on 2026-09-21 under the industry code 43210, electrical installation.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656878-1",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656878-1"
    ]
   },
-  {
-   "text": "First sales are recorded on 2026-09-21, and a start-up notification and a board change were registered on 2026-10-02.",
-   "cites": [
-    "https://tietopalvelu.ytj.fi/yritys/3656878-1",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3656878-1",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3656878-1"
-   ]
-  },
-  {
-   "text": "No grant, EU project, public contract or funding record is on file.",
+  "thesis_fit": {
+   "text": "The name has a coastal word but the registered industry is electrical installation; the memo reads thesis fit as Medium.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656878-1"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case: the name has a coastal word but the registered industry is electrical installation.",
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656878-1"
+   ]
+  },
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656878-1"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656878-1"
    ]
   }
- ]
+ }
 }

@@ -1,40 +1,45 @@
 {
  "company_key": "3543918-7",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Emission-Eye Oy is a cohort company registered on 2025-06-13 under the industry code 62100, computer programming activities.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7"
    ]
   },
-  {
-   "text": "Since then the record adds two exhibitor or demo entries, dated 2026-05-31 and 2026-08-19, and a patent filing dated 2026-05-31.",
-   "cites": [
-    "https://startupcenter.aalto.fi/we-are-going-to-latitude-59-in-tallinn",
-    "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/769881",
-    "https://startupcenter.aalto.fi/we-are-going-to-latitude-59-in-tallinn"
-   ]
-  },
-  {
-   "text": "First sales are recorded on 2025-08-01, and a programme-entry record is dated 2026-02-09.",
-   "cites": [
-    "https://tietopalvelu.ytj.fi/yritys/3543918-7",
-    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/"
-   ]
-  },
-  {
-   "text": "No Business Finland decision, EU project or public contract is on record, so the investment level is unknown rather than low.",
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case, and more public evidence on investment readiness is needed before any introduction.",
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 6 and business readiness is level 2, while investment readiness has no level on those rules; ocean impact reads Medium.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Aboa Advest as an investor, Interreg Central Baltic Programme 2021-2027 as a programme or funding source and Eckerö Line Abp as a partner.",
+   "cites": [
+    "https://pulse2.com/redstone-reaches-first-close-of-e25-million-blue-fund-to-back-ocean-technology-startups/",
+    "https://centralbaltic.eu",
+    "https://www.eckeroline.fi"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact Medium, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category); no public financials evidence (grants and contracts).",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3543918-7"
    ]
   }
- ]
+ }
 }

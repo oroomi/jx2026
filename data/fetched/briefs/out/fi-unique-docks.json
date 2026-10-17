@@ -1,24 +1,39 @@
 {
  "company_key": "fi-unique-docks",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Unique Docks is a portfolio company whose country is recorded as FI, but the sources we read hold no register entry for it.",
    "cites": [
     "https://www.facebook.com/p/Unique-Docks-100090037266485/"
    ]
   },
-  {
-   "text": "The only record is a funding round for 2023 with the year only, from the redstone.vc portfolio page.",
+  "thesis_fit": {
+   "text": "It is a declared portfolio company, and the memo reads thesis fit as Medium.",
    "cites": [
-    "https://www.redstone.vc/portfolio/unique-docks"
+    "https://www.facebook.com/p/Unique-Docks-100090037266485/"
    ]
   },
-  {
-   "text": "Every readiness level is unknown, and the registered company name should be found so its Finnish register data can be read.",
+  "readiness": null,
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Meyer Turku as an investor, Business Turku as a programme or funding source and Nautor Swan as a partner.",
+   "cites": [
+    "https://www.meyerturku.fi",
+    "https://businessturku.fi/en/blue-economy-and-maritime/",
+    "https://nautorswan.com"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness unknown, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://www.facebook.com/p/Unique-Docks-100090037266485/"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; no public evidence for business readiness; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
    "cites": [
     "https://www.facebook.com/p/Unique-Docks-100090037266485/"
    ]
   }
- ]
+ }
 }

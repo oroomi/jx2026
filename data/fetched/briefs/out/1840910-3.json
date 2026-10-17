@@ -1,39 +1,45 @@
 {
  "company_key": "1840910-3",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Kilocode Oy is a cohort company registered on 2003-07-11 with the industry code 58290, other software publishing.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
    ]
   },
-  {
-   "text": "The register shows first sales on 2003-08-01 and a first hire on 2025-01-03, so it is an established firm rather than a newly formed one.",
-   "cites": [
-    "https://tietopalvelu.ytj.fi/yritys/1840910-3",
-    "https://tietopalvelu.ytj.fi/yritys/1840910-3"
-   ]
-  },
-  {
-   "text": "Recent records include a programme-entry record dated 2026-02-09 and an exhibitor or demo record dated 2026-08-19.",
-   "cites": [
-    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
-    "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/780532"
-   ]
-  },
-  {
-   "text": "No grant, EU project, public contract or funding record is on file, so the investment level is unknown.",
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
    ]
   },
-  {
-   "text": "For the fund this stays on the watchlist, and more public evidence on ocean impact and investment readiness is needed before any introduction.",
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 2 and business readiness is level 2, while investment readiness has no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Meyer Turku as an investor, Elinvoimakeskus Lounais-Suomi as a programme or funding source and Eckerö Line Abp as a partner.",
+   "cites": [
+    "https://www.meyerturku.fi",
+    "https://www.elinvoimakeskus.fi",
+    "https://www.eckeroline.fi"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
    ]
   }
- ]
+ }
 }

@@ -1,46 +1,45 @@
 {
  "company_key": "3197621-7",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Sub Marine Store Oy is a cohort company registered on 2021-03-15 under the industry code 46900, non-specialised wholesale trade.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7"
    ]
   },
-  {
-   "text": "Business Finland shows a funding decision for 2026 of EUR 99 450, but the export gives the year only, not a day.",
-   "cites": [
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
-   ]
-  },
-  {
-   "text": "A programme-entry record is dated 2026-02-09, and first sales are recorded on 2021-03-15.",
-   "cites": [
-    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
-    "https://tietopalvelu.ytj.fi/yritys/3197621-7"
-   ]
-  },
-  {
-   "text": "On the radar's rules the technology and business levels are both 4 and the investment level is 3, all resting on that public funding.",
-   "cites": [
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
-   ]
-  },
-  {
-   "text": "The registered industry is wholesale trade, so ocean impact cannot be read from the record and stays unknown.",
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case until the impact side can be shown from a public source.",
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 4 and investment readiness is level 3.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Kongsberg as an investor, EIC Accelerator as a programme or funding source and Finnish Meteorological Institute as a partner.",
+   "cites": [
+    "https://www.kongsberg.com",
+    "https://eic.ec.europa.eu",
+    "https://en.ilmatieteenlaitos.fi"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Medium, investment readiness Low, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category).",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7"
    ]
   }
- ]
+ }
 }

@@ -1,48 +1,46 @@
 {
  "company_key": "2902007-2",
  "written": "2026-10-17",
- "sentences": [
-  {
-   "text": "Kelluu Oy is a portfolio company registered on 2018-03-09 under the industry code 30310, manufacture of civilian air and spacecraft and related machinery.",
+ "slots": {
+  "what_it_does": {
+   "text": "Kelluu Oy builds autonomous airships, judging by the title of a notice on its own site, and is registered under the industry code 30310, manufacture of civilian air and spacecraft and related machinery.",
    "cites": [
-    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2",
+    "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"
    ]
   },
-  {
-   "text": "A funding round of EUR 15 000 000 is dated 2026-04-14, and the linked sources describe it as a series A.",
+  "thesis_fit": {
+   "text": "It is a declared portfolio company, and the memo reads thesis fit as Medium.",
    "cites": [
-    "https://www.nif.fund/news/the-nato-innovation-fund-leads-e15mn-series-a-in-kelluu-to-build-europes-persistent-aerial-intelligence-layer-and-strengthen-natos-surveillance-capabilities/",
-    "https://tech.eu/2026/04/14/kelluu-raises-eur15m-to-scale-autonomous-airship-intelligence-platform/"
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"
    ]
   },
-  {
-   "text": "Earlier funding on record includes a round of EUR 1 000 000 dated 2020-01-28 and five Business Finland decisions between 2018 and 2026, the largest listed at EUR 884 740 for 2022.",
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 6 and investment readiness is level 4; ocean impact reads Low.",
    "cites": [
-    "https://www.yrittajat.fi/uutiset/ilmalaivahankkeesta-ei-tullut-tahdenlento-kelluu-palkkasi-huippuosaajia/",
     "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
-   ]
-  },
-  {
-   "text": "An EU project started on 2024-09-01 with EUR 301 500 attached, and three share issues are registered, the latest on 2025-05-22.",
-   "cites": [
-    "https://cordis.europa.eu/project/id/101157488",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2"
-   ]
-  },
-  {
-   "text": "Its own site names Terrafame as a customer in a notice dated 2023-10-10, which is what lifts the business level to 6 on the radar's rules.",
-   "cites": [
-    "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production",
     "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production"
    ]
   },
-  {
-   "text": "For the fund the memo says watchlist: the ocean impact reading is Low and no decision row matches, so the next step is to reassess when a new public record appears.",
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Ilmarinen as an investor, EIC Accelerator as a programme or funding source and Finnish Meteorological Institute as a partner.",
    "cites": [
-    "https://tech.eu/2026/04/14/kelluu-raises-eur15m-to-scale-autonomous-airship-intelligence-platform/"
+    "https://www.ilmarinen.fi",
+    "https://eic.ec.europa.eu",
+    "https://en.ilmatieteenlaitos.fi"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact Low, business readiness Medium, investment readiness Low, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: ocean impact is Low on the stored evidence; investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"
    ]
   }
- ]
+ }
 }

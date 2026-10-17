@@ -1,38 +1,37 @@
 {
  "company_key": "dk-just-measure",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Just-measure is a cohort company whose country is recorded as DK, and the sources we read hold no register entry for it.",
    "cites": [
     "https://just-measure.com/"
    ]
   },
-  {
-   "text": "The record has a product launch and another dated event, both on 2026-07-15, and an exhibitor or demo entry dated 2026-08-19.",
-   "cites": [
-    "https://just-measure.com/case-studies",
-    "https://just-measure.com/case-studies/jmar-in-action",
-    "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/789199"
-   ]
-  },
-  {
-   "text": "A programme-entry record on the apelago.fi site is dated 2026-02-09.",
-   "cites": [
-    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/"
-   ]
-  },
-  {
-   "text": "No funding, patent or contract record is on file, so every readiness level is unknown.",
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
    "cites": [
     "https://just-measure.com/"
    ]
   },
-  {
-   "text": "For the fund this stays on the watchlist until a public funding or customer record appears.",
+  "readiness": null,
+  "who_to_meet": {
+   "text": "The who-comes-next lists name EIC Accelerator 2026 as a programme or funding source.",
+   "cites": [
+    "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness unknown, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://just-measure.com/"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; no public evidence for business readiness; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
    "cites": [
     "https://just-measure.com/"
    ]
   }
- ]
+ }
 }

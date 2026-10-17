@@ -1,34 +1,39 @@
 {
  "company_key": "3609869-5",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Aaltoillen Kuntoutus Oy is a company registered on 2026-03-18 under the industry code 86990, other human health activities.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5"
    ]
   },
-  {
-   "text": "A start-up notification and a board change were registered on 2026-04-13, and first sales and a first hire are recorded on 2026-08-15.",
+  "thesis_fit": {
+   "text": "The name has a word that can mean waves in Finnish, but the registered industry is health activities and the record shows no ocean use; the memo reads thesis fit as Medium.",
    "cites": [
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3609869-5",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3609869-5",
-    "https://tietopalvelu.ytj.fi/yritys/3609869-5",
-    "https://tietopalvelu.ytj.fi/yritys/3609869-5"
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5"
    ]
   },
-  {
-   "text": "No grant, EU project, public contract or funding record is on file.",
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case: the name has a word that can mean waves in Finnish, but the registered industry is health activities and the record shows no ocean use.",
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5"
    ]
   }
- ]
+ }
 }

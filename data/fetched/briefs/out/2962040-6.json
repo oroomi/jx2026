@@ -1,50 +1,45 @@
 {
  "company_key": "2962040-6",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Viva Jets Oy is a portfolio company registered on 2018-12-28 under the industry code 30120, building of pleasure and sporting boats.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"
    ]
   },
-  {
-   "text": "The register shows five share issues, the latest on 2026-08-17, and first sales and a first hire on 2019-01-02.",
+  "thesis_fit": {
+   "text": "It is a declared portfolio company, and the memo reads thesis fit as High.",
    "cites": [
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2962040-6",
-    "https://tietopalvelu.ytj.fi/yritys/2962040-6",
-    "https://tietopalvelu.ytj.fi/yritys/2962040-6"
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"
    ]
   },
-  {
-   "text": "Funding on record is a round dated 2025-07-18 and three Business Finland decisions, the largest EUR 167 400 for 2024.",
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 4 and investment readiness is level 4; ocean impact reads Medium.",
    "cites": [
-    "https://www.sttinfo.fi/tiedote/71318864/suomessa-kehitetty-sahkovesijetti-valmistautuu-valloittamaan-kansainvaliset-markkinat?lang=fi",
     "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
    ]
   },
-  {
-   "text": "A product launch is dated 2024-02-16, an exhibitor or demo entry is dated 2025-09-30, and a first customer or pilot record dated 2026-04-30 is at low confidence.",
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Meyer Turku as an investor, Interreg Central Baltic Programme 2021-2027 as a programme or funding source and Eckerö Line Abp as a partner.",
    "cites": [
-    "https://moottori.fi/uutinen/vene-24-bat-stealthina-plaanaten-viva-sahkovesijetilla/",
-    "https://vivaelectricjets.com/viva-at-the-cannes-yachting-festival-2025/",
-    "https://vivaelectricjets.com/spring-news/"
+    "https://www.meyerturku.fi",
+    "https://centralbaltic.eu",
+    "https://www.eckeroline.fi"
    ]
   },
-  {
-   "text": "On the radar's rules technology, business and investment readiness are all level 4.",
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact Medium, business readiness Medium, investment readiness Low, thesis fit High), so the fund should reassess it when a new public record appears.",
    "cites": [
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
-    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"
    ]
   },
-  {
-   "text": "For the fund the memo says watchlist because investment readiness is Low and no decision row matches, so the pilot record should be checked at its source.",
+  "whats_missing": {
+   "text": "Gaps on the record: investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category).",
    "cites": [
-    "https://vivaelectricjets.com/spring-news/"
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"
    ]
   }
- ]
+ }
 }

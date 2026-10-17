@@ -1,38 +1,37 @@
 {
  "company_key": "dk-race-for-oceans-technology",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "Race for Oceans Technology is a cohort company whose country is recorded as DK, and the sources we read hold no register entry for it.",
    "cites": [
     "https://www.raceforoceanstechnology.com/"
    ]
   },
-  {
-   "text": "The record has two exhibitor or demo entries, dated 2024-06-30 and 2024-10-31.",
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
    "cites": [
-    "https://gotoams.nl/2024",
-    "https://event.ing.dk/dts2024/speaker/1361961/signe-simonsen"
+    "https://www.raceforoceanstechnology.com/"
    ]
   },
-  {
-   "text": "It also has a first-hire record and a grant or public funding record, both for 2026 with the year only and both at low confidence.",
+  "readiness": null,
+  "who_to_meet": {
+   "text": "The who-comes-next lists name EIC Accelerator 2026 as a programme or funding source.",
    "cites": [
-    "https://www.raceforoceanstechnology.com/about",
-    "https://www.raceforoceanstechnology.com/about"
+    "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
    ]
   },
-  {
-   "text": "A programme-entry record on the apelago.fi site is dated 2026-02-09.",
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness unknown, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
    "cites": [
-    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/"
+    "https://www.raceforoceanstechnology.com/"
    ]
   },
-  {
-   "text": "Every readiness level is unknown, and the low-confidence funding record should not be relied on without checking it at its source.",
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; no public evidence for business readiness; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
    "cites": [
-    "https://www.raceforoceanstechnology.com/about"
+    "https://www.raceforoceanstechnology.com/"
    ]
   }
- ]
+ }
 }

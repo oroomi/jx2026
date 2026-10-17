@@ -1,33 +1,39 @@
 {
  "company_key": "3649670-6",
  "written": "2026-10-17",
- "sentences": [
-  {
+ "slots": {
+  "what_it_does": {
    "text": "MIRVIKA Oy is a company registered on 2026-08-24 under the industry code 30110, building of civilian ships and floating structures.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649670-6",
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649670-6"
    ]
   },
-  {
-   "text": "First sales are recorded on 2026-08-24, and a start-up notification and a board change were registered on 2026-08-27.",
+  "thesis_fit": {
+   "text": "The registered industry is on the thesis list, but no public record yet shows technology or growth; the memo reads thesis fit as High.",
    "cites": [
-    "https://tietopalvelu.ytj.fi/yritys/3649670-6",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649670-6",
-    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649670-6"
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649670-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649670-6"
    ]
   },
-  {
-   "text": "No grant, EU project, public contract or funding record is on file.",
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649670-6"
    ]
   },
-  {
-   "text": "For the fund this is a watchlist case: the registered industry is on the thesis list, but no public record yet shows technology or growth.",
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit High), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649670-6"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
    "cites": [
     "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649670-6"
    ]
   }
- ]
+ }
 }

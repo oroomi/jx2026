@@ -231,6 +231,8 @@ def tier(conn, th: dict, *, today=None, exclude: set[str] | None = None, limit: 
             continue
         if fit_mod.looks_like_person(r["name"], th) or store.is_partner_org(r["name"]):
             continue
+        if store.is_listed_company(r["name"]) or store.excluded_code(r["industry_code"], th):
+            continue
         if thesis_evidence(conn, th, dict(r), _signals(conn, key))["strength"] == "strong":
             continue
         out.append({"company_key": key, "name": r["name"], "industry_code": r["industry_code"], "industry_desc": r["industry_desc"],

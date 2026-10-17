@@ -47,3 +47,30 @@ def test_source_family_rule_is_printed(client):
     assert store.source_family("prh_notices") == store.source_family("tax_registers") == store.source_family("prh")
     t = client.get("/method").text
     assert "same registry" in t and "never corroborate" in t
+
+
+# ---- item 7: listed companies and human-health practice are left out ------------------------------------------------
+
+def test_listed_company_is_never_in_the_feed(built, client):
+    from radar import store, thesis
+    assert store.is_listed_company("Solar Foods Oyj") and not store.is_listed_company("Oyjala Boats Oy")
+    assert _row(built, "9300004-4") is None
+    assert store.feed_counts(built, thesis.load())["excluded_listed"] == 1
+    t = client.get("/").text
+    assert "Synthetic Shipping Oyj" not in t and "listed company (Oyj)" in t
+
+
+def test_health_file_excludes_human_health_practice(built):
+    from radar import emit, store, thesis
+    th = thesis.load(str(Path(__file__).resolve().parent.parent / "config" / "thesis_health_turku.yaml"))
+    assert th["feed_exclude_code_prefixes"] == ["86"]
+    assert "86900" not in {str(c["code"]) for c in th["industry_codes"]}
+    for key, name, code in (("9300010-1", "Synthetic Terveys Oy", "86220"), ("9300011-2", "Synthetic Medtech Oy", "32500")):
+        emit.upsert_company(built, company_key=key, name=name, y_tunnus=key, founded=fx.d(20), industry_code=code,
+                            industry_desc="Medical specialists activities" if code == "86220" else "Medical instruments",
+                            source_url=fx.PRH + key)
+        emit.emit_signal(built, company_key=key, signal_type="register_entry", date=fx.d(20), source_url=fx.PRH + key,
+                         confidence="high", adapter="prh")
+    keys = {r["company_key"] for r in store.feed(built, th, limit=10**6)}
+    assert "9300010-1" not in keys and "9300011-2" in keys
+    assert store.feed_counts(built, th)["excluded_codes"] == 1

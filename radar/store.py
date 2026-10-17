@@ -95,7 +95,7 @@ def rule_text(thesis: dict) -> str:
             f"is shown, newest first, once each. A company is listed as a match only when we can say why: its industry code "
             f"or registered line of business fits the thesis, a contract or project text states the match, or a thesis word in "
             f"its legal name is backed by a record from a different source family (a PRH notice never backs a PRH register entry). "
-            f"Name-only matches are kept in a closed Weak matches list.")
+            f"Listed companies (Oyj) are left out. Name-only matches are kept in a closed Weak matches list.")
 
 
 # Source families for corroboration: these adapters all read the one PRH/YTJ registry, so a second record from any of them
@@ -112,6 +112,21 @@ def source_family(adapter: str | None) -> str:
 CORROBORATION_RULE = ("A name word counts only when the second record comes from a different source family than the row's own: "
                       "PRH register entries, PRH notices and PRH tax registers are one family (the same registry), so a PRH record never "
                       "corroborates another PRH record; otherwise the row is a weak match.")
+
+# Legal forms of listed companies: never an early-stage discovery, so left out of the feed (counted in the footer).
+LISTED_FORM_WORDS = ("oyj", "abp")
+
+
+def is_listed_company(name: str | None) -> bool:
+    words = re.findall(r"[a-zåäö]+", (name or "").casefold())
+    return any(w in LISTED_FORM_WORDS for w in words[-2:])
+
+
+def excluded_code(code: str | None, thesis: dict) -> bool:
+    """True when the industry code starts with a prefix the sector file excludes from the feed (feed_exclude_code_prefixes)."""
+    c = (code or "").strip()
+    return bool(c) and any(c.startswith(str(p)) for p in thesis.get("feed_exclude_code_prefixes") or [])
+
 
 REASON_IDS = ("industry_code", "line_of_business", "own_text", "corroborated_keyword")
 REASON_MEANING = {
@@ -332,6 +347,8 @@ def _feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500
     for key, rs in per.items():
         if is_partner_org(rs[0]["name"]):
             continue
+        if is_listed_company(rs[0]["name"]) or excluded_code(rs[0]["industry_code"], thesis):
+            continue  # counted in feed_counts as listed / excluded code family
         if fit.looks_like_person(rs[0]["name"], thesis) and all(o["signal_type"] == "register_entry" for o in others[key]):
             hidden += 1
             continue
@@ -383,11 +400,25 @@ def feed_counts(conn, thesis, *, today=None) -> dict:
             [*types, start.isoformat(), end.isoformat()]).fetchone()[0]
         future = conn.execute(
             f"SELECT COUNT(*) FROM signals WHERE signal_type IN ({q}) AND date > ?", [*types, end.isoformat()]).fetchone()[0]
+    listed, excluded_codes = _left_out(conn, thesis, today)
     last = conn.execute("SELECT MAX(fetched_at) FROM signals").fetchone()[0]
     return {"window_start": start.isoformat(), "window_end": end.isoformat(), "window_days": days,
             "companies": len(rows), "hidden_personal": hidden, "main": main, "weak": len(rows) - main, "by_reason": by_reason,
             "year_only_not_entry": year_only, "by_type": by_type, "by_confidence": by_conf,
-            "excluded_declared": excluded, "future_dated": future, "last_fetched": last}
+            "excluded_declared": excluded, "future_dated": future, "last_fetched": last,
+            "excluded_listed": listed, "excluded_codes": excluded_codes,
+            "excluded_code_prefixes": [str(p) for p in thesis.get("feed_exclude_code_prefixes") or []]}
+
+
+def _left_out(conn, thesis, today) -> tuple[int, int]:
+    """(listed companies, companies in an excluded code family) that had an in-window feed signal and were left out."""
+    seen: dict[str, tuple[str, str | None]] = {}
+    for r in _in_window_rows(conn, thesis, today, _feed_types(thesis), "feed"):
+        if not is_year_only(r):
+            seen[r["company_key"]] = (r["name"], r["industry_code"])
+    listed = sum(1 for n, _ in seen.values() if is_listed_company(n) and not is_partner_org(n))
+    codes = sum(1 for n, c in seen.values() if not is_listed_company(n) and excluded_code(c, thesis) and not is_partner_org(n))
+    return listed, codes
 
 
 def _fold(s: str) -> str:

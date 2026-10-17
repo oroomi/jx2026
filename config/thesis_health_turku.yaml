@@ -15,7 +15,9 @@ industry_codes:
   - {code: "26600", note: "Irradiation, electromedical equipment"}
   - {code: "32500", note: "Medical and dental instruments"}
   - {code: "72110", note: "R&D in biotechnology"}
-  - {code: "86900", note: "Other human health activities"}
+# Human health practice (TOL 86: clinics, physiotherapy, medical specialists) is care delivery, not health technology:
+# companies with a code starting with these prefixes are left out of the feed and the intake tier (judge review 2, item 9).
+feed_exclude_code_prefixes: ["86"]
 name_keywords:
   fi: [terveys, lääke, hoiva, diagnost, bio, geeni, kuntoutus]
   sv: [hälsa, läkemedel, vård, bio]

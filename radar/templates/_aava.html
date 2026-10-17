@@ -1,0 +1,34 @@
+{# Aava: narrated briefing. Voice output only, captions always on, no microphone. Needs aava_kind = "company" or "feed". #}
+<div id="aava" class="aava" data-kind="{{ aava_kind }}"
+     {% if aava_kind == "company" %}data-script="/aava/script/{{ c.company_key }}"{% else %}data-script="/aava/feed"{% endif %}>
+  <button id="aava-open" class="aava-fab" type="button" aria-haspopup="dialog" aria-controls="aava-sheet">Ask Aava</button>
+  <section id="aava-sheet" class="aava-sheet" role="dialog" aria-labelledby="aava-title" hidden>
+    <div class="aava-head">
+      <h2 id="aava-title">{% if aava_kind == "company" %}Ask Aava about {{ c.name }}{% else %}Ask Aava what is new{% endif %}</h2>
+      <button id="aava-close" class="aava-btn" type="button">Close</button>
+    </div>
+    <p class="aava-label">Aava reads only the records on this page. Captions are always on; no microphone is used.</p>
+    <div class="aava-ask">
+      {% if aava_kind == "company" %}
+      <button class="aava-btn aava-primary" type="button" data-intent="brief">Ask Aava about {{ c.name }}</button>
+      <button class="aava-btn" type="button" data-intent="next">What should they do next?</button>
+      <button class="aava-btn" type="button" data-intent="talk">Who should they talk to?</button>
+      {% else %}
+      <button class="aava-btn aava-primary" type="button" data-intent="brief">Ask Aava what is new</button>
+      {% endif %}
+    </div>
+    <p id="aava-caption" class="aava-caption" aria-live="polite">Tap a question. Aava speaks only after you tap.</p>
+    <div id="aava-meter" class="aava-meter" hidden>
+      <span id="aava-meter-num" class="aava-num">0</span><span id="aava-meter-max" class="aava-max"></span>
+      <span class="aava-bar"><span id="aava-meter-fill"></span></span>
+    </div>
+    <div id="aava-line" class="aava-line" hidden aria-hidden="true"><span id="aava-line-fill"></span></div>
+    <p id="aava-source" class="aava-src"></p>
+    <div class="aava-ctl">
+      <button id="aava-pause" class="aava-btn" type="button" disabled>Pause</button>
+      <button id="aava-stop" class="aava-btn" type="button" disabled>Stop</button>
+      <span id="aava-mode" class="aava-mode"></span>
+    </div>
+  </section>
+</div>
+<script src="/static/aava.js?v={{ asset_v }}" defer></script>

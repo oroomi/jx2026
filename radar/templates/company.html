@@ -11,7 +11,7 @@
   <a href="#q4">04 What should happen next</a>
 </nav>
 <div class="co-main">
-<header class="co-head">
+<header class="co-head" id="aava-who">
   <p class="co-group">{{ c.group_tag }}</p>
   <h1>{{ c.name }}</h1>
   {% if connections %}
@@ -192,7 +192,7 @@
   {% if signals %}
   <ul class="siglist">
     {% for s in signals %}
-    <li><span class="s-type">{{ s.type_label }}</span> <time datetime="{{ s.date[:4] if s.date_precision == "year" else s.date }}">{{ s.date_label or s.date }}</time>
+    <li id="aava-sig-{{ loop.index0 }}"><span class="s-type">{{ s.type_label }}</span> <time datetime="{{ s.date[:4] if s.date_precision == "year" else s.date }}">{{ s.date_label or s.date }}</time>
       <span class="s-detail">{% if s.detail %}{{ s.detail | plain_text }}{% else %}{{ missing("no detail in source") }}{% endif %}</span>
       {{ chip(s.evidence) }} <span class="s-conf">how sure: {{ s.confidence }}</span></li>
     {% endfor %}
@@ -220,4 +220,5 @@
 <div class="co-bar">
   <a href="/radar">Radar{% if cohort_n %} of {{ cohort_n }}{% endif %}: show the Nordic Blue companies</a>
 </div>
+{% set aava_kind = "company" %}{% include "_aava.html" %}
 {% endblock %}

@@ -94,15 +94,31 @@ def rule_text(thesis: dict) -> str:
     return (f"Companies from outside the declared cohort and portfolio whose earliest public signal in the last {days} days "
             f"is shown, newest first, once each. A company is listed as a match only when we can say why: its industry code "
             f"or registered line of business fits the thesis, a contract or project text states the match, or a thesis word in "
-            f"its legal name is backed by a second source. Name-only matches are kept in a closed Weak matches list.")
+            f"its legal name is backed by a record from a different source family (a PRH notice never backs a PRH register entry). "
+            f"Name-only matches are kept in a closed Weak matches list.")
 
+
+# Source families for corroboration: these adapters all read the one PRH/YTJ registry, so a second record from any of them
+# is the same source again, never independent support for a name word.
+REGISTRY_FAMILY = "prh"
+SOURCE_FAMILIES = {"prh": REGISTRY_FAMILY, "prh_notices": REGISTRY_FAMILY, "prh_intake": REGISTRY_FAMILY, "prh_recent": REGISTRY_FAMILY,
+                   "tax_registers": REGISTRY_FAMILY}
+
+
+def source_family(adapter: str | None) -> str:
+    return SOURCE_FAMILIES.get(adapter or "", adapter or "")
+
+
+CORROBORATION_RULE = ("A name word counts only when the second record comes from a different source family than the row's own: "
+                      "PRH register entries, PRH notices and PRH tax registers are one family (the same registry), so a PRH record never "
+                      "corroborates another PRH record; otherwise the row is a weak match.")
 
 REASON_IDS = ("industry_code", "line_of_business", "own_text", "corroborated_keyword")
 REASON_MEANING = {
     "industry_code": "the PRH industry code is on the thesis list (exact match).",
     "line_of_business": "a thesis word starts a word in the registered line-of-business text.",
     "own_text": "the source's own text (Hilma notice title, CORDIS project title and objective, BlueInvest profile text) contains a thesis word. Our own annotations are never read.",
-    "corroborated_keyword": "a thesis word is in the legal name and a second, independent source also has a record of the company.",
+    "corroborated_keyword": "a thesis word is in the legal name and a record from a different source family also has the company (PRH register entries, PRH notices and PRH tax registers are one registry, so they never corroborate each other).",
 }
 _WHY_ORDER = ("industry_code", "line_of_business", "own_text", "corroborated_keyword")
 # Signal types whose SOURCE text is stored: Hilma notice title (inside detail), CORDIS title and objective (signal_text),
@@ -189,7 +205,8 @@ def explain(row: dict, others: list, thesis: dict, texts: dict | None = None) ->
             reasons.append("own_text")
             parts["own_text"] = f"the {labels.signal_label(sig['signal_type']).lower()} text contains '{hit}'"
             break
-    second = next((o for o in others if o["adapter"] != row["adapter"]), None)
+    row_family = source_family(row["adapter"])
+    second = next((o for o in others if source_family(o["adapter"]) != row_family), None)
     if name_hits and second is not None:
         reasons.append("corroborated_keyword")
         src = labels.source_label(second["adapter"])

@@ -122,7 +122,7 @@ def method(request: Request):
     kinds = [labels.signal_label(t) for t in emit.SIGNAL_TYPES]
     geo = th["geography"]
     return templates.TemplateResponse(request, "method.html", {
-        "thesis": th, "confidence_rules": store.CONFIDENCE_RULES, "kinds": kinds, "feed_rule": store.rule_text(th), "match_rule": fit.MATCH_RULE, "own_text_sources": ", ".join(store.OWN_TEXT_SOURCES),
+        "thesis": th, "confidence_rules": store.CONFIDENCE_RULES, "kinds": kinds, "feed_rule": store.rule_text(th), "corroboration_rule": store.CORROBORATION_RULE, "match_rule": fit.MATCH_RULE, "own_text_sources": ", ".join(store.OWN_TEXT_SOURCES),
         "window_days": geo["feed_window_days"], "age_cut": geo.get("stage_max_company_age_years"),
         "counts": counts, "eco": eco, "partners": store.partner_orgs(), "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
         "declared": declared, "sources": src, "no_db": conn is None, "connectors": CONNECTOR_SLOTS, "fw": frameworks.assess({}, []),

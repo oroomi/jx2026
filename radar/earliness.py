@@ -48,7 +48,7 @@ def rule_lines(th: dict) -> list[str]:
         f"A live public signal is a stored signal of the company whose type is one of the thesis feed signal types ({types}), with its stored date, "
         "and it counts only if the radar's own feed rule would have shown that company: the same test the feed uses (radar/store.py explain), "
         "applied to the company's registered facts and to the signals dated no later than that signal. That means the industry code is on the thesis list, "
-        "or a thesis word is in the registered line of business, or a thesis word is in the source's own text, or a thesis word in the legal name is backed by a second, independent source. "
+        "or a thesis word is in the registered line of business, or a thesis word is in the source's own text, or a thesis word in the legal name is backed by a record from a different source family (PRH register entries, notices and tax registers are one family). "
         "A signal that fails the test is listed in muted text as outside the thesis rule and is not counted.",
         f"A register entry also counts only if the company was registered no more than {cut} years before the reference date: the radar flags new registrations, "
         f"so the registration of an older company is not a discovery signal.",

@@ -23,7 +23,7 @@ CONFIDENCE_RULES = {
     "high": "the source names the company or its business id directly and states the date.",
     "medium": "matched by an exact legal name or website domain, date stated by the source.",
     "low": ("matched by name keyword or industry code only; shown, but never counted in rankings: the cohort radar skips it, and a thesis "
-            "fit that rests on the industry code alone is at most Medium (D66), so it never puts a company in the High-fit group."),
+            "fit that rests on the industry code alone is at most Medium, so it never puts a company in the High-fit group."),
 }
 _CONF_ORDER = {"high": 0, "medium": 1, "low": 2}
 NO_DB_MESSAGE = "no signals yet. Run python3 -m radar.build"

@@ -129,11 +129,11 @@ def test_viva_jets_memo_matches_its_readiness_section_and_reads_the_ladder(snap)
     # D46: the impact band is the Ocean Impact ladder's. Viva Jets is listed on the Redstone Blue page (level 5, Medium), so impact is no
     # longer implied by the sector. D53: impact Medium on record is never weaker than implied, so the fallback applies with the measured band.
     assert m["ocean_impact"]["level"] == 5 and m["levels"]["impact"]["band"] == "Medium"
-    assert r["decision"] == "ACCELERATOR" and r["kind"] == "fallback" and "on record" in r["note"] and "implied" not in r["note"]
+    assert r["decision"] == "PORTFOLIO SUPPORT" and r["kind"] == "member" and r["note"].startswith("Already in Redstone Blue's portfolio") and "implied" not in r["note"]   # D65
     assert "Medium" in r["because"] and "implied" not in r["because"]
     from app import app
     html = TestClient(app).get("/c/2962040-6").text
-    assert "on record" in html and "fallback c2" not in html   # D53: the memo states the measured impact, never the rule id
+    assert "Portfolio support" in html and "fallback c2" not in html   # D65: a declared member reads the member verdict (D53 on record wording), never a rule id
     assert f"investment {irl} of 9" in html and "of 10 investment dimensions have public evidence" in html
 
 

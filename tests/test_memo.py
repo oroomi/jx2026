@@ -135,7 +135,7 @@ def test_company_with_almost_no_evidence_on_the_snapshot(snap):
     m = memo.build(conn, snap, "no-tunisea", today="2026-10-16")
     conn.close()
     r = m["recommendation"]
-    assert r["decision"] == "WATCHLIST" and "more public evidence needed" in r["note"]
+    assert r["decision"] == "PORTFOLIO SUPPORT" and r["note"].startswith("Already in")   # D65: a declared member is supported whatever its evidence (was WATCHLIST)
     assert m["risks"] and all(x["url"] for x in m["why"])
 
 

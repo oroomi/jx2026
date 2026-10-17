@@ -91,10 +91,10 @@ def test_viva_jets_and_arctic_fry_answers_are_clean_short_and_in_order(corpus):
 
 
 def test_arctic_fry_reads_as_a_company_to_watch_not_call(corpus):
-    # D53: Arctic Fry's ocean impact is Medium on record and it is a declared cohort member (High fit), so it reads ACCELERATOR now.
+    # D65: Arctic Fry is a declared cohort member, so it reads PORTFOLIO SUPPORT (was ACCELERATOR under D53): it is already inside the programme.
     a = _answers(ARCTIC)
-    assert "I think it is a good accelerator candidate" in a[1]["text"]
-    assert "The verdict is accelerator" in a[2]["text"] and not a[5]["text"].startswith("No call yet.")
+    assert "I think it needs portfolio support, not an entry decision: already in A'Pelago's" in a[1]["text"] and "accelerator candidate" not in a[1]["text"]
+    assert "The verdict is portfolio support" in a[2]["text"] and not a[5]["text"].startswith("No call yet.")
     assert "Watch: not enough public evidence" not in " ".join(s["text"] for s in a.values())
 
 
@@ -115,7 +115,7 @@ def test_viva_jets_answers_have_the_verdict_and_a_named_organisation(client):
     m = memo.build(conn, th, VIVA)
     nxt = matching.who_comes_next(VIVA, th, 5, conn=conn)
     conn.close()
-    names = [aava._spoken_name(r["name"]) for k in ("investors", "funding") for r in nxt[k]]
+    names = [aava._spoken_name(r["name"]) for k in ("investors", "funding", "partners") for r in nxt[k]]   # D65: a member's next support is a pilot partner and a grant
     assert names, "the snapshot gives Viva Jets no investor or programme row"
     a = {s["q"]: s["text"] for s in _answers(VIVA).values()}
     assert aava.OPINION[m["recommendation"]["decision"]] in a[1]

@@ -82,9 +82,10 @@ def test_code_only_company_does_not_get_the_fallback(conn):
     _company(conn, "9400001-1", "Plain Code Only Oy")
     m = _memo(conn, "9400001-1")
     r = m["recommendation"]
-    assert m["levels"]["fit"]["band"] == "High" and m["levels"]["impact"]["band"] == "unknown"
-    assert r["decision"] == "WATCHLIST" and r["kind"] is None and r["matched"] is None and r["fallback_blocked"] is True
-    assert r["note"] == NOTE and r["needs"] == ["Ocean impact"]
+    # D66: the industry code alone gives at most a Medium fit, so the fallback (High fit only) is never reached, rather than reached and blocked
+    assert m["levels"]["fit"]["band"] == "Medium" and m["levels"]["impact"]["band"] == "unknown"
+    assert r["decision"] == "WATCHLIST" and r["kind"] is None and r["matched"] is None and r["fallback_blocked"] is False
+    assert "Ocean impact" in r["needs"]                                  # with a Medium fit the table also needs the other readiness levels
     assert any(a["text"].startswith("Revisit when the radar finds public evidence for: Ocean impact") for a in m["actions"])
 
 
@@ -93,7 +94,7 @@ def test_declared_company_gets_the_fallback(conn):
         key = f"9400002-{tag[0]}"
         _company(conn, key, "Plain Declared Oy", tag=tag)
         r = _memo(conn, key)["recommendation"]
-        assert r["decision"] == "ACCELERATOR" and r["matched"] == "the High-fit rule, impact implied by sector", tag
+        assert r["decision"] == "PORTFOLIO SUPPORT" and r["kind"] == "member", tag     # D65: a declared member is supported, no fallback to an accelerator
         assert r["fallback_blocked"] is False
 
 
@@ -112,7 +113,7 @@ def test_corroborated_name_word_gets_the_fallback_but_a_same_family_record_does_
     assert _memo(conn, "9400004-4")["recommendation"]["kind"] == "fallback"
     _company(conn, "9400004-5", "Marine Plain Two Oy", extra=[("equity_event", "tax_registers", None)])  # the same registry family
     r = _memo(conn, "9400004-5")["recommendation"]
-    assert r["decision"] == "WATCHLIST" and r["fallback_blocked"] is True and r["note"] == NOTE
+    assert r["decision"] == "WATCHLIST" and r["kind"] is None       # D66: a same-family record leaves the fit on the code alone, capped at Medium
 
 
 def test_a_row_or_rule_match_never_reaches_the_gate(conn):
@@ -146,12 +147,12 @@ def snap(tmp_path, monkeypatch):
 def test_on_the_snapshot_a_code_only_company_is_gated_and_a_declared_one_is_not(snap):
     c = store.open_db(thesis=snap)
     try:
-        assert _memo_snap(c, snap, "2962040-6")["decision"] == "ACCELERATOR"                          # Viva Jets: portfolio
-        gated = [r for r in (_memo_snap(c, snap, k) for (k,) in c.execute("SELECT company_key FROM companies WHERE group_tag='feed' LIMIT 400"))
-                 if r["fallback_blocked"]]
+        assert _memo_snap(c, snap, "2962040-6")["decision"] == "PORTFOLIO SUPPORT"                    # Viva Jets: portfolio (D65)
+        capped = [m for m in (memo.build(c, snap, k, today="2026-10-16") for (k,) in c.execute("SELECT company_key FROM companies WHERE group_tag='feed' LIMIT 400"))
+                  if any("industry code alone" in w["text"] for w in m["why"])]
     finally:
         c.close()
-    assert gated and all(r["decision"] == "WATCHLIST" and r["note"] == NOTE for r in gated)
+    assert capped and all(m["levels"]["fit"]["band"] == "Medium" and m["recommendation"]["kind"] != "fallback" for m in capped)
 
 
 def _memo_snap(c, th, key):

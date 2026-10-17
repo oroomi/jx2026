@@ -169,3 +169,44 @@ def test_judge_named_members_read_portfolio_support(snap, key, org):
     assert rec["decision"] == "PORTFOLIO SUPPORT" and org in rec["note"]
     assert not any(r["name"].startswith(org) for r in m["meet"])
     assert not any("Pitching Session" in r["name"] for r in m["meet"] if "aquaculture" in r["name"].lower()) or key == "3166759-6"
+
+
+# ---- the fallback case the snapshot no longer holds, and the page against the list ------------------------------------------------
+
+def test_a_fallback_company_outside_the_lists_still_reads_accelerator_and_aava_says_the_page_rule(conn):
+    """D65 and D66 leave the fallback to a High fit from the source's own text. Its chip, the memo and Aava name the rule the same way (D67)."""
+    key = "9300008-1"
+    _company(conn, key, "Fixture Own Text Oy")
+    url = "https://example.test/cordis/" + key
+    emit.emit_signal(conn, company_key=key, signal_type="eu_project", date=_day(20), source_url=url, confidence="medium", adapter="cordis")
+    sid = conn.execute("SELECT id FROM signals WHERE source_url=?", (url,)).fetchone()[0]
+    conn.execute("INSERT INTO signal_text (signal_id, field, text) VALUES (?,?,?)", (sid, "objective", "A study of the sea and its fish."))
+    conn.commit()
+    m = _memo(conn, key)
+    rec = m["recommendation"]
+    assert m["levels"]["fit"]["band"] == "High" and rec["kind"] == "fallback" and rec["decision"] == "ACCELERATOR"
+    c = dict(matching.company_context(conn, key)["c"])
+    g = aava.company_groups(c, [], nxt={}, step=None, memo=m, thesis=thesis.load())
+    why = " ".join(s["text"] for s in g["why"])
+    assert "the table's High-fit rule" in why and "fallback" not in why
+    q6 = " ".join(s["text"] for s in g["missing"])
+    assert "drop" not in q6 and aava.MEMBER_FIXED not in q6
+
+
+@pytest.mark.parametrize("key", ["2962040-6", "2902007-2", "3166759-6"])
+def test_the_list_and_the_page_count_the_same_checks(snap, key):
+    from fastapi.testclient import TestClient
+    from radar import home_list
+    from app import app
+    conn = store.open_db(thesis=snap)
+    try:
+        if matching.company_context(conn, key) is None:
+            pytest.skip("not in this snapshot")
+        row = next((r for r in home_list.build(conn, snap, TODAY)["rows"] if r["company_key"] == key), None)
+    finally:
+        conn.close()
+    if row is None:
+        pytest.skip("not on the list")
+    html = TestClient(app).get(f"/c/{key}").text
+    assert f"Public record covers {row['covered']} of {row['checks']} checks." in html
+    assert f"{row['covered']}/{row['checks']} checks" in html

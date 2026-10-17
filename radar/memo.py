@@ -337,6 +337,15 @@ def filter_next(nxt: dict, *, own=(), company_sectors=frozenset(), sector_labels
     return {k: ([r for r in v if keep(r)] if isinstance(v, list) else v) for k, v in nxt.items()}
 
 
+def visible_next(conn, thesis: dict, c: dict, nxt: dict) -> dict:
+    """The who-comes-next lists the company is shown (D67): a declared member without the organisation it already belongs to, and nobody
+    whose declared sector is not the company's. The memo, Aava and the public-record check count all read this one result."""
+    declared = c.get("group_tag") in ("cohort", "portfolio") and c.get("source_url")
+    rule = member_rule(_cfg(thesis), frozenset({f"declared_{c['group_tag']}"}) if declared else frozenset())
+    own_secs, sec_labels = _sector_words(conn, thesis, c["company_key"])
+    return filter_next(nxt, own=(rule or {}).get("own") or (), company_sectors=own_secs, sector_labels=sec_labels)
+
+
 def meet_list(nxt: dict, actions: list[dict], n: int = 3) -> list[dict]:
     """The one top-three who-to-meet list (D67) the memo and Aava both read: the organisations the memo's actions name, in their order,
     then the best-scored rows, then the rest. Each row is the who-comes-next row with its group's `role`."""
@@ -385,6 +394,13 @@ def record_checks(types, category: str | None, investors, impact_label: str = "O
     out.append((f"a category match for {impact_label.lower()}", bool(category)))
     out.append(("an investor match", bool(investors)))
     return out
+
+
+def checks_for(conn, thesis: dict, c: dict, sigs, category: str | None, nxt: dict) -> list[tuple[str, bool]]:
+    """The six checks for one company (D68): the company page and the home list (through memo.build's `checks`) both come here, with the
+    store's signals, the frameworks' category and the investor list the memo shows."""
+    label = ((thesis.get("memo") or {}).get("labels") or {}).get("impact") or "Ocean impact"
+    return record_checks({x["signal_type"] for x in sigs}, category, visible_next(conn, thesis, c, nxt).get("investors"), label)
 
 
 _LEVEL_TAG = re.compile(r"\s*\(level \d+\)")
@@ -479,9 +495,7 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
     bands["technology"] = tech_band
     nxt = matching.who_comes_next(company_key, thesis, 5, conn=conn, today=t)
     step = matching.next_step(company_key, thesis, conn=conn, today=t)
-    own_secs, sec_labels = _sector_words(conn, thesis, company_key)
-    mem_rule = member_rule(cfg, fit["support"])
-    nxt = filter_next(nxt, own=(mem_rule or {}).get("own") or (), company_sectors=own_secs, sector_labels=sec_labels)
+    nxt = visible_next(conn, thesis, c, nxt)
 
     blocked = False
     if ctx["status"] in matching.INACTIVE:
@@ -552,7 +566,8 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
             risks.append({"text": f"{labels.get(d, d)} is Low on the stored evidence", "url": (src or {}).get("url") or c.get("source_url")})
     # D67: the market gap reads the record the page's business readiness shows: a customer the company names on its own site is market
     # evidence, so the gap then says only that no public buyer is on record yet, beside that record's link.
-    biz_ev = [e for e in ctx["fw"]["brl"].get("evidence") or [] if e.get("signal_type") and e.get("source_url")]
+    market_types = set(CHECK_TYPES[3][1])   # a customer, a contract or a pilot; a register entry is not market evidence
+    biz_ev = [e for e in ctx["fw"]["brl"].get("evidence") or [] if e.get("signal_type") in market_types and e.get("source_url")]
     for dim in ctx["fw"]["dimensions"]:
         if dim["name"] in ("Market", "Financials") and not dim["evidence"]:
             if dim["name"] == "Market" and biz_ev:
@@ -566,6 +581,7 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
     actions = member_acts if member_acts is not None else _actions(decision, nxt, step, unknown, labels, c, ctx["sigs"])
     out = {"company_key": company_key, "name": c["name"], "recommendation": rec, "why": why, "risks": risks,
            "actions": actions, "meet": meet_list(nxt, actions),
+           "checks": record_checks({x["signal_type"] for x in ctx["sigs"]}, ctx["category"], nxt.get("investors"), labels.get("impact") or "Ocean impact"),
            "levels": {**{d: {"band": bands[d]} for d in TABLE_DIMS}, "technology": {"band": tech_band}}, "as_of": t.isoformat(),
            "plain_why": plain_bullets(rec, why, oi, labels)}
     if oi is not None:  # a thesis that defines no impact areas (the health swap) has no assessment and no such key
@@ -612,7 +628,7 @@ def next_step_view(m: dict | None, step: dict | None, thesis: dict | None = None
         return None
     rec = m["recommendation"]
     cfg = _cfg(thesis) if thesis else {"rows": [], "labels": {}}
-    action = rec.get("table_action") if rec.get("kind") in ("row", "fallback") else None
+    action = rec.get("table_action") if rec.get("kind") in ("row", "fallback", "member") else None
     if not action:  # a condition rule or no match: the table's own action for this verdict
         action = next((r.get("action") for r in cfg["rows"] if r.get("decision") == rec["decision"] and r.get("action")), None)
     word = rec["decision"][:1] + rec["decision"][1:].lower()

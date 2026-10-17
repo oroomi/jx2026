@@ -144,7 +144,9 @@ def test_who_to_meet_uses_only_list_names(kelluu):
 
 def test_fund_slot_must_match_the_memo_verdict(kelluu):
     exp, th = kelluu
-    assert exp["memo"]["decision"] == "ACCELERATOR"  # a declared member reads High fit since D47, so the fallback reaches it
+    assert exp["memo"]["decision"] == "PORTFOLIO SUPPORT"  # a declared member is supported, not assessed for entry (D65; ACCELERATOR under D47)
+    good = briefs.verify_slot("what_the_fund_should_do", sent("The fund should give Kelluu portfolio support: a pilot and a grant.", PRH), exp, briefs.Facts(exp), th)
+    assert good is None or "rule" in good   # the member verdict is stated by its name
     exp = {**exp, "memo": {**exp["memo"], "decision": "WATCHLIST", "matched": None}}  # the verifier is pinned on a watchlist export here
     f = briefs.Facts(exp)
     assert briefs.verify_slot("what_the_fund_should_do", sent("Keep it on the watchlist until a new public record appears.", PRH), exp, f, th) is None

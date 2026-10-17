@@ -516,8 +516,8 @@ def score(memo: dict | None) -> dict:
     pick = lambda d: f"{_lc(bands[d]['label'])} is {_words(bands[d]['band'])}" if d in bands else None  # noqa: E731
     action = (rec.get("table_action") or "").rstrip(".")
     verdict = f"The verdict is {_dec(rec['decision'])}" + (f": {_lc(action)}." if action and rec.get("kind") != "rule" else ".")
-    if rec.get("kind") == "member" and rec.get("note"):
-        verdict = f"The verdict is {_dec(rec['decision'])}: {_lc(clean(rec['note']).rstrip('.'))}."
+    if rec.get("kind") == "member" and rec.get("relation"):   # the relationship only; the next support is in the opening answer
+        verdict = f"The verdict is {_dec(rec['decision'])}: {_lc(clean(rec['relation']).rstrip('.'))}."
     got = [p for p in (pick("fit"), pick("business")) if p]
     parts = [(0, _ocean_words(memo, bands)), (0, verdict),
              (0, (_uc(_list(got)) + ".") if got else ""),

@@ -246,9 +246,9 @@ MAX_SENTENCES_IN_SLOT = {"what_it_does": 1, "readiness": 1}      # every other s
 MIN_SLOTS = 2
 _SENT_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z])")
 _LEVEL_PAIR = re.compile(r"\b(technology|business|investment)\b[^.;\d]{0,60}?\b(\d)\b", re.I)
-_DECISION_WORD = {"INVEST": r"\binvest\b", "DUE DILIGENCE": r"due diligence", "ACCELERATOR": r"accelerator", "GRANT SUPPORT": r"grant",
+_DECISION_WORD = {"PORTFOLIO SUPPORT": r"portfolio support", "INVEST": r"\binvest\b", "DUE DILIGENCE": r"due diligence", "ACCELERATOR": r"accelerator", "GRANT SUPPORT": r"grant",
                   "PARTNER INTRODUCTION": r"partner", "WATCHLIST": r"watch ?list", "REJECT / LOW FIT": r"low fit|reject"}
-_NEVER_AGAINST = ("INVEST", "DUE DILIGENCE", "WATCHLIST", "REJECT / LOW FIT")   # words that contradict a different verdict
+_NEVER_AGAINST = ("PORTFOLIO SUPPORT", "INVEST", "DUE DILIGENCE", "WATCHLIST", "REJECT / LOW FIT")   # words that contradict a different verdict
 
 
 def _next_names(exp: dict) -> list[str]:

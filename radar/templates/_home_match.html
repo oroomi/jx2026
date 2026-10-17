@@ -4,7 +4,7 @@
 {% set M = H.match_view %}
 {% if M.note %}<p class="hc-pipeline" id="hc-pipeline">{{ M.note }}</p>{% endif %}
 {% if M.filtered %}<p class="hc-pipeline-f">A filter is chosen: the ranking is narrowed to the startups that carry those facts on the home list.</p>{% endif %}
-<ol class="hc-rows hc-rows-match">
+<ol class="hc-rows" data-ranking="matchmaker">
 {% for r in cur[2] %}
   {% set m = r.match %}{% set vk = (m.verdict or "none") | lower | replace(" ", "-") %}
   <li id="row-{{ r.company_key }}" data-key="{{ r.company_key }}" style="--i: {{ loop.index0 if loop.index0 < 12 else 12 }}"><a class="hc-row" href="/c/{{ r.company_key }}">

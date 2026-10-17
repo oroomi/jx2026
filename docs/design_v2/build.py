@@ -20,7 +20,7 @@ from fastapi.testclient import TestClient  # noqa: E402
 
 from app import app  # noqa: E402
 
-DOSSIER_KEY = "2902007-2"  # Kelluu Oy
+DOSSIER_KEY = "2962040-6"  # Viva Jets Oy (portfolio, electric watercraft)
 
 
 def home_data(client):

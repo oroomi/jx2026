@@ -5,7 +5,7 @@ Two self-contained static pages and a proposed design system, built for review b
 | File | What it is |
 |---|---|
 | `home.html` | Front page: headline number, weekly arrivals chart, the feed as an editorial index |
-| `company.html` | Dossier for Kelluu Oy (2902007-2): verdict, four levels, AI box slot, life-line chart, questions 01 to 04 |
+| `company.html` | Dossier for Viva Jets Oy (2962040-6, portfolio, electric watercraft): verdict, four levels, AI box slot, life-line chart, questions 01 to 04 |
 | `tokens.css` | Design system: type scale, colour tokens (dark default, light), chips, pills, tabs, chart conventions, motion |
 | `src/*.src.html` | Page sources; `__DATA__` is replaced with JSON at build time |
 | `build.py` | Embeds real data: calls the app's own `/api/feed` and `/api/company/{key}` through FastAPI's TestClient against `data/snapshot` |
@@ -27,7 +27,7 @@ Open the pages straight from disk. Fonts load from `radar/static/fonts`, so noth
 
 ## Data honesty notes
 - Every number on both pages comes from the snapshot through the app's API. Nothing is typed by hand.
-- **The verdict pill is the next-step rule from the decision table** (1 Apply now, 2 Contact buyer, 3 Raise, 4 Check in, 5 Thin evidence). On main every feed company and Kelluu resolve to rule 5, so the pill is honestly grey. When the memo verdict from jx31 lands, the pill can switch to it with no layout change.
+- **The verdict pill is the next-step rule from the decision table** (1 Apply now, 2 Contact buyer, 3 Raise, 4 Check in, 5 Thin evidence). On the snapshot every feed company resolves to rule 5 (grey) and Viva Jets to rule 4 (check in). When the memo verdict from jx31 lands, the pill can switch to it with no layout change.
 - Home town is not in the stored record, so it shows the hatched "not in public records" chip.
 - The AI box shows its empty state ("No summary yet"). cloud/ai_brief fills the same slot: 4 to 6 cited sentences, labelled as an AI summary checked against the linked sources.
 

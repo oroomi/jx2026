@@ -1,6 +1,6 @@
-"""Screenshot the prototypes: 1440x900 and 390x844, dark and light (full page).
+"""Screenshot the prototypes: 1440x900 and 390x844, dark and light (full page and fold).
 
-    python3 docs/design_v2/shoot.py [outdir]
+    python3 docs/design_v2/shoot.py [page ...]      e.g. shoot.py a_home b_home (default: every built *.html)
 """
 import sys
 from pathlib import Path
@@ -8,7 +8,8 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 HERE = Path(__file__).resolve().parent
-OUT = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "shots"
+OUT = HERE / "shots"
+PAGES = sys.argv[1:] or sorted(p.stem for p in HERE.glob("*.html"))
 OUT.mkdir(parents=True, exist_ok=True)
 SIZES = {"desktop": (1440, 900), "mobile": (390, 844)}
 
@@ -16,7 +17,7 @@ with sync_playwright() as p:
     exe = "/opt/pw-browsers/chromium"
     kw = {"executable_path": exe} if Path(exe).is_file() else {}
     browser = p.chromium.launch(**kw)
-    for page_name in ("home", "company"):
+    for page_name in PAGES:
         for size, (w, h) in SIZES.items():
             for scheme in ("dark", "light"):
                 ctx = browser.new_context(viewport={"width": w, "height": h}, color_scheme=scheme,

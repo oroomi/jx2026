@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Kelluu Oy · Dossier · Ocean Opportunity Radar</title>
+<title>Dossier · Ocean Opportunity Radar</title>
 <link rel="stylesheet" href="tokens.css">
 <script>try{var t=localStorage.getItem('radar-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
@@ -195,7 +195,7 @@
 
   // Header
   $('crumb-group').textContent = co.group_tag === 'portfolio' ? 'Portfolio company' : (co.group_tag === 'cohort' ? 'Cohort company' : 'Feed company');
-  $('name').textContent = co.name;
+  $('name').textContent = co.name; document.title = co.name + ' · ' + document.title;
   var PILL = {1:['Apply now','pill-ok'],2:['Contact buyer','pill-ok'],3:['Raise','pill-info'],4:['Check in','pill-warn'],5:['Thin evidence','pill-none']};
   var p = PILL[D.next_step.rule] || PILL[5]; $('pill').className = 'pill ' + p[1]; $('pill').textContent = p[0];
   $('pill').title = 'Decision table rule ' + D.next_step.rule;
@@ -281,7 +281,8 @@
     o += '<text x="'+(tx+34)+'" y="'+(ty+13)+'" font-size="13" fill="var(--muted)">'+eur(top.amount_eur)+', '+top.date.slice(0,4)+'</text>';
   }
   svg.innerHTML = o;
-  $('life-src').innerHTML = 'Source: <a href="'+esc(money[0].source_url)+'" rel="noopener">Business Finland funding export</a>, <a href="'+esc((S.filter(function(s){return s.signal_type==='eu_project';})[0]||{}).source_url)+'" rel="noopener">CORDIS</a>, <a href="'+esc(co.source_url)+'" rel="noopener">PRH/YTJ</a>. Business Finland rows carry a year, not a decision date.';
+  var srcs = {}; S.forEach(function(x){ if (!srcs[x.source_label]) srcs[x.source_label] = x.source_url; });
+  $('life-src').innerHTML = 'Source: ' + Object.keys(srcs).map(function(k){ return '<a href="'+esc(srcs[k])+'" rel="noopener">'+esc(k)+'</a>'; }).join(', ') + '. Business Finland rows carry a year, not a decision date.';
 
   // 01 fit
   $('fit-rule').textContent = D.fit.rule;

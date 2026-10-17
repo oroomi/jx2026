@@ -168,4 +168,5 @@ nace_codes:
   - {code: "50.20", note: "Sea and coastal freight water transport"}
   - {code: "52.22", note: "Service activities incidental to water transportation"}
   - {code: "71.12", note: "Engineering activities and related technical consultancy"}
-  - {code: "72.19", note: "Other research and experimental development on natural sciences and engineering"}
+  - {code: "72.19", note: "Other research and experimental development on natural sciences and engineering (NACE Rev. 2)"}
+  - {code: "72.10", note: "Research and experimental development on natural sciences and engineering (NACE Rev. 2.1, which replaced 72.19; Norway codes new registrations 72.100)"}

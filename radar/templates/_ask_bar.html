@@ -1,0 +1,55 @@
+{#
+  Ask Aava: the home hero (design notes: docs/design_v2/ASK_BAR.md). Needs H (the cached home list) and thesis from feed.html.
+  Works without JavaScript: the form is a plain GET to /search. radar/static/askbar.js adds the answer card (GET /api/ask), the cycling
+  placeholder and Ctrl/Cmd+K; the microphone button and the voice overlay appear only when the Aava demo flag is on (window.AAVA_DEMO,
+  set by _aava.html), so without it the bar is text-only. Answers are deterministic (radar/ask.py): no model, no network call.
+  The old count block ("22 companies surfaced, 3 this month") is the one muted line under the bar.
+#}
+{% set ex = ask_examples(thesis) if ask_examples is defined else [] %}
+{% set days = thesis.geography.feed_window_days or 90 %}
+{% set n_new = H.headline.new %}
+<div class="ask" id="ask" data-examples='{{ ex | tojson }}'{% if request.query_params.get("thesis") %} data-thesis="{{ request.query_params.get('thesis') }}"{% endif %}>
+  <h1 id="ask-h" class="ask-title">Ask <em>Aava</em></h1>
+  <p class="ask-sub">About any company on this radar. Every answer is built from the public records on file, and its source is one tap away.</p>
+  <form class="ask-bar" id="ask-form" action="/search" method="get" role="search" autocomplete="off">
+    <svg class="ask-spark" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="currentColor"><path d="M12 2c.6 4.9 2.6 7.4 7.5 8.6.4.1.4.7 0 .8C14.6 12.6 12.6 15.1 12 20c-.6-4.9-2.6-7.4-7.5-8.6-.4-.1-.4-.7 0-.8C9.4 9.4 11.4 6.9 12 2Z"/><path d="M19 15c.2 1.7.9 2.6 2.6 3 .2 0 .2.3 0 .3-1.7.4-2.4 1.3-2.6 3-.2-1.7-.9-2.6-2.6-3-.2 0-.2-.3 0-.3 1.7-.4 2.4-1.3 2.6-3Z" opacity=".65"/></svg>
+    <label class="ask-sr" for="ask-q">Ask Aava a question</label>
+    <input id="ask-q" name="q" type="text" inputmode="search" enterkeyhint="send" autocomplete="off" autocapitalize="sentences" spellcheck="false" maxlength="200"
+           placeholder="{{ ex[0] if ex else 'Ask Aava' }}" aria-controls="ask-card" aria-describedby="ask-count">
+    <button class="ask-mic" id="ask-mic" type="button" hidden aria-label="Talk to Aava" aria-haspopup="dialog">
+      <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3"/></svg>
+    </button>
+    <button class="ask-send" id="ask-send" type="submit" aria-label="Send question">
+      <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </button>
+  </form>
+  {% if ex | length > 1 %}<ul class="ask-try" aria-label="Example questions">
+    {% for e in ex[:5] %}<li><button type="button" class="ask-chip" data-q="{{ e }}">{{ e }}</button></li>{% endfor %}
+  </ul>{% endif %}
+  <div class="ask-card" id="ask-card" hidden aria-live="polite" aria-atomic="true"></div>
+  <p class="ask-count" id="ask-count">{{ n_new }} compan{{ "y" if n_new == 1 else "ies" }} first seen in the last {{ days }} days, {{ H.rows | length }} on the list.<span class="ask-key" hidden> Press <kbd class="ask-kbd" id="ask-kbd">Ctrl</kbd> <kbd class="ask-kbd">K</kbd> to ask.</span></p>
+</div>
+
+{# Voice mode. Hidden until the microphone button is pressed (demo flag on). All colour is the skin's tokens. #}
+<div class="ask-voice" id="ask-voice" role="dialog" aria-modal="true" aria-labelledby="ask-voice-title" hidden data-state="idle">
+  <div class="av-edge" aria-hidden="true"></div>
+  <button class="av-close" id="ask-voice-close" type="button" aria-label="Close voice mode">Close <span aria-hidden="true">Esc</span></button>
+  <div class="av-stage">
+    <h2 class="av-title" id="ask-voice-title">Aava</h2>
+    <button class="av-orbbtn" id="ask-orb-btn" type="button" aria-label="Tap to ask another question">
+      <canvas class="av-orb" id="ask-orb" width="360" height="360" aria-hidden="true"></canvas>
+    </button>
+    <p class="av-state" id="ask-voice-state" role="status">Listening</p>
+    <p class="av-line" id="ask-voice-line" aria-live="polite"></p>
+    <p class="av-say" id="ask-voice-say" aria-live="polite"></p>
+    <p class="av-links" id="ask-voice-links"></p>
+    <form class="av-type" id="ask-voice-type" hidden>
+      <label class="ask-sr" for="ask-voice-input">Type your question</label>
+      <input id="ask-voice-input" type="text" autocomplete="off" maxlength="200" placeholder="Type your question">
+      <button type="submit" aria-label="Send question">Ask</button>
+    </form>
+    <p class="av-actions"><button type="button" class="av-btn" id="ask-voice-again">Ask another</button><button type="button" class="av-btn" id="ask-voice-typebtn">Type instead</button></p>
+    <p class="av-note">Your browser turns your speech into text, and some browsers use their own speech service for that. This site receives only the text of your question.</p>
+  </div>
+</div>
+<script src="/static/askbar.js?v={{ asset_v }}" defer></script>

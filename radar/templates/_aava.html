@@ -13,7 +13,7 @@ window.AAVA_DEMO=on;})();</script>
       <h2 id="aava-title">{% if aava_kind == "company" %}Ask Aava about {{ c.name }}{% else %}Ask Aava what is new{% endif %}</h2>
       <button id="aava-close" class="aava-btn" type="button">Close</button>
     </div>
-    <p class="aava-label">Aava reads only the records on this page, with no AI model and no network call. Captions are always on; no microphone is used.</p>
+    <p class="aava-label">Aava speaks only from the records on this page: every sentence is built by code from a sourced record. Captions are always on; no microphone is used.</p>
     {# The questions, in order. A tap plays that answer; Next (button, space bar, right arrow) plays the one after the last played. #}
     <ol id="aava-qs" class="aava-qs" aria-label="Questions for Aava">
       {% for n, intent, label in (aava_questions if aava_kind == "company" else aava_feed_questions) %}

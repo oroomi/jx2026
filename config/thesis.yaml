@@ -425,3 +425,70 @@ intake:
   tuning_note: "The families 582 (software publishing) and 03 (fishing and aquaculture) were added after the backtest showed the net missed two cohort companies, so results for those two are measured on the companies used to tune the net."   # printed on /method and /backtest; the two families were added after the backtest, so say so
   min_signals: 1
   startup_signals: [first_sales, first_hire, eu_project, eu_grant, research_output, bf_funding, startup_notice, equity_event, public_funding]
+
+# Ask Aava bar (radar/ask.py, GET /api/ask). Every word the bar understands lives here, none in code. A phrase matches whole words,
+# longest phrase first. Keys left out of another thesis file are inherited from this one; `examples` and `sectors` are per thesis.
+ask:
+  examples:                       # the placeholder cycles through these; each must be answerable by the bar
+    - "What is new on the radar?"
+    - "Tell me about Viva Jets"
+    - "Who should A'Pelago meet?"
+    - "Show investment-ready companies in Finland"
+    - "Aquaculture startups with a TRL above 4"
+  lead_ins: [tell me about, what do you know about, what about, show me, find me, find, open, about, give me, list]
+  filler_words: [a, an, the, all, any, some, me, show, list, give, find, companies, company, startups, startup, firms, in, with, and, of, that, are, is, only, which, have, has, from, based, top]
+  feed_words: [what is new, what's new, whats new, new on the radar, new this week, new this quarter, newest, latest, recent, recently, anything new, whats happening, what is happening]
+  meet_patterns:                  # {org} is the organisation or company named
+    - "who should {org} meet"
+    - "who does {org} need to meet"
+    - "who to meet for {org}"
+    - "who should we introduce to {org}"
+    - "match {org}"
+    - "matches for {org}"
+    - "introductions for {org}"
+  org_types:                      # type column of data/declared/*.csv -> words for one line
+    vc: a venture capital investor
+    corporate_vc: a corporate venture investor
+    angel: an angel investor
+    public: a public funder
+    accelerator: an accelerator programme
+    grant: a grant programme
+    equity: an equity fund
+    shipyard: a shipyard
+  org_default: an organisation in the declared lists
+  filters:                        # phrase -> filter-rail parameters (verdict, group, impact, fit); `say` is how the answer names it
+    - {words: [investment ready, investment-ready, investor ready, investor-ready, ready to invest], set: {group: ready}, say: "investor-ready"}
+    - {words: [accelerator, accelerator candidate, accelerator candidates], set: {verdict: ACCELERATOR}, say: "accelerator candidates"}
+    - {words: [due diligence], set: {verdict: DUE DILIGENCE}, say: "due diligence candidates"}
+    - {words: [invest, invest candidate, invest candidates], set: {verdict: INVEST}, say: "invest candidates"}
+    - {words: [watchlist, watch list, watchlisted], set: {verdict: WATCHLIST}, say: "on the watchlist"}
+    - {words: [grant support, grant candidates], set: {verdict: GRANT SUPPORT}, say: "grant support candidates"}
+    - {words: [partner introduction, partner introductions], set: {verdict: PARTNER INTRODUCTION}, say: "partner introduction candidates"}
+    - {words: [low fit, rejected, reject], set: {verdict: "REJECT / LOW FIT"}, say: "rejected or low fit"}
+    - {words: [high impact, impact high], set: {impact: High}, say: "high ocean impact"}
+    - {words: [high fit, top fit, top fits, thesis fit high, strong fit], set: {fit: High}, say: "high thesis fit"}
+    - {words: [new this quarter, first seen lately], set: {group: new}, say: "new this quarter"}
+  countries:                      # code -> the words that name it; the names the home list prints are always understood too
+    FI: [finland, finnish]
+    SE: [sweden, swedish]
+    NO: [norway, norwegian]
+    DK: [denmark, danish]
+    EE: [estonia, estonian]
+    IS: [iceland, icelandic]
+    DE: [germany, german]
+    PL: [poland, polish]
+    ES: [spain, spanish]
+  sectors:                        # value of the filter rail's Sector facet (the framework category) -> words that name it
+    Aquatech: [aquaculture, aquatech, fish farming, fish farm, fisheries, seaweed, algae, aquaculture startups]
+    Ocean data: [ocean data, hydrography, bathymetry, sonar, remote sensing, marine data]
+    Emissions: [emissions, decarbonisation, decarbonization, hydrogen, battery, electrification, shipping fuel]
+    Water quality: [water quality, wastewater, ballast water, water treatment, microplastics]
+  level_names:                    # filter parameter -> words that name the scale
+    trl: [trl, technology readiness, technology readiness level]
+    brl: [brl, business readiness, business readiness level]
+    irl: [irl, investment readiness level]
+  level_ops:                      # comparison words before the number: above/below exclude the number, atleast/atmost include it
+    above: [above, over, more than, greater than, higher than, ">"]
+    atleast: [at least, from, ">="]
+    below: [below, under, less than, lower than, "<"]
+    atmost: [at most, up to, "<="]

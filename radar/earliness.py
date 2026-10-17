@@ -149,7 +149,7 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
     types = set(th.get("feed_signal_types") or [])
     group = (th.get("backtest") or {}).get("cohort_group") or "cohort"
     entries = _entry_dates(entry_dates_path)
-    cohort = conn.execute("SELECT company_key, name, country, industry_code, industry_desc, founded FROM companies WHERE group_tag=? ORDER BY name", (group,)).fetchall()
+    cohort = conn.execute("SELECT company_key, name, y_tunnus, country, industry_code, industry_desc, founded FROM companies WHERE group_tag=? ORDER BY name", (group,)).fetchall()
     rows = []
     for c in cohort:
         key = c["company_key"]

@@ -149,3 +149,48 @@ def test_fallback_rules():
 def test_fallback_rule_is_on_method(client):
     t = client.get("/method").text
     assert 'id="memo-fallback"' in t and "implied by the sector" in t
+
+
+# ---- item 2: a declared company never reads "no public evidence yet"; the legal form is read from the name -----------
+
+def test_declared_company_reads_its_membership_not_no_evidence(client):
+    t = client.get("/c/9300006-6").text
+    assert "Thesis fit: declared cohort company" in t
+    assert "Thesis fit: no public evidence yet" not in t
+    assert "legal form not in public records" not in t
+    assert "industry code 46900 is outside the intake code families" in t
+
+
+def test_legal_form_from_the_name():
+    from radar import intake
+    assert intake.form_from_name("Arctic Fry Oy") == ("16", "limited company (Oy)")
+    assert intake.form_from_name("Solar Foods Oyj")[0] == "17"
+    assert intake.form_from_name("Synthetic Reef") == (None, None)
+    cfg = {"company_forms": {"16": "x"}, "code_prefixes": ["30"], "thesis_codes": []}
+    assert intake.eligible("17", "30120", cfg, "public limited company (Oyj)")[1] == "legal form public limited company (Oyj) is not a limited company or cooperative"
+
+
+# ---- item 5: the backtest intake table and the business id --------------------------------------------------------
+
+def test_backtest_finnish_cohort_rows_are_not_no_business_id(built, client):
+    from radar import earliness, thesis
+    res = earliness.backtest(built, thesis.load())
+    by = {r["company_key"]: r["intake"] for r in res["rows"]}
+    assert by["dk-synthetic"]["state"] == "not_in_register"
+    assert by["9300006-6"]["state"] == "ineligible" and "46900" in by["9300006-6"]["reason"]
+    assert by["9300001-1"]["state"] != "not_in_register"
+
+
+def test_backtest_on_the_snapshot_names_no_business_id_only_without_one(snap):
+    from radar import earliness, store
+    conn = store.open_db(thesis=snap)
+    res = earliness.backtest(conn, snap)
+    yt = {r[0]: r[1] for r in conn.execute("SELECT company_key, y_tunnus FROM companies WHERE group_tag='cohort'")}
+    conn.close()
+    finnish = [r for r in res["rows"] if yt.get(r["company_key"])]
+    assert len(finnish) == 7
+    assert all(r["intake"]["state"] != "not_in_register" for r in finnish)
+    assert all("no business id" in r["intake"]["reason"] for r in res["rows"] if not yt.get(r["company_key"]))
+    from app import app
+    html = TestClient(app).get("/backtest").text
+    assert html.count("(no business id)") == len(res["rows"]) - 7

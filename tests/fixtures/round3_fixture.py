@@ -28,6 +28,13 @@ def build(path):
     for i, (t, dt, ad) in enumerate(sigs):
         emit.emit_signal(conn, company_key="9300001-1", signal_type=t, date=dt, source_url=f"https://example.test/{ad.replace('_', '-')}/{i}",
                          confidence="high", adapter=ad, detail=f"Synthetic {t.replace('_', ' ')} record.")
+    # a cohort company with a business id, an Oy name and no thesis evidence (code off the list, no intake profile stored)
+    emit.upsert_company(conn, company_key="9300006-6", name="Synthetic Sauna Shop Oy", y_tunnus="9300006-6", country="FI", founded="2024-05-01",
+                        industry_code="46900", industry_desc="Non-specialised wholesale trade", group_tag="cohort", source_url=PRH + "9300006-6")
+    emit.emit_signal(conn, company_key="9300006-6", signal_type="register_entry", date="2024-05-01", source_url=PRH + "9300006-6",
+                     confidence="high", adapter="prh")
+    emit.emit_signal(conn, company_key="9300006-6", signal_type="first_sales", date="2024-06-01", source_url="https://example.test/tax/6",
+                     confidence="high", adapter="tax_registers")
     # a cohort company with no business id (non-Finnish)
     emit.upsert_company(conn, company_key="dk-synthetic", name="Synthetic Reef", country="DK", group_tag="cohort",
                         source_url="https://example.test/declared/dk")

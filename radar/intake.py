@@ -185,12 +185,19 @@ def cohort_row(conn, th: dict, c, ref: str, first_evidence: str | None) -> dict:
            "size": None, "year": None, "family": None, "first_evidence": first_evidence, "before_entry": False, "pool_note": None}
     if cfg is None:
         return out
+    keys = c.keys() if hasattr(c, "keys") else c
+    yt = c["y_tunnus"] if "y_tunnus" in keys else None
     prof = profile(conn, c["company_key"])
-    if prof is None:
+    if prof is None and not yt:
         return {**out, "state": "not_in_register", "reason": "not checked against the Finnish register (no business id)"}
-    ok, why = eligible(prof["form_code"], c["industry_code"], cfg)
+    form, words, src = form_of(prof, c["name"])
+    if form is None and words is None:
+        return {**out, "state": "not_checked", "reason": f"business id {yt}; the wide-intake register pass has not stored its legal form yet"}
+    ok, why = eligible(form, c["industry_code"], cfg, words)
     if not ok:
         return {**out, "state": "ineligible", "reason": why}
+    if src == "legal name":
+        out["pool_note"] = f"legal form {words} read from the legal name; the wide-intake register pass has not stored this company yet"
     sigs = _signals(conn, c["company_key"])
     d, ss = entered(sigs, cfg)
     if d is None:
@@ -204,7 +211,8 @@ def cohort_row(conn, th: dict, c, ref: str, first_evidence: str | None) -> dict:
         pos = next((i for i, x in enumerate(p) if x["company_key"] == c["company_key"]), None)
         out["rank"] = pos + 1 if pos is not None else None
         out["n_signals"] = p[pos]["n"] if pos is not None else None
-        out["pool_note"] = f"{len(p)} new {year} companies in code family {fam} had entered intake by {ref}"
+        out["pool_note"] = f"{len(p)} new {year} companies in code family {fam} had entered intake by {ref}" + \
+            (f"; {out['pool_note']}" if out.get("pool_note") else "")
     return out
 
 

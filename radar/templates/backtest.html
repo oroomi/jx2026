@@ -37,7 +37,7 @@
       <td><time datetime="{{ w.intake_date }}">{{ w.signal.date_label or w.intake_date }}</time>, {{ w.signal.label | lower }}
         (<a href="{{ w.signal.source_url }}" target="_blank" rel="noopener">{{ w.signal.source_label }}</a>)
         <div class="muted">{% if w.before_entry %}before cohort entry {{ r.reference_date }}{% else %}after cohort entry {{ r.reference_date }}{% endif %}</div></td>
-      <td>{% if w.rank and w.size %}rank {{ w.rank }} of {{ w.size }} new {{ w.year }} companies in code family {{ w.family }}{% else %}<span class="hatch">rank not computed: no same-year intake pool stored</span>{% endif %}</td>
+      <td>{% if w.rank and w.size %}rank {{ w.rank }} of {{ w.size }} new {{ w.year }} companies in code family {{ w.family }}{% else %}<span class="hatch">rank not computed: {{ w.pool_note or "no same-year intake pool stored" }}</span>{% endif %}</td>
       {% else %}
       <td><span class="hatch">not in intake</span> <span class="muted">{{ w.reason }}</span></td>
       <td><span class="muted">none</span></td>

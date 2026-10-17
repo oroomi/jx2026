@@ -1,0 +1,44 @@
+# Aava chat on a reasoning model (radar/aava_llm.py, radar/routes/aava_chat.py). PROJECT_RULES D61.
+# Every value below is the default; the environment variable of the same name overrides it at run time (read with os.environ on each request,
+# never from a file this app opens). The key itself, ANTHROPIC_API_KEY, is only ever read from the environment: the owner adds it to the
+# service's EnvironmentFile. Without it the chat is off and the deterministic Aava and /api/ask run exactly as before.
+defaults:
+  AAVA_MODEL: claude-sonnet-5-5       # model id sent to the Messages API
+  AAVA_THINKING_BUDGET: 2048          # thinking tokens. A model that takes a budget gets it as budget_tokens; the 4.6 and newer models reject a
+                                      # budget (400) and think adaptively, so the budget picks their effort level instead (effort_from_budget)
+  AAVA_MAX_TOKENS: 1200               # tokens of the visible answer; the request's max_tokens is this plus the thinking budget (thinking counts toward it)
+  AAVA_TIMEOUT_S: 25                  # seconds one model call may stay silent (SDK timeout)
+  AAVA_DAILY_CAP: 400                 # model turns per UTC day, all visitors together (in memory: a restart resets it)
+  AAVA_RATE_PER_MIN: 8                # model turns per client IP per minute
+  AAVA_EFFORT: ""                     # low | medium | high | xhigh | max, or empty to derive it from AAVA_THINKING_BUDGET
+  AAVA_MAX_STEPS: 6                   # model calls in one turn (tool rounds + the final answer)
+  AAVA_TURN_DEADLINE_S: 75            # the whole turn, tools included
+  AAVA_TTS_DAILY_CHARS: 8000          # ElevenLabs characters per UTC day for the spoken answer; the voice only runs when ELEVENLABS_API_KEY is set
+  ELEVENLABS_VOICE_ID_LIVE: 21m00Tcm4TlvDq8ikWAM   # Rachel
+limits:
+  input_chars: 500                    # the newest user message
+  history_turns: 12                   # messages of session history kept
+  history_chars: 1500                 # one earlier message
+  tool_result_chars: 14000            # one tool result sent to the model (cut with a note)
+  home_wait_s: 15                     # how long a tool waits for the home list while it is still being built (the page itself waits 3 s)
+  search_default: 10
+  search_max: 25
+  signals_in_memo: 6
+  followups_max: 3
+  followup_chars: 90
+# Models that still take thinking={"type": "enabled", "budget_tokens": N}. Everything else gets thinking={"type": "adaptive"} plus an effort level
+# (Anthropic docs, models overview and migration notes: Claude 4.6 and newer reject budget_tokens with a 400).
+budget_models:
+  - '^claude-3'
+  - '^claude-(haiku|sonnet|opus)-4(-[0-5])?(-\d{8})?$'
+effort_from_budget:                   # [largest budget, effort]; a budget of 0 or less means the lowest effort
+  - [1024, low]
+  - [4096, medium]
+  - [null, high]
+# Dollars per million tokens, from Anthropic's pricing page (https://platform.claude.com/docs/en/about-claude/pricing, read 2026-10-17):
+# Claude Sonnet 5.5 $2 input, $2.50 five-minute cache write, $0.10 cache read (0.05x base), $10 output. Used only by the selftest's cost line.
+prices:
+  claude-sonnet-5-5: {input: 2.00, output: 10.00, cache_write_5m: 2.50, cache_read: 0.10}
+  claude-sonnet-5: {input: 2.00, output: 10.00, cache_write_5m: 2.50, cache_read: 0.20}
+  claude-opus-5-5: {input: 4.00, output: 20.00, cache_write_5m: 5.00, cache_read: 0.20}
+  claude-haiku-5-5: {input: 0.10, output: 0.50, cache_write_5m: 0.125, cache_read: 0.01}

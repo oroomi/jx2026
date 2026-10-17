@@ -244,6 +244,7 @@
         stop();
         var my = ++token;
         begin(my, h);
+        if (a.blob_url) { playClips([{ file: a.blob_url }], { base: "" }, a, my); return; }   /* one spoken file from the server (aava_chat.js); a failed file falls back to the browser voice */
         manifest(a.audio_dir).then(function (m) {
           if (my !== token) return;
           var clips = clipsFor(a, m);
@@ -261,6 +262,8 @@
 
   /* ---- the answer ---------------------------------------------------------------------------------------------------------------- */
   var seq = 0;
+  /* With a model key on the server and the demo flag on, aava_chat.js (loaded after this file) takes over typed and spoken questions. */
+  function chat() { return window.AavaChat && window.AavaChat.active() ? window.AavaChat : null; }
   function fetchAnswer(q) {
     var url = "/api/ask?q=" + encodeURIComponent(q) + (thesisNow() ? "&thesis=" + encodeURIComponent(thesisNow()) : "");
     return fetch(url, { headers: { Accept: "application/json" } }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
@@ -349,6 +352,8 @@
   function ask(q) {
     q = (q || "").trim();
     if (!q) { input.focus(); return Promise.resolve(null); }
+    var c = chat();
+    if (c) { seq += 1; Speech.stop(); card.hidden = true; input.value = ""; return c.send(q); }   /* the conversation panel answers (aava_chat.js) */
     var my = ++seq;
     Speech.stop();
     showLoading(q);
@@ -407,7 +412,7 @@
   /* ================================================================================================================================ */
   /* Voice mode: only with the Aava demo flag on.                                                                                      */
   /* ================================================================================================================================ */
-  window.AskBar = { ask: ask };
+  window.AskBar = { ask: ask, speak: function (a, h) { Speech.unlock(true); Speech.play(a, h); }, stopSpeech: function () { Speech.stop(); } };
   var ov = $("ask-voice");
   if (!demo || !ov) { if (ov) ov.remove(); return; }
   micBtn.hidden = false;
@@ -621,7 +626,17 @@
     elLine.textContent = text; elLine.classList.add("is-final");
     typeForm.hidden = true;
     setState("thinking");
-    var my = ++seq;
+    var my = ++seq, c = chat();
+    if (c) {   /* the same conversation as the typed one; the final answer is spoken, with ElevenLabs when the server has it, else the browser voice */
+      c.send(text, { onStatus: function (t) { if (my === seq && isOpen && state === "thinking") elState.textContent = t; } }).then(function (res) {
+        if (!(my === seq && isOpen)) return null;
+        if (!res) { setState("error", "Aava could not reach the records. Tap the orb to try again."); showType(); return null; }
+        return c.audioFor(res.plain).then(function (url) {
+          if (my === seq && isOpen) speakAnswer({ intent: "chat", say: res.plain, items: res.items, url: null, segments: [], audio_dir: null, blob_url: url }, text);
+        });
+      });
+      return;
+    }
     fetchAnswer(text).then(function (a) { if (my === seq && isOpen) speakAnswer(a, text); })
       .catch(function () { if (my === seq && isOpen) { setState("error", "Aava could not reach the records. Tap the orb to try again."); showType(); } });
   }
@@ -690,6 +705,6 @@
   window.addEventListener("pagehide", function () { closeVoice(); Speech.stop(); });
 
   /* a handle for tests and screenshots */
-  window.AskBar = { ask: ask, heard: heard, openVoice: openVoice, closeVoice: closeVoice, state: function () { return state; }, setTranscript: function (t, final) {
+  window.AskBar = { ask: ask, speak: window.AskBar.speak, stopSpeech: window.AskBar.stopSpeech, heard: heard, openVoice: openVoice, closeVoice: closeVoice, state: function () { return state; }, setTranscript: function (t, final) {
     elLine.textContent = t; elLine.classList.toggle("is-final", !!final); } };
 })();

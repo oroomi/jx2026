@@ -66,3 +66,5 @@
 /* the sub-sectors of the sector in view: a multi-select inside the Sector group, set in under the single choice (D42) */
 .hr-sub { margin: 2px 0 10px 9px; padding-left: 12px; border-left: 2px solid var(--hairline); }
 .hr-sub-h { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+/* wide screens: every country link is visible (the row wraps); on a phone it stays one row that scrolls sideways */
+@media (min-width: 600px) { .hc-countries { flex-wrap: wrap; overflow-x: visible; } }

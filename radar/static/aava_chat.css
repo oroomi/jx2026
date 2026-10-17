@@ -1,0 +1,83 @@
+/* Aava's conversation (PROJECT_RULES D61; radar/static/aava_chat.js). Loaded only when the server has a model key, after askbar.css.
+   Tokens only (--bg --surface --hairline --text --muted --accent, --sans --serif --mono), so terminal, editorial and product skins, dark and
+   light, all work. The pulse while Aava thinks is the Ask bar's own (ask-beat in askbar.css). */
+
+.chat { margin: 18px 0 6px; max-width: 46rem; }
+.chat[hidden] { display: none; }
+.chat-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--hairline); }
+.chat-title { color: var(--muted); font: 600 .75rem var(--sans); letter-spacing: .09em; text-transform: uppercase; }
+:root[data-skin] .chat .chat-clear, :root[data-skin] .chat-sheet .chat-clear, :root[data-skin] .chat .chat-close, :root[data-skin] .chat-sheet .chat-close { min-height: 44px; padding: 0 4px; background: none; border: 0; border-radius: 0; color: var(--muted); font: 500 .875rem var(--sans); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+:root[data-skin] .chat .chat-clear:hover, :root[data-skin] .chat-sheet .chat-clear:hover, :root[data-skin] .chat .chat-close:hover, :root[data-skin] .chat-sheet .chat-close:hover { color: var(--text); background: none; }
+.chat-clear:focus-visible, .chat-close:focus-visible, .chat-chip:focus-visible, .chat-listen:focus-visible, .chat-go:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.chat-log { display: flex; flex-direction: column; gap: 18px; padding: 16px 0 6px; }
+.chat-m { max-width: 100%; overflow-wrap: anywhere; }
+.chat-u { align-self: flex-end; max-width: 88%; }
+.chat-u p { margin: 0; padding: 9px 14px; background: color-mix(in srgb, var(--accent) 12%, var(--surface)); border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--hairline));
+  border-radius: var(--ask-r, 14px); font: 400 1rem/1.45 var(--sans); color: var(--text); }
+.chat-a { align-self: stretch; }
+.chat-who { display: block; margin: 0 0 4px; color: var(--accent); font: 600 .9375rem var(--serif, serif); font-variant: small-caps; letter-spacing: .08em; text-transform: lowercase; }
+:root[data-skin="terminal"] .chat-who { font: 600 .8125rem var(--mono); font-variant: normal; text-transform: uppercase; }
+.chat-body { font-family: var(--ask-display, var(--serif)); font-size: 1.0625rem; line-height: 1.55; color: var(--text); }
+:root[data-skin="terminal"] .chat-body { font-family: var(--mono); font-size: .9375rem; line-height: 1.6; }
+:root[data-skin="product"] .chat-body { font-family: var(--sans); }
+.chat-body p { margin: 0 0 .7em; }
+.chat-body p:last-child { margin-bottom: 0; }
+.chat-body ul { margin: 0 0 .7em; padding-left: 1.2em; }
+.chat-body li { margin: .15em 0; }
+.chat-body strong { font-weight: 650; }
+.chat-body a { color: var(--text); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 65%, transparent); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+.chat-body a.chat-co { font-weight: 600; }
+.chat-body a:hover { text-decoration-color: var(--accent); }
+.chat-body a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chat-body a.chat-src { color: var(--muted); font-size: .9em; }
+.chat-body a.chat-src::after { content: " \2197"; }
+
+.chat-status { display: flex; align-items: center; gap: 10px; margin: 6px 0 0; color: var(--muted); font: 400 .875rem var(--sans); }
+.chat-note { margin: 6px 0 0; color: var(--muted); font: italic 400 .875rem/1.4 var(--sans); }
+.chat-body .chat-note { margin: 0 0 .6em; }
+.chat-sources { margin: 8px 0 0; color: var(--muted); font: 400 .8125rem/1.5 var(--sans); }
+.chat-sources-h { font-weight: 600; letter-spacing: .06em; text-transform: uppercase; font-size: .6875rem; }
+.chat-sources a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+.chat-sources a:hover { color: var(--text); }
+.chat-act { margin: 8px 0 0; padding: 6px 10px; border-left: 3px solid var(--accent); color: var(--muted); font: 500 .8125rem var(--sans); }
+:root[data-skin] .chat .chat-listen, :root[data-skin] .chat-sheet .chat-listen { min-height: 44px; margin: 2px 0 0; padding: 0 2px; background: none; border: 0; border-radius: 0; color: var(--muted); font: 500 .8125rem var(--sans); cursor: pointer; }
+:root[data-skin] .chat .chat-listen:hover, :root[data-skin] .chat-sheet .chat-listen:hover, :root[data-skin] .chat .chat-listen.is-on, :root[data-skin] .chat-sheet .chat-listen.is-on { color: var(--accent); background: none; }
+
+.chat-fu { display: flex; flex-wrap: wrap; gap: 8px; padding: 6px 0 0; }
+.chat-fu:empty { display: none; }
+:root[data-skin] .chat .chat-chip, :root[data-skin] .chat-sheet .chat-chip { min-height: 40px; padding: 0 14px; background: transparent; color: var(--text); border: 1px solid var(--hairline); border-radius: 999px; font: 400 .9375rem var(--sans); cursor: pointer; text-align: left; }
+:root[data-skin] .chat .chat-chip:hover, :root[data-skin] .chat-sheet .chat-chip:hover { border-color: var(--accent); background: transparent; color: var(--text); }
+:root[data-skin="terminal"] .chat-chip { border-radius: 2px; font-family: var(--mono); font-size: .8125rem; }
+@media (max-width: 639px) { :root[data-skin] .chat .chat-chip, :root[data-skin] .chat-sheet .chat-chip { min-height: 44px; } }
+
+/* the bar's spark pulses while Aava reasons */
+#ask.is-thinking .ask-spark { animation: ask-beat 1.1s ease-in-out infinite; }
+#ask.is-thinking .ask-bar { border-color: color-mix(in srgb, var(--accent) 55%, var(--hairline)); }
+/* a company the answer named, found on the list */
+.hc-rows > li.is-picked > a.hc-row { outline: 2px solid var(--accent); outline-offset: 8px; background: color-mix(in srgb, var(--accent) 7%, transparent); transition: outline-color .25s ease, background .25s ease; }
+
+/* company page: the follow-up input under the six questions, and the sheet it opens */
+.aava-follow { display: flex; gap: 8px; margin: 12px 0 0; }
+.aava-follow[hidden] { display: none; }
+.aava-follow input, .chat-sheet-form input { flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 0 12px; background: var(--bg); color: var(--text); border: 1px solid var(--hairline); border-radius: var(--radius, 8px); font: 400 1rem var(--sans); }
+.aava-follow input:focus, .chat-sheet-form input:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+:root[data-skin] .chat-go { min-height: 44px; padding: 0 16px; background: var(--accent); color: var(--bg); border: 0; border-radius: var(--radius, 8px); font: 600 .9375rem var(--sans); cursor: pointer; }
+.chat-sheet { position: fixed; z-index: 70; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; max-height: min(78vh, 640px); background: var(--surface);
+  border: 1px solid var(--hairline); border-bottom: 0; border-radius: 16px 16px 0 0; box-shadow: 0 -18px 50px -18px rgba(0, 0, 0, .55); }
+.chat-sheet[hidden] { display: none; }
+.chat-sheet-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 16px 0; border-bottom: 1px solid var(--hairline); }
+.chat-sheet-title { font: 600 .9375rem var(--sans); color: var(--text); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chat-sheet-body { flex: 1 1 auto; overflow-y: auto; padding: 0 16px 8px; margin: 0; max-width: none; overscroll-behavior: contain; }
+.chat-sheet-body .chat-head { display: none; }
+.chat-sheet-body .chat-log { padding-top: 12px; }
+.chat-sheet-form { display: flex; gap: 8px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom)); border-top: 1px solid var(--hairline); }
+@media (min-width: 900px) {
+  .chat-sheet { left: auto; right: 24px; bottom: 24px; width: 440px; border-bottom: 1px solid var(--hairline); border-radius: 16px; }
+}
+:root[data-skin="editorial"] .chat-sheet, :root[data-skin="editorial"] .chat-go, :root[data-skin="editorial"] .chat-chip, :root[data-skin="editorial"] .aava-follow input, :root[data-skin="editorial"] .chat-sheet-form input { border-radius: 0; }
+:root[data-skin="terminal"] .chat-sheet, :root[data-skin="terminal"] .chat-go { border-radius: 2px; }
+html.chat-sheet-open .aava-fab { display: none; }
+
+@media (prefers-reduced-motion: reduce) { #ask.is-thinking .ask-spark { animation: none; } .hc-rows > li.is-picked > a.hc-row { transition: none; } }
+@media print { .chat, .chat-sheet, .aava-follow { display: none !important; } }

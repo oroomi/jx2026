@@ -20,6 +20,12 @@ window.AAVA_DEMO=on;})();</script>
       <li><button class="aava-btn aava-q" type="button" data-q="{{ n }}" data-intent="{{ intent }}"><span class="aava-qn" aria-hidden="true">{{ n }}</span><span class="aava-qt">{{ label }}</span></button></li>
       {% endfor %}
     </ol>
+    {% if aava_kind == "company" and aava_chat_on() %}{# with a model key, a free-text follow-up under the six questions opens the conversation about this company (aava_chat.js unhides it) #}
+    <form id="aava-follow" class="aava-follow" hidden autocomplete="off">
+      <label class="ask-sr" for="aava-follow-q">Ask a follow-up about {{ c.name }}</label>
+      <input id="aava-follow-q" type="text" maxlength="500" placeholder="Ask a follow-up">
+      <button class="chat-go" type="submit">Ask a follow-up</button>
+    </form>{% endif %}
     <p id="aava-caption" class="aava-caption" aria-live="polite">Tap a question, or press Next (space bar or right arrow). Aava speaks only after you tap.</p>
     <div id="aava-meter" class="aava-meter" hidden>
       <span id="aava-meter-num" class="aava-num">0</span><span id="aava-meter-max" class="aava-max"></span>
@@ -37,3 +43,4 @@ window.AAVA_DEMO=on;})();</script>
 </div>
 <script type="application/json" id="aava-data">{% if aava_kind == "company" %}{{ aava_company_json(c.company_key, thesis) }}{% else %}{{ aava_feed_json(main_rows or [], thesis) }}{% endif %}</script>
 <script>if(window.AAVA_DEMO){document.getElementById("aava").hidden=false;var s=document.createElement("script");s.src="/static/aava.js?v={{ asset_v }}";document.body.appendChild(s);}</script>
+{% if aava_chat_on() %}<link rel="stylesheet" href="/static/aava_chat.css?v={{ asset_v }}"><script src="/static/aava_chat.js?v={{ asset_v }}" defer></script>{% endif %}

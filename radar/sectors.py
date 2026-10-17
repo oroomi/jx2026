@@ -96,8 +96,7 @@ class Model:
     def __init__(self, thesis: dict):
         tx = thesis["taxonomy"]
         self.slug, self.label = tx["slug"], tx["label"]
-        self.unclassified = {"slug": (tx.get("unclassified") or {}).get("slug") or "not_classified",
-                             "label": (tx.get("unclassified") or {}).get("label") or "Not yet classified"}
+        self.unclassified = _unclassified(tx)
         stop = fit_mod.stop_words(thesis)
         groups = {g["id"]: g for g in (tx.get("keyword_groups") or []) + ((thesis.get("matching") or {}).get("keyword_groups") or [])}
         areas = (thesis.get("impact_readiness") or {}).get("areas") or {}
@@ -110,9 +109,20 @@ class Model:
         return {s.slug: s for s in self.subs}
 
 
+def _block(thesis: dict) -> dict | None:
+    """The thesis' `taxonomy:` block, or None when it defines none (an empty list or mapping)."""
+    tx = thesis.get("taxonomy")
+    return tx if isinstance(tx, dict) and tx.get("sectors") else None
+
+
 def model(thesis: dict) -> Model | None:
     """The resolved taxonomy of a thesis, or None when the thesis defines none (an empty block): the facet then hides."""
-    return Model(thesis) if (thesis.get("taxonomy") or {}).get("sectors") else None
+    return Model(thesis) if _block(thesis) else None
+
+
+def _unclassified(tx: dict) -> dict:
+    u = tx.get("unclassified") or {}
+    return {"slug": u.get("slug") or "not_classified", "label": u.get("label") or "Not yet classified"}
 
 
 # ---- the records a store holds about its companies ------------------------------------------------------------------------------
@@ -376,18 +386,17 @@ def _read(conn, key: str | None = None) -> dict[str, list[dict]]:
 def company_subsectors(conn, thesis: dict, key: str) -> list[dict]:
     """The sub-sectors of one company with the evidence of each: [{slug, label, parent, evidence: [{basis, source_url, source_label}]}].
     A company the backfill classified nowhere reads "Not yet classified" with no evidence; a store not backfilled, or a thesis without a taxonomy, gives []."""
-    M = model(thesis)
-    if M is None or not backfilled(conn):
+    tx = _block(thesis)
+    if tx is None or not backfilled(conn):
         return []
     found = _read(conn, key).get(key)
-    return found or [{"slug": M.unclassified["slug"], "label": M.unclassified["label"], "parent": {"slug": M.slug, "label": M.label}, "evidence": []}]
+    return found or [{**_unclassified(tx), "parent": {"slug": tx["slug"], "label": tx["label"]}, "evidence": []}]
 
 
 def home_map(conn, thesis: dict) -> dict[str, list[dict]] | None:
     """{company key: [{slug, label, basis: [...]}]} for every company with a link, for the home list's row builder; None when the thesis has no
     taxonomy or the store is not backfilled (rows then carry no sub-sectors and the facet hides)."""
-    M = model(thesis)
-    if M is None or not backfilled(conn):
+    if _block(thesis) is None or not backfilled(conn):
         return None
     return {k: [{"slug": s["slug"], "label": s["label"], "basis": [e["basis"] for e in s["evidence"]]} for s in subs] for k, subs in _read(conn).items()}
 
@@ -396,8 +405,7 @@ def row_subsectors(smap: dict | None, thesis: dict, key: str) -> list[dict]:
     """One home row's sub-sectors from home_map(); a company with no link reads "Not yet classified"."""
     if smap is None:
         return []
-    M = model(thesis)
-    return smap.get(key) or [{"slug": M.unclassified["slug"], "label": M.unclassified["label"], "basis": []}]
+    return smap.get(key) or [{**_unclassified(thesis["taxonomy"]), "basis": []}]
 
 
 # ---- command line -----------------------------------------------------------------------------------------------------------------

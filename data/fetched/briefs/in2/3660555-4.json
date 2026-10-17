@@ -1,0 +1,197 @@
+{
+ "company_key": "3660555-4",
+ "name": "Mansen RVP Oy",
+ "business_id": "3660555-4",
+ "founded": "2026-10-06",
+ "country": "FI",
+ "group": "intake",
+ "register_status": "active",
+ "industry": {
+  "code": "71126",
+  "description": "Other engineering design and technical consultancy incidental to building construction"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3660555-4",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2026-10-06",
+   "date_label": "2026-10-06",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3660555-4",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2026-10-06",
+   "date_label": "2026-10-06",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3660555-4",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2026-10-06",
+   "date_label": "2026-10-06",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3660555-4",
+   "source_label": "PRH/YTJ register (wide intake)",
+   "confidence": "high",
+   "adapter": "prh_intake",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3660555-4"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / unknown",
+  "note": "more public evidence needed: Ocean impact, Investment readiness, Thesis fit, Technology readiness",
+  "why": [
+   {
+    "text": "Why now: First hire on 2026-10-06",
+    "url": "https://tietopalvelu.ytj.fi/yritys/3660555-4"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3660555-4"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public evidence for thesis fit",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness, Thesis fit, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3660555-4"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": [],
+  "public_funding": [],
+  "buyers": [
+   {
+    "name": "Väylävirasto",
+    "kind": "public buyer",
+    "reason": "Awarded 3 contracts since 2024-10: bought from a company with the same industry code 71126; EUR 7,412,250 in total. Latest 2025-12-21: Vesiväylänhoidon valvonta ja turvallisuuskoordinaattoripalvelut 2026-2028 (+1), EUR 812,250 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/20872/enotice/36903"
+   },
+   {
+    "name": "Helsingin kaupunki, kaupunkiympäristön toimiala",
+    "kind": "public buyer",
+    "reason": "Awarded 2 contracts since 2024-10: bought from a company with the same industry code 71126; EUR 39,000,000 in total. Latest 2026-06-25: LVIA-suunnittelupalvelujen ja huoltokirjakoordinoinnin puitejärjestely 2026-2028 (2028-2030), EUR 33,000,000 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/25582/enotice/52266"
+   },
+   {
+    "name": "Nousiaisten kunta",
+    "kind": "public buyer",
+    "reason": "Awarded 2 contracts since 2024-10: bought from a company with the same industry code 71126. Latest 2026-04-26: Nousiaisten kunnan rakennustekniset konsulttipalvelut sekä rakennuttaja- ja valvontatehtävät (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/23650/enotice/45694"
+   },
+   {
+    "name": "Tampereen Tilapalvelut Oy",
+    "kind": "public buyer",
+    "reason": "Awarded 2 contracts since 2024-10: bought from a company with the same industry code 71126; EUR 8,625,000 in total. Latest 2025-08-13: Elinkaariasiantuntija- ja kustannuslaskentapalvelut, EUR 1,625,000 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/16226/enotice/28231"
+   },
+   {
+    "name": "Pohjois-Karjalan hankintatoimi",
+    "kind": "public buyer",
+    "reason": null,
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/32552/enotice/52752"
+   }
+  ],
+  "project_partners": [],
+  "research_institutes": []
+ },
+ "counts": {
+  "signals": 3,
+  "by_type": {
+   "first_hire": 1,
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0,
+  "next_public_funding": 0,
+  "next_buyers": 5,
+  "next_project_partners": 0,
+  "next_research_institutes": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3660555-4",
+  "https://tietopalvelu.ytj.fi/yritys/3660555-4",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/16226/enotice/28231",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/20872/enotice/36903",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/23650/enotice/45694",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/25582/enotice/52266",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/32552/enotice/52752"
+ ]
+}

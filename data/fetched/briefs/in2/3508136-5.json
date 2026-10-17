@@ -1,0 +1,247 @@
+{
+ "company_key": "3508136-5",
+ "name": "Suomen Vesistökunnostus Oy",
+ "business_id": "3508136-5",
+ "founded": "2025-02-03",
+ "country": "FI",
+ "group": "feed",
+ "register_status": "active",
+ "industry": {
+  "code": "42910",
+  "description": "Construction of water projects"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "public_contract",
+   "type_label": "Public contract",
+   "date": "2026-07-20",
+   "date_label": "2026-07-20",
+   "source_url": "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675",
+   "source_label": "Hilma notice",
+   "confidence": "high",
+   "adapter": "hilma",
+   "title": null,
+   "note": null,
+   "amount_eur": 278600.0
+  },
+  {
+   "ref": "S2",
+   "type": "startup_notice",
+   "type_label": "Start-up notification",
+   "date": "2025-02-19",
+   "date_label": "2025-02-19",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3508136-5",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2025-02-19 (PRH). Register entries: Start-up notification. Record number: 2025/754229.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "board_change",
+   "type_label": "Board change",
+   "date": "2025-02-19",
+   "date_label": "2025-02-19",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3508136-5",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2025-02-19 (PRH). Register entries: Board of directors (HAL). Record number: 2025/754229.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2025-02-03",
+   "date_label": "2025-02-03",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5",
+   "source_label": "PRH/YTJ register",
+   "confidence": "high",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2025-02-01",
+   "date_label": "2025-02-01",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3508136-5",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": 7,
+   "rule": "public contract awarded: a buyer purchased in an operational setting",
+   "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 6,
+   "rule": "first public contract or named customer on own site",
+   "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Start-up notification on 2025-02-19: Start-up notification registered 2025-02-19 (PRH). Register entries: Start-up notification. Record number: 2025/754229.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3508136-5"
+  }
+ ],
+ "memo": {
+  "decision": "PARTNER INTRODUCTION",
+  "matched": "rule e",
+  "because": "unknown / Medium / unknown / High",
+  "note": null,
+  "why": [
+   {
+    "text": "Business readiness Medium (level 6): first public contract or named customer on own site",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
+   },
+   {
+    "text": "Technology readiness High (level 7): public contract awarded: a buyer purchased in an operational setting",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
+   },
+   {
+    "text": "Investment readiness, secondary: 3 of 10 investment dimensions have public evidence",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
+   },
+   {
+    "text": "Thesis fit: The registered line of business 'Construction of water projects' contains 'water'; 1 more reason.",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5"
+   },
+   {
+    "text": "Why now: Public contract on 2026-07-20",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   }
+  ],
+  "actions": []
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": [],
+  "public_funding": [
+   {
+    "name": "Horizon Europe",
+    "kind": "EU funding programme",
+    "reason": "Funded 2 projects since 2023 whose title holds the company's topic word 'water'; latest started 2026-11-01 (CORDIS).",
+    "url": "https://cordis.europa.eu/project/id/101318796"
+   }
+  ],
+  "buyers": [
+   {
+    "name": "Työllisyys-, kehittämis- ja hallintokeskus",
+    "kind": "public buyer",
+    "reason": null,
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675"
+   },
+   {
+    "name": "Seinäjoen kaupunki",
+    "kind": "public buyer",
+    "reason": null,
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/9488/enotice/41587"
+   },
+   {
+    "name": "Heinolan kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company in the same industry division 42. Latest 2026-04-09: Heinolan kaupungin työkonepalvelut, EUR 400,000 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/23323/enotice/45930"
+   },
+   {
+    "name": "Kauhavan kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company in the same industry division 42. Latest 2026-01-28: Kauhavan kaupungin teknisen toimen konetyöt (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/22848/enotice/39322"
+   },
+   {
+    "name": "Sonkajärven kunta",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company in the same industry division 42. Latest 2026-01-16: Talvikunnossapito 2025-2028, Sukevan taajama, Sonkajärven kunta, EUR 213,640 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/19330/enotice/38214"
+   }
+  ],
+  "project_partners": [
+   {
+    "name": "Pegasor Oy",
+    "kind": "project partner",
+    "reason": null,
+    "url": "https://cordis.europa.eu/project/id/101318796"
+   },
+   {
+    "name": "Luode Consulting Oy",
+    "kind": "project partner",
+    "reason": null,
+    "url": "https://cordis.europa.eu/project/id/101169293"
+   }
+  ],
+  "research_institutes": []
+ },
+ "counts": {
+  "signals": 5,
+  "by_type": {
+   "public_contract": 1,
+   "startup_notice": 1,
+   "board_change": 1,
+   "register_entry": 1,
+   "first_sales": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0,
+  "next_public_funding": 1,
+  "next_buyers": 5,
+  "next_project_partners": 2,
+  "next_research_institutes": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3508136-5",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3508136-5",
+  "https://cordis.europa.eu/project/id/101169293",
+  "https://cordis.europa.eu/project/id/101318796",
+  "https://tietopalvelu.ytj.fi/yritys/3508136-5",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/19330/enotice/38214",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/22848/enotice/39322",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/23323/enotice/45930",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/9488/enotice/41587"
+ ]
+}

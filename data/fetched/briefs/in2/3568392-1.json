@@ -1,0 +1,389 @@
+{
+ "company_key": "3568392-1",
+ "name": "Sireness Oy",
+ "business_id": "3568392-1",
+ "founded": "2025-09-29",
+ "country": "FI",
+ "group": "cohort",
+ "register_status": "active",
+ "industry": {
+  "code": "72100",
+  "description": "Research and experimental development on natural sciences and engineering"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-02-09",
+   "date_label": "2026-02-09",
+   "source_url": "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (accelerator_or_programme_entry). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "startup_notice",
+   "type_label": "Start-up notification",
+   "date": "2025-10-08",
+   "date_label": "2025-10-08",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3568392-1",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2025-10-08 (PRH). Register entries: Start-up notification. Record number: 2025/486994.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "board_change",
+   "type_label": "Board change",
+   "date": "2025-10-08",
+   "date_label": "2025-10-08",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3568392-1",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2025-10-08 (PRH). Register entries: Board of directors (HAL). Record number: 2025/486994.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2025-09-29",
+   "date_label": "2025-09-29",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3568392-1",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2025-09-29",
+   "date_label": "2025-09-29",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3568392-1",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S6",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2025-09-29",
+   "date_label": "2025-09-29",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1",
+   "source_label": "PRH/YTJ register",
+   "confidence": "high",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S7",
+   "type": "public_funding",
+   "type_label": "Grant or public funding",
+   "date": "2025-04-30",
+   "date_label": "2025-04-30",
+   "source_url": "https://www.alandsbanken.fi/news/alandsbankenin_itameriprojekti_jakaa_550_000_euroa_itameren_tilaa/pdf",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Grant or public funding amount EUR 70 000. Open the source link for the details",
+   "amount_eur": 70000.0
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": 4,
+   "rule": "stated by the declared research",
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Start-up notification on 2025-10-08: Start-up notification registered 2025-10-08 (PRH). Register entries: Start-up notification. Record number: 2025/486994.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3568392-1"
+  },
+  {
+   "text": "Grant or public funding on 2025-04-30: Grant or public funding amount EUR 70 000. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://www.alandsbanken.fi/news/alandsbankenin_itameriprojekti_jakaa_550_000_euroa_itameren_tilaa/pdf"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / Medium",
+  "note": "more public evidence needed: Ocean impact, Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Thesis fit: declared cohort company",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   },
+   {
+    "text": "Why now: BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) closes 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   }
+  ]
+ },
+ "next": {
+  "investors": [
+   {
+    "name": "Valmet",
+    "kind": "investor corporate",
+    "reason": "caps ['C6']; kw []; stage 0.5",
+    "url": "https://www.valmet.com"
+   },
+   {
+    "name": "Ocean 14 Capital",
+    "kind": "investor vc",
+    "reason": "caps ['C6']; kw []; stage 0.0; impact 2/5",
+    "url": "https://startupintros.com/orgs/ocean-14-capital"
+   },
+   {
+    "name": "SWEN Blue Ocean Partners (SWEN Capital Partners)",
+    "kind": "investor vc",
+    "reason": "caps ['C6']; kw []; stage 0.0; impact 2/5",
+    "url": "https://emergingoceans.substack.com/p/blue-economy-funds-exceed-raise-targets"
+   },
+   {
+    "name": "Voima Ventures",
+    "kind": "investor vc",
+    "reason": null,
+    "url": "https://voima.vc"
+   },
+   {
+    "name": "Lifeline Ventures",
+    "kind": "investor vc",
+    "reason": "funds the company's stage (pre seed; stated stages: pre_seed; seed); backed 1 company with the same capability: Origin by Ocean Oy (declared ecosystem dataset).",
+    "url": "https://lifeline.vc"
+   }
+  ],
+  "funding": [
+   {
+    "name": "Baltic Sea Action Plan (BSAP) Fund (NIB + NEFCO)",
+    "kind": "public funder",
+    "reason": "caps ['C6']; kw []; stage 1.0; impact 2/5",
+    "url": "https://www.nib.int/about/cooperation/bsap-fund"
+   },
+   {
+    "name": "Baltic Sea Action Group (BSAG)",
+    "kind": "public funder",
+    "reason": "caps ['C6']; kw []; stage 0.5; impact 2/5",
+    "url": "https://www.bsag.fi"
+   },
+   {
+    "name": "Elinvoimakeskus water and marine management grants (state water-themed grants)",
+    "kind": "public funder",
+    "reason": "caps ['C6']; kw []; stage 0.5; impact 2/5",
+    "url": "https://www.elinvoimakeskus.fi"
+   },
+   {
+    "name": "Interreg Central Baltic Programme 2021-2027",
+    "kind": "public funder",
+    "reason": "caps ['C6']; kw []; stage 0.5; impact 2/5",
+    "url": "https://centralbaltic.eu"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "partners": [
+   {
+    "name": "Evac Oy (Evac Group)",
+    "kind": "corporate",
+    "reason": "caps ['C6']; kw []; stage 0.5",
+    "url": "https://news.cision.com/altor/r/altor-acquires-a-majority-stake-in-evac-and-partners-with-management,c4278541"
+   },
+   {
+    "name": "Finnish Environment Institute (Syke)",
+    "kind": "research org",
+    "reason": "caps ['C6']; kw []; stage 0.5",
+    "url": "https://www.syke.fi"
+   },
+   {
+    "name": "Kemira Oyj",
+    "kind": "corporate",
+    "reason": "caps ['C6']; kw []; stage 0.5",
+    "url": "https://www.kemira.com"
+   },
+   {
+    "name": "Lamor Corporation Oyj",
+    "kind": "corporate",
+    "reason": "caps ['C6']; kw []; stage 0.5",
+    "url": "https://www.lamor.com"
+   },
+   {
+    "name": "Åbo Akademi University",
+    "kind": "research org",
+    "reason": "caps ['C6']; kw []; stage 0.5",
+    "url": "https://www.abo.fi"
+   }
+  ],
+  "public_funding": [
+   {
+    "name": "Public grant",
+    "kind": "public funder",
+    "reason": "Funded this company 1 time, latest 2025-04-30 (declared research).",
+    "url": "https://www.alandsbanken.fi/news/alandsbankenin_itameriprojekti_jakaa_550_000_euroa_itameren_tilaa/pdf"
+   },
+   {
+    "name": "Business Finland",
+    "kind": "public funder",
+    "reason": "Funded 4 other companies with the same industry code 72100 (Research and experimental development on natural sciences and engineering) since 2023.",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   },
+   {
+    "name": "Baltic Sea Action Plan (BSAP) Fund (NIB + NEFCO)",
+    "kind": "public funder",
+    "reason": null,
+    "url": "https://www.nib.int/about/cooperation/bsap-fund"
+   },
+   {
+    "name": "Baltic Sea Action Group (BSAG)",
+    "kind": "public funder",
+    "reason": null,
+    "url": "https://www.bsag.fi"
+   },
+   {
+    "name": "Interreg Baltic Sea Region",
+    "kind": "public funder",
+    "reason": null,
+    "url": "https://interreg-baltic.eu"
+   }
+  ],
+  "buyers": [],
+  "project_partners": [],
+  "research_institutes": [
+   {
+    "name": "Finnish Environment Institute (Syke)",
+    "kind": "research institute",
+    "reason": "Dataset match score 67.5: caps ['C6']; kw []; stage 0.5 (declared ecosystem dataset).",
+    "url": "https://www.syke.fi"
+   },
+   {
+    "name": "Åbo Akademi University",
+    "kind": "research institute",
+    "reason": "Dataset match score 67.5: caps ['C6']; kw []; stage 0.5 (declared ecosystem dataset).",
+    "url": "https://www.abo.fi"
+   }
+  ]
+ },
+ "counts": {
+  "signals": 7,
+  "by_type": {
+   "ecosystem_event": 1,
+   "startup_notice": 1,
+   "board_change": 1,
+   "first_hire": 1,
+   "first_sales": 1,
+   "register_entry": 1,
+   "public_funding": 1
+  },
+  "next_investors": 5,
+  "next_funding": 5,
+  "next_partners": 5,
+  "next_public_funding": 5,
+  "next_buyers": 0,
+  "next_project_partners": 0,
+  "next_research_institutes": 2
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3568392-1",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1",
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://centralbaltic.eu",
+  "https://emergingoceans.substack.com/p/blue-economy-funds-exceed-raise-targets",
+  "https://interreg-baltic.eu",
+  "https://lifeline.vc",
+  "https://news.cision.com/altor/r/altor-acquires-a-majority-stake-in-evac-and-partners-with-management,c4278541",
+  "https://startupintros.com/orgs/ocean-14-capital",
+  "https://tietopalvelu.ytj.fi/yritys/3568392-1",
+  "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+  "https://voima.vc",
+  "https://www.abo.fi",
+  "https://www.alandsbanken.fi/news/alandsbankenin_itameriprojekti_jakaa_550_000_euroa_itameren_tilaa/pdf",
+  "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+  "https://www.bsag.fi",
+  "https://www.elinvoimakeskus.fi",
+  "https://www.kemira.com",
+  "https://www.lamor.com",
+  "https://www.nib.int/about/cooperation/bsap-fund",
+  "https://www.syke.fi",
+  "https://www.valmet.com"
+ ]
+}

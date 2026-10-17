@@ -1,0 +1,146 @@
+{
+ "company_key": "3644816-5",
+ "name": "Studio VILDA Oy",
+ "business_id": "3644816-5",
+ "founded": "2026-08-07",
+ "country": "FI",
+ "group": "intake",
+ "register_status": "active",
+ "industry": {
+  "code": "72200",
+  "description": "Research and experimental development on social sciences and humanities"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2026-10-07",
+   "date_label": "2026-10-07",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3644816-5",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2026-08-07",
+   "date_label": "2026-08-07",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5",
+   "source_label": "PRH/YTJ register (wide intake)",
+   "confidence": "high",
+   "adapter": "prh_intake",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / unknown",
+  "note": "more public evidence needed: Ocean impact, Investment readiness, Thesis fit, Technology readiness",
+  "why": [
+   {
+    "text": "Why now: First sales on 2026-10-07",
+    "url": "https://tietopalvelu.ytj.fi/yritys/3644816-5"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public evidence for thesis fit",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness, Thesis fit, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": [],
+  "public_funding": [],
+  "buyers": [],
+  "project_partners": [],
+  "research_institutes": []
+ },
+ "counts": {
+  "signals": 2,
+  "by_type": {
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0,
+  "next_public_funding": 0,
+  "next_buyers": 0,
+  "next_project_partners": 0,
+  "next_research_institutes": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644816-5",
+  "https://tietopalvelu.ytj.fi/yritys/3644816-5"
+ ]
+}

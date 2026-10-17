@@ -1,0 +1,169 @@
+{
+ "company_key": "3654685-7",
+ "name": "Qamos Oy",
+ "business_id": "3654685-7",
+ "founded": "2026-09-11",
+ "country": "FI",
+ "group": "intake",
+ "register_status": "active",
+ "industry": {
+  "code": "72100",
+  "description": "Research and experimental development on natural sciences and engineering"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654685-7",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2026-09-11",
+   "date_label": "2026-09-11",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3654685-7",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2026-09-11",
+   "date_label": "2026-09-11",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3654685-7",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2026-09-11",
+   "date_label": "2026-09-11",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654685-7",
+   "source_label": "PRH/YTJ register (wide intake)",
+   "confidence": "high",
+   "adapter": "prh_intake",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654685-7"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / unknown",
+  "note": "more public evidence needed: Ocean impact, Investment readiness, Thesis fit, Technology readiness",
+  "why": [
+   {
+    "text": "Why now: First hire on 2026-09-11",
+    "url": "https://tietopalvelu.ytj.fi/yritys/3654685-7"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654685-7"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public evidence for thesis fit",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness, Thesis fit, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654685-7"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": [],
+  "public_funding": [
+   {
+    "name": "Business Finland",
+    "kind": "public funder",
+    "reason": "Funded 4 other companies with the same industry code 72100 (Research and experimental development on natural sciences and engineering) since 2023.",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   }
+  ],
+  "buyers": [],
+  "project_partners": [],
+  "research_institutes": []
+ },
+ "counts": {
+  "signals": 3,
+  "by_type": {
+   "first_hire": 1,
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0,
+  "next_public_funding": 1,
+  "next_buyers": 0,
+  "next_project_partners": 0,
+  "next_research_institutes": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654685-7",
+  "https://tietopalvelu.ytj.fi/yritys/3654685-7",
+  "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+ ]
+}

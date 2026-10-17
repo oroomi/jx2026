@@ -1,0 +1,191 @@
+{
+ "company_key": "3644762-1",
+ "name": "Silent But Deadly Oy",
+ "business_id": "3644762-1",
+ "founded": "2026-08-07",
+ "country": "FI",
+ "group": "intake",
+ "register_status": "active",
+ "industry": {
+  "code": "62100",
+  "description": "Computer programming activities"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644762-1",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2026-09-01",
+   "date_label": "2026-09-01",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3644762-1",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2026-09-01",
+   "date_label": "2026-09-01",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3644762-1",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2026-08-07",
+   "date_label": "2026-08-07",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644762-1",
+   "source_label": "PRH/YTJ register (wide intake)",
+   "confidence": "high",
+   "adapter": "prh_intake",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644762-1"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / unknown",
+  "note": "more public evidence needed: Ocean impact, Investment readiness, Thesis fit, Technology readiness",
+  "why": [
+   {
+    "text": "Why now: First hire on 2026-09-01",
+    "url": "https://tietopalvelu.ytj.fi/yritys/3644762-1"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644762-1"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public evidence for thesis fit",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness, Thesis fit, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644762-1"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": [],
+  "public_funding": [
+   {
+    "name": "Business Finland",
+    "kind": "public funder",
+    "reason": "Funded 9 other companies with the same industry code 62100 (Computer programming activities) since 2023.",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   }
+  ],
+  "buyers": [
+   {
+    "name": "Suomen Tekstiili ja Muoti ry",
+    "kind": "public buyer",
+    "reason": "Awarded 2 contracts since 2024-10: bought from a company with the same industry code 62100; EUR 500,000 in total. Latest 2025-01-22: Konsultoinnin puitejärjestelyt, EUR 250,000 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/3431/enotice/4130"
+   },
+   {
+    "name": "Espoon kaupunki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 62100. Latest 2026-06-26: Rakennusmittausten ja tietomallikonsultointipalveluiden hankinta 2026 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/27223/enotice/52428"
+   },
+   {
+    "name": "Forum Virium Helsinki",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 62100. Latest 2025-06-03: Kasvua kaupunkiluonnolle: haku auki kaupunkien vehreyttä tukeville kokeiluille, EUR 98,025 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/13200/enotice/22210"
+   }
+  ],
+  "project_partners": [],
+  "research_institutes": []
+ },
+ "counts": {
+  "signals": 3,
+  "by_type": {
+   "first_hire": 1,
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0,
+  "next_public_funding": 1,
+  "next_buyers": 3,
+  "next_project_partners": 0,
+  "next_research_institutes": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644762-1",
+  "https://tietopalvelu.ytj.fi/yritys/3644762-1",
+  "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/13200/enotice/22210",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/27223/enotice/52428",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/3431/enotice/4130"
+ ]
+}

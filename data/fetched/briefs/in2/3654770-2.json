@@ -1,0 +1,206 @@
+{
+ "company_key": "3654770-2",
+ "name": "Keski-Suomen Laiturirakentajat Oy",
+ "business_id": "3654770-2",
+ "founded": "2026-09-12",
+ "country": "FI",
+ "group": "feed",
+ "register_status": "active",
+ "industry": {
+  "code": "30110",
+  "description": "Building of civilian ships and floating structures"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654770-2",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "startup_notice",
+   "type_label": "Start-up notification",
+   "date": "2026-09-25",
+   "date_label": "2026-09-25",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3654770-2",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2026-09-25 (PRH). Register entries: Start-up notification. Record number: 2026/472800.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "board_change",
+   "type_label": "Board change",
+   "date": "2026-09-25",
+   "date_label": "2026-09-25",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3654770-2",
+   "source_label": "PRH registered notices",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2026-09-25 (PRH). Register entries: Board of directors (HAL). Record number: 2026/472800.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2026-09-12",
+   "date_label": "2026-09-12",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3654770-2",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2026-09-12",
+   "date_label": "2026-09-12",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654770-2",
+   "source_label": "PRH/YTJ register",
+   "confidence": "low",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654770-2"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Industry code 30110 is on the thesis list (Building of ships and floating structures).",
+   "confidence": "low",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654770-2"
+  },
+  {
+   "text": "Start-up notification on 2026-09-25: Start-up notification registered 2026-09-25 (PRH). Register entries: Start-up notification. Record number: 2026/472800.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3654770-2"
+  }
+ ],
+ "memo": {
+  "decision": "ACCELERATOR",
+  "matched": "fallback c2, impact implied by sector",
+  "because": "Medium, implied by sector / Low / unknown / High",
+  "note": "No measured impact on record; thesis fit is High, so impact is read as Medium, implied by the sector, and fallback c2 of the decision rules applies.",
+  "why": [
+   {
+    "text": "Thesis fit: Industry code 30110 (Building of civilian ships and floating structures, PRH) is on the thesis list.",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654770-2"
+   },
+   {
+    "text": "Why now: Board change on 2026-09-25",
+    "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3654770-2"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact (read as implied by the sector for this decision)",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654770-2"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": []
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": [],
+  "public_funding": [
+   {
+    "name": "Business Finland",
+    "kind": "public funder",
+    "reason": "Funded 1 other company with the same industry code 30110 (Building of civilian ships and floating structures) since 2023.",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   }
+  ],
+  "buyers": [
+   {
+    "name": "Sisäministeriö",
+    "kind": "public buyer",
+    "reason": "Awarded 1 contract since 2024-10: bought from a company with the same industry code 30110. Latest 2026-01-10: Öljyntorjuntamateriaalin hankinta, EUR 621,509 (Hilma).",
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/24148/enotice/35984"
+   },
+   {
+    "name": "Rajavartiolaitos",
+    "kind": "public buyer",
+    "reason": null,
+    "url": "https://www.hankintailmoitukset.fi/fi/public/procedure/23268/enotice/38959"
+   }
+  ],
+  "project_partners": [],
+  "research_institutes": []
+ },
+ "counts": {
+  "signals": 4,
+  "by_type": {
+   "startup_notice": 1,
+   "board_change": 1,
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0,
+  "next_public_funding": 1,
+  "next_buyers": 2,
+  "next_project_partners": 0,
+  "next_research_institutes": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3654770-2",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654770-2",
+  "https://tietopalvelu.ytj.fi/yritys/3654770-2",
+  "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/23268/enotice/38959",
+  "https://www.hankintailmoitukset.fi/fi/public/procedure/24148/enotice/35984"
+ ]
+}

@@ -114,7 +114,7 @@ def test_a_counterpart_organisation_is_not_a_startup():
     index = matchmaker_orgs.counterpart_index(th)
     assert index.get(matchmaker_orgs.okey("Rauma Marine Constructions Oy")) == "corporate"   # corporates_clients.csv and the dataset
     young = {"name": "Rauma Marine Constructions Oy", "founded": _day(100), "group_tag": "feed"}
-    assert memo.not_startup(young, th, TODAY) == "listed as a counterpart organisation (corporate or public buyer)"
+    assert memo.not_startup(young, th, TODAY) == "listed as a counterpart organisation, a corporate or public buyer"
     assert memo.not_startup({**young, "name": "Unlisted Fixture Oy"}, th, TODAY) is None
 
 
@@ -172,6 +172,22 @@ def test_an_old_company_is_offered_no_investor_or_accelerator_and_none_is_offere
         assert "9500005-6" not in {s["key"] for s in r["startups"]}, org["id"]
         assert r["not_startups"] >= 1 or r["org"]["closed_note"], org["id"]
 
+
+
+def test_an_empty_investor_page_counts_startups_only(conn):
+    # the empty-state count ("N of the M startups pass its topic and geography filters") leaves out the companies the cut removes
+    _company(conn, "9500008-3", "Old Sea Code Oy", founded_days=365 * 12)
+    _company(conn, "9500009-1", "Young Sea Code Oy", founded_days=400)       # code only: WATCHLIST, on no investor's path
+    th = thesis.load()
+    kinds = set(th["matching"]["startup_kinds"])
+    seen = 0
+    for org in [o for o in matchmaker_orgs.registry(conn, th)["orgs"] if o["kind"] in kinds]:
+        r = matchmaker.match_org(org["id"], th, conn=conn, today=TODAY, limit=1000)
+        m = re.search(r"of the ([\d,]+) startups", r["org"]["empty_reason"] or "")
+        if m:
+            seen += 1
+            assert m.group(1) == "1" and r["not_startups"] == 1, (org["id"], r["org"]["empty_reason"])
+    assert seen
 
 # ---- D77: a public contract sets business readiness, never TRL -------------------------------------------------------------
 

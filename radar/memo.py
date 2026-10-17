@@ -129,7 +129,8 @@ def not_startup(c: dict, thesis: dict, today: date, counterparts: dict | None = 
     kind = index.get(matchmaker_orgs.okey(name)) if name else None
     if kind or store.is_partner_org(name):
         label = (((thesis.get("matching") or {}).get("kinds") or {}).get(kind) or {}).get("label") if kind else None
-        return f"listed as a counterpart organisation{' (' + label.lower() + ')' if label else ''}"
+        kind_words = f", {'an' if label[:1].lower() in 'aeiou' else 'a'} {label.lower()}" if label else ""  # no nested brackets on the page
+        return f"listed as a counterpart organisation{kind_words}"
     years = (thesis.get("geography") or {}).get("stage_max_company_age_years")
     age = company_age(c.get("founded"), today)
     if years is not None and age is not None and age > float(years):

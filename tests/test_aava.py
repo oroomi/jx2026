@@ -142,6 +142,12 @@ def test_a_watchlist_company_reads_honestly(client, db_path):
 
 def test_the_score_answer_has_the_verdict_the_bands_the_rule_and_no_number(client, db_path):
     undeclare(db_path, RICH)
+    import sqlite3
+    c = sqlite3.connect(db_path)    # technology High from a BlueInvest profile's stated TRL: a public contract sets no TRL since D77
+    c.execute("INSERT INTO blueinvest_profiles (profile_id, company_key, title, trl, url, fetched_at) VALUES "
+              "('p-rich', ?, 'Rich Fixture', 8, 'https://example.test/bi/rich', '2026-10-16T00:00:00Z')", (RICH,))
+    c.commit()
+    c.close()
     t = answers(client, RICH)[2]["text"]
     assert t.startswith("On ocean impact")
     assert "The verdict is partner introduction" in t

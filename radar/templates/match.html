@@ -94,7 +94,8 @@
     </li>
   {% endfor %}
   </ol>
-  {% else %}<p class="mt-note">No startup on the radar is ranked for this counterpart{% if o.empty_reason %}: {{ o.empty_reason }}{% else %}.{% endif %}{% if result.connected %} The companies it is already connected to are on the other tab.{% endif %}</p>{% endif %}
+  {% else %}<p class="mt-note">No startup on the radar is ranked for this counterpart{% if o.empty_reason %}: {{ o.empty_reason }}{% else %}.{% endif %}{% if result.connected %} The companies it is already connected to are on the other tab.{% endif %}</p>
+  {% if result.not_startups %}<p class="mt-note" id="mt-not-startups">{{ "{:,}".format(result.not_startups) }} companies on the radar are not startups on the thesis' rule (founded more than {{ age_cut }} years ago, or listed as a counterpart organisation) and are not offered to {{ o.name }}.</p>{% endif %}{% endif %}
 {% elif view == "company" and result %}
   {% set k = result.company %}
   <p class="mt-kind">{{ k.verdict | lower }} path · {{ k.country or "country not in records" }}{% if k.age_band %} · {{ k.age_band }} old{% endif %}</p>

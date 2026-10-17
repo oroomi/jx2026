@@ -565,7 +565,7 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
         pipeline = ({"ready": n_ready, "early": len(out_rows) - n_ready, "note": pipeline_note(pc, n_ready) if out_rows else None,
                      "ready_label": pc.get("ready_label"), "early_label": pc.get("early_label")} if pc else None)
         row = _org_row(org, cfg)
-        row["empty_reason"] = None if out_rows or closed else _empty_reason(org, cfg, removed, len(idx), len(cand), pc)
+        row["empty_reason"] = None if out_rows or closed else _empty_reason(org, cfg, removed, len(idx) - not_startups, len(cand), pc)  # D76: count startups only
         row["closed_note"] = closed
         row["revealed"] = {"members_in_records": len(org["members"]), "declared_companies": org["declared_total"],
                            "basis": sorted({m["basis"] for m in org["members"].values()}),
@@ -590,12 +590,12 @@ def _empty_reason(org: dict, cfg: dict, removed: Counter, total: int, passed_top
     """Why an open counterpart ranks nobody, in words and from the counts (never a bare 'no match')."""
     if passed_topic:
         what = "the " + plain_list([v.lower() for v in pc["verdicts"]], "or") + " path" if pc else "a verdict path this kind meets"
-        return f"{passed_topic} of the {total} startups pass its topic and geography filters, and none of them is on {what}."
+        return f"{passed_topic} of the {total:,} startups pass its topic and geography filters, and none of them is on {what}."
     if not org["has_declared"] and not org["lookalikes"]:
         return "it declares no sector text and no portfolio in our records, so there is nothing to match a startup on."
     if removed:
         reason, n = removed.most_common(1)[0]
-        return f"{n} of the {total} startups were removed because {reason[0].lower() + reason[1:]}."
+        return f"{n} of the {total:,} startups were removed because {reason[0].lower() + reason[1:]}."
     return "no startup on the radar passes its filters."
 
 

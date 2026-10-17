@@ -39,6 +39,8 @@ def client(data_dir, monkeypatch):
         monkeypatch.delenv(k, raising=False)
     aava_chat.limiter.reset()
     aava_llm._NO_THINKING.clear()
+    from radar import home_list, thesis
+    home_list.for_template(thesis.load(), wait=None)      # built once per run: the page never answers with the warming note in these tests
     import app
     return TestClient(app.app)
 
@@ -204,11 +206,21 @@ def test_without_a_key_the_site_is_exactly_todays(client):
     assert client.get("/api/ask", params={"q": "Viva Jets"}).json()["intent"] == "company"      # the deterministic router is untouched
 
 
-def test_with_a_key_the_pages_load_the_chat_and_nothing_else_changes(client, monkeypatch):
+def test_with_a_key_the_pages_load_the_chat_and_the_company_page_gets_its_follow_up(client, monkeypatch):
     monkeypatch.setenv("ANTHROPIC_API_KEY", KEY)
     home, page = client.get("/").text, client.get(f"/c/{VIVA}").text
-    assert "/static/aava_chat.js" in home and "/static/aava_chat.js" in page
+    assert "/static/aava_chat.js" in home and "/static/aava_chat.js" in page and "/static/aava_chat.css" in page
     assert 'id="ask-form"' in home and KEY not in home + page
+    assert 'id="aava-follow"' in page and "Ask a follow-up" in page and 'id="aava-follow"' not in home      # under the six questions, company pages only
+
+
+def test_without_a_key_there_is_no_follow_up_form(client):
+    assert 'id="aava-follow"' not in client.get(f"/c/{VIVA}").text
+
+
+def test_home_rows_carry_the_company_key_the_conversation_scrolls_to(client):
+    html = client.get("/").text
+    assert f'data-key="{VIVA}"' in html and f'id="row-{VIVA}"' in html and f'href="/c/{VIVA}"' in html
 
 
 # ---- limits ---------------------------------------------------------------------------------------------------------------------------------

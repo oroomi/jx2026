@@ -1,4 +1,4 @@
-# Aava chat on a reasoning model (radar/aava_llm.py, radar/routes/aava_chat.py). PROJECT_RULES D51.
+# Aava chat on a reasoning model (radar/aava_llm.py, radar/routes/aava_chat.py). PROJECT_RULES D61.
 # Every value below is the default; the environment variable of the same name overrides it at run time (read with os.environ on each request,
 # never from a file this app opens). The key itself, ANTHROPIC_API_KEY, is only ever read from the environment: the owner adds it to the
 # service's EnvironmentFile. Without it the chat is off and the deterministic Aava and /api/ask run exactly as before.

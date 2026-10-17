@@ -1,4 +1,4 @@
-/* Aava's conversation (PROJECT_RULES D51; radar/static/aava_chat.js). Loaded only when the server has a model key, after askbar.css.
+/* Aava's conversation (PROJECT_RULES D61; radar/static/aava_chat.js). Loaded only when the server has a model key, after askbar.css.
    Tokens only (--bg --surface --hairline --text --muted --accent, --sans --serif --mono), so terminal, editorial and product skins, dark and
    light, all work. The pulse while Aava thinks is the Ask bar's own (ask-beat in askbar.css). */
 

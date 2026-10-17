@@ -1,4 +1,4 @@
-"""Aava's conversation (PROJECT_RULES D51).
+"""Aava's conversation (PROJECT_RULES D61).
 
   GET  /api/aava/status   {available, model, tts}: whether a key is configured (a boolean, never the key) and the model id.
   POST /api/aava/chat     {messages, view, thesis, company} -> Server-Sent Events: status, delta, action, entities, followups, done, error.

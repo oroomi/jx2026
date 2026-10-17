@@ -1,4 +1,4 @@
-"""The tools Aava's reasoning model may call (PROJECT_RULES D51). Read-only: each one is a thin, bounded view over code the site already runs
+"""The tools Aava's reasoning model may call (PROJECT_RULES D61). Read-only: each one is a thin, bounded view over code the site already runs
 (the cached home list and its filter rail, the memo, the Ocean Impact Assessment, the matchmaker). The model never sends SQL, never writes,
 and never reaches a network. Every company or organisation a tool returns is recorded in the turn's ToolContext, which is what lets
 radar.aava_entities decide afterwards which names in the answer are real.
@@ -431,11 +431,26 @@ def apply_filters(ctx: ToolContext, a: dict) -> dict:
     elif group not in groups:
         notes.append(f"group '{group}' does not exist; groups: {', '.join(groups)}")
         group = ""
+    org = str(a.get("top_matching_for") or "").strip()
+    org_name = None
+    if org:                              # the Top matching tab for one investor or accelerator (D35): the matchmaker's ranking of the list
+        from radar import home_orgs
+        pick = next((o for o in home_orgs.organisations(ctx.th) if o["id"] == org), None)
+        if pick is None:
+            notes.append(f"'{org}' is not an organisation the Top matching tab offers; use an org_id from list_organisations of kind investor or accelerator")
+            org = ""
+        else:
+            org_name, group = pick["name"], "fit"
+            ctx.see_org(org, org_name)
     base = groups[group][2] if group else ctx.rows()
     remain = len(home_filter.apply(base, sel))
-    action = {"type": "apply_filters", "filters": sel, "group": group, "matches": remain}
+    action = {"type": "apply_filters", "filters": sel, "group": group, "matches": None if org else remain, **({"for": org} if org else {})}
     ctx.actions.append(action)
     out = {"queued_for_the_page": True, "filters": sel or "cleared", "rows_that_will_remain": remain, "of": len(base)}
+    if org:
+        out.pop("rows_that_will_remain")
+        out["top_matching_for"] = org_name
+        out["note"] = f"the Top matching tab now ranks the list for {org_name} with the matchmaker's reasons; the page shows how many rows remain"
     if group:
         out["group_tab"] = group
     if notes:
@@ -503,7 +518,8 @@ TOOLS: list[dict] = [
      "description": ("Change the home page's filters for the person (the page updates in place). Same values as search_startups. The server does not run it; it checks the values, "
                      "tells you how many rows will remain, and the browser applies it. An empty filters object clears every filter. Use it when they ask to show, filter, narrow or clear the list."),
      "input_schema": {"type": "object", "properties": {"filters": {"type": "object", "properties": _FILTERS, "description": "The complete filter state to show (it replaces the current one)."},
-                                                       "group": {"type": "string", "description": "Optional group tab: all, fit (Top fits), ready (Investor-ready) or new (New this quarter). Countries are the country filter."}},
+                                                       "group": {"type": "string", "description": "Optional group tab: all, fit (Top fits), ready (Investor-ready) or new (New this quarter). Countries are the country filter."},
+                                                       "top_matching_for": {"type": "string", "description": "Optional org_id of an investor or accelerator (from list_organisations): the page shows its Top matching tab, the list ranked for that organisation."}},
                       "required": ["filters"]}},
     {"name": "suggest_followups",
      "description": "Show the person 2 or 3 short follow-up questions as buttons. Call it once, last, after your answer is complete.",

@@ -1,4 +1,4 @@
-/* Aava's conversation (PROJECT_RULES D51). Loaded only when the server has a model key (the script tag is not in the page otherwise), and does
+/* Aava's conversation (PROJECT_RULES D61). Loaded only when the server has a model key (the script tag is not in the page otherwise), and does
    nothing unless the demo flag is on (window.AAVA_DEMO, set by _aava.html) and GET /api/aava/status says available.
    Home page: the Ask bar becomes a conversation (message list under the bar, streamed answers, follow-up chips, Clear). Company page: an
    "Ask a follow-up" input under the six questions opens the same conversation in a sheet with that company as context.
@@ -65,11 +65,16 @@
   window.radarFilters = window.radarFilters || {
     apply: function (change) {
       change = change || {};
-      if (window.Filters && window.Filters.apply) return window.Filters.apply({ filters: change.filters || {}, group: change.group || "" });
+      if (window.Filters && window.Filters.apply) {
+        var c = { filters: change.filters || {}, group: change.group || "" };
+        if (change.for) c.for = change.for;                    /* the Top matching tab for one investor or accelerator */
+        return window.Filters.apply(c);
+      }
       var q = new URLSearchParams(location.search);
       ["verdict", "impact", "trl", "brl", "irl", "fit", "country", "sector", "age", "source", "src", "deadline", "member", "group"].forEach(function (k) { q.delete(k); });
       Object.keys(change.filters || {}).forEach(function (k) { [].concat(change.filters[k]).forEach(function (v) { q.append(k, v); }); });
       if (change.group) q.set("group", change.group);
+      if (change.for) q.set("for", change.for);
       location.assign("/" + (q.toString() ? "?" + q.toString() : ""));
       return Promise.resolve(false);
     }
@@ -247,7 +252,7 @@
         boxes.forEach(function (x) {
           x.box.removeAttribute("aria-busy"); x.box.classList.remove("is-thinking"); x.status.remove();
           x.p.listen(x.box, text);
-          if (acts.length) { var last = acts[acts.length - 1]; x.box.appendChild(el("p", "chat-act", "Applied to the list: " + describe(last.filters) + (typeof last.matches === "number" ? " (" + last.matches + " shown)" : ""))); }
+          if (acts.length) { var last = acts[acts.length - 1]; x.box.appendChild(el("p", "chat-act", "Applied to the list: " + describe(last.filters) + (last.for ? ", top matching for " + last.for : "") + (typeof last.matches === "number" ? " (" + last.matches + " shown)" : ""))); }
           if (final.unverified && final.unverified.length) x.box.appendChild(el("p", "chat-note", "Not from the records Aava looked at, treat as unverified: " + final.unverified.join(", ") + "."));
           x.p.chips(followups);
         });

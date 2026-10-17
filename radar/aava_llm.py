@@ -1,4 +1,4 @@
-"""Aava on a reasoning model (PROJECT_RULES D51). One chat turn = a short agent loop over the Messages API: the model reads the conversation, calls
+"""Aava on a reasoning model (PROJECT_RULES D61). One chat turn = a short agent loop over the Messages API: the model reads the conversation, calls
 the read-only tools of radar.aava_tools (search the home list, open a company, explain a match, list organisations, look at the visitor's screen,
 set the page's filters), and writes the answer. The answer is streamed, then checked against what the tools returned (radar.aava_entities).
 

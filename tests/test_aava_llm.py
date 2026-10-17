@@ -248,6 +248,18 @@ def test_apply_filters_reaches_the_client_as_an_action_with_the_count(th):
     assert body["rows_that_will_remain"] == expect and body["queued_for_the_page"] is True
 
 
+def test_apply_filters_can_open_the_top_matching_tab_for_an_organisation(th):
+    ctx = aava_tools.ToolContext(th, limits=aava_llm.settings().limits)
+    from radar import home_orgs
+    org = home_orgs.organisations(th)[0]
+    out = json.loads(aava_tools.run_tool(ctx, "apply_filters", {"filters": {"country": ["FI"]}, "top_matching_for": org["id"]})[0])
+    assert out["top_matching_for"] == org["name"] and "rows_that_will_remain" not in out
+    assert ctx.actions[-1] == {"type": "apply_filters", "filters": {"country": ["FI"]}, "group": "fit", "matches": None, "for": org["id"]}
+    assert org["id"] in ctx.seen_orgs
+    bad = json.loads(aava_tools.run_tool(ctx, "apply_filters", {"filters": {}, "top_matching_for": "nobody"})[0])
+    assert any("not an organisation" in n for n in bad["notes"]) and "for" not in ctx.actions[-1]
+
+
 def test_an_empty_apply_filters_clears_and_an_unknown_value_is_explained(th):
     ctx = aava_tools.ToolContext(th, limits=aava_llm.settings().limits)
     out = json.loads(aava_tools.run_tool(ctx, "apply_filters", {"filters": {}})[0])

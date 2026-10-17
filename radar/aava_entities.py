@@ -1,4 +1,4 @@
-"""After generation, before the page trusts a name (PROJECT_RULES D51). Aava writes every company it names as a markdown link to its company
+"""After generation, before the page trusts a name (PROJECT_RULES D61). Aava writes every company it names as a markdown link to its company
 page, [Viva Jets Oy](/c/2962040-6). This module checks the answer against what the tools returned in the same turn:
 
   - a link to /c/<key> stays only when <key> was returned by a tool this turn and its label is that company's name (or a short form of it);

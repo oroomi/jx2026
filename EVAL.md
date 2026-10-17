@@ -11,8 +11,8 @@ plus a PRH tax-register record, so under the new rule the swapped live store sho
 only, 6 later, 1 none), measured with the code on 17 Oct before deploy. The tables below are measured after the change. The memo also
 gained a fallback: thesis fit High on more than an industry code, with no impact evidence, reads impact as Medium, implied by the sector (rule c2 gives ACCELERATOR,
 c1 GRANT SUPPORT for TRL 1-3, c3 DUE DILIGENCE), printed as "because: fallback c2, impact implied by sector".
-Source: <https://jx.hankintaviikko.fi/api/backtest> and <https://jx.hankintaviikko.fi/backtest>, read on 17 Oct 2026 at 09:36 UTC,
-build b7085d3.
+Source: <https://jx.hankintaviikko.fi/api/backtest> and <https://jx.hankintaviikko.fi/backtest>, read on 17 Oct 2026 at about 13:20 UTC,
+footer build 389564b. Every number below has a row in [docs/NUMBERS.md](docs/NUMBERS.md).
 
 **What the low number means.** For the Finnish companies the data was there; the sector rule is what missed them. All 7 cohort
 companies with a Finnish business ID have dated public records in our store from before January 2026 (register entry, first sales,
@@ -64,7 +64,7 @@ Each cohort company falls in exactly one of four groups, and the four always add
 | No public signal | 1 |
 | Total | 19 |
 
-Per company, first counted signal as served by `/api/backtest` on 17 Oct, 09:36 UTC:
+Per company, first counted signal as served by `/api/backtest` on 17 Oct, about 13:20 UTC:
 
 | Company | Country | Business ID | Group | First counted signal |
 |---|---|---|---|---|
@@ -120,7 +120,7 @@ Kilocode's intake date is a 2003 VAT registration, so it is not an early find; K
 their code families after seeing them, so they are in-sample; Sireness enters on a declared-research record rather than a public one;
 and Emission-Eye, on a public start-up notice, ranks 132 of 1,176 among the 2025 registrations in its code family.
 
-Live, from `/api/backtest` (`intake`) and the wide intake table on `/backtest`, read 17 Oct 2026 at 09:36 UTC. The headline there
+Live, from `/api/backtest` (`intake`) and the wide intake table on `/backtest`, read 17 Oct 2026 at about 13:20 UTC. The headline there
 reads "Entered wide intake before cohort entry: 4 of 19" (before = 4). The other 3 Finnish cohort companies are outside the intake
 code families (Finnish Sauna Shop 47279, Sub Marine Store 46900, Taikoa 70200); the other 12 have no Finnish business ID, so they
 are not checked against the Finnish register. Rank counts companies of the same registration year and code family that had entered
@@ -144,43 +144,79 @@ intake by 2026-01-01, strongest first by startup signals up to that date, then e
   still in the live result). The live store holds records that copy did not (a declared-research grant for Sireness, a start-up
   notification for Emission-Eye), so their dates and ranks moved: that run gave Sireness 2025-09-29, rank 20 of 103, and
   Emission-Eye 2025-08-01, rank 715 of 1,176. The live figures above replace them.
-- **Live store**: the intake rows are in the live store (16,385 from `prh_intake`, `/data`).
+- **Live store**: the intake rows are in the live store (16,385 from `prh_intake`, `/data`, 17 Oct about 13:20 UTC).
 
 ## AI stitcher
 
-Batch run of 17 Oct 2026, 00:18 UTC, recorded in [METHOD.md](METHOD.md) and in the commit message of `origin/cloud/stitcher`. The
-LLM answers are committed in `data/fetched/stitcher/proposals/` (54 files), so the code checks can be replayed without LLM time.
+The cloud batch of 17 Oct 2026, 00:18 UTC, is recorded in [METHOD.md](METHOD.md) and in the commit message of `origin/cloud/stitcher`
+(54 companies on the snapshot store). Its LLM answers are committed in `data/fetched/stitcher/proposals/` (54 files), so the code checks can be
+replayed without LLM time. The replay on the live store (run `2026-10-17T01:42:07Z`, read from the live store's `stitch_log`) is what the live pages
+show, and its figures differ from the batch's (METHOD.md has the batch's own: 168 kept, 128 confirmed, 29 emitted):
 
-- **54 companies**: the 28 cohort and portfolio companies and the 26 Main-feed companies of the snapshot.
-- **168 events passed the first check** (the page names the company and prints the date; 5 dropped as company not on page,
-  2 fetch failures). **128 passed the second check** (fresh fetch; refuted: 25 type not in quote, 12 company not near quote,
-  3 year not near quote). **29 emitted**; 99 confirmed events stay in `stitch_log` only because their type is not one the radar emits
-  (incorporation 30, partnership 10, 40 other labels).
-- **41 of 54 companies** have at least one confirmed event: cohort 17 of 19 (62 events), portfolio 8 of 9 (50), Main feed 16 of 26
-  (16, nearly all register-directory incorporation lines).
-- **Earliness, counted apart**: 1 of 19 cohort companies has an emittable confirmed event whose page the Internet Archive captured
-  before 2026-01-01: VesselChain, a pilot with BMT, public since 2022-10-03. Counting unmapped labels would give 4; the rule forbids it.
-- **Recall on the three companies with no proposals in the first run**: Sub Marine Store 0 to 3 proposed (2 confirmed), Taikoa 0 to 2
-  (1 confirmed), Arctic Fry 0 to 2 (0 confirmed: both Nordic Blue entries were refuted because the quotes do not state the programme
-  next to the company's name).
+- **44 companies read** (18 cohort, 8 portfolio, 18 main-feed), **175 events proposed**, **146 passed the first check** (the page names
+  the company and prints the date; 29 dropped: 19 name and date not on the page, 5 company not on the page, 5 page not fetched, HTTP 429 or 403).
+  **105 passed the second check** (fresh fetch; 41 refuted: 24 type not in quote, 10 company not near quote, 4 page not re-fetched on HTTP 429,
+  3 year not near quote). **25 emitted**, 4 were duplicates of signals already stored (25 + 4 = 29, the number the batch reports as emitted), and 76
+  confirmed events stay in `stitch_log` only because their type is not one the radar emits (incorporation 12, partnership 10, product launch 4, grant 4, and other labels).
+- **27 stitcher signals in the live store** (25 from this replay, 2 from the first run of 16 Oct, 23:06 UTC), on 13 companies (`/data`). The 27 are the 25 of this replay plus 2; the earlier "27 against 29" gap in this document is the 4 duplicates.
+- **25 of the 44 companies** have at least one confirmed event: cohort 13 of 18 (53 events), portfolio 7 of 8 (47 events), main feed 5 of 18 (5 events).
+- **Earliness, counted apart**: `/backtest` reads "3 of 19 cohort companies have an event found by the AI stitcher and checked by code whose page the
+  Internet Archive captured before the company's reference date (19 of 19 have a stitcher run)": VesselChain (customer on own site, page public since 2022-10-03),
+  Race for Oceans Technology (programme entry, public since 2025-12-12) and Edilm (programme entry, public since 2025-09-09). Events with an unmapped label are never counted.
+- **Recall on the three companies with no proposals in the first run** (Sub Marine Store, Taikoa, Arctic Fry): the replay proposed 3, 2 and 2 events for them and confirmed none.
 - **Intake thesis-evidence pass** on the top 100 wide-intake companies: 1 yes (Meriva Oy), 30 no, 69 unclear (nothing public describes
   the company's activity). Counted from the 100 committed records in `data/fetched/stitcher/intake_fit/` (commit 634f83c, merged into main as 74fe976).
-- **Live today**: the batch has been replayed into the live store (27 stitcher signals); `/backtest` reads "3 of 19 ... (19 of 19 have a
-  stitcher run)". The live store holds 6 stitcher signals for Kelluu.
-- **Limits of this run**: the cloud session could not reach web.archive.org's CDX index, so `public_since` came from the Wayback
-  availability API; the web-search budget ran out mid-batch, so 21 companies were first researched by direct page fetches and the 13
-  Main-feed ones among them got no second pass with search.
+- **Limits of this run**: the replay's page fetches hit rate limits (9 of the drops and refutations are HTTP 429 or 403), so a second replay could confirm more; the batch's own
+  limits (no access to the Internet Archive CDX index from the cloud session, web-search budget) are in METHOD.md.
+
+## Ocean Impact Assessment (D27)
+
+What is measured, and what is not. The assessment is **evidence readiness from public records, not impact**: it says how well an impact area is evidenced, in
+nine rungs that each name the record that must be on file (`radar/ocean_impact.py`; ladder in `impact_readiness:` of the thesis file; `/method#ocean-impact`). There is
+no ground truth for it: the Ocean Impact Navigator publishes areas and KPIs but no levels and is login-walled. So what we can report is coverage and honesty, not accuracy.
+
+- **On the 58 home-list companies** (store copy of 17 Oct, the same rows the page counts): 3 reach a level, all rung 5, Medium, confidence high (Viva Jets Oy, Valkama Watercrafts Oy,
+  Arctic Fry Oy); 26 are sector implied only (25 at rung 1, 1 at rung 2) and read "Not yet evidenced" with no band; 29 have no record that names an impact area and so no rung. Of those 29, the criteria box shows
+  the Navigator category band "Medium" for 2 (Kelluu Oy, from an OpenAlex keyword; NIDO Contech, from a CORDIS keyword), labelled a category match and not a measured impact, and "No public record" for 27. The filter rail
+  counts the same split (Medium 5, Not yet evidenced 26, No public record 27). None reads Low.
+- **On the 28 declared cohort and portfolio companies**: the same 3 get a level and 25 get none. Most of the cohort is registered as software, retail or consulting, or sits outside
+  Finland, so no record we hold names one of the five areas for it; the page says "No rung applies: no record on file names an impact area for this company" rather than guess.
+- **No company reaches rung 6 or higher.** Rung 6 needs a second source family and a programme listing together, rungs 7 and 8 a declared-research impact reading at medium or high dataset
+  confidence, and rung 9 an official or register outcome that no connected source holds. A low-confidence declared reading is shown as a lead and sets no rung (D27, A24).
+- **The ladder is ours.** The partners' own definition would replace it; PILOT.md asks for that in weeks 5 and 6.
+
+## Matchmaking
+
+No ground truth exists for who should have met whom ([docs/MATCHING.md](docs/MATCHING.md), section 5), so nothing here is an accuracy figure. Measured on the live store copy of 17 Oct:
+
+- **Counterparts:** 191 organisations (57 investors, 16 accelerators, 11 grant or loan programmes, 32 public funders and foundations, 60 corporate or public buyers, 10 ports, 5 clusters);
+  14 have declared companies in our records (67 links; A'Pelago 20 of its 23).
+- **Coverage:** of 15,511 matchable startups, 17 of the 19 cohort companies and all 9 portfolio companies have at least one counterpart that passes the filters with a topic reason. Viva Jets Oy has 56
+  (Business Finland, Meyer Turku Oy and A'Pelago first), Arctic Fry Oy 33.
+- **Speed:** the first match after a start builds the index in 1.7 s, then a company's matches take 5 ms; a counterpart's view takes 0.46 s.
+- **In-sample, and a hypothesis:** the keyword thresholds were set by reading junk matches on the live store; the weights (sector 3, lookalike 3, shared words 2, readiness 2, timing 1, geography 1) are a stated hypothesis that
+  only order the list. A partner rating of 20 pairs is the first real check (PILOT.md).
+- **No score:** the API returns the reasons with their links and an ordinal `rank`, never a number that could be read as a score (A34).
+
+## Judge dry-run fixes (D22 to D26), as they read on the live site
+
+| Fix | Rule | What the live site shows now (17 Oct) |
+|---|---|---|
+| Water, sewerage and remediation codes read Medium thesis fit | D22 | All 8 home-list companies registered under codes 36, 37 or 39 read thesis fit Medium and WATCHLIST; none reads ACCELERATOR |
+| A company's own name is never redacted, and `radar.repair_redaction` restores names that were hidden | D23 | The Viva Jets page prints "Snowsus Ltd., founded in Oulu in 2018", its company's former name, where it used to print "[name redacted].," |
+| No raw token on a company page: a register type code, a stemmed keyword, a capability id | D24 | Register type codes and stemmed keywords no longer print on a company page, and the capability labels in who-comes-next are words; the matchmaking sentences still print a capability tag id (open item in "What this does not show") |
+| The backtest states each rank beside its own pool and no median | D25 | "Sireness Oy 1 of 104, Arctic Fry Oy 3 of 16, Kilocode Oy 3 of 8 and Emission-Eye Oy 132 of 1,176" |
+| Every sector's home list is warm at start, and no request waits more than 3 seconds for it | D26 | `/?thesis=baltic_blue` answered in 0.44 to 0.56 s after a warm start; the first two requests after the 13:16 UTC restart took 3.6 s and 2.8 s while the list warmed (the wait is capped at 3 s, then the page renders what it has); it took 70 s on the first load before D26 |
 
 ## Software checks
 
-- `python3 -m pytest -q`: 590 passed in 304 s on 17 Oct, on main at b7085d3, with the host at a load average of about 13.
-  `tests/test_api.py::test_each_endpoint_answers_under_500_ms` asserts a latency (best of three under 0.5 s) and is load-sensitive:
-  it failed when run alone on the busy host (`/api/feed` 0.524 s) and passed inside the full run.
-- `/root/hack/bin/smoke.py https://jx.hankintaviikko.fi`: PASS 13/13 pages on 17 Oct (the home page with and without the trailing
-  slash, radar, backtest, method, data and seven home-list views: the tabs all, fit and new, and the country views FI, DK, ES and SE),
-  no console errors.
-- Offline, from an empty data directory: `python3 -m radar.build --adapters declared,businessfinland,ecosystem` (8.4 s on a busy
-  host on 17 Oct, 147 signals), then nine pages answered 200 from `uvicorn` on a spare port.
+- `python3 -m pytest -q --deselect tests/test_api.py::test_each_endpoint_answers_under_500_ms`: 698 passed, 5 skipped, 1 deselected in 232 s, run once at the end of the documentation pass on 17 Oct (13:09 to 13:13 UTC, code of main 389564b).
+  The deselected test asserts a latency (best of three under 0.5 s), which depends on host load, so it is left out of this run; the latencies above are measured on the public URL instead.
+- `/root/hack/bin/smoke.py https://jx.hankintaviikko.fi --max 14`: PASS 15/15 pages on 17 Oct at 13:17 UTC (the home page with and without the trailing
+  slash, radar, match, backtest, method, data and the home-list views: the tabs all, fit and new, and the country views FI, DK, ES and SE and BG), no console errors.
+- Offline, from an empty data directory: `python3 -m radar.build --adapters declared,businessfinland,ecosystem` (5.8 s on 17 Oct, 147 signals, 28 declared companies), then the pages answered from `uvicorn` on a spare port.
+- Latency over the public URL, 10 requests each, 17 Oct 13:17 UTC (min to max): `/api/feed` 0.13 to 0.21 s, `/api/backtest` 0.25 to 0.52 s, `/api/company/2962040-6` 0.15 to 0.35 s,
+  `/api/match/company/2962040-6` 0.04 to 0.14 s, `/api/match/org/apelago` 0.38 to 0.84 s, `/` 0.58 to 1.83 s (median 0.68 s), `/api/ask?q=Tell me about Viva Jets` 0.35 to 0.44 s.
 
 ## Failure examples (real ones)
 
@@ -190,7 +226,7 @@ LLM answers are committed in `data/fetched/stitcher/proposals/` (54 files), so t
 | Emission-Eye Oy (3543918-7) | found before 2026: registered 2025-06-13, start-up notice 2025-07-02, first sales 2025-08-01 | later | code 62100 computer programming is not on the list and the name has no sector word |
 | Taikoa Oy (3380111-1) | found: registered 2023-07-28, first sales the same day | no public signal | code 70200 management consulting; the company trades as WAIing, a link the declared list itself marks unconfirmed |
 | Sub Marine Store Oy (3197621-7) | a hit for a sector reason | later (2026, year-only Business Finland record): the word "marin" in the name is backed only by a register record from the same PRH/YTJ family, which no longer counts | the code is 46900 non-specialised wholesale; the corroborating record is not an independent source |
-| 12 non-Finnish companies | some live record | at most a CORDIS project (NIDO Contech, 2026-06-01) | no register adapter for Denmark, Sweden, Norway, Spain or Bulgaria |
+| 12 companies without a Finnish business ID | some live record | 3 hold one: a CORDIS project (NIDO Contech, 2026-06-01), a Norwegian register entry (TuniSea, 2025-09-30) and a Danish one (Just-measure, 2018-04-20); none counts | Norway and Denmark are single look-ups of known companies, there is no register adapter for Sweden, Spain or Bulgaria |
 
 ## Rerun
 
@@ -206,7 +242,11 @@ python3 -m pytest -q
 - n is small: 19 companies with an earliness verdict, one cohort, one reference date for all of them.
 - The reference date is ours, not each company's real entry date, so "months before" is measured against January 2026.
 - 12 of the 19 are outside the Finnish registers, so for them the test measures declared research, not the radar.
-- The health-tech thesis is a swap demo, not an evaluated thesis, and a thin one. On 17 Oct its home page says "1 company surfaced"
-  (the headline measure, first public record inside the window: KE Pharma Oy) and the folded full-window list holds 30 companies,
-  1 strong and 29 weak; several of the weak ones are not health companies (two "auto care" firms matched on the word "care").
-- No partner has yet scored the memos or the next steps; usefulness to Redstone Blue and A'Pelago is untested (PILOT.md, weeks 5 to 8).
+- The health-tech thesis is a swap demo, not an evaluated thesis, and a thin one. On 17 Oct its home page says "1 company first seen in the last 90 days, 1 on the list"
+  (first public record inside the window: KE Pharma Oy) and the folded full-window list holds 30 companies,
+  1 main match and 29 weak matches; several of the weak ones are not health companies (two "auto care" firms matched on the word "care").
+- No partner has yet scored the memos, the next steps, the ocean-impact rungs or the matches; usefulness to Redstone Blue and A'Pelago is untested (PILOT.md, weeks 5 to 8).
+- The Ocean Impact ladder and the matchmaking weights have no ground truth; the first is ours and the second is a hypothesis (above).
+- Aava has a recorded voice for two companies only (Viva Jets Oy and Arctic Fry Oy, 12 clips); everywhere else the browser's voice reads it. The home feed reader has no recording that matches its current text.
+- A capability tag is still printed as a code in the matchmaking reasons ("dataset capability tag C2"): those sentences were merged after the D24 fix and it did not reach them.
+- The Ask Aava bar (live) answers by deterministic rules and is not a measured feature; nothing in this document's results depends on it. Its fourth example question, "Show investment-ready companies in Finland", answers honestly that no company of the 58 matches.

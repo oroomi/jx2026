@@ -13,7 +13,8 @@ from radar import ask, home_list, thesis
 ROOT = Path(__file__).resolve().parent.parent
 SNAP = ROOT / "data" / "snapshot"
 VIVA = "2962040-6"
-OLD_NAV = ("/", "/radar", "/backtest", "/method", "/data")
+OLD_NAV = ("/", "/radar", "/method", "/data")
+OFF_MENU = ("/backtest",)                # D81: the earliness test still answers, but is not in the menu, the footer or the tab bar
 
 
 @pytest.fixture()
@@ -238,13 +239,18 @@ def test_the_tab_row_is_gone_from_the_header_and_lives_in_the_menu_and_the_foote
         want = "/?group=new" if href == "/" else href      # "New this quarter" opens the tab of that name (D73), not the unsorted home page
         assert f'href="{want}"' in head, href     # the menu sheet
         assert f'href="{want}"' in foot, href     # plain links in the footer
-    for label in ("New this quarter", "The Nordic Blue 19", "Earliness test", "Rules", "Data"):
+    for label in ("New this quarter", "The Nordic Blue 19", "Rules", "Data"):
         assert label in head and label in foot, label
+    for href in OFF_MENU:
+        assert f'href="{href}"' not in head and f'href="{href}"' not in foot, href
+    assert "Earliness test" not in head and "Earliness test" not in foot
+    bar = t[t.index('<nav class="c-tabbar"'):]
+    assert 'href="/backtest"' not in bar[:bar.index("</nav>")] and ">Backtest<" not in t
     assert "c-tabbar" in t and 'aria-label="Sections"' in t   # the phone bottom tab bar stays
 
 
 def test_the_old_nav_links_still_resolve(client):
-    for href in OLD_NAV:
+    for href in OLD_NAV + OFF_MENU:
         assert client.get(href).status_code == 200, href
 
 

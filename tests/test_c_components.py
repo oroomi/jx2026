@@ -115,11 +115,11 @@ def test_css_only_adds_namespaced_rules_and_the_two_verdict_colours():
     assert "var(--tap)" in css, "tap targets come from the shared token"
 
 
-def test_tabbar_has_six_destinations_and_no_emoji():
-    """Five from jx37 plus Match (matchmaking, 17 Oct): six tabs still fit 390 px at 44 px each."""
+def test_tabbar_has_five_destinations_and_no_emoji():
+    """Five from jx37 plus Match (matchmaking, 17 Oct), less Backtest (D81, the earliness test left the menus)."""
     out = str(_mod("_tabbar.html").tabbar("lists"))
-    for label in ("Radar", "Search", "Lists", "Match", "Backtest", "Data"):
+    for label in ("Radar", "Search", "Lists", "Match", "Data"):
         assert f">{label}</span>" in out
-    assert out.count("<li>") == 6
+    assert ">Backtest</span>" not in out and out.count("<li>") == 5
     assert 'aria-current="page"' in out and out.count('aria-current="page"') == 1
     assert not re.search(r"[\U0001F300-\U0001FAFF☀-➿]", out), "no emoji, per CLAUDE.md"

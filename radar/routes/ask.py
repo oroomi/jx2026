@@ -69,7 +69,7 @@ def has_page(request: Request, path: str) -> bool:
 # The pages the header's tab row used to list. The Menu sheet (header) and the footer both read this one list. A page whose route is not in
 # this build (Match, from the matchmaking branch) is listed only when the route exists, so no link ever points at a missing page.
 SITE_PAGES = (("/", "New this quarter", "feed", False), ("/radar", None, "radar", False), ("/match", "Match", "match", True),
-              ("/backtest", "Earliness test", "backtest", False), ("/method", "Rules", "method", False), ("/data", "Data", "data", False))
+              ("/method", "Rules", "method", False), ("/data", "Data", "data", False))   # the earliness test is off the menu (D81): /backtest still answers
 
 
 def site_pages(request: Request, cur: dict) -> list[tuple[str, str, str]]:

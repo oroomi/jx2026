@@ -1,11 +1,11 @@
 {#
   Bottom tab bar (jx37, direction C), phone only.
 
-  Six destinations, 44 px tap targets, clear of the home indicator through
+  Five destinations (the earliness test left the bar, D81), 44 px tap targets, clear of the home indicator through
   env(safe-area-inset-bottom). Hidden from 640 px up, where the top nav in base.html
   is already on screen; see radar/static/c_components.css.
 
-  `current` is the active key: radar | search | lists | match | backtest | data.
+  `current` is the active key: radar | search | lists | match | data.
   Lists opens /radar (the cohort and portfolio lists); there is no separate /lists route.
   `li_class` names the items when the bar sits on a page whose own lists are counted (base.html passes c-tab).
   Icons are inline strokes in currentColor. No emoji, per the slop list in CLAUDE.md.
@@ -16,7 +16,6 @@
   ('search',   'Search',   '/search',   'glass'),
   ('lists',    'Lists',    '/radar',    'rows'),
   ('match',    'Match',    '/match',    'link'),
-  ('backtest', 'Backtest', '/backtest', 'bars'),
   ('data',     'Data',     '/data',     'grid')
 ] -%}
 <nav class="c-tabbar" aria-label="Sections">

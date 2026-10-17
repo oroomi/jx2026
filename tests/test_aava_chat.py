@@ -186,7 +186,9 @@ def test_partial_text_then_a_failure_still_ends_with_error_and_fallback(client, 
     with_key(monkeypatch, [Half()])
     ev = sse(chat(client, "Viva Jets"))
     names = [e for e, _ in ev]
-    assert names.index("delta") < names.index("error") < len(names) - 1 and names[-1] == "done" and dict(ev)["done"]["fallback"] is True
+    # the half sentence the model had written is never sent (text is held until the call ends); the visitor gets the error, then the deterministic answer
+    assert names.count("delta") == 1 and names.index("error") < names.index("delta") and names[-1] == "done" and dict(ev)["done"]["fallback"] is True
+    assert "I was saying" not in json.dumps(ev)
 
 
 # ---- no key -------------------------------------------------------------------------------------------------------------------------------------
@@ -296,3 +298,13 @@ def test_tts_streams_audio_strips_markdown_and_stops_at_the_daily_cap(client, mo
     aava_chat.limiter.reset()
     client.post("/api/aava/tts", json={"text": "Hi"}, headers=DEMO)
     assert "VoiceXYZ" in sent["url"]
+
+
+def test_a_turn_with_no_answer_ends_in_the_deterministic_one(client, monkeypatch):
+    """The model's last call writes nothing, twice: the visitor still gets an answer (the radar's own), never an empty box."""
+    with_key(monkeypatch, [call(tools=[("get_current_view", {})]), call(text=None), call(text="  ")])
+    ev = sse(chat(client, "Viva Jets"))
+    names = [e for e, _ in ev]
+    assert names.count("error") == 1 and dict(ev)["error"]["kind"] == "empty" and names[-1] == "done"
+    done = dict(ev)["done"]
+    assert done["fallback"] is True and done["text"].strip() and "".join(d["text"] for e, d in ev if e == "delta") == done["text"]

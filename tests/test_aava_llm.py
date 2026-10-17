@@ -2,6 +2,7 @@
 (tests/fixtures/aava_fakes.py). No network, no key, no spend. Data: a copy of data/snapshot (the store the other Aava tests use)."""
 import json
 import shutil
+import sqlite3
 import logging
 from pathlib import Path
 
@@ -9,7 +10,7 @@ import anthropic
 import httpx2
 import pytest
 
-from radar import aava_entities, aava_llm, aava_tools, home_filter, matchmaker, thesis
+from radar import aava_entities, aava_llm, aava_tools, home_filter, matchmaker, sectors, store, thesis
 from tests.fixtures.aava_fakes import FakeClient, call, tool_results
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -24,6 +25,13 @@ def data_dir(tmp_path_factory):
     d = tmp_path_factory.mktemp("aava_data")
     for f in SNAP.glob("*.sqlite"):
         shutil.copy(f, d / f.name)
+    # the snapshot predates the sub-sector backfill (D42): run it on the copy, as `python3 -m radar.sectors` does on the live store
+    conn = sqlite3.connect(d / "radar_redstone_apelago_blue.sqlite")
+    conn.row_factory = sqlite3.Row
+    try:
+        sectors.assign(conn, thesis.load())
+    finally:
+        conn.close()
     return d
 
 
@@ -60,7 +68,6 @@ def test_loop_runs_tools_streams_deltas_and_finishes(th):
     t, client = turn_for(th, "Which startup should we look at first?", [
         call(thinking=True, tools=[("search_startups", {"verdict": ["ACCELERATOR"], "limit": 5})], usage=(2600, 180, 2400, 0)),
         call(text=answer, tools=[("suggest_followups", {"questions": ["What is missing?", "Who should meet them?", "Show the others"]})], usage=(3400, 260, 0, 2400)),
-        call(text=None, usage=(3500, 4, 0, 2400)),
     ])
     evs = run(t)
     ks = kinds(evs)
@@ -68,10 +75,10 @@ def test_loop_runs_tools_streams_deltas_and_finishes(th):
     assert {"status", "delta", "followups", "entities", "done"} <= set(ks)
     assert ks.index("entities") < ks.index("followups") < ks.index("done")
     assert any(e["event"] == "status" and e["data"].get("tool") == "search_startups" for e in evs)
-    assert any(e["event"] == "status" and e["data"] == {"state": "thinking"} for e in evs)
+    assert evs[0] == {"event": "status", "data": {"state": "thinking", "label": "looking at the radar"}}      # the first visible words, at once
     streamed = "".join(e["data"]["text"] for e in evs if e["event"] == "delta")
     done = evs[-1]["data"]
-    assert streamed == answer == done["text"] and len(client.messages.calls) == 3
+    assert streamed == answer == done["text"] and len(client.messages.calls) == 2      # the follow-ups sit beside the answer: no third round trip
     assert done["keys"] == [VIVA] and done["unverified"] == []
     # the tool ran on the real list and its result went back in the next call; thinking blocks went back unchanged
     res = tool_results(client.messages.calls[1]["messages"])
@@ -79,8 +86,8 @@ def test_loop_runs_tools_streams_deltas_and_finishes(th):
     assistant = client.messages.calls[1]["messages"][1]
     assert assistant["role"] == "assistant" and [b.type for b in assistant["content"]] == ["thinking", "tool_use"]
     assert [e for e in evs if e["event"] == "followups"][0]["data"]["questions"] == ["What is missing?", "Who should meet them?", "Show the others"]
-    assert done["usage"] == {"input_tokens": 9500, "output_tokens": 444, "cache_creation_input_tokens": 2400, "cache_read_input_tokens": 4800}
-    assert done["steps"] == 3 and t.ctx.calls[0]["name"] == "search_startups"
+    assert done["usage"] == {"input_tokens": 6000, "output_tokens": 440, "cache_creation_input_tokens": 2400, "cache_read_input_tokens": 2400}
+    assert done["steps"] == 2 and t.ctx.calls[0]["name"] == "search_startups" and t.ctx.followups
 
 
 def test_request_shape_for_the_default_model(th):
@@ -88,11 +95,11 @@ def test_request_shape_for_the_default_model(th):
     run(t)
     kw = client.messages.calls[0]
     assert kw["model"] == "claude-sonnet-5-5"
-    assert kw["thinking"] == {"type": "adaptive"} and kw["output_config"] == {"effort": "medium"}   # a 4.6+ model rejects budget_tokens
+    assert kw["thinking"] == {"type": "adaptive"} and kw["output_config"] == {"effort": "low"}   # a 4.6+ model rejects budget_tokens; low and medium measured the same on the live store
     assert kw["max_tokens"] == 1200 + 2048                                                         # thinking counts toward max_tokens
     assert "temperature" not in kw and "tool_choice" not in kw
     assert kw["system"][0]["cache_control"] == {"type": "ephemeral"} and "Aava" in kw["system"][0]["text"] and "cache_control" not in kw["system"][1]
-    assert [x["name"] for x in kw["tools"]] == ["search_startups", "get_startup", "explain_match", "list_organisations", "get_current_view", "apply_filters", "suggest_followups"]
+    assert [x["name"] for x in kw["tools"]] == ["search_startups", "get_startup", "explain_match", "list_organisations", "get_current_view", "apply_filters"]
 
 
 def test_a_budget_model_gets_budget_tokens_and_zero_budget_means_none(th, monkeypatch):
@@ -142,12 +149,23 @@ def test_other_bad_requests_are_not_retried(th):
     assert evs[-1]["event"] == "error" and evs[-1]["data"]["kind"] == "api" and len(client.messages.calls) == 1
 
 
-def test_the_last_allowed_call_must_answer(th, monkeypatch):
+def test_the_last_allowed_call_is_told_to_answer_and_an_overrun_gets_one_forced_answer(th, monkeypatch):
     monkeypatch.setenv("AAVA_MAX_STEPS", "2")
     t, client = turn_for(th, "hello", [call(tools=[("get_current_view", {})]), call(text="Here is what I found.")])
     evs = run(t)
     assert evs[-1]["event"] == "done" and "tool_choice" not in client.messages.calls[0]
-    assert client.messages.calls[1]["tool_choice"] == {"type": "none"}
+    last = client.messages.calls[1]
+    assert "last round" in last["system"][1]["text"] and "last round" not in client.messages.calls[0]["system"][1]["text"] and "tool_choice" not in last
+    # a model that still asks for a data tool on its last call gets that tool's result and exactly one more call, which cannot use tools
+    t, client = turn_for(th, "hello", [call(tools=[("get_current_view", {})]), call(tools=[("get_current_view", {})]), call(text="Here is what I found.")])
+    evs = run(t)
+    assert evs[-1]["event"] == "done" and evs[-1]["data"]["steps"] == 3 and len(client.messages.calls) == 3
+    assert client.messages.calls[2]["tool_choice"] == {"type": "none"}
+    sent = client.messages.calls[2]["messages"][-1]["content"]
+    assert [b["type"] for b in sent] == ["tool_result", "text"] and "Do not call a tool" in sent[1]["text"]
+    # ... and a model that keeps going after that ends in an error, which the route turns into the deterministic answer
+    t, _ = turn_for(th, "hello", [call(tools=[("get_current_view", {})]), call(tools=[("get_current_view", {})]), call(tools=[("get_current_view", {})])])
+    assert run(t)[-1]["data"]["kind"] == "steps"
 
 
 # ---- errors ---------------------------------------------------------------------------------------------------------------------------------
@@ -325,7 +343,9 @@ def test_search_has_the_same_semantics_as_the_filter_rail(th):
     res = json.loads(aava_tools.run_tool(ctx, "search_startups", {"verdict": "accelerator", "country": "Finland", "trl": [5]})[0])
     assert res["applied_filters"] == {"verdict": ["ACCELERATOR"], "country": ["FI"], "trl": ["4-6"]}
     res = json.loads(aava_tools.run_tool(ctx, "search_startups", {"subsector": "aquaculture"})[0])
-    assert res["matches"] >= 1 and all("aquaculture" in r["register_line_of_business"].lower() for r in res["results"])
+    assert res["matches"] >= 1 and res["applied_filters"] == {"subsector": ["aquaculture_fisheries"]}
+    assert all("Aquaculture and fisheries" in r["sub_sectors"] for r in res["results"])
+    assert res["matches"] == len(home_filter.apply(rows, {"subsector": ["aquaculture_fisheries"]}))
     res = json.loads(aava_tools.run_tool(ctx, "search_startups", {"limit": 0})[0])
     assert res["showing"] == 0 and "values_on_the_list" in res and res["companies_on_the_list"] == len(rows)
     nothing = json.loads(aava_tools.run_tool(ctx, "search_startups", {"verdict": ["INVEST"]})[0])
@@ -426,7 +446,8 @@ def test_input_hygiene():
 
 def test_the_system_prompt_states_the_rules_the_owner_set():
     p = aava_llm.system_prompt()
-    for phrase in ("not a FAQ bot", "Never invent", "Missing information is not a low score", "Companies and organisations only", "what to do next", "suggest_followups"):
+    for phrase in ("not a FAQ bot", "Never invent", "Missing information is not a low score", "Companies and organisations only", "what to do next", "Follow-ups:", "Three short paragraphs and nothing else",
+                   "Write nothing between tool calls", "Do not infer it from its name or website address", 'subsector ["aquaculture_fisheries"]', "one concrete fact", "not yet evidenced"):
         assert phrase in p
 
 
@@ -449,3 +470,164 @@ def test_selftest_runs_one_turn_and_prints_answer_tool_calls_latency_and_tokens(
     assert "--- answer ---" in out and f"[Viva Jets Oy](/c/{VIVA})" in out and "--- tool calls ---" in out
     assert "search_startups" in out and "latency" in out and "tokens in 6800 out 800 cache write 2400 read 2400" in out and "cost ~$" in out
     assert "sk-ant-test" not in out
+
+
+# ---- the tools: a sector is a sub-sector, the impact category has its own name ---------------------------------------------------------------
+def _search(ctx, **a):
+    return json.loads(aava_tools.run_tool(ctx, "search_startups", a)[0])
+
+
+def test_the_schema_makes_the_subsector_the_obvious_way_to_ask_for_a_sector(th):
+    tools = {t["name"]: t for t in aava_tools.tools_for(th)}
+    props = tools["search_startups"]["input_schema"]["properties"]
+    taxonomy = {x["slug"]: x["label"] for x in th["taxonomy"]["sectors"]}
+    enum = props["subsector"]["items"]["enum"]
+    assert set(taxonomy) <= set(enum) and "not_classified" in enum and list(props)[0] == "subsector"
+    desc = props["subsector"]["description"]
+    assert "aquaculture_fisheries" in desc and all(lb in desc for lb in taxonomy.values()) and '"subsector": ["aquaculture_fisheries"]' in desc
+    assert "sector" not in props and "impact_category" in props and "NOT the sub-sector" in props["impact_category"]["description"]
+    assert "subsector" in tools["search_startups"]["description"] and "company name" in props["text"]["description"] and "sub-sector label" in props["text"]["description"]
+    assert set(tools["apply_filters"]["input_schema"]["properties"]["filters"]["properties"]) == set(props) - {"text", "limit"}
+    assert aava_tools.TOOLS[0]["name"] == "search_startups"            # the module default is the default sector file's schema
+    # a sector file without a taxonomy has no sub-sector property
+    assert "subsector" not in aava_tools.tools_for({"id": "x"})[0]["input_schema"]["properties"]
+
+
+def test_a_sector_word_in_the_wrong_place_still_finds_the_sub_sector(th):
+    ctx = aava_tools.ToolContext(th, limits=aava_llm.settings().limits)
+    want = _search(ctx, subsector=["aquaculture_fisheries"])["matches"]
+    assert want >= 1
+    for variant in ({"subsector": "Aquaculture and fisheries"}, {"subsector": ["fisheries"]}, {"subsector": "aquaculture_fisheries"}):
+        res = _search(ctx, **variant)
+        assert res["matches"] == want and res["applied_filters"] == {"subsector": ["aquaculture_fisheries"]}, variant
+    # the first real selftest: sector="Aquaculture" found nothing because `sector` is the Navigator category; now it is moved to the sub-sector, with a note
+    res = _search(ctx, impact_category=["Aquaculture"])
+    assert res["matches"] == want and res["applied_filters"] == {"subsector": ["aquaculture_fisheries"]} and any("is a sub-sector, not an impact category" in n for n in res["notes"])
+    res = _search(ctx, sector=["Aquaculture"])
+    assert res["matches"] == want
+    # a real impact category still filters the rail's `sector` facet, and the answer calls it impact_category
+    cats = [o["value"] for o in aava_tools._facet_options(ctx)["sector"] if o["value"] != "none"]
+    assert cats
+    res = _search(ctx, impact_category=[cats[0]])
+    assert res["matches"] == len(home_filter.apply(ctx.rows(), {"sector": [cats[0]]})) and res["applied_filters"] == {"impact_category": [cats[0]]}
+    # a word that is no sub-sector is searched as words instead of silently matching nothing
+    res = _search(ctx, subsector=["kayak rental"])
+    assert res["applied_text"] == "kayak rental" and any("is not a sub-sector" in n for n in res["notes"])
+    assert "subsector" in res["values_on_the_list"]
+
+
+def test_text_search_reads_the_name_the_line_of_business_and_the_sub_sector_label(th):
+    ctx = aava_tools.ToolContext(th, limits=aava_llm.settings().limits)
+    rows = ctx.rows()
+    by_sub = [r for r in rows if any(x["slug"] == "aquaculture_fisheries" for x in r.get("subsectors") or [])]
+    assert by_sub
+    res = _search(ctx, text="fisheries", limit=25)                      # a word of the label "Aquaculture and fisheries"
+    assert {r["company_key"] for r in by_sub} <= {r["company_key"] for r in res["results"]}
+    res = _search(ctx, text="viva jets")                                 # the company name
+    assert [r["company_key"] for r in res["results"]] == [VIVA]
+    row = res["results"][0]
+    assert row["register_line_of_business"] and row["registered_year"] == "2018" and isinstance(row["sub_sectors"], list)
+
+
+def test_get_startup_takes_a_company_name_so_a_named_company_needs_no_search(th):
+    ctx = aava_tools.ToolContext(th, limits=aava_llm.settings().limits)
+    d = json.loads(aava_tools.run_tool(ctx, "get_startup", {"company_key": "Viva Jets"})[0])
+    assert d["company"]["company_key"] == VIVA and d["resolved_from_name"] == "Viva Jets" and ctx.seen == {VIVA: "Viva Jets Oy"}
+    d = json.loads(aava_tools.run_tool(ctx, "get_startup", {"company_key": "arctic fry oy"})[0])
+    assert d["company"]["company_key"] == ARCTIC
+    d = json.loads(aava_tools.run_tool(ctx, "get_startup", {"company_key": "Viva"})[0])       # a part of a name is a guess, not a match
+    assert "error" in d and any(c["company_key"] == VIVA for c in d["did_you_mean"])
+
+
+def test_warming_builds_the_home_list_and_the_company_caches_once(th):
+    from radar import home_list
+    secs = aava_tools.warm(th)
+    assert secs >= 0 and home_list.peek(th) and home_list.peek(th)["rows"]
+    t0 = __import__("time").monotonic()
+    ctx = aava_tools.ToolContext(th, limits=aava_llm.settings().limits)
+    _search(ctx, subsector=["aquaculture_fisheries"])
+    json.loads(aava_tools.run_tool(ctx, "get_startup", {"company_key": VIVA})[0])
+    assert __import__("time").monotonic() - t0 < 3.0                       # nothing in a tool call builds the list any more
+    assert aava_tools.ensure_warm(th) is False                              # never under pytest
+
+
+# ---- the answer is the final turn's text only -----------------------------------------------------------------------------------------------
+def test_interim_notes_between_tool_calls_are_never_shown(th):
+    answer = f"Two to meet: [Arctic Fry Oy](/c/{ARCTIC}) farms fish and [Viva Jets Oy](/c/{VIVA}) builds boats. Open the first one today."
+    t, client = turn_for(th, "Which Finnish aquaculture startups should A'Pelago meet, and why?", [
+        call(text="Sector label is empty; try text/subsector search.", tools=[("search_startups", {"subsector": ["aquaculture_fisheries"]})]),
+        call(text="Now reading Arctic Fry.", tools=[("get_startup", {"company_key": ARCTIC}), ("get_startup", {"company_key": VIVA})]),
+        call(text=answer, tools=[("suggest_followups", {"questions": ["Who funds them?", "Show the rest"]})]),
+    ])
+    evs = run(t)
+    streamed = "".join(e["data"]["text"] for e in evs if e["event"] == "delta")
+    assert streamed == answer == evs[-1]["data"]["text"] == t.answer
+    assert "Sector label" not in json.dumps(evs) and "Now reading" not in json.dumps(evs)
+    assert t.interim == ["Sector label is empty; try text/subsector search.", "Now reading Arctic Fry."]
+    assert evs[-1]["data"]["steps"] == 3 and len(client.messages.calls) == 3
+    assert not any(e["data"].get("state") == "writing" for e in evs if e["event"] == "status")       # a note is not announced as the answer
+
+
+def test_a_turn_that_ends_with_only_the_followups_call_is_asked_for_its_answer(th):
+    answer = f"I would open [Viva Jets Oy](/c/{VIVA}) first."
+    t, client = turn_for(th, "Where do I start?", [
+        call(tools=[("search_startups", {"limit": 3})]),
+        call(tools=[("suggest_followups", {"questions": ["What next?", "Who funds it?"]})]),       # no text: the answer is missing
+        call(text=answer),
+    ])
+    evs = run(t)
+    assert evs[-1]["event"] == "done" and evs[-1]["data"]["text"] == answer and evs[-1]["data"]["steps"] == 3
+    third = client.messages.calls[2]
+    assert third["tool_choice"] == {"type": "none"} and third["messages"][-1]["content"][-1]["type"] == "text"
+    assert [e for e in evs if e["event"] == "followups"][0]["data"]["questions"] == ["What next?", "Who funds it?"]
+
+
+def test_an_empty_final_turn_gets_one_more_call_and_then_the_deterministic_answer(th):
+    t, client = turn_for(th, "hello", [call(tools=[("get_current_view", {})]), call(text=None), call(text="Here is what I found.")])
+    evs = run(t)
+    assert evs[-1]["event"] == "done" and evs[-1]["data"]["text"] == "Here is what I found." and client.messages.calls[2]["tool_choice"] == {"type": "none"}
+    t, client = turn_for(th, "hello", [call(text=None), call(text="   ")])
+    last = run(t)[-1]
+    assert last["event"] == "error" and last["data"]["kind"] == "empty" and len(client.messages.calls) == 2
+
+
+def test_followups_beside_an_interim_note_and_a_data_tool_do_not_end_the_turn(th):
+    t, client = turn_for(th, "hello", [
+        call(text="Checking.", tools=[("get_current_view", {}), ("suggest_followups", {"questions": ["a", "b"]})]),
+        call(text="Done looking."),
+    ])
+    evs = run(t)
+    assert evs[-1]["data"]["text"] == "Done looking." and len(client.messages.calls) == 2 and t.interim == ["Checking."]
+
+
+def test_the_followups_line_at_the_end_of_the_answer_becomes_buttons_and_is_not_shown(th):
+    body = f"I would open [Viva Jets Oy](/c/{VIVA}) first: it is a portfolio company with an ACCELERATOR verdict."
+    t, _ = turn_for(th, "Where do I start?", [call(tools=[("search_startups", {"limit": 3})]), call(text=body + "\n\nFollow-ups: Who funds it? | What is missing? | Show the others | A fourth one?")])
+    evs = run(t)
+    streamed = "".join(e["data"]["text"] for e in evs if e["event"] == "delta")
+    assert streamed == body == evs[-1]["data"]["text"] and "Follow-ups" not in json.dumps(evs[-1])
+    assert [e for e in evs if e["event"] == "followups"][0]["data"]["questions"] == ["Who funds it?", "What is missing?", "Show the others"]    # three at most
+    assert evs[-1]["data"]["steps"] == 2
+    # the same as a heading with bullets, and an answer that has none
+    assert aava_tools.split_followups("A.\n\n**Follow-ups:**\n- One?\n- Two?") == ("A.", ["One?", "Two?"])
+    assert aava_tools.split_followups("Text that says follow-ups: in the middle.\nMore text.") == ("Text that says follow-ups: in the middle.\nMore text.", [])
+    long_q = "x" * 200
+    assert aava_tools.split_followups(f"A.\nFollow-ups: {long_q} | Fine?")[1][0] == "x" * 90
+    t, _ = turn_for(th, "hi", [call(text="Just an answer.")])
+    assert not [e for e in run(t) if e["event"] == "followups"]
+
+
+def test_get_startup_says_where_the_company_stands_on_the_list_and_what_the_order_reads(th):
+    ctx = aava_tools.ToolContext(th, limits=aava_llm.settings().limits)
+    rows = ctx.rows()
+    d = json.loads(aava_tools.run_tool(ctx, "get_startup", {"company_key": VIVA})[0])
+    pos = d["position_on_the_home_list"]
+    assert pos["rank"] == 1 + [r["company_key"] for r in rows].index(VIVA) and pos["of"] == len(rows) and pos["ordered_by"] == aava_tools.ORDER_RULE
+    me = pos["this_company"]
+    row = next(r for r in rows if r["company_key"] == VIVA)
+    assert me["verdict"] == row["verdict"] and me["dated_public_records"] == len(row["signals"])
+    assert pos["companies_ahead_with_the_same_verdict"] == sum(1 for r in rows[:pos["rank"] - 1] if r["verdict"] == row["verdict"])
+    assert "declared cohort or portfolio company comes first" in aava_tools.ORDER_RULE
+    outside = next(k for k in (c["company_key"] for c in store.search(ctx.conn(), "oy", 40)) if k not in {r["company_key"] for r in rows})
+    d = json.loads(aava_tools.run_tool(ctx, "get_startup", {"company_key": outside})[0])
+    assert d["position_on_the_home_list"].startswith("not on the home list")

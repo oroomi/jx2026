@@ -188,7 +188,7 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
     smap = sectors.home_map(conn, thesis)   # sub-sectors per company (D42); None when the thesis has no taxonomy or the store is not backfilled
     rows = []
     for key in keys:
-        c = conn.execute("SELECT company_key, name, country, industry_desc, group_tag FROM companies WHERE company_key=?", (key,)).fetchone()
+        c = conn.execute("SELECT company_key, name, country, industry_desc, group_tag, founded FROM companies WHERE company_key=?", (key,)).fetchone()
         if c is None:
             continue
         sig = conn.execute("SELECT date, signal_type FROM signals WHERE company_key=? AND date IS NOT NULL ORDER BY date", (key,)).fetchall()
@@ -209,7 +209,7 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
         year_ago = (today - timedelta(days=365)).isoformat()
         tape = [round((date.fromisoformat(d[:10]) - (today - timedelta(days=365))).days / 365 * 100, 1) for d in dates if d[:10] >= year_ago and d[:10] <= today.isoformat()]
         rows.append({
-            "company_key": key, "name": c["name"], "country": c["country"], "sector": c["industry_desc"], "group_tag": c["group_tag"],
+            "company_key": key, "name": c["name"], "country": c["country"], "sector": c["industry_desc"], "group_tag": c["group_tag"], "founded": c["founded"],
             "signals": [{"date": d} for d in dates], "first": dates[0] if dates else None, "latest": dates[-1] if dates else None,
             "verdict": rec.get("decision"), "fit": bands.get("Thesis fit"),
             "investment": ((m.get("levels") or {}).get("investment") or {}).get("band"),

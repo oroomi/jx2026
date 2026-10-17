@@ -13,17 +13,24 @@ from __future__ import annotations
 
 import json
 import logging
+import os
+import re
+import sys
 import threading
 import time
 from datetime import date
 from urllib.parse import urlparse
 
-from radar.aava_entities import urls_in
+from radar.aava_entities import fold, short_name, urls_in
 from radar import fit as fit_mod, home_config, home_filter, home_list, matchmaker, matchmaker_orgs as orgs_mod, matchtext, memo as memo_mod, store
 
 log = logging.getLogger("aava.tools")
 NONE = home_filter.NONE
 NO_RECORD = "no public record"
+# The order of the home list (radar.home_list.build, `strength`, D48): what "top of the list" means.
+ORDER_RULE = ("verdict strength first (" + ", ".join(home_list.VERDICT_ORDER) + "); inside one verdict a declared cohort or portfolio company comes first, then the higher "
+              "Ocean Impact level, its confidence (high, medium, low), the business readiness level, the number of dated public records, the newest record, then the name; "
+              "a company with no level sorts after one that has a level")
 
 
 # ---- the turn's state ---------------------------------------------------------------------------------------------------------------------
@@ -174,33 +181,121 @@ def _canon(param: str, value: str, ctx: ToolContext, present: dict[str, list[dic
     return v
 
 
-def normalize_filters(raw, ctx: ToolContext) -> tuple[dict[str, list[str]], list[str]]:
+# ---- the sub-sector taxonomy (config/thesis.yaml `taxonomy:`) ----------------------------------------------------------------------------
+UNCLASSIFIED = home_filter.UNCLASSIFIED
+IMPACT_CATEGORY = "impact_category"        # what the tools call the rail's `sector` facet (the Navigator impact category): it is not the sub-sector
+PARAM_ALIAS = {IMPACT_CATEGORY: "sector"}   # a name the model may use -> the rail's own parameter (the page, and so the action, speaks the rail's names)
+_WORD = re.compile(r"[^\W_]{3,}", re.UNICODE)
+
+
+def subsector_catalog(th: dict) -> list[dict]:
+    """[{slug, label}] of the thesis' sub-sectors, in the taxonomy's order, then 'Not yet classified'. Empty when the sector file has no taxonomy."""
+    tx = th.get("taxonomy") if isinstance(th.get("taxonomy"), dict) else None
+    if not tx or not tx.get("sectors"):
+        return []
+    u = tx.get("unclassified") or {}
+    return [{"slug": x["slug"], "label": x["label"]} for x in tx["sectors"]] + [{"slug": u.get("slug") or UNCLASSIFIED, "label": u.get("label") or "Not yet classified"}]
+
+
+def _words(text: str) -> set[str]:
+    return set(_WORD.findall(fold(text)))
+
+
+def _same_word(a: str, b: str) -> bool:
+    return a == b or (min(len(a), len(b)) >= 5 and (a.startswith(b) or b.startswith(a)))
+
+
+def resolve_subsector(value, th: dict) -> list[str]:
+    """The sub-sector slugs a model's spelling means: the slug, the label, or words of the label ('aquaculture', 'boats'). More than one slug when
+    the words fit several equally well (they are alternatives); an empty list when it means none."""
+    cat = subsector_catalog(th)
+    v = str(value or "").strip()
+    if not v or not cat:
+        return []
+    low = v.casefold()
+    for c in cat:
+        if low in (c["slug"].casefold(), c["label"].casefold()) or low.replace(" ", "_").replace("-", "_") == c["slug"].casefold():
+            return [c["slug"]]
+    q = _words(v)
+    if not q:
+        return []
+    scored = []
+    for c in cat[:-1]:                          # the last entry is "Not yet classified": a derived bucket, never asked for by words
+        w = _words(c["label"]) | _words(c["slug"].replace("_", " "))
+        hit = sum(1 for t in q if any(_same_word(t, x) for x in w))
+        if hit == len(q):                       # every word the model wrote is a word of this sub-sector
+            scored.append((hit, c["slug"]))
+    return [slug for hit, slug in scored if hit == max(h for h, _ in scored)] if scored else []
+
+
+def normalize_filters(raw, ctx: ToolContext, leftovers: list[str] | None = None) -> tuple[dict[str, list[str]], list[str]]:
     """(selection, notes). Unknown facet names are dropped with a note; a value no row carries stays in the selection (the empty result says so) and
-    gets a note listing the values that exist."""
+    gets a note listing the values that exist. A `subsector` that is not one of the taxonomy's sub-sectors is appended to `leftovers` when the caller
+    passes one (search turns it into a text search); a sector word written as an impact category is moved to `subsector` with a note."""
     sel: dict[str, list[str]] = {}
     notes: list[str] = []
     if not isinstance(raw, dict):
         return sel, notes
     present = _facet_options(ctx)
+    th = ctx.th
+    catalog = {c["slug"]: c["label"] for c in subsector_catalog(th)}
+    moved: list[str] = []
     for key, vals in raw.items():
-        param = home_filter.ALIAS.get(key, key)
+        param = home_filter.ALIAS.get(PARAM_ALIAS.get(key, key), PARAM_ALIAS.get(key, key))
         if param not in home_filter.params():
-            if key not in ("text", "subsector", "limit", "group"):
-                notes.append(f"'{key}' is not a filter; the filters are {', '.join(home_filter.params())}")
+            if key not in ("text", "limit", "group"):
+                notes.append(f"'{key}' is not a filter; the filters are {', '.join(shown_name(p) for p in home_filter.params())}")
             continue
         vals = [vals] if not isinstance(vals, (list, tuple)) else list(vals)
         out = []
         for v in vals:
-            if isinstance(v, (str, int)) and str(v).strip():
-                c = _canon(param, str(v), ctx, present)
-                out.append(c)
-                if c not in {o["value"] for o in present.get(param, [])}:
-                    have = ", ".join(f"{o['value']} ({o['count']})" for o in present.get(param, [])[:12]) or "none"
-                    notes.append(f"no company on the list has {param}={c}; values on the list: {have}")
+            if not (isinstance(v, (str, int)) and str(v).strip()):
+                continue
+            if param == "subsector":
+                slugs = resolve_subsector(v, th)
+                if not slugs:
+                    if leftovers is not None:
+                        leftovers.append(str(v).strip())
+                        notes.append(f"'{v}' is not a sub-sector, so it was searched as words in the company name, line of business and sub-sector labels instead")
+                    else:
+                        notes.append(f"'{v}' is not a sub-sector; the sub-sectors are {', '.join(f'{k} ({lb})' for k, lb in catalog.items())}")
+                    continue
+                if str(v).strip().casefold() not in (x.casefold() for x in slugs):
+                    notes.append(f"'{v}' read as subsector {', '.join(slugs)}")
+                out.extend(slugs)
+                continue
+            c = _canon(param, str(v), ctx, present)
+            if param == "sector" and c not in {o["value"] for o in present.get("sector", [])} and c != NONE:
+                slugs = resolve_subsector(v, th)         # 'Aquaculture' written as an impact category: it is a sub-sector
+                if slugs:
+                    moved.extend(slugs)
+                    notes.append(f"'{v}' is a sub-sector, not an impact category: used subsector={', '.join(slugs)} (impact_category values are {', '.join(o['value'] for o in present.get('sector', []) if o['value'] != NONE) or 'none'})")
+                    continue
+            out.append(c)
+            if c not in {o["value"] for o in present.get(param, [])}:
+                have = ", ".join(f"{o['value']} ({o['count']})" for o in present.get(param, [])[:12]) or "none"
+                notes.append(f"no company on the list has {shown_name(param)}={c}; values on the list: {have}")
         out = list(dict.fromkeys(out))[: home_filter.MAX_VALUES]
         if out:
-            sel[param] = out
+            sel[param] = list(dict.fromkeys([*sel.get(param, []), *out]))
+    if moved:
+        sel["subsector"] = list(dict.fromkeys([*sel.get("subsector", []), *moved]))[: home_filter.MAX_VALUES]
+    for slug in sel.get("subsector", []):
+        if slug not in {o["value"] for o in present.get("subsector", [])}:
+            have = ", ".join(f"{o['value']} ({o['count']})" for o in present.get("subsector", [])[:12]) or "none"
+            note = f"no company on the list has subsector={slug}; sub-sectors on the list: {have}"
+            if note not in notes:
+                notes.append(note)
     return sel, notes
+
+
+def shown_name(param: str) -> str:
+    """The name the model reads for a rail parameter (the rail's `sector` facet is called impact_category in the tools)."""
+    return IMPACT_CATEGORY if param == "sector" else param
+
+
+def shown_filters(sel: dict) -> dict:
+    return {shown_name(k): v for k, v in sel.items()}
 
 
 # ---- row summaries ---------------------------------------------------------------------------------------------------------------------
@@ -214,6 +309,8 @@ def row_summary(r: dict) -> dict:
     return {
         "company_key": r["company_key"], "name": r["name"], "country": r.get("country") or "not stated",
         "register_line_of_business": r.get("sector") or "not stated",
+        "registered_year": str(r["founded"])[:4] if r.get("founded") else "not stated",
+        "sub_sectors": [x["label"] for x in r.get("subsectors") or [] if x.get("slug") != UNCLASSIFIED] or "not yet classified",
         "verdict": r.get("verdict") or "no verdict", "thesis_fit": r.get("fit") or NO_RECORD,
         "ocean_impact": ({"area": ocean.get("area"), "level": f"{ocean['level']} of 9" if ocean.get("level") else NO_RECORD,
                           "band": ocean.get("band") or home_list.GAP, "confidence": ocean.get("confidence")} if ocean else NO_RECORD),
@@ -226,8 +323,10 @@ def row_summary(r: dict) -> dict:
 
 
 def _text_hit(r: dict, text: str) -> bool:
+    """Every word of `text` is in the company name, the register's line of business, the impact area, the country or a sub-sector label."""
     t = text.casefold()
-    hay = " ".join(str(x or "") for x in (r.get("name"), r.get("sector"), (r.get("ocean") or {}).get("area"),
+    subs = [x.get("label") for x in r.get("subsectors") or [] if x.get("slug") != UNCLASSIFIED]
+    hay = " ".join(str(x or "") for x in (r.get("name"), r.get("sector"), (r.get("ocean") or {}).get("area"), *subs,
                                          home_config.country_name(r.get("country") or "") if r.get("country") else "", r.get("company_key"))).casefold()
     return all(w in hay for w in t.split())
 
@@ -238,11 +337,10 @@ def search_startups(ctx: ToolContext, a: dict) -> dict:
     rows = ctx.rows()
     if not rows:
         return {"error": "the home list is not available right now (it is still being prepared); try again in a moment, or use get_startup with a company_key"}
-    sel, notes = normalize_filters({k: v for k, v in a.items() if k not in ("text", "subsector", "limit")}, ctx)
+    words: list[str] = []
+    sel, notes = normalize_filters({k: v for k, v in a.items() if k not in ("text", "limit")}, ctx, leftovers=words)
     hits = home_filter.apply(rows, sel)
-    sub, text = str(a.get("subsector") or "").strip().casefold(), str(a.get("text") or "").strip()
-    if sub:
-        hits = [r for r in hits if sub in str(r.get("sector") or "").casefold()]
+    text = " ".join([str(a.get("text") or "").strip(), *words]).strip()
     if text:
         hits = [r for r in hits if _text_hit(r, text)]
     try:
@@ -253,16 +351,14 @@ def search_startups(ctx: ToolContext, a: dict) -> dict:
     shown = hits[:n]
     for r in shown:
         ctx.see(r["company_key"], r["name"])
-    out = {"matches": len(hits), "companies_on_the_list": len(rows), "showing": len(shown), "ordered_by": "verdict strength, then thesis fit, then newest public record",
-           "applied_filters": sel, "results": [row_summary(r) for r in shown]}
-    if sub:
-        out["applied_subsector"] = sub
+    out = {"matches": len(hits), "companies_on_the_list": len(rows), "showing": len(shown), "ordered_by": ORDER_RULE,
+           "applied_filters": shown_filters(sel), "results": [row_summary(r) for r in shown]}
     if text:
         out["applied_text"] = text
     if notes:
         out["notes"] = notes[:6]
     if not hits or n == 0:
-        out["values_on_the_list"] = {p: [f"{o['value']} ({o['count']})" for o in opts[:12]] for p, opts in _facet_options(ctx).items()}
+        out["values_on_the_list"] = {shown_name(p): [f"{o['value']} ({o['count']})" for o in opts[:12]] for p, opts in _facet_options(ctx).items()}
     if text and not hits:
         conn = ctx.conn()
         found = store.search(conn, text, 5) if conn is not None else []
@@ -317,14 +413,54 @@ def _counterparts(ctx: ToolContext, key: str, k: int = 3) -> dict | None:
             "rule": "kind fits the verdict path, geography includes the startup's country, programme open, at least one sector/word/lookalike reason"}
 
 
+def _company_named(ctx: ToolContext, ref: str) -> str | None:
+    """The company_key of the one company whose name is `ref` (case, punctuation and the legal-form word ignored), on the list first, then in the register;
+    None when no company or several are called that. 'viva' is not 'Viva Jets Oy': a part of a name is a guess and is left to did_you_mean."""
+    want = fold(ref)
+    if not want:
+        return None
+
+    def named(name: str) -> bool:
+        return want in (fold(name), fold(short_name(name)))
+
+    hits = [r["company_key"] for r in ctx.rows() if named(r["name"])]
+    if len(hits) == 1:
+        return hits[0]
+    conn = ctx.conn()
+    found = [c["company_key"] for c in (store.search(conn, ref, 8) if conn is not None else []) if named(c["name"])]
+    return found[0] if len(found) == 1 else None
+
+
+def _position(ctx: ToolContext, key: str):
+    """Where the company stands on the home list and the values the list's order reads, so "why is it at the top?" can be answered from the record."""
+    rows = ctx.rows()
+    i = next((n for n, r in enumerate(rows) if r["company_key"] == key), None)
+    if i is None:
+        return "not on the home list (it exists in the register; the list holds the companies the radar surfaces plus the declared cohort and portfolio)"
+    r = rows[i]
+    oi = r.get("ocean") or {}
+    brl = ((r.get("criteria") or {}).get("brl") or {}).get("level")
+    return {"rank": i + 1, "of": len(rows), "ordered_by": ORDER_RULE,
+            "this_company": {"verdict": r.get("verdict") or "no verdict", "declared_group": r.get("group_tag") if r.get("group_tag") in ("cohort", "portfolio") else None,
+                             "ocean_impact_level": f"{oi['level']} of 9" if oi.get("level") else NO_RECORD, "ocean_impact_confidence": oi.get("confidence"),
+                             "business_readiness_level": f"{brl} of 9" if brl else NO_RECORD, "dated_public_records": len(r.get("signals") or []), "newest_record": r.get("latest")},
+            "companies_ahead_with_the_same_verdict": sum(1 for x in rows[:i] if x.get("verdict") == r.get("verdict"))}
+
+
 def get_startup(ctx: ToolContext, a: dict) -> dict:
     from radar.routes import api as api_routes   # the company page's own assembly, so a number here is the number on the page
 
-    key = str(a.get("company_key") or "").strip()
+    key = str(a.get("company_key") or a.get("name") or "").strip()
     conn = ctx.conn()
     if conn is None:
         return {"error": "no data is loaded"}
     data = store.company(conn, key) if key else None
+    resolved_from = None
+    if data is None and key:
+        named = _company_named(ctx, key)          # 'Viva Jets' written where the key goes: the one company with exactly that name
+        if named:
+            resolved_from, key = key, named
+            data = store.company(conn, key)
     if data is None:
         guess = store.search(conn, key, 5) if key else []
         for c in guess:
@@ -354,6 +490,7 @@ def get_startup(ctx: ToolContext, a: dict) -> dict:
     declared = (api.get("readiness") or {}).get("declared_dataset") or {}
     ready = declared.get("ready") or {}
     out = {
+        **({"resolved_from_name": resolved_from} if resolved_from else {}),
         "company": {"company_key": key, "name": nm, "business_id": c.get("y_tunnus"), "country": c.get("country") or "not stated", "founded": c.get("founded") or "not stated",
                     "industry": f"{c.get('industry_code') or '?'} {c.get('industry_desc') or ''}".strip(), "website": c.get("website"),
                     "declared_group": c.get("group_tag") if c.get("group_tag") in ("cohort", "portfolio") else None,
@@ -374,6 +511,7 @@ def get_startup(ctx: ToolContext, a: dict) -> dict:
         "next_step_rule": {"sentence": (api.get("next_step") or {}).get("sentence"), "because": (api.get("next_step") or {}).get("because"),
                            "url": (api.get("next_step") or {}).get("source_url")},
     }
+    out["position_on_the_home_list"] = _position(ctx, key)
     try:
         out["who_to_meet"] = _counterparts(ctx, key) or "matchmaking is not configured for this sector file"
     except Exception:  # noqa: BLE001  (the memo is still useful without the counterparts)
@@ -481,7 +619,7 @@ def apply_filters(ctx: ToolContext, a: dict) -> dict:
     remain = len(home_filter.apply(base, sel))
     action = {"type": "apply_filters", "filters": sel, "group": group, "matches": None if org else remain, **({"for": org} if org else {})}
     ctx.actions.append(action)
-    out = {"queued_for_the_page": True, "filters": sel or "cleared", "rows_that_will_remain": remain, "of": len(base)}
+    out = {"queued_for_the_page": True, "filters": shown_filters(sel) or "cleared", "rows_that_will_remain": remain, "of": len(base)}
     if org:
         out.pop("rows_that_will_remain")
         out["top_matching_for"] = org_name
@@ -493,76 +631,174 @@ def apply_filters(ctx: ToolContext, a: dict) -> dict:
     return out
 
 
+def clean_followups(qs, limits: dict) -> list[str]:
+    cap, n = int(limits.get("followup_chars", 90)), int(limits.get("followups_max", 3))
+    out = []
+    for q in qs if isinstance(qs, list) else []:
+        t = " ".join(str(q).split()).strip(" -*_\u2022\"'")[:cap].strip()
+        if isinstance(q, str) and t and t not in out:
+            out.append(t)
+    return out[:n]
+
+
+_FOLLOWUP_HEAD = re.compile(r"^[\s>*_#-]*follow[- ]?ups?(?:\s+questions?)?[\s*_]*:[\s*_]*(.*)$", re.IGNORECASE)
+
+
+def split_followups(text: str, limits: dict | None = None) -> tuple[str, list[str]]:
+    """(answer without its follow-up line, the questions). The model ends its answer with `Follow-ups: a? | b? | c?` (or the same as a short bullet list under
+    that heading); the page shows them as buttons, not as text. Only a heading in the last five lines counts. Nothing found: (text unchanged, [])."""
+    lines = (text or "").rstrip().split("\n")
+    for i in range(len(lines) - 1, max(-1, len(lines) - 6), -1):
+        m = _FOLLOWUP_HEAD.match(lines[i])
+        if not m:
+            continue
+        items = [x for x in re.split(r"\s*\|\s*", m.group(1)) if x.strip()]
+        items += [re.sub(r"^[\s>*_\d.)\u2022-]+", "", ln) for ln in lines[i + 1:] if ln.strip()]
+        qs = clean_followups(items, limits or {})
+        if not qs:
+            return text, []
+        return "\n".join(lines[:i]).rstrip(), qs
+    return text, []
+
+
 def suggest_followups(ctx: ToolContext, a: dict) -> dict:
-    qs = a.get("questions") if isinstance(a.get("questions"), list) else []
-    cap, n = int(ctx.limits.get("followup_chars", 90)), int(ctx.limits.get("followups_max", 3))
-    clean = [" ".join(q.split())[:cap] for q in qs if isinstance(q, str) and q.strip()][:n]
-    ctx.followups = clean
-    return {"ok": True, "shown_to_the_person": len(clean)}
+    """Not in the schema any more (the model closes its answer with a `Follow-ups:` line, see split_followups); kept so a model that still calls it is served."""
+    ctx.followups = clean_followups(a.get("questions"), ctx.limits)
+    return {"ok": True, "shown_to_the_person": len(ctx.followups)}
 
 
 # ---- the schema Claude sees ---------------------------------------------------------------------------------------------------------
-def _facet_prop(desc: str) -> dict:
-    return {"type": "array", "items": {"type": "string"}, "description": desc}
+def _facet_prop(desc: str, enum: list[str] | None = None) -> dict:
+    return {"type": "array", "items": {"type": "string", **({"enum": enum} if enum else {})}, "description": desc}
 
 
-_FILTERS = {
-    "verdict": _facet_prop("Verdicts (any of): INVEST, DUE DILIGENCE, ACCELERATOR, PARTNER INTRODUCTION, GRANT SUPPORT, WATCHLIST, REJECT / LOW FIT, or none for no verdict."),
-    "impact": _facet_prop("Ocean impact band (any of): High, Medium, Low, 'Not yet evidenced' (sector implied only), or none for no public record."),
-    "trl": _facet_prop("Technology readiness band (any of): 1-3, 4-6, 7-9, or none for no public record. A single level 1 to 9 is mapped to its band."),
-    "brl": _facet_prop("Business readiness band (any of): 1-3, 4-6, 7-9, or none."),
-    "irl": _facet_prop("Investment readiness: known (a level is on record) or none."),
-    "fit": _facet_prop("Thesis fit band (any of): High, Medium, Low, or none."),
-    "country": _facet_prop("Country, ISO-2 code (FI, SE, NO, DK, EE ...) or the name."),
-    "sector": _facet_prop("The rail's Sector (the impact category name, for example Aquaculture), or none. Use search_startups once without filters to see the values."),
-    "age": _facet_prop("Registered age: lt1, 1-3, 3-5, gt5, or none."),
-    "deadline": _facet_prop("Programme deadline: '90' for a deadline within 90 days."),
-    "member": _facet_prop("Declared company: cohort or portfolio."),
-}
+def _filters(th: dict | None) -> dict:
+    """The filter properties. `subsector` carries the sector file's own sub-sector slugs as an enum (their labels are in the description); a sector
+    file without a taxonomy has no such property. The rail's `sector` facet is called impact_category here, so it is not mistaken for the sub-sector."""
+    cat = subsector_catalog(th or {})
+    out = {}
+    if cat:
+        listing = "; ".join(f"{c['slug']} = {c['label']}" for c in cat)
+        out["subsector"] = _facet_prop(
+            "THE way to ask for a sector or industry: one or more sub-sectors of the blue economy (alternatives). Example: {\"subsector\": [\"aquaculture_fisheries\"]} "
+            f"finds aquaculture and fisheries startups. Slug = label: {listing}.", [c["slug"] for c in cat])
+    out.update({
+        "verdict": _facet_prop("Verdicts (any of): INVEST, DUE DILIGENCE, ACCELERATOR, PARTNER INTRODUCTION, GRANT SUPPORT, WATCHLIST, REJECT / LOW FIT, or none for no verdict."),
+        "impact": _facet_prop("Ocean impact band (any of): High, Medium, Low, 'Not yet evidenced' (sector implied only), or none for no public record."),
+        "trl": _facet_prop("Technology readiness band (any of): 1-3, 4-6, 7-9, or none for no public record. A single level 1 to 9 is mapped to its band."),
+        "brl": _facet_prop("Business readiness band (any of): 1-3, 4-6, 7-9, or none."),
+        "irl": _facet_prop("Investment readiness: known (a level is on record) or none."),
+        "fit": _facet_prop("Thesis fit band (any of): High, Medium, Low, or none."),
+        "country": _facet_prop("Country, ISO-2 code (FI, SE, NO, DK, EE ...) or the name."),
+        IMPACT_CATEGORY: _facet_prop("The Navigator impact category (for example Aquatech or Ocean data), or none. NOT the sub-sector and rarely needed: to ask for a sector use `subsector`. "
+                                     "The values that exist are listed in values_on_the_list (call with limit 0)."),
+        "age": _facet_prop("Registered age: lt1, 1-3, 3-5, gt5, or none."),
+        "deadline": _facet_prop("Programme deadline: '90' for a deadline within 90 days."),
+        "member": _facet_prop("Declared company: cohort or portfolio."),
+    })
+    return out
 
-TOOLS: list[dict] = [
-    {"name": "search_startups",
-     "description": ("Search the companies on the home list (the radar's cached list: companies surfaced with a stated reason plus the declared cohort and portfolio) "
-                     "with the same filters as the page's filter rail: several values of one filter are alternatives, different filters all have to hold. "
-                     "Returns each match with verdict, thesis fit, ocean impact, readiness levels and its latest public record, strongest verdict first. "
-                     "With no filters it returns the top of the list and, when nothing matches, the values that exist."),
-     "input_schema": {"type": "object", "properties": {
-         **_FILTERS,
-         "subsector": {"type": "string", "description": "Words that must appear in the register's line of business (for example 'aquaculture' or 'freight water transport')."},
-         "text": {"type": "string", "description": "Words that must appear in the company name, line of business, impact area or country. If nothing on the list matches, the register is searched by name."},
-         "limit": {"type": "integer", "description": "How many rows to return (default 10, at most 25); 0 returns only the count and the values that exist."}}}},
-    {"name": "get_startup",
-     "description": ("Everything the radar holds on one company: register facts, the verdict with its plain reasons, risks and suggested actions, technology, business and "
-                     "investment readiness each with its evidence, the Ocean Impact Assessment (area, level of 9, confidence and what record would raise it), the newest dated "
-                     "public records with source labels and links, who to meet (ranked organisations with the reasons that hold) and the next-step rule. Use the company_key from a search result."),
-     "input_schema": {"type": "object", "properties": {"company_key": {"type": "string", "description": "The company_key, for example 2962040-6"}}, "required": ["company_key"]}},
-    {"name": "explain_match",
-     "description": ("Why one organisation does or does not fit one company: the matchmaker's six reasons (sector or impact area, portfolio lookalike, shared words, readiness window, timing, "
-                     "geography), each with the sentence and record behind it, and the hard filter that excluded the pair if there is one. Use an org_id from get_startup or list_organisations."),
-     "input_schema": {"type": "object", "properties": {"company_key": {"type": "string"}, "org_id": {"type": "string"}}, "required": ["company_key", "org_id"]}},
-    {"name": "list_organisations",
-     "description": ("The investors, accelerators, programmes, public funders, clusters, corporates and ports the matchmaker knows, with their declared focus, demand, deadline and geography. "
-                     "Filter by kind and by words in the name or focus. Returns org_id values for explain_match."),
-     "input_schema": {"type": "object", "properties": {"kind": {"type": "string", "description": "A kind id or label, for example investor, accelerator, funder; omit for all."},
-                                                       "text": {"type": "string", "description": "Words that must appear in the name or declared focus."}}}},
-    {"name": "get_current_view",
-     "description": ("What the person has on screen right now: the filters set on the home list, the group tab, how many rows are visible, the first visible rows, "
-                     "and the company page they are on if any. Call it when they say 'these', 'this list' or 'narrow it'."),
-     "input_schema": {"type": "object", "properties": {}}},
-    {"name": "apply_filters",
-     "description": ("Change the home page's filters for the person (the page updates in place). Same values as search_startups. The server does not run it; it checks the values, "
-                     "tells you how many rows will remain, and the browser applies it. An empty filters object clears every filter. Use it when they ask to show, filter, narrow or clear the list."),
-     "input_schema": {"type": "object", "properties": {"filters": {"type": "object", "properties": _FILTERS, "description": "The complete filter state to show (it replaces the current one)."},
-                                                       "group": {"type": "string", "description": "Optional group tab: all, fit (Top fits), ready (Investor-ready) or new (New this quarter). Countries are the country filter."},
-                                                       "top_matching_for": {"type": "string", "description": "Optional org_id of an investor or accelerator (from list_organisations): the page shows its Top matching tab, the list ranked for that organisation."}},
-                      "required": ["filters"]}},
-    {"name": "suggest_followups",
-     "description": "Show the person 2 or 3 short follow-up questions as buttons. Call it once, last, after your answer is complete.",
-     "input_schema": {"type": "object", "properties": {"questions": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 3}}, "required": ["questions"]}},
-]
+
+def tools_for(th: dict | None) -> list[dict]:
+    """The tool schemas for one sector file (the sub-sector enum is that file's taxonomy)."""
+    F = _filters(th)
+    return [
+        {"name": "search_startups",
+         "description": ("Search the companies on the home list (the radar's cached list: companies surfaced with a stated reason plus the declared cohort and portfolio) "
+                         "with the same filters as the page's filter rail: several values of one filter are alternatives, different filters all have to hold. "
+                         "For a sector or industry use `subsector` (for example subsector [\"aquaculture_fisheries\"]); `impact_category` is a different, Navigator facet. "
+                         "`text` searches words in the company name, the register's line of business and the sub-sector labels. "
+                         "Returns each match with its line of business, sub-sectors, registration year, verdict, thesis fit, ocean impact, readiness levels and latest public record, "
+                         "strongest verdict first. With no filters it returns the top of the list and, when nothing matches, the values that exist."),
+         "input_schema": {"type": "object", "properties": {
+             **F,
+             "text": {"type": "string", "description": "Words that must all appear in the company name, the register's line of business, the impact area, the country or a sub-sector label. "
+                                                       "If nothing on the list matches, the register is searched by name."},
+             "limit": {"type": "integer", "description": "How many rows to return (default 10, at most 25); 0 returns only the count and the values that exist."}}}},
+        {"name": "get_startup",
+         "description": ("Everything the radar holds on one company: register facts, the verdict with its plain reasons, risks and suggested actions, technology, business and "
+                         "investment readiness each with its evidence, the Ocean Impact Assessment (area, level of 9, confidence and what record would raise it), the newest dated "
+                         "public records with source labels and links, who to meet (ranked organisations with the reasons that hold) and the next-step rule. "
+                         "Takes the company_key from a search result, or the company's name as the person wrote it (for example 'Viva Jets'), so a named company needs no search first. "
+                         "Several companies: call it once for each, together in one round."),
+         "input_schema": {"type": "object", "properties": {"company_key": {"type": "string", "description": "The company_key, for example 2962040-6, or the exact company name, for example Viva Jets"}}, "required": ["company_key"]}},
+        {"name": "explain_match",
+         "description": ("Why one organisation does or does not fit one company: the matchmaker's six reasons (sector or impact area, portfolio lookalike, shared words, readiness window, timing, "
+                         "geography), each with the sentence and record behind it, and the hard filter that excluded the pair if there is one. Use an org_id from get_startup or list_organisations."),
+         "input_schema": {"type": "object", "properties": {"company_key": {"type": "string"}, "org_id": {"type": "string"}}, "required": ["company_key", "org_id"]}},
+        {"name": "list_organisations",
+         "description": ("The investors, accelerators, programmes, public funders, clusters, corporates and ports the matchmaker knows, with their declared focus, demand, deadline and geography. "
+                         "Filter by kind and by words in the name or focus. Returns org_id values for explain_match."),
+         "input_schema": {"type": "object", "properties": {"kind": {"type": "string", "description": "A kind id or label, for example investor, accelerator, funder; omit for all."},
+                                                           "text": {"type": "string", "description": "Words that must appear in the name or declared focus."}}}},
+        {"name": "get_current_view",
+         "description": ("What the person has on screen right now: the filters set on the home list, the group tab, how many rows are visible, the first visible rows, "
+                         "and the company page they are on if any. Call it when they say 'these', 'this list' or 'narrow it'."),
+         "input_schema": {"type": "object", "properties": {}}},
+        {"name": "apply_filters",
+         "description": ("Change the home page's filters for the person (the page updates in place). Same values as search_startups (a sector is `subsector`). The server does not run it; it checks the values, "
+                         "tells you how many rows will remain, and the browser applies it. An empty filters object clears every filter. Use it when they ask to show, filter, narrow or clear the list."),
+         "input_schema": {"type": "object", "properties": {"filters": {"type": "object", "properties": {k: {"type": "array", "items": v["items"]} for k, v in F.items()},
+                                                                      "description": "The complete filter state to show (it replaces the current one). Same filters and values as search_startups."},
+                                                           "group": {"type": "string", "description": "Optional group tab: all, fit (Top fits), ready (Investor-ready) or new (New this quarter). Countries are the country filter."},
+                                                           "top_matching_for": {"type": "string", "description": "Optional org_id of an investor or accelerator (from list_organisations): the page shows its Top matching tab, the list ranked for that organisation."}},
+                          "required": ["filters"]}},
+    ]
+
+
+def _default_tools() -> list[dict]:
+    try:
+        from radar import thesis as thesis_mod
+        return tools_for(thesis_mod.load())
+    except Exception:  # noqa: BLE001  (no readable sector file at import time: the schema without the sub-sector enum)
+        return tools_for(None)
+
+
+TOOLS: list[dict] = _default_tools()      # the default sector file's schema; a Turn asks tools_for(its own sector file)
 
 HANDLERS = {"search_startups": search_startups, "get_startup": get_startup, "explain_match": explain_match, "list_organisations": list_organisations,
             "get_current_view": get_current_view, "apply_filters": apply_filters, "suggest_followups": suggest_followups}
+
+
+# ---- warm-up: no tool call should wait for a cold cache ------------------------------------------------------------------------------
+_warm_lock = threading.Lock()
+_warmed: dict[str, tuple] = {}      # sector id -> the store version (home_list.stamp) already warmed or being warmed
+
+
+def warm(th: dict) -> float:
+    """Build, on this thread, what the tools would otherwise build on their first call: the cached home list (the rows every search reads), and the
+    memo, counterpart and organisation indexes behind get_startup and list_organisations (one company opened and discarded). Returns the seconds taken;
+    a cache that is already warm costs a few milliseconds. Never raises."""
+    t0 = time.monotonic()
+    ctx = ToolContext(th)
+    try:
+        home_list.warm(th)
+        rows = ctx.rows()
+        if rows:
+            get_startup(ctx, {"company_key": rows[0]["company_key"]})
+            list_organisations(ctx, {})
+    except Exception:  # noqa: BLE001  (a failed warm-up only means the first tool call builds the cache itself)
+        log.exception("aava warm-up failed")
+    finally:
+        ctx.close()
+    return time.monotonic() - t0
+
+
+def ensure_warm(th: dict) -> bool:
+    """Start `warm` in the background once per sector file and store version (a rebuilt store gets a new version, so it is warmed again on the next
+    turn). Returns True when a warm-up was started. Not run under pytest or with RADAR_NO_WARM set."""
+    if "pytest" in sys.modules or os.environ.get("RADAR_NO_WARM") is not None:
+        return False
+    try:
+        stamp = home_list.stamp(th)
+    except Exception:  # noqa: BLE001
+        return False
+    with _warm_lock:
+        if stamp is None or _warmed.get(th.get("id")) == stamp:
+            return False
+        _warmed[th.get("id")] = stamp
+    threading.Thread(target=warm, args=(th,), name="aava-warm", daemon=True).start()
+    return True
 
 
 def run_tool(ctx: ToolContext, name: str, args) -> tuple[str, bool]:

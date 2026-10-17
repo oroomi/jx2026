@@ -82,7 +82,7 @@
   </ul>
   {% else %}<p class="mt-note">None of its declared companies is in our records.</p>{% endif %}
   {% elif result.startups %}
-  <h3 class="mt-sub">Startups that fit, not yet connected ({{ result.listed }} checked in full pass the filters{% if result.startups | length < result.listed %}, the top {{ result.startups | length }} shown{% endif %}{% if result.unprofiled %}; {{ result.unprofiled }} more passed the first pass and were not checked in full{% endif %})</h3>
+  <h3 class="mt-sub">{{ "Startups" if result.only_startups else "Companies" }} that fit, not yet connected ({{ result.listed }} checked in full pass the filters{% if result.startups | length < result.listed %}, the top {{ result.startups | length }} shown{% endif %}{% if result.unprofiled %}; {{ result.unprofiled }} more passed the first pass and were not checked in full{% endif %})</h3>
   {% if result.pipeline and result.pipeline.note %}<p class="mt-note mt-pipeline" id="mt-pipeline">{{ result.pipeline.note }}</p>{% endif %}
   {% if result.not_startups %}<p class="mt-note" id="mt-not-startups">{{ "{:,}".format(result.not_startups) }} companies on the radar are not startups on the thesis' rule (founded more than {{ age_cut }} years ago, or listed as a counterpart organisation) and are not offered to {{ o.name }}.</p>{% endif %}
   <ol class="mt-results">

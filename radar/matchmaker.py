@@ -569,7 +569,7 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
                 "candidates_profiled": min(len(cand), depth) if not closed else 0,
                 "unprofiled": max(0, len(cand) - depth) if not closed else 0,
                 "listed": len(out_rows), "startups": shown, "connected": connected, "pipeline": pipeline, "limits": LIMITS,
-                "not_startups": not_startups}
+                "not_startups": not_startups, "only_startups": only_startups}   # D91: the page heading says startups only for these kinds
     finally:
         if own:
             conn.close()

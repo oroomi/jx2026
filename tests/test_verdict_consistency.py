@@ -174,6 +174,18 @@ def test_an_old_company_is_offered_no_investor_or_accelerator_and_none_is_offere
 
 
 
+def test_only_investor_and_accelerator_pages_say_startups_that_fit(conn):
+    # D91: the startup cut covers investors and accelerators only, so only their pages head the list "Startups that fit"
+    _company(conn, "9500010-5", "Old Sea Grant Oy", founded_days=365 * 12, extra=[PROJECT])
+    th = thesis.load()
+    kinds = set(th["matching"]["startup_kinds"])
+    orgs = matchmaker_orgs.registry(conn, th)["orgs"]
+    for org in [o for o in orgs if o["kind"] in kinds][:3] + [o for o in orgs if o["kind"] not in kinds][:3]:
+        r = matchmaker.match_org(org["id"], th, conn=conn, today=TODAY, limit=5)
+        assert r["only_startups"] is (org["kind"] in kinds), org["id"]
+
+
+
 def test_an_empty_investor_page_counts_startups_only(conn):
     # the empty-state count ("N of the M startups pass its topic and geography filters") leaves out the companies the cut removes
     _company(conn, "9500008-3", "Old Sea Code Oy", founded_days=365 * 12)

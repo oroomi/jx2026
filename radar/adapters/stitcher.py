@@ -1056,10 +1056,30 @@ def check_fit(company: dict, answer: dict, thesis: dict, *, fetch=None, capture=
                         + (f"; thesis word '{words[0]}' in the quote" if words else ""))
 
 
-def intake_fit(tsv: str | Path, proposals: str | Path, out_dir: str | Path, thesis: dict, *, fetch=None, capture=first_capture,
+def saved_fit_answer(key: str, proposals: str | Path | None, out_dir: str | Path) -> dict:
+    """The LLM's saved answer for one intake company. A raw answer file <proposals>/<key>.json wins; otherwise the answer is
+    read back from the checked record <out_dir>/<key>.json (llm_answer, quote, source_url), which is the one copy kept in the
+    repo. {} when neither exists or the file does not parse."""
+    raw = Path(proposals) / f"{key}.json" if proposals else None
+    try:
+        if raw is not None and raw.exists():
+            return _extract_json(raw.read_text(encoding="utf-8"))
+        rec_f = Path(out_dir) / f"{key}.json"
+        if not rec_f.exists():
+            return {}
+        rec = json.loads(rec_f.read_text(encoding="utf-8"))
+    except ValueError:
+        return {}
+    if not rec.get("llm_answer"):
+        return {}
+    return {"company_key": key, "thesis_evidence": rec["llm_answer"], "quote": rec.get("quote") or "", "source_url": rec.get("source_url") or ""}
+
+
+def intake_fit(tsv: str | Path, proposals: str | Path | None, out_dir: str | Path, thesis: dict, *, fetch=None, capture=first_capture,
                company=intake_company) -> dict:
-    """Read the intake list (company_key TAB name), check each saved LLM answer <proposals>/<key>.json, write the checked
-    record to <out_dir>/<key>.json. Returns the counts. A missing answer is 'unclear'."""
+    """Read the intake list (company_key TAB name), check each saved LLM answer, write the checked record to <out_dir>/<key>.json.
+    The answer is <proposals>/<key>.json when that file exists, else the answer kept inside the checked record itself
+    (saved_fit_answer). Returns the counts. A missing answer is 'unclear'."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     counts = {a: 0 for a in FIT_ANSWERS}
@@ -1068,11 +1088,7 @@ def intake_fit(tsv: str | Path, proposals: str | Path, out_dir: str | Path, thes
             continue
         key, _, name = line.partition("\t")
         c = company(key.strip(), name.strip())
-        f = Path(proposals) / f"{key.strip()}.json"
-        try:
-            ans = _extract_json(f.read_text(encoding="utf-8")) if f.exists() else {}
-        except ValueError:
-            ans = {}
+        ans = saved_fit_answer(key.strip(), proposals, out)
         rec = check_fit(c, ans, thesis, fetch=fetch, capture=capture) if ans else \
             {"company_key": c["company_key"], "name": c["name"], "thesis_evidence": "unclear", "quote": None, "source_url": None,
              "public_since": None, "archive_url": None, "thesis_word": None, "llm_answer": None, "checked": "no saved LLM answer"}
@@ -1114,7 +1130,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"===== {key}\n{build_fit_prompt(c, fit_queries(c, th), th)}")
             return 0
         out = a.out or str(ROOT / "data" / "fetched" / "stitcher" / "intake_fit")
-        counts = intake_fit(a.intake_fit, a.proposals or str(Path(out) / "proposals"), out, th)
+        counts = intake_fit(a.intake_fit, a.proposals, out, th)  # no --proposals: the answers kept in the checked records
         print("RESULT " + json.dumps({"intake_fit": counts, "out": out}, ensure_ascii=False))
         return 0
     conn = db.connect(_resolve_db(a.db, th))

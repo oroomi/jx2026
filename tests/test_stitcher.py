@@ -488,3 +488,26 @@ def test_long_dashes_become_hyphens_and_still_match():
     q = stitcher.redact_people("the serum mist \u2014 one of seven new products", "Fixture Oy")
     assert q == "the serum mist - one of seven new products"
     assert stitcher._quote_span(q, " " + stitcher.fold("the serum mist \u2014 one of seven new products") + " ") is not None
+
+
+def test_intake_fit_rechecks_from_the_checked_record_when_no_raw_answer(tmp_path):
+    """The raw answer copies were removed from the repo; a re-check reads the answer kept inside the checked record."""
+    from radar import thesis
+    tsv = tmp_path / "top.tsv"
+    tsv.write_text("9100001-1\tFixture Harbour Oy\n", encoding="utf-8")
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "9100001-1.json").write_text(json.dumps({"company_key": "9100001-1", "thesis_evidence": "yes", "llm_answer": "yes",
+                                                    "quote": "Fixture Harbour Oy builds electric work boats for port operators.",
+                                                    "source_url": "https://fixture-harbour.example/"}))
+    assert stitcher.saved_fit_answer("9100001-1", tmp_path / "missing", out)["thesis_evidence"] == "yes"
+    counts = stitcher.intake_fit(tsv, None, out, thesis.load(), fetch=lambda u: FIT_PAGES[u], capture=lambda u: (None, None),
+                                 company=lambda k, n: dict(FIT_CO, company_key=k, name=n, y_tunnus=k))
+    assert counts == {"yes": 1, "no": 0, "unclear": 0}
+
+
+def test_intake_fit_records_have_one_copy_in_the_repo():
+    from pathlib import Path
+    d = Path(__file__).resolve().parent.parent / "data" / "fetched" / "stitcher" / "intake_fit"
+    if d.is_dir():
+        assert not (d / "proposals").exists()

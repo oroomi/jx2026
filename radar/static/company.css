@@ -209,3 +209,48 @@ body:has(.co-layout) .top .wrap,body:has(.co-layout) .foot{max-width:1360px}
 .co-c .cc-a sup a { margin: 0 -16px 0 -14px; }
 .co-c .brief-cite { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 14px; margin: 0 -14px; }
 .cc-rule { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--hairline); color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+
+/* Why this verdict: three to five plain-word bullets under the headline, each a link to the record it rests on (D22 task, ocean impact). */
+.cc-why-list { list-style: none; margin: 14px 0 0; padding: 0; display: grid; }
+.cc-why-list li { border-top: 1px solid var(--hairline); }
+.cc-why-list li:first-child { border-top: 0; }
+.cc-why-list li > a, .cc-why-list li > span { display: block; min-height: 44px; padding: 10px 0 10px 18px; position: relative; font-size: 16px; line-height: 1.45; color: var(--text); text-decoration: none; overflow-wrap: anywhere; }
+.cc-why-list li > a { text-decoration: underline; text-decoration-color: var(--hairline); text-underline-offset: 4px; }
+.cc-why-list li > a:hover { text-decoration-color: var(--accent); }
+.cc-why-list li > a::before, .cc-why-list li > span::before { content: ""; position: absolute; left: 0; top: 19px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+
+/* Ocean Impact Assessment: one block at headline level, in the reviewer's order. Evidence readiness from public records, not true impact. */
+.oi { margin: 26px 0 0; padding: 18px 16px 12px; background: var(--surface); border: 1px solid var(--hairline); border-radius: 20px; min-width: 0; }
+.oi-title { margin: 0 0 14px; font-family: var(--sans); font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.oi-sec { padding: 12px 0; border-top: 1px solid var(--hairline); min-width: 0; }
+.oi-sec:first-of-type { border-top: 0; padding-top: 0; }
+.oi-k { margin: 0 0 4px; font-size: 14px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.oi-big { margin: 0; font-family: var(--sans); font-weight: 500; font-size: clamp(1.5rem, 6.4vw, 2rem); line-height: 1.2; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.oi-big.oi-none { font-size: 1rem; font-weight: 400; }
+.oi-text { margin: 0; font-size: 16px; line-height: 1.5; overflow-wrap: anywhere; }
+.oi-note { margin: 4px 0 0; font-size: 14px; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.oi-ev { list-style: none; margin: 0; padding: 0; display: grid; }
+.oi-ev li { display: grid; gap: 0; border-top: 1px solid var(--hairline); }
+.oi-ev li:first-child { border-top: 0; }
+.oi-ev a, .oi-ev li > span:first-child { display: block; min-height: 44px; padding: 10px 0 2px; font-size: 16px; line-height: 1.4; color: var(--text); text-underline-offset: 4px; text-decoration-color: var(--hairline); overflow-wrap: anywhere; }
+.oi-ev a:hover { text-decoration-color: var(--accent); }
+.oi-src { display: block; padding: 0 0 10px; font-size: 14px; color: var(--muted); }
+.oi-lv { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.oi-band { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border: 1px solid var(--hairline); border-radius: 8px; font-size: 14px; font-weight: 500; color: var(--muted); }
+.oi-band-medium { color: var(--text); border-color: var(--muted); }
+.oi-band-high { color: var(--accent); border-color: var(--accent); }
+.oi-steps { list-style: none; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; margin: 12px 0 8px; padding: 0; }
+.oi-steps li { height: 12px; border: 1px solid var(--hairline); border-radius: 3px; background: transparent; }
+.oi-steps li.on { background: var(--muted); border-color: var(--muted); }
+.oi-steps li.cur { background: var(--accent); border-color: var(--accent); height: 18px; margin-top: -3px; }
+.oi-rule { margin: 0; font-size: 14px; line-height: 1.5; color: var(--muted); overflow-wrap: anywhere; }
+.oi-c { text-transform: capitalize; font-weight: 600; margin-right: 8px; white-space: nowrap; }
+.oi-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent); margin-right: 8px; vertical-align: -1px; box-sizing: border-box; }
+.oi-dot-high { background: var(--accent); }
+.oi-dot-medium { background: linear-gradient(90deg, var(--accent) 50%, transparent 50%); }
+.oi-dot-low { background: transparent; border-color: var(--muted); }
+.oi-raise { margin: 10px 0 0; padding-top: 10px; border-top: 1px solid var(--hairline); font-size: 14px; color: var(--muted); line-height: 1.45; overflow-wrap: anywhere; }
+.oi-raise .oi-k { display: inline; font-size: 14px; margin-right: 6px; }
+.oi-foot { margin: 8px 0 0; font-size: 14px; color: var(--muted); }
+.oi-foot a { display: inline-block; min-height: 44px; line-height: 44px; margin: -12px 0; }
+@media (min-width: 900px) { .co-c { max-width: 720px; } .oi { padding: 22px 24px 14px; } }

@@ -7,14 +7,14 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import JSONResponse
 
 from radar import labels
-from radar import blueinvest, earliness, fit as fit_mod, frameworks, matching, store, thesis as thesis_mod
+from radar import blueinvest, earliness, fit as fit_mod, frameworks, matching, ocean_impact, store, thesis as thesis_mod
 from radar.routes.company import CONNECTORS, ecosystem as eco_reading
 
 router = APIRouter(prefix="/api")
 
 ENDPOINTS = [
     {"path": "/api/companies?q=&thesis=&limit=&offset=", "what": "search companies by name, key or Y-tunnus; no q lists all by name"},
-    {"path": "/api/company/{company_key}?thesis=&limit=", "what": "register facts, signals with sources, readiness levels, who comes next, next step"},
+    {"path": "/api/company/{company_key}?thesis=&limit=", "what": "register facts, signals with sources, readiness levels, the Ocean Impact Assessment (area, evidence, scalability, level of 9, confidence), who comes next, next step"},
     {"path": "/api/feed?thesis=&window=&type=", "what": "the early-signal feed rows with their reason; window = days (default from the thesis)"},
     {"path": "/api/backtest?thesis=", "what": "the earliness backtest per cohort company"},
 ]
@@ -146,12 +146,13 @@ def api_company(company_key: str, thesis: str | None = None, limit: int = Query(
             readiness = _readiness(conn, company_key, c, sigs)
             nxt = matching.who_comes_next(company_key, th, limit, conn=conn)
             step = matching.next_step(company_key, th, conn=conn)
+            ocean = ocean_impact.for_company(conn, th, company_key)
         finally:
             conn.close()
         reasons = [{"kind": r["kind"], "confidence": r["confidence"], "text": r["text"], "source_url": r["evidence"].get("url")}
                    for r in fit_mod.fit(c, sigs, th)]
         return {"thesis": _head(th), "company": _company_row(c), "counts": data["counts"], "signals": [_signal(s) for s in sigs],
-                "fit": {"rule": fit_mod.RULE_LINE, "reasons": reasons}, "readiness": readiness,
+                "fit": {"rule": fit_mod.RULE_LINE, "reasons": reasons}, "readiness": readiness, "ocean_impact": ocean,
                 "connections": frameworks.connections([s for s in sigs if s["adapter"] != "ecosystem"]),
                 "who_comes_next": {**nxt, "rank_rule": matching.RANK_RULE},
                 "next_step": {**step, "rule_text": matching.NEXT_RULES[step["rule"] - 1], "rules": list(matching.NEXT_RULES)},

@@ -39,13 +39,56 @@
   {% if rec %}{% set ev = (m.why | selectattr("url") | first) if m and m.why else none %}
   <div class="cc-lede sk-editorial">
     {% set first = (rec.note or "").split(";")[0].split(", so ")[0].rstrip(".") %}<p class="cc-lede-h">{{ c.name }} reads <em class="v-{{ vk }}">{{ rec.decision | lower }}</em>{% if first %}: {{ first[0] | lower }}{{ first[1:] }}{% endif %}.</p>
-    {% set rest = (rec.note or "")[first | length:].lstrip(";, ").rstrip(".") %}{% if rest %}<p class="cc-lede-more">{{ rest[0] | upper }}{{ rest[1:] }}.</p>{% endif %}
-    {% if ev %}<p class="cc-lede-src">Evidence: <a href="{{ ev.url }}" target="_blank" rel="noopener">{{ ev.text }}</a></p>{% endif %}
   </div>{% endif %}
   <div class="cc-verdict v-{{ vk }}">
     {% if rec %}<p class="cc-big">{{ rec.decision | capitalize }}</p>{% if rec.matched %}<span class="cc-rule" title="The decision-table entry that matched">{{ rec.matched | replace("fallback ", "rule ", 1) | replace(", impact implied by sector", ": impact implied by the sector") | replace("row ", "decision table row ", 1) }}</span>{% endif %}{% endif %}
   </div>
-  {% if rec and rec.note %}<p class="cc-reason">{{ rec.note[0] | upper }}{{ rec.note[1:] }}{{ "" if rec.note.rstrip().endswith((".", "!", "?")) else "." }}</p>{% endif %}
+  {% if m and m.plain_why %}
+  <ul class="cc-why-list" id="why-this-verdict" aria-label="Why this verdict">
+    {% for b in m.plain_why %}<li>{% if b.url %}<a href="{{ b.url }}" target="_blank" rel="noopener">{{ b.text }}</a>{% else %}<span>{{ b.text }}</span>{% endif %}</li>{% endfor %}
+  </ul>
+  {% elif rec and rec.note %}<p class="cc-reason">{{ rec.note[0] | upper }}{{ rec.note[1:] }}{{ "" if rec.note.rstrip().endswith((".", "!", "?")) else "." }}</p>{% endif %}
+
+  {% set oi = m.ocean_impact if m else none %}
+  {% if oi %}
+  {% set ir = thesis.impact_readiness or {} %}
+  {% set lv = oi.level %}
+  <section class="oi" id="ocean-impact" aria-labelledby="oi-h">
+    <h2 id="oi-h" class="oi-title">{{ ir.title or "Ocean Impact Assessment" }}</h2>
+    <div class="oi-sec oi-area">
+      <p class="oi-k">Impact area</p>
+      {% if oi.area %}<p class="oi-big">{{ oi.area }}</p><p class="oi-note">Found through {{ oi.area_basis }}.</p>
+      {% else %}<p class="oi-big oi-none">{{ missing("no impact area on record") }}</p>{% endif %}
+    </div>
+    <div class="oi-sec oi-evidence">
+      <p class="oi-k">Evidence</p>
+      {% if oi.evidence %}<ul class="oi-ev">
+        {% for e in oi.evidence %}<li>{% if e.url %}<a href="{{ e.url }}" target="_blank" rel="noopener">{{ e.text }}</a>{% else %}<span>{{ e.text }}</span>{% endif %}
+          <span class="oi-src">{{ e.source_label }}{% if e.date %} · {{ e.date }}{% endif %}</span></li>{% endfor %}
+      </ul>{% else %}<p class="oi-note">{{ missing("no record on file") }}</p>{% endif %}
+    </div>
+    <div class="oi-sec oi-scale">
+      <p class="oi-k">Scalability</p>
+      {% if oi.scalability.basis %}<p class="oi-text">{{ oi.scalability.text }}</p><p class="oi-note">Basis: {{ oi.scalability.basis }}.</p>
+      {% else %}<p class="oi-text">{{ missing(oi.scalability.text) }}</p>{% endif %}
+    </div>
+    <div class="oi-sec oi-level">
+      <p class="oi-k">{{ ir.label or "Ocean Impact Readiness" }}</p>
+      {% if lv %}<p class="oi-big oi-lv">level {{ lv }} of {{ oi.level_max }}{% if oi.band %} <span class="oi-band oi-band-{{ oi.band | lower }}">{{ oi.band }}</span>{% endif %}</p>{% else %}
+      <p class="oi-big oi-lv">{{ missing("no level on record") }}{% if oi.band %} <span class="oi-band oi-band-{{ oi.band | lower }}">{{ oi.band }}</span>{% endif %}</p>{% endif %}
+      <ol class="oi-steps" role="img" aria-label="{{ ('Level ' ~ lv ~ ' of ' ~ oi.level_max) if lv else 'No level on record' }}">
+        {% for i in range(1, oi.level_max + 1) %}<li class="{{ 'on' if lv and i <= lv else '' }}{{ ' cur' if lv and i == lv else '' }}"></li>{% endfor %}
+      </ol>
+      <p class="oi-rule">{{ oi.level_rule }}</p>
+    </div>
+    <div class="oi-sec oi-conf">
+      <p class="oi-k">Confidence</p>
+      <p class="oi-text"><strong class="oi-c oi-c-{{ oi.confidence }}"><i class="oi-dot oi-dot-{{ oi.confidence }}" aria-hidden="true"></i>{{ oi.confidence }}</strong> <span class="oi-note">{{ oi.confidence_reason }}</span></p>
+    </div>
+    {% if oi.raise %}<p class="oi-raise"><span class="oi-k">To raise it</span> {{ oi.raise }}</p>{% endif %}
+    <p class="oi-foot">Evidence readiness from public records, not a measure of true impact. <a href="/method#ocean-impact">How the ladder works</a></p>
+  </section>
+  {% endif %}
   {% if sig_asc %}
   <p class="cc-line">Public record: first <a href="#sig-{{ sig_asc[0].id }}">{{ sig_asc[0].date_label or sig_asc[0].date }}</a> · {{ signals | length }} dated signal{{ "s" if signals | length != 1 }} · latest <a href="#sig-{{ sig_asc[-1].id }}">{{ sig_asc[-1].date_label or sig_asc[-1].date }}</a></p>
   {% endif %}
@@ -59,7 +102,7 @@
   {% for label, r in (("Technology (TRL)", fw.trl), ("Business (BRL)", fw.brl), ("Investment", fw.irl)) %}
     {% if r.level %}{% set _ = ks.append({"label": label, "value": r.level ~ " / 9", "source_url": (r.evidence[0].evidence.url if r.evidence else none)}) %}{% endif %}
   {% endfor %}
-  {% if fw.category.category %}{% set _ = ks.append({"label": "Ocean impact", "value": fw.category.category, "source_url": none}) %}{% endif %}
+  {% if fw.category.category and not (m and m.ocean_impact) %}{% set _ = ks.append({"label": "Ocean impact", "value": fw.category.category, "source_url": none}) %}{% endif %}
   {% if c.founded %}{% set _ = ks.append({"label": "Founded", "value": c.founded[:4], "source_url": c.source_url}) %}{% endif %}
   {% set _ = ks.append({"label": "Business ID", "value": c.y_tunnus or c.company_key, "source_url": c.source_url}) %}
   {% if sig_asc %}{% set _ = ks.append({"label": "First public record", "value": sig_asc[0].date_label or sig_asc[0].date, "source_url": sig_asc[0].source_url}) %}

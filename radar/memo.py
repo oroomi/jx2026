@@ -11,11 +11,12 @@ WATCHLIST with "more public evidence needed: <level>". REJECT / LOW FIT needs ev
 Nothing is said without a link: a bullet with no source row is an evidence gap and is shown as one."""
 from __future__ import annotations
 
+import re
 import sqlite3
 from datetime import date, timedelta
 
 from radar import labels as lbl
-from radar import matching, store
+from radar import matching, ocean_impact, store
 
 DECISIONS = ("INVEST", "DUE DILIGENCE", "ACCELERATOR", "GRANT SUPPORT", "PARTNER INTRODUCTION", "WATCHLIST", "REJECT / LOW FIT")
 BANDS = ("Low", "Medium", "High")
@@ -237,6 +238,79 @@ def _actions(decision: str, nxt: dict, step: dict, unknown: list[str], labels: d
     return out[:MAX_ACTIONS]
 
 
+_LEVEL_TAG = re.compile(r"\s*\(level \d+\)")
+_CODE_TAG = re.compile(r"(?i)\bindustry code\s+[\d.]+\s*\(([^)]*?)(?:,\s*PRH)?\)")
+_ID_TAG = re.compile(r"\b\d{7}-\d\b|\b\d{5,}\b")
+_MORE_TAG = re.compile(r";\s*\d+ more reasons?\.?")
+MAX_BULLETS = 5
+
+
+def words_only(text: str | None) -> str:
+    """A memo line as plain words: no level numbers, industry codes or ids (dates and counts stay)."""
+    t = _MORE_TAG.sub("", _LEVEL_TAG.sub("", text or ""))
+    t = _CODE_TAG.sub(lambda m: f"registered industry ({m.group(1).strip()})", t)
+    t = _ID_TAG.sub("", t)
+    t = re.sub(r"\s+", " ", t).strip(" ;,")
+    return t[:1].upper() + t[1:] if t else t
+
+
+def _lc(t: str) -> str:
+    """Lower-case the first letter of a clause unless it starts an acronym or a name (second letter upper-case)."""
+    return t[:1].lower() + t[1:] if len(t) > 1 and t[1].islower() else t
+
+
+def _and(items: list[str]) -> str:
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1]
+
+
+def _after_colon(line: str) -> str:
+    """'Business readiness Medium (level 6): first public contract' -> 'first public contract'."""
+    return line.split("): ", 1)[1] if "): " in line else line.split(": ", 1)[-1]
+
+
+def plain_bullets(rec: dict, why: list[dict], oi: dict | None, labels: dict) -> list[dict]:
+    """Three to five plain-word bullets that explain the verdict, from the memo's why lines and its four bands: no ids, no level
+    numbers, no scores. Each is {text, url}; the url is the record the line rests on, or None for a gap."""
+    band_of = {b["label"]: str(b["band"]).lower().replace("sector,", "the sector,") for b in rec["because_labels"]}
+    by_label = {l: w for l in (labels.get("business", "business"), labels.get("investment", "investment"), labels.get("technology", "technology"))
+                for w in why if w["text"].startswith(l + " ") and not w["text"].startswith(l + ", secondary")}
+    fit_lines = [w for w in why if w["text"].startswith("Thesis fit:")]
+    out: list[tuple[str, dict]] = []
+
+    fit_label = labels.get("fit", "Thesis fit")
+    if fit_lines:
+        reasons = "; ".join(words_only(w["text"].split(": ", 1)[1]).rstrip(".").lower() if i else words_only(w["text"].split(": ", 1)[1]).rstrip(".")
+                            for i, w in enumerate(fit_lines[:2]))
+        out.append(("fit", {"text": f"{fit_label} is {band_of.get(fit_label, 'unknown')}: {reasons[:1].lower() + reasons[1:]}.", "url": fit_lines[0].get("url")}))
+    impact_label = labels.get("impact", "Ocean impact")
+    if oi and oi.get("area"):
+        basis = {"own text": "the source's own text", "corroborated name word": "a corroborated name word",
+                 "industry code family": "the registered industry code family"}.get(oi["area_basis"], oi["area_basis"])
+        url = next((e["url"] for e in oi["evidence"] if e.get("url")), None)
+        out.append(("impact", {"text": f"{impact_label} area is {oi['area'][:1].lower() + oi['area'][1:]}, found through {basis}; evidence "
+                                       f"readiness is {(oi['band'] or 'unknown').lower()} and confidence is {oi['confidence']}.", "url": url}))
+    elif oi is not None:
+        out.append(("impact", {"text": f"No public record names an {impact_label.lower()} area yet.", "url": None}))
+    elif band_of.get(impact_label, "unknown") != "unknown":
+        out.append(("impact", {"text": f"{impact_label} is {band_of[impact_label]}.", "url": None}))
+    for key in ("business", "investment"):
+        label = labels.get(key, key)
+        w = by_label.get(label)
+        if w and band_of.get(label, "unknown") != "unknown":
+            out.append((key, {"text": f"{label} is {band_of[label]}: {_lc(words_only(_after_colon(w['text'])).rstrip('.'))}.", "url": w.get("url")}))
+    gaps = [n.lower() for n in rec.get("needs") or [] if oi is None or n.lower() != impact_label.lower()]
+    if gaps:
+        out.append(("missing", {"text": "No public record yet for " + _and(gaps[:3]) + ".", "url": None}))
+    now = next((w for w in why if w["text"].startswith("Why now:")), None)
+    if now:
+        out.append(("now", {"text": words_only(now["text"]).rstrip(".") + ".", "url": now.get("url")}))
+    label = labels.get("technology", "technology")
+    w = by_label.get(label)
+    if w and band_of.get(label, "unknown") != "unknown":
+        out.append(("technology", {"text": f"{label} is {band_of[label]}: {_lc(words_only(_after_colon(w['text'])).rstrip('.'))}.", "url": w.get("url")}))
+    return [b for _, b in out[:MAX_BULLETS]]
+
+
 def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=None) -> dict | None:
     """The memo, or None when the company is not in the database."""
     ctx = matching.company_context(conn, company_key)
@@ -315,9 +389,14 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
     if tech_band == UNKNOWN:
         risks.append({"text": f"No public evidence for {labels.get('technology', 'technology').lower()}", "url": None})
 
-    return {"company_key": company_key, "name": c["name"], "recommendation": rec, "why": why, "risks": risks,
-            "actions": _actions(decision, nxt, step, unknown, labels, c, ctx["sigs"]),
-            "levels": {**{d: {"band": bands[d]} for d in TABLE_DIMS}, "technology": {"band": tech_band}}, "as_of": t.isoformat()}
+    oi = ocean_impact.assess(conn, ctx, company_key, thesis) if ocean_impact.settings(thesis) else None
+    out = {"company_key": company_key, "name": c["name"], "recommendation": rec, "why": why, "risks": risks,
+           "actions": _actions(decision, nxt, step, unknown, labels, c, ctx["sigs"]),
+           "levels": {**{d: {"band": bands[d]} for d in TABLE_DIMS}, "technology": {"band": tech_band}}, "as_of": t.isoformat(),
+           "plain_why": plain_bullets(rec, why, oi, labels)}
+    if oi is not None:  # a thesis that defines no impact areas (the health swap) has no assessment and no such key
+        out["ocean_impact"] = oi
+    return out
 
 
 def for_template(company_key: str, thesis: dict) -> dict | None:
@@ -329,3 +408,4 @@ def for_template(company_key: str, thesis: dict) -> dict | None:
         return build(conn, thesis, company_key)
     finally:
         conn.close()
+

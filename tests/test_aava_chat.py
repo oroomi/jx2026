@@ -290,14 +290,49 @@ def test_tts_streams_audio_strips_markdown_and_stops_at_the_daily_cap(client, mo
     monkeypatch.setattr(httpx, "stream", fake_stream)
     monkeypatch.setenv("ELEVENLABS_API_KEY", "xi-test")
     monkeypatch.setenv("AAVA_TTS_DAILY_CHARS", "60")
+    monkeypatch.setenv("ELEVENLABS_MODEL_LIVE", "eleven_multilingual_v2")
     r = client.post("/api/aava/tts", json={"text": f"Open [Viva Jets Oy](/c/{VIVA}) now."}, headers=DEMO)
     assert r.status_code == 200 and r.headers["content-type"] == "audio/mpeg" and r.content == b"ID3fake-mp3"
-    assert sent["json"]["text"] == "Open Viva Jets Oy now." and "Xb7hH8MSUJpSbSDYk0k2" in sent["url"] and sent["headers"]["xi-api-key"] == "xi-test"
-    assert client.post("/api/aava/tts", json={"text": "y" * 45}, headers=DEMO).status_code == 429       # 22 + 45 > 60
+    assert sent["json"]["text"] == "Open Viva Jets now." and "cgSgspJ2msm6clMCkdW9" in sent["url"] and sent["headers"]["xi-api-key"] == "xi-test"
+    assert sent["json"]["voice_settings"]["use_speaker_boost"] is True and "output_format=mp3_44100_128" in sent["url"]
+    assert client.post("/api/aava/tts", json={"text": "y" * 45}, headers=DEMO).status_code == 429       # 19 + 45 > 60
     monkeypatch.setenv("ELEVENLABS_VOICE_ID_LIVE", "VoiceXYZ")
     aava_chat.limiter.reset()
     client.post("/api/aava/tts", json={"text": "Hi"}, headers=DEMO)
     assert "VoiceXYZ" in sent["url"]
+
+
+def test_the_spoken_text_says_dates_like_a_person_drops_legal_suffixes_and_cues_only_eleven_v3():
+    from datetime import datetime, timezone
+    year = datetime.now(timezone.utc).year
+    text = f"[Since Labs Oy](/c/3661949-7) registered on 11 October {year}; Arctic Fry Oy on 5 October 2020."
+    assert aava_chat.spoken(text, "eleven_multilingual_v2") == "Since Labs registered on October eleventh; Arctic Fry on October fifth, 2020."
+    assert aava_chat.spoken(text, "eleven_v3").startswith("[warmly] Since Labs registered on October eleventh;")
+    assert aava_chat.spoken("Business Turku's Startup Hub", "eleven_v3") == "[warmly] Business Turku's Startup Hub"
+    assert aava_chat.spoken("", "eleven_v3") == ""
+
+
+def test_prepare_hands_back_an_address_that_streams_once_and_replays_from_memory(client, monkeypatch):
+    import httpx
+    calls = []
+
+    def fake_stream(method, url, json=None, headers=None, timeout=None):
+        calls.append({"url": url, "json": json})
+        return _FakeAudio()
+
+    monkeypatch.setattr(httpx, "stream", fake_stream)
+    assert client.post("/api/aava/tts/prepare", json={"text": "Hi"}).status_code == 403          # demo header required
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "xi-test")
+    monkeypatch.setenv("ELEVENLABS_MODEL_LIVE", "eleven_v3")
+    aava_chat.limiter.reset()
+    url = client.post("/api/aava/tts/prepare", json={"text": "Since Labs Oy is new."}, headers=DEMO).json()["url"]
+    assert url.startswith("/api/aava/tts/play/") and not calls                                 # nothing is spoken until the page plays it
+    first = client.get(url)
+    assert first.status_code == 200 and first.headers["content-type"] == "audio/mpeg" and first.content == b"ID3fake-mp3"
+    assert calls[0]["json"]["text"] == "[warmly] Since Labs is new." and calls[0]["json"]["model_id"] == "eleven_v3"
+    assert set(calls[0]["json"]["voice_settings"]) == {"stability", "similarity_boost"}            # v3 gets no style or speaker boost
+    assert client.get(url).content == b"ID3fake-mp3" and len(calls) == 1                           # a second read is served from memory
+    assert client.get("/api/aava/tts/play/not-a-token").status_code == 404
 
 
 def test_a_turn_with_no_answer_ends_in_the_deterministic_one(client, monkeypatch):

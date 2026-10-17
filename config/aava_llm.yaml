@@ -16,7 +16,13 @@ defaults:
                                       # tool, one more call (tool_choice none) must answer, so the hard ceiling is this plus one
   AAVA_TURN_DEADLINE_S: 75            # the whole turn, tools included
   AAVA_TTS_DAILY_CHARS: 8000          # ElevenLabs characters per UTC day for the spoken answer; the voice only runs when ELEVENLABS_API_KEY is set
-  ELEVENLABS_VOICE_ID_LIVE: Xb7hH8MSUJpSbSDYk0k2   # Alice (owner picked from four samples on 17 Oct; was Rachel 21m00Tcm4TlvDq8ikWAM)
+  ELEVENLABS_VOICE_ID_LIVE: cgSgspJ2msm6clMCkdW9   # Jessica, on eleven_v3 (owner picked from a warmth test on 17 Oct, 20:30 UTC; before: Alice Xb7hH8MSUJpSbSDYk0k2, Rachel 21m00Tcm4TlvDq8ikWAM)
+  ELEVENLABS_MODEL_LIVE: eleven_v3   # ElevenLabs model for the spoken answer. Measured 17 Oct on one 373-character answer: eleven_v3 sends its first
+                                      # audio after 0.55 s, eleven_multilingual_v2 after 2.6 s; the page plays the stream as it arrives
+  ELEVENLABS_FORMAT_LIVE: mp3_44100_128   # full-quality speech (was mp3_44100_64)
+  ELEVENLABS_STABILITY: 0.5          # eleven_v3 takes 0.0, 0.5 or 1.0; the older models any value from 0 to 1
+  ELEVENLABS_SIMILARITY: 0.8
+  ELEVENLABS_STYLE: 0.25             # older models only (eleven_v3 ignores style and speaker boost, so they are not sent to it)
 limits:
   input_chars: 500                    # the newest user message
   history_turns: 12                   # messages of session history kept

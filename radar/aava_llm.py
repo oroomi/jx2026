@@ -45,10 +45,11 @@ EXIT_BLOCKED = 3
 # turn that ends the loop (no data tool in it) is the answer. Its closing `Follow-ups: a? | b? | c?` line becomes the page's buttons (aava_tools.split_followups).
 # The two notes below are the only messages the code adds.
 LAST_ROUND_NOTE = ("This is your last round. Do not call a data tool again: write the answer now from what the tools returned, ending with the Follow-ups line.")
-ANSWER_NOW = ("Write your answer now, in this turn, from the tool results you already have: 2 to 4 sentences that name the companies with one concrete fact each, then why, "
-              "then one next step, then the Follow-ups line. Do not call a tool.")
-ANSWER_SHAPE = ("Answer shape, every time: three short paragraphs (the direct answer in at most 4 sentences naming at most 3 companies, why in at most 2 sentences, "
-                "the next step in 1 sentence), about 100 words in all, no bold, no bullets, then the Follow-ups line. Nothing is written before the tool calls are done.")
+ANSWER_NOW = ("Write your answer now, in this turn, from the tool results you already have: one short paragraph, at most 60 words, naming the companies with one "
+              "concrete fact each, why, and one next step, then the Follow-ups line. Do not call a tool.")
+ANSWER_SHAPE = ("Answer shape, every time: it is read aloud in a room, so ONE short paragraph, no line breaks: the direct answer naming at most 3 companies, "
+                "why, and one next step, at most 60 words in all (a greeting or thanks: 1 or 2 sentences; a follow-up: at most 45 words, no fact repeated). "
+                "No bold, no bullets, then the Follow-ups line. Nothing is written before the tool calls are done.")
 TOOL_LABELS = {"search_startups": "searching the list", "get_startup": "reading the company record", "explain_match": "checking the match",
                "list_organisations": "looking up organisations", "get_current_view": "looking at your screen", "apply_filters": "setting the filters"}
 _NO_THINKING: set[str] = set()      # models whose API rejected the thinking parameters (this process): later calls skip them
@@ -68,6 +69,11 @@ class Settings:
     turn_deadline_s: float
     tts_daily_chars: int
     voice_id: str
+    voice_model: str = "eleven_multilingual_v2"
+    voice_format: str = "mp3_44100_128"
+    voice_stability: float = 0.5
+    voice_similarity: float = 0.8
+    voice_style: float = 0.0
     limits: dict = field(default_factory=dict)
     budget_models: list = field(default_factory=list)
     effort_from_budget: list = field(default_factory=list)
@@ -83,6 +89,10 @@ def _yaml() -> dict:
     if _yaml_cache is None or _yaml_cache[0] != m:
         _yaml_cache = (m, yaml.safe_load(CONFIG_PATH.read_text(encoding="utf-8")) or {})
     return _yaml_cache[1]
+
+
+def _or(value, default):
+    return default if value is None else value
 
 
 def settings() -> Settings:
@@ -105,6 +115,9 @@ def settings() -> Settings:
         timeout_s=get("AAVA_TIMEOUT_S", float), daily_cap=get("AAVA_DAILY_CAP", int), rate_per_min=get("AAVA_RATE_PER_MIN", int),
         effort=get("AAVA_EFFORT", str) or "", max_steps=get("AAVA_MAX_STEPS", int), turn_deadline_s=get("AAVA_TURN_DEADLINE_S", float),
         tts_daily_chars=get("AAVA_TTS_DAILY_CHARS", int), voice_id=get("ELEVENLABS_VOICE_ID_LIVE", str),
+        voice_model=get("ELEVENLABS_MODEL_LIVE", str) or "eleven_multilingual_v2", voice_format=get("ELEVENLABS_FORMAT_LIVE", str) or "mp3_44100_128",
+        voice_stability=_or(get("ELEVENLABS_STABILITY", float), 0.5), voice_similarity=_or(get("ELEVENLABS_SIMILARITY", float), 0.8),
+        voice_style=_or(get("ELEVENLABS_STYLE", float), 0.0),
         limits=dict(y.get("limits") or {}), budget_models=list(y.get("budget_models") or []),
         effort_from_budget=list(y.get("effort_from_budget") or []), prices=dict(y.get("prices") or {}))
 

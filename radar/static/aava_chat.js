@@ -202,9 +202,10 @@
     /* Speak a chat answer: ElevenLabs through the server when it is configured, else resolves null and the browser voice is used. */
     audioFor: function (text) {
       if (!status.tts || !text) return Promise.resolve(null);
-      return fetch("/api/aava/tts", { method: "POST", headers: { "Content-Type": "application/json", "X-Aava-Demo": "1" }, body: JSON.stringify({ text: text }) })
-        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.blob(); })
-        .then(function (b) { return URL.createObjectURL(b); })
+      /* prepare returns a one-off address the audio element plays while it streams: speech starts in about a second */
+      return fetch("/api/aava/tts/prepare", { method: "POST", headers: { "Content-Type": "application/json", "X-Aava-Demo": "1" }, body: JSON.stringify({ text: text }) })
+        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (j) { return j && j.url ? j.url : null; })
         .catch(function () { return null; });
     },
     /* Ask. Resolves with {text, plain, keys, items, fallback} when the answer is complete, or null when it was stopped or never arrived. */

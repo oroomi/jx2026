@@ -301,16 +301,28 @@ def _level_rule(level: int | None, cfg: dict, recs, programme, declared) -> str:
     return f"Level {level}: {rung.get('rule', '')}" + (" On file: " + "; ".join(used) + "." if used else "")
 
 
+def _families(recs: list[dict], programme: list[dict], declared: dict | None) -> set[str]:
+    """The independent source families behind the assessment: the same set the confidence line counts (`_confidence`)."""
+    support = list(recs) + list(programme)
+    if declared and declared["ok_confidence"] and declared["rec"]:
+        support.append(declared["rec"])
+    return {r["family"] for r in support}
+
+
 def _raise(level: int | None, cfg: dict, recs, programme, declared) -> str:
+    """The record that would lift the company one rung. It never asks for a second source family when the evidence already holds two
+    (the confidence line says so): it then names the next rung's own record (D52, `raise_next_rung` of the rung in the thesis file)."""
     if level is None:
         return (cfg.get("no_level") or {}).get("raise") or ""
-    text = next((r.get("raise") for r in cfg.get("levels") or [] if r.get("level") == level), "") or ""
+    rung = next((r for r in cfg.get("levels") or [] if r.get("level") == level), {})
+    text = rung.get("raise") or ""
     if level == 6 and declared and declared["rec"] and not declared["ok_confidence"]:
         text = "A better-sourced declared research reading: the one on file is low confidence and sets no rung."
     if level == 5:
         families = {r["family"] for r in recs}
         if programme and len(families) < 2:
-            text = "A second independent source family that names the same area."
+            text = rung.get("raise_next_rung") if len(_families(recs, programme, declared)) >= 2 and rung.get("raise_next_rung") \
+                else "A second independent source family that names the same area."
         elif not programme and len(families) >= 2:
             text = "A listing on a blue programme or portfolio page."
     return text

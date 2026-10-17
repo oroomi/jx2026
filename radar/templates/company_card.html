@@ -1,6 +1,6 @@
 {# The six-row card, "What the public record says" (design C). Rule-written from what the company page already holds:
    register, fit reasons, framework levels, who comes next, the decision table. Every answer cites numbered sources;
-   a row with nothing behind it is left out (Dayo's no-empties rule). Context: c, reasons, fw, nxt, step, signals, rec, watch. #}
+   a row with nothing behind it is left out (Dayo's no-empties rule). Context: c, reasons, fw, nxt, step, signals, rec, m, watch. #}
 {% set srcs = [] %}
 {% macro cite(url, label) -%}
 {%- if url -%}{%- if url not in srcs | map(attribute=0) | list -%}{%- set _ = srcs.append((url, label)) -%}{%- endif -%}
@@ -17,9 +17,11 @@
 {% for k in ("investors", "public_funding", "buyers", "project_partners", "research_institutes") %}{% if nxt[k] %}{% set x = nxt[k][0] %}{% set _ = meet.append((x.name | e) ~ (" (deadline " ~ x.deadline ~ ")" if x.deadline else "") ~ cite(x.source_url, x.name)) %}{% endif %}{% endfor %}
 {% if meet %}{% set _ = rows.append(("Who to meet", meet | join("; ") ~ ".")) %}{% endif %}
 {% set latest = signals | sort(attribute="date") | last if signals else none %}
-{% if step.rule == 4 and latest %}{% set todo = "Check in with the company. Its latest public record is from " ~ (latest.date_label or latest.date) ~ "." %}
-{% elif step.sentence %}{% set todo = (step.sentence | e) ~ "." %}{% else %}{% set todo = none %}{% endif %}
-{% if todo %}{% set _ = rows.append(("What the fund should do", todo ~ cite(step.source_url or c.source_url, "decision table, rule " ~ step.rule))) %}{% endif %}
+{% set ns = next_step_for(m, step, thesis) if m is defined and m else none %}
+{% if ns %}{% set todo = (ns.sentence | e) ~ ((" A concrete first step on file: " ~ (ns.concrete.sentence | e) ~ ".") if ns.concrete else "") %}
+{% elif step.rule == 4 and latest %}{% set todo = "Check in with the company. Its latest public record is from " ~ (latest.date_label or latest.date) ~ "." %}
+{% elif step.rule in [1, 2, 3] and step.sentence %}{% set todo = (step.sentence | e) ~ "." %}{% else %}{% set todo = none %}{% endif %}
+{% if todo %}{% set _ = rows.append(("What the fund should do", todo ~ cite((ns.concrete.source_url if ns and ns.concrete else none) or (ns.source_url if ns else step.source_url) or c.source_url, "decision table: " ~ (ns.rule if ns else "rule " ~ step.rule)))) %}{% endif %}
 {% if watch %}{% set w = watch | join(", ") %}{% set _ = rows.append(("Watch for", w[0] | upper ~ w[1:] ~ ".")) %}{% endif %}
 {% if rows %}
 <div class="cc-card" id="card">

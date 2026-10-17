@@ -108,9 +108,10 @@ def test_own_text_still_lifts_a_utility_code_to_high(conn):
     assert m["levels"]["fit"]["band"] == "High" and m["recommendation"]["kind"] == "fallback" and m["recommendation"]["decision"] == "ACCELERATOR"
 
 
-def test_a_declared_member_on_a_utility_code_keeps_at_least_medium(conn):
+def test_a_declared_member_on_a_utility_code_reads_high(conn):
+    """D47 raises the floor of a declared cohort or portfolio member from Medium to High, so the utility code (Medium, D22) is lifted."""
     _company(conn, "9500004-1", "Plain Declared Utility Oy", "37000", tag="portfolio")
-    assert _memo(conn, "9500004-1")["levels"]["fit"]["band"] == "Medium"
+    assert _memo(conn, "9500004-1")["levels"]["fit"]["band"] == "High"
 
 
 @needs_snapshot
@@ -168,10 +169,12 @@ def test_the_category_keyword_is_the_whole_word_not_the_stem():
 
 
 def test_the_impact_reason_prints_no_quoted_stem(conn):
-    _company(conn, "9500006-1", "Plain Fry Oy", "03220", desc="Freshwater aquaculture")
+    """The impact line of the memo is the Ocean Impact ladder's (D46): level and area in words, never a quoted word stem."""
+    _company(conn, "9500006-1", "Plain Fry Oy", "03220", desc="Freshwater aquaculture",
+             extra=[("eu_project", "cordis", {"objective": "A project on freshwater aquaculture."})])
     m = _memo(conn, "9500006-1")
     text = next(w["text"] for w in m["why"] if w["text"].startswith("Ocean impact"))
-    assert text == "Ocean impact Medium: works in the aquatech category (matched on the word aquaculture)"
+    assert text == "Ocean impact Medium: evidence readiness is level 5 of 9 (sustainable ocean resources: aquaculture and fisheries)"
     assert "keyword '" not in text and "aquacultur)" not in text
 
 

@@ -144,7 +144,8 @@ def test_who_to_meet_uses_only_list_names(kelluu):
 
 def test_fund_slot_must_match_the_memo_verdict(kelluu):
     exp, th = kelluu
-    assert exp["memo"]["decision"] == "WATCHLIST"
+    assert exp["memo"]["decision"] == "ACCELERATOR"  # a declared member reads High fit since D47, so the fallback reaches it
+    exp = {**exp, "memo": {**exp["memo"], "decision": "WATCHLIST", "matched": None}}  # the verifier is pinned on a watchlist export here
     f = briefs.Facts(exp)
     assert briefs.verify_slot("what_the_fund_should_do", sent("Keep it on the watchlist until a new public record appears.", PRH), exp, f, th) is None
     assert briefs.verify_slot("what_the_fund_should_do", sent("Start due diligence now.", PRH), exp, f, th)

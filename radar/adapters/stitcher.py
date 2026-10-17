@@ -109,6 +109,8 @@ turku helsinki espoo tampere oulu vaasa rauma kotka naantali uusikaupunki copenh
 denmark sweden norway spain estonia germany europe america
 january february march april may june july august september october november december
 monday tuesday wednesday thursday friday saturday sunday
+significant funding funded receives received closes closed announces announced groundbreaking pioneers generation software
+platform solution solutions system systems service services product products launch launches launched era next
 """.split())
 _CAP = r"[A-ZÅÄÖÜÉÆØ][a-zåäöüéèæø'\-]+"
 _PERSON_RUN = re.compile(rf"\b{_CAP}(?:\s+{_CAP}){{1,2}}\b")
@@ -360,7 +362,9 @@ def redact_people(text: str, company_name: str) -> str:
 
     def sub(m: re.Match) -> str:
         words = fold(m.group(0)).split()
-        return m.group(0) if any(w in own or w in _NOT_PERSON for w in words) else "[name]"
+        keep = any(w in own or w in _NOT_PERSON for w in words) or any(_hits(ws, " " + " ".join(words) + " ")
+                                                                       for ws in TYPE_WORDS.values())
+        return m.group(0) if keep else "[name]"
     return _PERSON_RUN.sub(sub, text or "")
 
 
@@ -666,12 +670,14 @@ def recheck_event(company: dict, k: dict, page_text: str) -> tuple[bool, str]:
     t = k["signal_type"]
     if t == "unmapped":  # never emitted; checked for quote and company so the reported labels are real events
         return True, f"second pass: quote on the re-fetched page; {where}; type not checked (unmapped, never emitted)"
-    words = _hits(TYPE_WORDS.get(t, ()), q)
+    # the type is read from the page's own words at the quote: redaction hides names from storage, never from this check
+    said = q + folded[span[0]:span[1]] + " "
+    words = _hits(TYPE_WORDS.get(t, ()), said)
     if t not in TYPE_WORDS:
         return False, f"type_not_emittable: {t}"
     if not words:
         return False, f"type_not_in_quote: no {t} word in the quote ({', '.join(w.rstrip('*') for w in TYPE_WORDS[t][:6])} ...)"
-    if t == "award" and _hits(_NOMINATION, q) and not _hits(_WIN, q):
+    if t == "award" and _hits(_NOMINATION, said) and not _hits(_WIN, said):
         return False, "nomination_not_award: the quote names a finalist or nomination place, not a win"
     if k["date_precision"] == "year":
         y = k["date"][:4]

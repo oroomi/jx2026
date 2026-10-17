@@ -385,3 +385,20 @@ def test_backtest_page_prints_the_separate_stitcher_line(conn, monkeypatch):
     line = t.split('id="stitcher-early"')[1].split("</div>")[0]
     assert "Counted apart, never added to the groups above" in line and "<strong>1</strong> of 19" in line
     assert f'href="/c/{EYE}#stitch"' in line and "2025-03-09" in line
+
+
+
+def test_title_case_headlines_keep_their_event_words():
+    assert stitcher.redact_people("Redkik Closes an Investment Round of $3.3 Million", "Redkik Oy") == \
+        "Redkik Closes an Investment Round of $3.3 Million"
+    assert stitcher.redact_people("Viva Jets Receives Significant Funding from the Fund", "Viva Jets Oy") == \
+        "Viva Jets Receives Significant Funding from the Fund"
+    assert stitcher.redact_people("CEO Jane Doe said", "Viva Jets Oy") == "CEO [name] said"
+
+
+def test_type_is_read_from_the_page_words_under_a_redacted_quote():
+    c = {"company_key": "x", "name": "Fixture Oy", "y_tunnus": None, "website": None}
+    page = "3 June 2022. Fixture Oy closes an Mega Raise of EUR 2M."
+    ev = kept("funding_round", "Fixture Oy closes an [name] of EUR 2M.")  # the stored quote lost the word 'Raise'
+    ok, why = stitcher.recheck_event(c, ev, page)
+    assert ok and "raise" in why

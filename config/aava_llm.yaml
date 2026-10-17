@@ -16,7 +16,7 @@ defaults:
                                       # tool, one more call (tool_choice none) must answer, so the hard ceiling is this plus one
   AAVA_TURN_DEADLINE_S: 75            # the whole turn, tools included
   AAVA_TTS_DAILY_CHARS: 8000          # ElevenLabs characters per UTC day for the spoken answer; the voice only runs when ELEVENLABS_API_KEY is set
-  ELEVENLABS_VOICE_ID_LIVE: 21m00Tcm4TlvDq8ikWAM   # Rachel
+  ELEVENLABS_VOICE_ID_LIVE: Xb7hH8MSUJpSbSDYk0k2   # Alice (owner picked from four samples on 17 Oct; was Rachel 21m00Tcm4TlvDq8ikWAM)
 limits:
   input_chars: 500                    # the newest user message
   history_turns: 12                   # messages of session history kept

@@ -292,7 +292,7 @@ def test_tts_streams_audio_strips_markdown_and_stops_at_the_daily_cap(client, mo
     monkeypatch.setenv("AAVA_TTS_DAILY_CHARS", "60")
     r = client.post("/api/aava/tts", json={"text": f"Open [Viva Jets Oy](/c/{VIVA}) now."}, headers=DEMO)
     assert r.status_code == 200 and r.headers["content-type"] == "audio/mpeg" and r.content == b"ID3fake-mp3"
-    assert sent["json"]["text"] == "Open Viva Jets Oy now." and "21m00Tcm4TlvDq8ikWAM" in sent["url"] and sent["headers"]["xi-api-key"] == "xi-test"
+    assert sent["json"]["text"] == "Open Viva Jets Oy now." and "Xb7hH8MSUJpSbSDYk0k2" in sent["url"] and sent["headers"]["xi-api-key"] == "xi-test"
     assert client.post("/api/aava/tts", json={"text": "y" * 45}, headers=DEMO).status_code == 429       # 22 + 45 > 60
     monkeypatch.setenv("ELEVENLABS_VOICE_ID_LIVE", "VoiceXYZ")
     aava_chat.limiter.reset()

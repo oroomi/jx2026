@@ -259,7 +259,8 @@ def test_the_fallback_names_the_same_list_and_links_the_match_page(th):
             page = matchmaker.match_org(oid, th, conn=conn)
             assert got["intent"] == "match" and got["url"].startswith(f"/match?org={oid}"), q
             first = [s["name"] for s in page["startups"][:3]]
-            assert f"ranks {', '.join(first[:-1])} and {first[-1]} first" in got["say"], q
+            assert f"the match view puts {', '.join(first[:-1])} and {first[-1]} first" in got["say"], q
+            assert "ranked" not in got["say"] and ("already connected" in got["say"]) == bool(page["connected"]), q      # D38
             assert [i["url"] for i in got["items"]] == [f"/c/{s['key']}" for s in page["startups"][:5]], q
     finally:
         conn.close()

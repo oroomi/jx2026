@@ -292,15 +292,15 @@ def match_answer(q: str, org: dict, cfg: dict, has_match: bool, thesis_id: str |
     url = f"/match?{urlencode({'org': org.get('id') or org['name'], **({'thesis': thesis_id} if thesis_id else {})})}"
     rank = _match_list(th, org.get("id")) if has_match else None
     rows = (rank or {}).get("rows") or []
-    if rows:      # D77: the same startups, in the same order, as the match view (and the model's get_org_matches)
+    if rows:      # D77: the same startups, in the same order, as the match view (and the model's get_org_matches); D38: the connected apart
         first = [r["name"] for r in rows[:3]]
-        say += f" The match view ranks {', '.join(first[:-1])} and {first[-1]} first." if len(first) > 1 else f" The match view ranks {first[0]} first."
+        say += f" Of the startups that fit it, the match view puts {', '.join(first[:-1]) + ' and ' + first[-1] if len(first) > 1 else first[0]} first"
+        say += f"; the {rank['connected']} companies it is already connected to are listed apart." if rank.get("connected") else "."
         if rank.get("note"):
             say += " " + rank["note"]
-    elif rank and rank.get("closed_note"):      # D76: a closed call is said only one way
-        say += f" No startup is ranked for it: {matching.closed_words(rank['closed_note'])}."
-    elif rank and rank.get("empty_reason"):
-        say += f" No startup is ranked for it: {rank['empty_reason']}"
+    elif rank and (rank.get("closed_note") or rank.get("empty_reason")):
+        why = matching.closed_words(rank["closed_note"]) + "." if rank.get("closed_note") else rank["empty_reason"]     # D76: a closed call is said one way
+        say += f" No startup is listed for it: {why}" + (" The companies it is already connected to are on the match view." if rank.get("connected") else "")
     elif has_match:
         say += " The match view lists the startups that fit it and the companies it is already connected to."
     return answer("match", q, say, url=url if has_match else None, action="open" if has_match else "none", label="Open the match view",

@@ -73,3 +73,15 @@ memo:
 
 # Sources the /data page's Refresh button re-reads (names from radar/refresh.py STEPS): the fast live ones only.
 refresh_adapters: [prh_notices, prh_recent]
+
+# Wide intake (jx28): startup-shaped companies are taken in wide, then thesis fit is graded by evidence. Config only: no code reads these words.
+# A company enters intake on the date its `min_signals`-th startup signal (a type from `startup_signals`, not the register entry) is dated,
+# provided its legal form is in `company_forms` (limited companies and cooperatives, never sole traders) and its industry code starts with
+# one of `code_prefixes` or is a code listed under industry_codes.
+intake:
+  company_forms:
+    - {code: "16", note: "Limited company (PRH company form 16)"}
+    - {code: "14", note: "Cooperative (PRH company form 14)"}
+  code_prefixes: ["21", "26", "32", "62", "63", "72"]
+  min_signals: 1
+  startup_signals: [first_sales, first_hire, eu_project, eu_grant, research_output, bf_funding, startup_notice, equity_event, public_funding]

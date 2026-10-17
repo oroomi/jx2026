@@ -7,10 +7,10 @@ def rows(today_minus):
     return [
         HEADER,
         f"Fixture Mere OÜ;90000001;Osaühing;R;{ee(30)};https://ariregister.rik.ee/est/company/90000001;62010",        # name keyword 'mere' -> medium
-        f"Fixture Kood OÜ;90000002;Osaühing;R;{ee(31)};;03211",        # EMTAK code in the thesis -> low
+        f"Fixture Kood OÜ;90000002;Osaühing;R;{ee(31)};;03210",        # EMTAK code in the thesis -> low
         f"Fixture Muu OÜ;90000003;Osaühing;R;{ee(32)};;62010",         # nothing matches -> skipped
-        f"Fixture Vana Mere OÜ;90000004;Osaühing;R;{ee(900)};;03211",  # registered long ago -> outside the window
-        f"Fixture Mere FIE;90000005;FIE;R;{ee(10)};;03211",      # sole trader, not a company
-        f"Fixture Lõpetatud Mere OÜ;90000006;Osaühing;K;{ee(10)};;03211",  # deleted from the register
+        f"Fixture Vana Mere OÜ;90000004;Osaühing;R;{ee(900)};;03210",  # registered long ago -> outside the window
+        f"Fixture Mere FIE;90000005;FIE;R;{ee(10)};;03210",      # sole trader, not a company
+        f"Fixture Lõpetatud Mere OÜ;90000006;Osaühing;K;{ee(10)};;03210",  # deleted from the register
         f"Fixture Laev AS;90000007;Aktsiaselts;R;{ee(12)};;",             # keyword 'laev', no EMTAK code stated
     ]

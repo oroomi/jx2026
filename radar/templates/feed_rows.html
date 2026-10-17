@@ -13,6 +13,19 @@
   </li>
 {% endmacro %}
 
+{% macro intake_row(r) %}
+  <li class="feed-row">
+    <a class="co" href="/c/{{ r.company_key }}">{{ r.name }}</a>
+    <p class="meta">{{ r.signal.label }} <span class="sep">/</span> <time datetime="{{ r.signal.date }}">{{ r.signal.date_label or r.signal.date }}</time> <span class="sep">/</span> {{ r.n }} startup signal{{ "s" if r.n != 1 }}</p>
+    <p class="why why-weak">{{ r.why }} <span class="hatch">Thesis fit: no public evidence yet</span></p>
+    {% if r.signal.detail %}<p class="detail">{{ r.signal.detail }}</p>{% endif %}
+    <div class="proof">
+      {{ chip(r.evidence) }}
+      <span class="conf conf-{{ r.signal.confidence }}">How sure: {{ r.signal.confidence }}</span>
+    </div>
+  </li>
+{% endmacro %}
+
 {# Partial: pills, list and footer. Swapped into #feed-rows by htmx and included by feed.html. #}
 <nav class="pills" aria-label="Filter by kind of public record">
   <a class="pill" href="/" hx-get="/feed/rows" hx-target="#feed-rows" hx-push-url="/" {% if not selected %}aria-current="true"{% endif %}>All <span class="n">{{ total }}</span></a>
@@ -53,6 +66,16 @@
   <p class="answer">no signals of this type in the window</p>
   <p><a href="/" hx-get="/feed/rows" hx-target="#feed-rows" hx-push-url="/">Show all kinds of public record</a></p>
 </section>
+{% endif %}
+
+{% if intake_rows %}
+<details class="weak intake" id="intake-tier">
+  <summary>New startups, no thesis evidence yet ({{ intake_rows | length }}): taken in wide, ranked by startup signals</summary>
+  <p class="rule">{{ intake_rule }}</p>
+  <ol class="feed" aria-label="New startups with no thesis evidence yet, most startup signals first">
+  {% for r in intake_rows %}{{ intake_row(r) }}{% endfor %}
+  </ol>
+</details>
 {% endif %}
 
 <footer class="chiprule">

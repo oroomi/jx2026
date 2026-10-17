@@ -6,7 +6,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Request
 
-from radar import emit, fit, frameworks, matching, store, thesis as thesis_mod
+from radar import emit, fit, frameworks, intake as intake_mod, matching, store, thesis as thesis_mod
 from radar.routes.home import ROOT, _has_route, templates
 
 router = APIRouter()
@@ -128,4 +128,5 @@ def method(request: Request):
         "window_days": geo["feed_window_days"], "age_cut": geo.get("stage_max_company_age_years"),
         "counts": counts, "eco": eco, "partners": store.partner_orgs(), "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
         "declared": declared, "sources": src, "no_db": conn is None, "connectors": CONNECTOR_SLOTS, "fw": frameworks.assess({}, []),
+        "intake_rule": intake_mod.rule_text(th), "intake_note": intake_mod.tuning_note(th),
         "active": "method", "has_route": _has_route(request)})

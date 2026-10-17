@@ -61,7 +61,17 @@
 {% include "company_memo.html" %}
 <section id="q1" class="q q-fit">
   <h2><span class="num">01</span> Who is most promising</h2>
-  {% if reasons %}
+  {% if intake and not intake.evidence %}
+  <p class="plain" id="thesis-fit"><span class="hatch">Thesis fit: no public evidence yet</span></p>
+  {% if intake.signals %}
+  <p class="plain">It is in the radar as a startup. {{ intake.signals | length }} startup signal{{ "s" if intake.signals | length != 1 }} brought it in, the first on {{ intake.signals[0].date_label or intake.signals[0].date }}:</p>
+  <ul class="reasons intake-signals">
+    {% for s in intake.signals %}<li><span class="reason-text">{{ s.type_label }}, {{ s.date_label or s.date }}{% if s.detail %}: {{ s.detail }}{% endif %}</span> {{ chip(s.evidence, True) }}</li>{% endfor %}
+  </ul>
+  {% elif intake.reason %}<p class="rule">Not taken in as a wide-intake startup: {{ intake.reason }}.</p>{% endif %}
+  <p class="rule">{{ intake.why }}</p>
+  {% endif %}
+  {% if reasons and (intake is none or intake.evidence) %}
   <p class="plain">{{ reasons | length }} reason{{ "s" if reasons | length != 1 }} it fits this sector, from public records. First: {{ reasons[0].text }}</p>
   <details class="why-box" open><summary>See why</summary>
   <ol class="reasons">
@@ -71,7 +81,7 @@
   </ol>
   <p class="rule">{{ fit_rule | replace("adapter", "source") }}</p>
   </details>
-  {% else %}
+  {% elif not intake or intake.evidence %}
   <p class="plain">no sector match found in public records; this company entered through {{ entered_via }}.</p>
   <p class="rule">{{ fit_rule | replace("adapter", "source") }}</p>
   {% endif %}

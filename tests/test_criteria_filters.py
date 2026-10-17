@@ -66,7 +66,7 @@ def test_every_row_carries_the_five_criteria_and_the_verdict(H):
                 assert "no public record" in c["title"]
         for k in ("impact", "fit"):
             c = r["criteria"][k]
-            assert c["text"] in (None, "Low", "Medium", "High") or c["text"].endswith(" of 9")
+            assert c["text"] in (None, "Low", "Medium", "High", "Not yet evidenced") or c["text"].endswith(" of 9")
             assert c["text"] is not None or "no public record" in c["title"]
         assert r["criteria"]["verdict"]["text"] == (r["verdict"].capitalize() if r["verdict"] else None)
 

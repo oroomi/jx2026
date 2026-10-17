@@ -187,7 +187,7 @@ def test_tap_caption_highlight_and_stop(live_url):
     sync_api = pytest.importorskip("playwright.sync_api")
     p, browser, page = _page(sync_api, {"width": 390, "height": 800})
     try:
-        page.goto(f"{live_url}/c/{RICH}")
+        page.goto(f"{live_url}/c/{RICH}?demo=1")
         assert page.locator("#aava-open").inner_text() == "Ask Aava"
         assert page.locator("#aava-open").bounding_box()["height"] >= 44
         page.click("#aava-open")
@@ -201,6 +201,57 @@ def test_tap_caption_highlight_and_stop(live_url):
         assert "Stopped" in page.locator("#aava-caption").inner_text()
         time.sleep(2.5)  # nothing advances after stop
         assert "Stopped" in page.locator("#aava-caption").inner_text()
+    finally:
+        browser.close()
+        p.stop()
+
+
+# ---- the demo flag: Aava shows only with demo=1 (or the stored aava_demo = "1"); the public site shows nothing -----------------
+def test_markup_ships_hidden_and_the_flag_check_precedes_it(client):
+    for url in (f"/c/{RICH}", "/"):
+        html = client.get(url).text
+        assert re.search(r'<div id="aava" class="aava" hidden\b', html), url
+        assert "/static/aava.js" not in html.split('<div id="aava"')[0], url
+        assert html.index("aava_demo") < html.index('<div id="aava"'), url  # the inline check sits ahead of the markup: no flash
+
+
+def test_without_the_flag_no_aava_is_visible_and_its_script_is_never_requested(live_url):
+    sync_api = pytest.importorskip("playwright.sync_api")
+    p, browser, page = _page(sync_api, {"width": 390, "height": 800})
+    try:
+        seen = []
+        page.on("request", lambda r: seen.append(r.url))
+        for url in (f"/c/{RICH}", "/", f"/c/{RICH}?demo=0"):
+            page.goto(live_url + url)
+            assert not page.locator("#aava-open").is_visible(), url
+            assert not page.locator("#aava-sheet").is_visible(), url
+            assert not page.locator("#aava-caption").is_visible(), url
+        assert not [u for u in seen if "aava" in u.lower()], seen
+    finally:
+        browser.close()
+        p.stop()
+
+
+def test_demo_one_is_remembered_on_the_device_and_demo_zero_clears_it(live_url):
+    sync_api = pytest.importorskip("playwright.sync_api")
+    p, browser, page = _page(sync_api, {"width": 390, "height": 800})
+    try:
+        page.goto(f"{live_url}/c/{RICH}")
+        assert not page.locator("#aava-open").is_visible()
+        page.goto(f"{live_url}/c/{RICH}?demo=1")
+        assert page.locator("#aava-open").is_visible()
+        assert page.evaluate("localStorage.getItem('aava_demo')") == "1"
+        page.goto(f"{live_url}/c/{RICH}")  # plain URL, same context: localStorage carries it
+        assert page.locator("#aava-open").is_visible()
+        page.goto(f"{live_url}/")  # and the feed
+        assert page.locator("#aava-open").is_visible()
+        page.click("#aava-open")
+        assert page.locator("#aava-sheet").is_visible()  # the script loaded and works on a flagged plain URL
+        page.goto(f"{live_url}/c/{RICH}?demo=0")
+        assert not page.locator("#aava-open").is_visible()
+        assert page.evaluate("localStorage.getItem('aava_demo')") is None
+        page.goto(f"{live_url}/c/{RICH}")
+        assert not page.locator("#aava-open").is_visible()
     finally:
         browser.close()
         p.stop()

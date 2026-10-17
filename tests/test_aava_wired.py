@@ -133,7 +133,7 @@ def test_question_tap_plays_without_a_request(live_url):
         pytest.skip(f"chromium unavailable: {err}")
     try:
         page = browser.new_page(viewport={"width": 390, "height": 800})
-        page.goto(f"{live_url}/c/{VIVA}")
+        page.goto(f"{live_url}/c/{VIVA}?demo=1")
         seen = []
         page.on("request", lambda r: seen.append(r.url))
         page.click("#aava-open")

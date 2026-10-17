@@ -68,7 +68,7 @@
    "status": "blocked"
   }
  ],
- "fetched_at": "2026-10-17T02:29:24Z",
+ "fetched_at": "2026-10-17T02:42:11Z",
  "live_window_blocked": "cvrapi.dk looks up one company by name or CVR number and has no search by registration date or industry code; the open Virk CVR index needs credentials we do not hold",
  "live_window_run": false,
  "register": "cvr",

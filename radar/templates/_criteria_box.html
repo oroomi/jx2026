@@ -1,0 +1,23 @@
+{# One home row's judging criteria: Impact, TRL, BRL, IRL, Fit and the verdict as a ruled box under the name. Included by feed.html inside
+   .hc-row (so the whole row stays one link); `r` is the row and r.criteria is built once per cache warm in radar/home_list.py.
+   A level with no record is a dash whose title says "no public record"; a number appears only when a record sets it. Each cell's title
+   names the rule and the source records the value rests on. #}
+{% set K = r.criteria %}
+{% if K %}
+{% set rank = {"Low": 1, "Medium": 2, "High": 3} %}
+<span class="hc-crit" role="group" aria-label="Judging criteria for {{ r.name }}">
+  {% for key, label in (("impact", "Impact"), ("trl", "TRL"), ("brl", "BRL"), ("irl", "IRL"), ("fit", "Fit")) %}
+  {% set c = K[key] %}
+  {% if c.level is not none %}{% set lv, of = c.level, 9 %}{% elif c.band %}{% set lv, of = rank[c.band], 3 %}{% else %}{% set lv, of = 0, 3 %}{% endif %}
+  <span class="cr cr-{{ key }}{{ '' if c.text else ' cr-empty' }}" title="{{ c.title }}">
+    <span class="cr-l">{{ label }}</span>
+    {% if c.text %}<span class="cr-v">{{ c.text }}</span>{% else %}<span class="cr-v cr-none" aria-hidden="true">-</span><span class="cr-sr">no public record</span>{% endif %}
+    <i class="cr-bar" style="--lv: {{ lv }}; --of: {{ of }}" aria-hidden="true"></i>
+  </span>
+  {% endfor %}
+  <span class="cr cr-verdict{{ '' if K.verdict.text else ' cr-empty' }}" title="{{ K.verdict.title }}">
+    <span class="cr-l">Verdict</span>
+    <span class="cr-v">{{ K.verdict.text or "-" }}</span>
+  </span>
+</span>
+{% endif %}

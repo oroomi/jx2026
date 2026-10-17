@@ -10,6 +10,7 @@ Every group is ordered by verdict strength (INVEST, DUE DILIGENCE, ACCELERATOR, 
 WATCHLIST), then thesis-fit band, then the latest record; "New this quarter" stays newest record first.
   ready   = memo investment readiness band High
   country = companies.country
+Each row also carries `criteria` (impact, trl, brl, irl, fit, verdict as the row prints them) and `facets` (what the filter rail offers).
 Memos are the slow part (about 0.1 s each), so the list is cached per thesis and database file modification time,
 and warmed once in a background thread when the app starts.
 """
@@ -42,6 +43,128 @@ def _db_stamp(conn) -> str:
 def _window(thesis: dict, today: date) -> tuple[str, str]:
     days = int((thesis.get("geography") or {}).get("feed_window_days") or 90)
     return (today - timedelta(days=days)).isoformat(), today.isoformat()
+
+SCALE_MAX = 9            # TRL, BRL, IRL and the ocean impact level all run 1 to 9
+DEADLINE_DAYS = 90       # "has a programme deadline in 90 days"
+BANDS = ("Low", "Medium", "High")
+NONE = "none"            # facet value for "no public record"
+
+
+def _band_range(level: int | None, spec: dict | None) -> str:
+    """The Low / Medium / High cut of a 1-9 level as the range it covers ('1-3', '4-6', '7-9'), read from the thesis' memo bands."""
+    if level is None:
+        return NONE
+    low, high = (spec or {}).get("low_max", 3), (spec or {}).get("high_min", 7)
+    return f"1-{low}" if level <= low else (f"{high}-{SCALE_MAX}" if level >= high else f"{low + 1}-{high - 1}")
+
+
+def _sources(evidence) -> list[str]:
+    """The source names of the records a level rests on, as the company page prints them (deduplicated, first three)."""
+    seen: list[str] = []
+    for e in evidence or []:
+        name = ((e or {}).get("evidence") or {}).get("label")
+        if name and name not in seen:
+            seen.append(name)
+    return seen[:3]
+
+
+def _level_cell(name: str, scale: str, lv: dict) -> dict:
+    """One of TRL, BRL, IRL: 'x of 9' when a level is on record, otherwise a dash with its reason. Never a guessed level."""
+    level = lv.get("level")
+    if level is None:
+        return {"level": None, "text": None, "title": f"{name}: no public record. None of the records that set this level is on file."}
+    src = _sources(lv.get("evidence"))
+    why = f" Rule: {lv['because']}." if lv.get("because") else ""
+    return {"level": level, "text": f"{level} of {SCALE_MAX}",
+            "title": f"{name}: level {level} of {SCALE_MAX} ({scale}).{why} Source records: {', '.join(src) if src else 'see the company page'}."}
+
+
+def _impact_cell(m: dict, fw: dict) -> dict:
+    """Ocean impact: the Ocean Impact Assessment level 'x of 9' when the memo carries one (memo.ocean_impact), else the Navigator
+    category band the memo reads, else a dash. A category match is a band, not a measured impact, and the title says so."""
+    oi = m.get("ocean_impact") if isinstance(m.get("ocean_impact"), dict) else None
+    rec = m.get("recommendation") or {}
+    if oi and (oi.get("level") is not None or oi.get("band") in BANDS):
+        level, band = oi.get("level"), oi.get("band") if oi.get("band") in BANDS else None
+        src = sorted({e.get("source_label") for e in (oi.get("evidence") or []) if isinstance(e, dict) and e.get("source_label")})[:3]
+        text = f"{level} of {oi.get('level_max') or SCALE_MAX}" if level is not None else band
+        return {"level": level, "band": band, "text": text,
+                "title": f"Ocean impact: {text}{' (' + band + ')' if level is not None and band else ''}. Ocean Impact Assessment, "
+                         f"readiness from public records, not measured impact. Source records: {', '.join(src) if src else 'see the company page'}."}
+    band = ((m.get("levels") or {}).get("impact") or {}).get("band")
+    cat = fw.get("category") or {}
+    if band in BANDS and cat.get("category"):
+        src = (cat.get("evidence") or {}).get("label") or ("PRH/YTJ register industry text" if cat.get("industry") else "see the company page")
+        return {"level": None, "band": band, "text": band,
+                "title": f"Ocean impact: {band}. Ocean Impact Navigator category '{cat['category']}' (keyword '{cat.get('keyword')}') found in "
+                         f"{src}. A category match, not a measured impact."}
+    implied = " The verdict reads it as Medium, implied by the sector." if rec.get("kind") == "fallback" else ""
+    return {"level": None, "band": None, "text": None,
+            "title": "Ocean impact: no public record. No Ocean Impact Navigator category is found in the register's line of business "
+                     "or the signal texts." + implied}
+
+
+def _fit_cell(m: dict) -> dict:
+    band = ((m.get("levels") or {}).get("fit") or {}).get("band")
+    line = next((w for w in m.get("why") or [] if str(w.get("text", "")).startswith("Thesis fit:")), None)
+    if band not in BANDS:
+        return {"band": None, "text": None, "title": "Thesis fit: no public record. No stored reason ties the company to the thesis."}
+    reason = (line["text"].removeprefix("Thesis fit:").strip().rstrip(". ") if line else "no reason line on the company page")
+    host = f" Record: {line['url'].split('//')[-1].split('/')[0]}." if line and line.get("url") else ""
+    return {"band": band, "text": band, "title": f"Thesis fit {band}: {reason}.{host}"}
+
+
+def _verdict_cell(m: dict) -> dict:
+    rec = m.get("recommendation") or {}
+    word = rec.get("decision")
+    if not word:
+        return {"text": None, "title": "Verdict: no public record."}
+    basis = rec.get("matched") or rec.get("note") or "no decision row matched"
+    return {"text": word.capitalize(), "title": f"Verdict {word}: {basis}. Source: the team's decision table over the four bands (impact, business, investment, thesis fit)."}
+
+
+def _age_band(founded: str | None, today: date) -> str:
+    """Registration age from the register's founding date: lt1, 1-3, 3-5, gt5, or none when the register states none."""
+    f = (founded or "")[:10]
+    if len(f) < 4 or not f[:4].isdigit():
+        return NONE
+    try:
+        d = date.fromisoformat(f) if len(f) == 10 else date(int(f[:4]), 1, 1)
+    except ValueError:
+        return NONE
+    years = (today - d).days / 365.25
+    return "lt1" if years < 1 else ("1-3" if years < 3 else ("3-5" if years < 5 else "gt5"))
+
+
+def criteria(m: dict, ctx: dict, nxt: dict, thesis: dict, today: date) -> tuple[dict, dict]:
+    """(criteria, facets) for one company, from the memo, the page levels and the who-comes-next lists, so the home row shows exactly
+    what the company page shows. criteria = what the row prints (impact, trl, brl, irl, fit, verdict); facets = what the left rail
+    filters on, as lists of option values. A level with no record is None / 'none', never a number."""
+    fw, c = ctx["fw"], ctx["c"]
+    bands = ((thesis.get("memo") or {}).get("bands") or {})
+    crit = {"impact": _impact_cell(m, fw),
+            "trl": _level_cell("Technology readiness", "Aalto TRL 1-9", fw["trl"]),
+            "brl": _level_cell("Business readiness", "KTH BRL 1-9", fw["brl"]),
+            "irl": _level_cell("Investment readiness", "Investment Readiness 1-9", fw["irl"]),
+            "fit": _fit_cell(m), "verdict": _verdict_cell(m)}
+    end = (today + timedelta(days=DEADLINE_DAYS)).isoformat()
+    due = any(f.get("deadline") and today.isoformat() <= f["deadline"] <= end for f in (nxt.get("funding") or []))
+    cat = (fw.get("category") or {}).get("category")
+    facets = {
+        "verdict": [(m.get("recommendation") or {}).get("decision") or NONE],
+        "impact": [crit["impact"]["band"] or NONE],
+        "trl": [_band_range(crit["trl"]["level"], bands.get("technology"))],
+        "brl": [_band_range(crit["brl"]["level"], bands.get("business"))],
+        "irl": ["known" if crit["irl"]["level"] is not None else NONE],
+        "fit": [crit["fit"]["band"] or NONE],
+        "country": [c.get("country") or NONE],
+        "sector": [cat.capitalize() if cat else NONE],
+        "age": [_age_band(c.get("founded"), today)],
+        "src": sorted({store.source_family(s["adapter"]) for s in ctx["sigs"] if s.get("adapter")}),
+        "deadline": [str(DEADLINE_DAYS)] if due else [],
+        "member": [c["group_tag"]] if c.get("group_tag") in ("cohort", "portfolio") else [],
+    }
+    return crit, facets
 
 
 def build(conn, thesis: dict, today: date | None = None) -> dict:
@@ -81,6 +204,8 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
             "investment": ((m.get("levels") or {}).get("investment") or {}).get("band"),
             "covered": sum(checks), "checks": len(checks), "tape": tape,
         })
+        # the five judging criteria plus the verdict, and the rail's facets (computed once per cache warm, from the same memo)
+        rows[-1]["criteria"], rows[-1]["facets"] = criteria(m, matching.company_context(conn, key), nxt, thesis, today)
     def strength(r):
         """Verdict strength, then thesis-fit band, then the latest record (newest first), then name."""
         v = VERDICT_ORDER.index(r["verdict"]) if r["verdict"] in VERDICT_ORDER else len(VERDICT_ORDER)

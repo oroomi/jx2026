@@ -8,6 +8,17 @@
 .memo h3{margin:16px 0 6px;font-size:1rem}
 .memo-list{margin:0;padding-left:1.25rem}
 .memo-list li{margin:0 0 6px}
+/* AI brief box directly under the memo (cloud/ai_brief). */
+.brief{margin-top:var(--s5,24px);border:1px solid var(--hairline);border-radius:8px;padding:16px 20px}
+.brief h2{margin:0 0 8px;font-size:1.125rem}
+.brief-rows{margin:0}
+.brief-row{display:grid;grid-template-columns:minmax(120px,180px) 1fr;gap:4px 16px;padding:6px 0;border-top:1px solid var(--hairline)}
+.brief-row:first-child{border-top:0}
+.brief-label{color:var(--muted);font-size:.8125rem}
+.brief-sentence{margin:0}
+.brief-cite{font-size:.75rem;vertical-align:super;margin-left:2px;color:var(--accent)}
+.brief-foot,.brief-none{color:var(--muted);font-size:.8125rem;margin:8px 0 0}
+@media (max-width:640px){.brief-row{grid-template-columns:1fr}}
 @media print{
   header.top,footer.foot,.co-rail,.co-sources,.co-bar,.connectors,#lifeline,#signals,.no-print,.why-box,#theme-toggle{display:none!important}
   body{background:#fff!important;color:#000!important;padding-bottom:0}

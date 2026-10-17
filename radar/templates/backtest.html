@@ -26,6 +26,7 @@
   <p class="answer" id="intake-verdict">{{ res.intake.headline }}</p>
   {% if res.intake.note %}<p class="rule" id="intake-note">{{ res.intake.note }}</p>{% endif %}
   <p class="rule">{{ res.intake.rule }} Rank counts only companies of the same registration year and the same two-digit code family that had entered intake by the cohort company's entry date, strongest first by startup signals up to that date, then earliest intake date. The pool holds only companies the intake import has stored, and other sources (EU projects, Business Finland, notices) are matched for cohort companies first, so the rank is generous to the cohort company: read it as an upper bound on how findable it was.</p>
+  <details class="bt-more"><summary>Show the intake table ({{ res.rows | length }} companies)</summary>
   <div class="srcwrap">
   <table class="srctable bt-table" id="intake-table">
     <thead><tr><th>Company</th><th>Entered intake</th><th>Rank and intake size</th><th>First thesis evidence</th></tr></thead>
@@ -48,6 +49,7 @@
     </tbody>
   </table>
   </div>
+  </details>
 </section>
 {% endif %}
 
@@ -67,18 +69,21 @@
     <defs><pattern id="bt-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="6" class="bt-hatchline"/></pattern></defs>
     {% for t in chart.ticks %}<g class="bt-tick"><line x1="{{ t.x }}" x2="{{ t.x }}" y1="{{ chart.top - 4 }}" y2="{{ chart.h - 4 }}"/><text x="{{ t.x + 3 }}" y="{{ chart.top - 8 }}">{{ t.label }}</text></g>
     {% endfor %}
-    {% for l in chart.lanes %}
+    {% for g in chart.groups %}
+    <g class="bt-ghead" data-group="{{ g.key }}"><text x="{{ chart.name_x }}" y="{{ g.y }}">{{ g.label }} <tspan class="bt-gn">{{ g.n }}</tspan></text><line x1="{{ chart.name_x }}" x2="{{ chart.x1 }}" y1="{{ g.rule_y }}" y2="{{ g.rule_y }}"/></g>
+    {% for l in g.lanes %}
     <g class="bt-lane{% if l.blank %} blank{% endif %}" data-company="{{ l.key }}">
-      <a href="/c/{{ l.key }}"><text class="bt-name" x="{{ chart.x0 }}" y="{{ l.y + 14 }}">{{ l.name }}</text></a>
+      <a href="/c/{{ l.key }}"><text class="bt-name" x="{{ chart.name_x }}" y="{{ l.ty + 5 }}">{{ l.name }}</text></a>
       <line class="bt-track" x1="{{ chart.x0 }}" x2="{{ chart.x1 }}" y1="{{ l.ty }}" y2="{{ l.ty }}"/>
       {% if l.blank %}
       <rect class="bt-blank" x="{{ chart.x0 }}" y="{{ l.ty - 9 }}" width="{{ chart.x1 - chart.x0 }}" height="18" fill="url(#bt-hatch)"/>
       <text class="bt-blanktext" x="{{ chart.x0 + 6 }}" y="{{ l.ty + 4 }}">no public signal</text>
       {% else %}
       <circle class="mk{% if l.hollow %} hollow{% endif %}" cx="{{ l.mx }}" cy="{{ l.ty }}" r="5.5"/>
-      <text class="bt-mlabel" x="{{ l.lx }}" y="{{ l.ty + 19 }}" text-anchor="{{ l.anchor }}">{{ l.label }}</text>
+      <text class="bt-mlabel" x="{{ l.lx }}" y="{{ l.ty + 4 }}" text-anchor="{{ l.anchor }}">{{ l.label }}</text>
       {% endif %}
     </g>
+    {% endfor %}
     {% endfor %}
     {% if chart.ref_anchor == 'end' %}<text class="bt-ann" x="{{ chart.ref_x + 6 }}" y="12">found later &#8594;</text>{% else %}<text class="bt-ann" x="{{ chart.ref_x - 6 }}" y="12" text-anchor="end">&#8592; found earlier</text>{% endif %}
     <g class="bt-ref"><line x1="{{ chart.ref_x }}" x2="{{ chart.ref_x }}" y1="{{ chart.top - 4 }}" y2="{{ chart.h - 4 }}"/><text x="{{ chart.ref_x + (-4 if chart.ref_anchor == 'end' else 4) }}" y="12" text-anchor="{{ chart.ref_anchor }}">reference {{ chart.ref_label }}</text></g>
@@ -87,12 +92,15 @@
   {% set span = chart.x1 - chart.x0 %}{% macro pct(x) %}{{ ((x - chart.x0) / span * 100) | round(1) }}%{% endmacro %}
   <div class="bt-phone">
     <div class="bt-lrow bt-laxis"><span></span><div class="bt-ltrack">{% for t in chart.ticks %}<span class="bt-ltick" style="left:{{ pct(t.x) }}">{{ t.label }}</span>{% endfor %}<span class="bt-lref" style="left:{{ pct(chart.ref_x) }}"></span></div></div>
-    {% for l in chart.lanes %}
+    {% for g in chart.groups %}
+    <p class="bt-lghead">{{ g.label }} <span>{{ g.n }}</span></p>
+    {% for l in g.lanes %}
     <div class="bt-lrow{% if l.blank %} blank{% endif %}">
       <a class="bt-lname" href="/c/{{ l.key }}">{{ l.name }}</a>
       <div class="bt-ltrack"><span class="bt-lref" style="left:{{ pct(chart.ref_x) }}"></span>{% if not l.blank %}<span class="bt-lmk{% if l.hollow %} hollow{% endif %}" style="left:{{ pct(l.mx) }}"></span>{% endif %}</div>
       {% if l.blank %}<span class="bt-llabel bt-lblank">no public signal</span>{% else %}<span class="bt-llabel">{{ l.label }}</span>{% endif %}
     </div>
+    {% endfor %}
     {% endfor %}
     <p class="bt-lnote">The vertical line is the reference date, {{ chart.ref_label }}. Left of it: found earlier; right of it: found later.</p>
   </div>
@@ -101,6 +109,7 @@
 
 <section aria-labelledby="tbl-h">
   <h2 id="tbl-h">All {{ res.total }} companies</h2>
+  <details class="bt-more"><summary>Show every company with the record that admitted it</summary>
   <div class="srcwrap">
   <table class="srctable bt-table">
     <thead><tr><th>Company</th><th>First counted signal and the rule that admitted it</th><th>Timing</th><th>Group</th></tr></thead>
@@ -126,6 +135,7 @@
     </tbody>
   </table>
   </div>
+  </details>
 </section>
 
 <section aria-labelledby="lim-h">

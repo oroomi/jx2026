@@ -43,7 +43,7 @@
     {% if ev %}<p class="cc-lede-src">Evidence: <a href="{{ ev.url }}" target="_blank" rel="noopener">{{ ev.text }}</a></p>{% endif %}
   </div>{% endif %}
   <div class="cc-verdict v-{{ vk }}">
-    {% if rec %}<p class="cc-big">{{ rec.decision | capitalize }}</p>{% if rec.matched %}<span class="cc-rule" title="The decision-table entry that matched">{{ rec.matched }}</span>{% endif %}{% endif %}
+    {% if rec %}<p class="cc-big">{{ rec.decision | capitalize }}</p>{% if rec.matched %}<span class="cc-rule" title="The decision-table entry that matched">{{ rec.matched | replace("fallback ", "rule ", 1) | replace(", impact implied by sector", ": impact implied by the sector") | replace("row ", "decision table row ", 1) }}</span>{% endif %}{% endif %}
   </div>
   {% if rec and rec.note %}<p class="cc-reason">{{ rec.note[0] | upper }}{{ rec.note[1:] }}{{ "" if rec.note.rstrip().endswith((".", "!", "?")) else "." }}</p>{% endif %}
   {% if sig_asc %}

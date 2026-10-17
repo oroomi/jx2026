@@ -125,3 +125,32 @@
   :root[data-skin="editorial"] .thesis-now { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   :root[data-skin="editorial"] .sector-change { margin-left: 0; }
 }
+
+/* backtest (judge review): one compact chart, lanes grouped under the four counts, label inline beside each marker */
+.bt-chart { max-width: 680px; }
+.bt-ghead text { fill: var(--text); font-family: var(--e-serif, var(--serif)); font-size: 15px; font-weight: 500; }
+.bt-ghead .bt-gn { fill: var(--muted); font-family: var(--sans); font-size: 13px; }
+.bt-ghead line { stroke: var(--text); stroke-width: 1; }
+.bt-chart .bt-mlabel { font-size: 12px; }
+.bt-lghead { display: flex; justify-content: space-between; margin: 18px 0 0; padding-bottom: 4px; border-bottom: 1px solid var(--text); font-family: var(--e-serif, var(--serif)); font-size: 1.0625rem; }
+.bt-lghead span { font-family: var(--sans); color: var(--muted); }
+details.bt-more > summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-weight: 600; color: var(--accent); }
+:root[data-skin="editorial"] .bt-chart .bt-ghead text { font-family: var(--e-serif); font-weight: 500; }
+
+/* Aava (judge review): on a phone the button sits above the tab bar, never over Data or Backtest; the sheet sits above
+   the button and is capped to the viewport, its question list scrolls, so Pause and Stop always stay on screen */
+.aava-sheet:not([hidden]) { display: flex; flex-direction: column; max-height: calc(100vh - 76px - 16px); max-height: calc(100dvh - 76px - 16px); overflow: hidden; }
+.aava-sheet > * { flex: none; }
+.aava-sheet .aava-ask { flex: 0 1 auto; min-height: 0; overflow-y: auto; }
+.aava-sheet.playing { max-height: calc(100dvh - 76px - 16px); }
+.aava-ctl { padding-top: 8px; border-top: 1px solid var(--hairline); }
+@media (max-width: 639px) {
+  body:has(.c-tabbar) .aava-fab { bottom: calc(var(--c-tabbar-h) + env(safe-area-inset-bottom, 0px) + 12px); }
+  body:has(.c-tabbar) .aava-sheet { bottom: calc(var(--c-tabbar-h) + env(safe-area-inset-bottom, 0px) + 12px + 60px);
+    max-height: calc(100dvh - var(--c-tabbar-h) - env(safe-area-inset-bottom, 0px) - 12px - 60px - 16px); }
+}
+/* Aava sits inside <main>: keep its own compact heading and ghost buttons, not the page's ruled h2 and ink buttons */
+:root[data-skin="editorial"] .aava-sheet h2 { margin: 0; padding: 0; border: 0; font-size: 1.125rem; }
+:root[data-skin="editorial"] main .aava-btn { background: transparent; color: var(--text); border: 1px solid var(--hairline); border-radius: 0; font-weight: 500; text-align: left; }
+:root[data-skin="editorial"] main .aava-primary, :root[data-skin="editorial"] main .aava-fab { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+:root[data-skin="editorial"] main .aava-fab { border-radius: 999px; min-height: 48px; padding: 0 20px; }

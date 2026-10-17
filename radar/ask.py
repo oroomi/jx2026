@@ -6,6 +6,8 @@ One question in, one answer out: {intent, say, url, action, ...}. The intent is 
   2. a company by name or business id (legal-form words ignored, fuzzy for speech): Aava's question 1 answer and a link to the full memo.
   3. filter phrases (verdict words, countries, sector words, "TRL above 4"): the querystring of the home filter rail, and how many companies
      of the cached home list match.
+  3b. "top startups", "best investment", "who should <org> invest in" (thesis `ask.top_phrases`, `ask.top_patterns`): the Top matching ranking of the
+     default organisation, or of the investor or accelerator named; the same list the home tab and the Match page print (D70).
   4. "what is new / latest / recent": the feed answer, read by the same function as the home page's own (radar.routes.aava.feed_reader).
   5. an organisation name alone: the match view.
   6. a company name that only partly matches, once: that company. Anything else: the search page when it lists something for those letters, else
@@ -282,6 +284,63 @@ def match_answer(q: str, org: dict, cfg: dict, has_match: bool, thesis_id: str |
                   org={"name": org["name"], "type": org["type"], "id": org.get("id")})
 
 
+# ---- the top matching ranking --------------------------------------------------------------------------------------------------------
+TOP_ITEMS = 5
+
+
+def _top_orgs(th: dict) -> list[dict]:
+    """The investors and accelerators the Top matching tab can be made for (radar.home_orgs.organisations); [] when the thesis has no matchmaking."""
+    try:
+        from radar import home_orgs
+        return home_orgs.organisations(th)
+    except Exception:  # noqa: BLE001  (no matchmaker in this build)
+        return []
+
+
+def top_request(t: str, core: str, th: dict, cfg: dict) -> dict | None:
+    """{org: id | None} when the question asks for the top or best startups ('top startups', 'who should Redstone invest in'), else None. A
+    named organisation that the tab cannot be made for is not read as this question (the other rules then look at it)."""
+    rows = _top_orgs(th)
+    if not rows:
+        return None
+    for text in dict.fromkeys((t, norm(core))):
+        for pat in cfg.get("top_patterns") or []:
+            before, _sep, after = pat.partition("{org}")
+            rx = re.compile(r"^\s*" + re.escape(norm(before)) + r"\s*(?P<org>.+?)\s*" + re.escape(norm(after)) + r"\s*$")
+            m = rx.match(text)
+            if m and m.group("org"):
+                org = find_org(m.group("org"), rows)
+                if org and org.get("id") in {o["id"] for o in rows}:
+                    return {"org": org["id"]}
+    if any(rx.search(" " + t + " ") for rx, _ in _table([(w, 1) for w in cfg.get("top_phrases") or []])):
+        return {"org": None}
+    return None
+
+
+def top_answer(q: str, req: dict, th: dict, thesis_id: str | None) -> dict:
+    """The Top matching ranking of one organisation, named in a sentence with its first startups as links, and the tab as the link."""
+    from radar import home_orgs
+    orgs = home_orgs.organisations(th)
+    org_id = req["org"] or home_orgs.default_org(orgs) or orgs[0]["id"]
+    name = next(o["name"] for o in orgs if o["id"] == org_id)
+    url = "/?" + urlencode([("group", "fit"), ("for", org_id), *([("thesis", thesis_id)] if thesis_id else [])])
+    rank = home_orgs.ranking(th, org_id)
+    if rank is None:
+        return answer("top_match", q, f"The ranking for {name} is still being prepared. Open the Top matching tab in a moment.", url=url, action="open",
+                      label="Open the Top matching tab", org={"id": org_id, "name": name})
+    rows = rank["rows"]
+    if not rows:
+        why = rank.get("closed_note") or rank.get("empty_reason")
+        return answer("top_match", q, f"No startup on the radar is ranked for {name}" + (f": {why}" if why else "."), url=url, action="open",
+                      label="Open the Top matching tab", org={"id": org_id, "name": name}, count=0, total=rank["listed"])
+    first = [r["name"] for r in rows[:3]]
+    say = f"The top startups for {name}, in the matchmaker's order: {', '.join(first[:-1])} and {first[-1]}." if len(first) > 1 else f"The top startup for {name} is {first[0]}."
+    if rank.get("note"):
+        say += " " + rank["note"]
+    return answer("top_match", q, say, url=url, action="open", label="Show the whole ranking", count=len(rows), total=rank["listed"],
+                  items=[{"label": r["name"], "url": f"/c/{quote(r['key'], safe='')}"} for r in rows[:TOP_ITEMS]], org={"id": org_id, "name": name})
+
+
 # ---- filters ---------------------------------------------------------------------------------------------------------------------------
 def _bands(th: dict, scale: str) -> list[tuple[int, int, str]]:
     """The Low / Medium / High cuts of a 1-9 scale as (lowest level, highest level, '4-6'), read from the thesis' memo bands."""
@@ -450,7 +509,7 @@ def _clean(q: str) -> str:
 
 def classify(q: str, th: dict, conn, *, has_match: bool = False) -> tuple[str, object, str]:
     """(kind, payload, core) for a question, by the rules in the module docstring. kind is meet_company | meet_org | meet_search | company |
-    filter | feed | match | many | none. `core` is the question without its lead-in. resolve() answers from this, and the example chips ask it
+    filter | top | feed | match | many | none. `core` is the question without its lead-in. resolve() answers from this, and the example chips ask it
     too, so an example is shown only when the answer it would get is not empty."""
     cfg = config(th)
     t = norm(q)
@@ -480,6 +539,9 @@ def classify(q: str, th: dict, conn, *, has_match: bool = False) -> tuple[str, o
     kind, hit = find_company(conn, th, core)
     if kind == "exact":
         return "company", hit, core
+    top = top_request(t, core, th, cfg)
+    if top:
+        return "top", top, core
     parsed = parse_filters(core, th, cfg)
     if parsed:
         return "filter", parsed, core
@@ -513,6 +575,8 @@ def resolve(q: str, th: dict, conn, *, inputs, has_match: bool = False, thesis_i
         return search_answer(hit, thesis_id)
     if kind == "company":
         return company_answer(q, hit["company_key"], hit["name"], th, conn, inputs)
+    if kind == "top":
+        return top_answer(q, hit, th, thesis_id)
     if kind == "filter":
         return filter_answer(q, hit, th, conn, thesis_id)
     if kind == "feed":
@@ -535,7 +599,7 @@ def example_has_answer(q: str, th: dict, conn, H) -> bool:
     at least one company of the cached home list `H` (a list that is not built yet counts nothing, so the chip waits)."""
     q = _clean(q)
     kind, hit, _core = classify(q, th, conn, has_match=False)
-    if kind in ("company", "meet_company", "match", "meet_org", "many"):
+    if kind in ("company", "meet_company", "match", "meet_org", "many", "top"):
         return True
     if kind == "filter":
         n, _total, _hits = count_matches(H, hit["sel"], th, conn)

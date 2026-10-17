@@ -1,0 +1,18 @@
+{# The Top matching tab's rows when an investor or accelerator is picked (D70): the matchmaker's ranking for that organisation, in its
+   order and its count, the same list as /match?org=<id>. Included by _home_list.html. Needs H (radar.home_filter.view), cur, R. Each row
+   is one link to the company page with its reasons in words on a Why line; a row's verdict says when it is only early pipeline. #}
+{% set M = H.match_view %}
+{% if M.note %}<p class="hc-pipeline" id="hc-pipeline">{{ M.note }}</p>{% endif %}
+{% if M.filtered %}<p class="hc-pipeline-f">A filter is chosen: the ranking is narrowed to the startups that carry those facts on the home list.</p>{% endif %}
+<ol class="hc-rows" data-ranking="matchmaker">
+{% for r in cur[2] %}
+  {% set m = r.match %}{% set vk = (m.verdict or "none") | lower | replace(" ", "-") %}
+  <li id="row-{{ r.company_key }}" data-key="{{ r.company_key }}" style="--i: {{ loop.index0 if loop.index0 < 12 else 12 }}"><a class="hc-row" href="/c/{{ r.company_key }}">
+    <span class="hc-mark hc-rank" aria-hidden="true" title="Place {{ m.rank }} in the matchmaker's order">{{ m.rank }}</span>
+    <span class="hc-who"><span class="hc-name">{{ r.name }}</span><span class="hc-sub">{{ m.country or "country not in records" }}{% if m.verdict %} · {{ m.verdict | lower }}{% if m.early and M.early_label %}, {{ M.early_label }}{% endif %}{% endif %}</span>
+      {% if m.why %}<span class="hc-why" aria-label="Why it is listed"><span class="hc-whyl">Why</span>{% for w in m.why %}<span class="hc-whyc">{{ w }}</span>{% endfor %}</span>{% endif %}</span>
+    <span class="hc-right">{% if m.verdict %}<span class="hc-pill hc-{{ vk }} v-{{ vk }}">{{ m.verdict | capitalize }}</span>{% endif %}</span>
+  </a></li>
+{% endfor %}
+</ol>
+<p class="hc-note hc-match-more">{{ M.ranked }} of the {{ M.listed }} startups that pass the matchmaker's filters for {{ M.name }}. <a href="{{ M.match_href }}">Every reason for every match</a> is on the Match page{% if M.connected %}, and <a href="{{ M.connected_href }}">the {{ M.connected }} companies it is already connected to</a> are on its Already connected tab{% endif %}.</p>

@@ -44,7 +44,7 @@ top_matching:
   kinds: [investor, accelerator]
   default_org: apelago
   any_label: Any investor or accelerator
-  reasons: 2
+  reasons: 3
 
 flags:
   dir: /static/vendor/flags

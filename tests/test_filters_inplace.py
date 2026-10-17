@@ -404,9 +404,8 @@ def ranked(H):
         orgs = home_orgs.organisations(th)
         if not any(o["id"] == "apelago" for o in orgs):
             pytest.skip("the matchmaker does not know the sponsor in this checkout")
-        res = matchmaker.match_org("apelago", th, limit=10 ** 6)
-        keys = {r["company_key"] for r in H["rows"]}
-        yield {"orgs": orgs, "order": [s["key"] for s in res["startups"] if s["key"] in keys], "rows": {s["key"]: s for s in res["startups"]}}
+        res = matchmaker.match_org("apelago", th)         # D70: the tab prints the matchmaker's own ranking, all of it, not the part on the home list
+        yield {"orgs": orgs, "order": [s["key"] for s in res["startups"]], "rows": {s["key"]: s for s in res["startups"]}}
     finally:
         mp.undo()
 
@@ -427,25 +426,25 @@ def test_the_tab_is_named_for_the_sponsor_by_default(client, ranked):
     assert int(n) == len(ranked["order"])
 
 
-def test_the_tab_lists_the_matchmakers_ranking_for_that_organisation_intersected_with_the_home_list(client, ranked):
+def test_the_tab_lists_the_matchmakers_ranking_for_that_organisation(client, ranked):
     t = client.get("/?group=fit").text
-    assert row_keys(t) == ranked["order"]                    # the matchmaker's order, nothing re-ranked
+    assert row_keys(t) == ranked["order"]                    # the matchmaker's order and count, nothing re-ranked, nothing dropped
     assert 'data-key="2" aria-current="true"' in t
-    # other filters apply on top, in the same order
+    # other filters apply on top, in the same order, to the startups that carry those facts on the home list
     q = client.get("/home/list?group=fit&verdict=WATCHLIST", headers=HX).text
     from radar import home_list as hl
     rows = {r["company_key"]: r for r in hl.for_template(thesis_mod.load(), wait=None)["rows"]}
-    assert row_keys(q) == [k for k in ranked["order"] if rows[k]["verdict"] == "WATCHLIST"] and row_keys(q)
+    assert row_keys(q) == [k for k in ranked["order"] if k in rows and rows[k]["verdict"] == "WATCHLIST"]
 
 
-def test_each_row_shows_its_top_two_reasons_in_words(client, ranked):
+def test_each_row_shows_its_top_reasons_in_words(client, ranked):
     t = client.get("/?group=fit").text
     items = [(re.search(r'href="/c/([^"]+)"', li).group(1), li) for li in section_of(t).split("</li>") if 'class="hc-row"' in li]
     assert items
     seen = 0
     for key, li in items:
         chips = [htmllib.unescape(c) for c in re.findall(r'<span class="hc-whyc">([^<]*)</span>', li)]
-        assert 1 <= len(chips) <= 2, (key, chips)
+        assert 1 <= len(chips) <= 3, (key, chips)
         comps = [c for c in ranked["rows"][key]["components"] if c["met"] and c.get("chip")]
         assert chips[0] == (comps[0]["chip"] if comps[0]["id"] == "member" else sorted(comps, key=lambda c: -int(c["weight"]))[0]["chip"])
         assert not re.search(r"\bCovers [A-Z]{2}\b", " ".join(chips))          # a country is named, not coded
@@ -489,8 +488,8 @@ def test_picking_another_organisation_changes_the_tab_and_the_rows(client, ranke
     t = client.get("/home/list?group=fit&for=redstone-blue", headers=HX)
     assert tab(t.text) == "Top matching startups for Redstone Blue" and t.headers["hx-replace-url"] == "/?group=fit&for=redstone-blue"
     th = thesis_mod.load()
-    mine = [s["key"] for s in matchmaker.match_org("redstone-blue", th, limit=10 ** 6)["startups"]]
-    assert row_keys(t.text) == [k for k in mine if k in {r["company_key"] for r in home_list.for_template(th, wait=None)["rows"]}]
+    mine = [s["key"] for s in matchmaker.match_org("redstone-blue", th)["startups"]]
+    assert mine and row_keys(t.text) == mine
     assert '<option value="redstone-blue" selected>' in t.text
     # the other links of the page keep the choice
     assert 'href="/?for=redstone-blue"' in t.text or "for=redstone-blue" in re.search(r'<a href="([^"]+)"[^>]*data-key="1"', t.text).group(1)
@@ -519,11 +518,11 @@ def test_a_still_pending_ranking_falls_back_to_the_plain_list_with_a_note(client
     assert tab(t) == "Top matching startups" and "is still being prepared; this is the plain Top matching list" in t
 
 
-def test_an_organisation_with_no_startup_on_the_list_says_so(client, ranked):
+def test_an_organisation_with_no_ranked_startup_says_so_and_why(client, ranked):
     th = thesis_mod.load()
-    keys = {r["company_key"] for r in home_list.for_template(th, wait=None)["rows"]}
-    empty = next((o for o in ranked["orgs"] if o["id"] != "apelago" and not {s["key"] for s in (matchmaker.match_org(o["id"], th, limit=10 ** 6) or {"startups": []})["startups"]} & keys), None)
+    empty = next((o for o in ranked["orgs"] if o["id"] != "apelago" and not (matchmaker.match_org(o["id"], th) or {"startups": []})["startups"]), None)
     if empty is None:
-        pytest.skip("every organisation lists a startup of this list")
-    t = client.get(f"/home/list?group=fit&for={empty['id']}", headers=HX).text
-    assert f"No startup on this list is matched to {htmllib.escape(empty['name'], quote=True)}" in t and "hc-rows" not in t.replace("hc-rows-", "")
+        pytest.skip("every organisation ranks a startup")
+    home_orgs.ranking(th, empty["id"], wait=None)
+    t = htmllib.unescape(client.get(f"/home/list?group=fit&for={empty['id']}", headers=HX).text)
+    assert f"No startup on the radar is ranked for {empty['name']}" in t and "Why: " in t and "hc-rows" not in t.replace("hc-rows-", "")

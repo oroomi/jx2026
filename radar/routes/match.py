@@ -41,7 +41,7 @@ def api_match_company(company_key: str, thesis: str | None = None, limit: int = 
 
 
 @router.get("/api/match/org/{org_id}")
-def api_match_org(org_id: str, thesis: str | None = None, limit: int = Query(25, ge=1, le=100)):
+def api_match_org(org_id: str, thesis: str | None = None, limit: int | None = Query(None, ge=1, le=1000)):
     def body():
         th = _thesis(thesis)
         _cfg_or_fail(th)
@@ -108,7 +108,7 @@ def match_page(request: Request, view: str = "org", org: str = "", company: str 
                    tab="connected" if tab == "connected" else "fit")
         if view == "org":
             sel = org or max(orgs, key=lambda o: (o["members_in_records"], o["kind"] == "accelerator"))["id"]
-            res = matchmaker.match_org(sel, th, conn=conn, limit=25)
+            res = matchmaker.match_org(sel, th, conn=conn)         # the default limit is the one the home Top matching tab prints (matching.show_startups)
             ctx.update(selected=sel, result=res, not_found=res is None and bool(org))
         else:
             feat = [dict(r) for r in conn.execute(

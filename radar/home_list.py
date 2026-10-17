@@ -19,7 +19,7 @@ import os
 import threading
 from datetime import date, timedelta
 
-from radar import memo, store
+from radar import matching, memo, store
 
 TOP_VERDICTS = ("INVEST", "DUE DILIGENCE", "ACCELERATOR")
 VERDICT_ORDER = ("INVEST", "DUE DILIGENCE", "ACCELERATOR", "PARTNER INTRODUCTION", "GRANT SUPPORT", "WATCHLIST")
@@ -57,15 +57,29 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
         c = conn.execute("SELECT company_key, name, country, industry_desc, group_tag FROM companies WHERE company_key=?", (key,)).fetchone()
         if c is None:
             continue
-        dates = [d for (d,) in conn.execute("SELECT date FROM signals WHERE company_key=? AND date IS NOT NULL ORDER BY date", (key,))]
+        sig = conn.execute("SELECT date, signal_type FROM signals WHERE company_key=? AND date IS NOT NULL ORDER BY date", (key,)).fetchall()
+        dates = [d for d, _ in sig]
+        types = {t for _, t in sig}
         m = memo.build(conn, thesis, key, today=today) or {}
         rec = m.get("recommendation") or {}
         bands = {b["label"]: b["band"] for b in rec.get("because_labels", [])}
+        nxt = matching.who_comes_next(key, thesis, 5, conn=conn, today=today) or {}
+        checks = [  # the same six checks the company page counts in its coverage line
+            "register_entry" in types,
+            bool(types & {"bf_funding", "eu_grant", "public_funding"}),
+            "eu_project" in types,
+            bool(types & {"public_contract", "first_sales", "pilot_named"}),
+            ((m.get("levels") or {}).get("impact") or {}).get("band") not in (None, "unknown"),
+            bool(nxt.get("investors")),
+        ]
+        year_ago = (today - timedelta(days=365)).isoformat()
+        tape = [round((date.fromisoformat(d[:10]) - (today - timedelta(days=365))).days / 365 * 100, 1) for d in dates if d[:10] >= year_ago and d[:10] <= today.isoformat()]
         rows.append({
             "company_key": key, "name": c["name"], "country": c["country"], "sector": c["industry_desc"], "group_tag": c["group_tag"],
             "signals": [{"date": d} for d in dates], "first": dates[0] if dates else None, "latest": dates[-1] if dates else None,
             "verdict": rec.get("decision"), "fit": bands.get("Thesis fit"),
             "investment": ((m.get("levels") or {}).get("investment") or {}).get("band"),
+            "covered": sum(checks), "checks": len(checks), "tape": tape,
         })
     def strength(r):
         """Verdict strength, then thesis-fit band, then the latest record (newest first), then name."""
@@ -91,7 +105,7 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
         "groups": [g for g in groups if g[2]],
         "countries": country_groups if len(country_groups) > 1 else [],
         "headline": {"new": len(new), "month": sum(1 for r in new if r["first"] >= month)},
-        "window": (start, end), "weak_or_hidden": None,
+        "window": (start, end), "fetched": ((store.feed_counts(conn, thesis) or {}).get("last_fetched") or "")[:10],
     }
 
 

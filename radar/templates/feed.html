@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Early signals | Ocean Opportunity Radar{% endblock %}
-{% block head %}<link rel="stylesheet" href="/static/feed.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/c_components.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/home_c.css?v={{ asset_v }}">
-<script>try{var a=(location.search.match(/[?&]accent=([abc])/)||[])[1];document.documentElement.dataset.accent=a||"a";}catch(e){}</script>{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/feed.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/c_components.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/home_c.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/skins.css?v={{ asset_v }}">
+{% include "_skin_head.html" %}{% endblock %}
 {% block content %}
 {% from "_c_components.html" import sparkline %}
 {% set H = home_list_for(thesis) if (q is none and home_list_for is defined) else none %}
@@ -9,27 +9,34 @@
 {% set gkey = request.query_params.get("group") or "all" %}
 {% set allg = H.groups + H.countries %}
 {% set cur = (allg | selectattr(0, "equalto", gkey) | first) or H.groups[0] %}
-{% set acc = request.query_params.get("accent") %}{% set accq = ("&accent=" ~ acc) if acc in ("a", "b", "c") else "" %}
 <section class="hc" aria-labelledby="hc-h">
   <p class="hc-kicker">In the past {{ thesis.geography.feed_window_days or 90 }} days</p>
-  <h1 id="hc-h" class="hc-head"><span>{{ H.headline.new }} compan{{ "y" if H.headline.new == 1 else "ies" }} surfaced</span>{% if H.headline.month %} <span class="hc-up" aria-label="{{ H.headline.month }} this month">&#9650; {{ H.headline.month }} this month</span>{% endif %}</h1>
+  <h1 id="hc-h" class="hc-head"><span><span class="hc-num" data-n="{{ H.headline.new }}">{{ H.headline.new }}</span> compan{{ "y" if H.headline.new == 1 else "ies" }} surfaced</span>{% if H.headline.month %} <span class="hc-up" aria-label="{{ H.headline.month }} this month">&#9650; {{ H.headline.month }} this month</span>{% endif %}</h1>
+  <p class="hc-src sk-editorial">Count of companies whose first public record falls in the window. Source: PRH/YTJ register, Hilma, CORDIS and Business Finland as stored {{ H.fetched }}.</p>
+  <p class="hc-status sk-terminal" aria-label="Data status"><span class="hc-live">LIVE</span> store {{ H.fetched }} · {{ H.rows | length }} rows · {{ H.window[0] }} to {{ H.window[1] }}</p>
   <nav class="hc-pills" aria-label="Groups">
-    {% for k, label, rs in H.groups %}<a href="/?group={{ k }}{{ accq }}"{% if cur[0] == k %} aria-current="true"{% endif %}>{{ label }} <span>{{ rs | length }}</span></a>{% endfor %}
+    {% for k, label, rs in H.groups %}<a href="/?group={{ k }}" data-key="{{ loop.index }}"{% if cur[0] == k %} aria-current="true"{% endif %}><kbd class="sk-terminal">{{ loop.index }}</kbd>{{ label }} <span>{{ rs | length }}</span></a>{% endfor %}
   </nav>
   {% if H.countries %}<nav class="hc-countries" aria-label="Countries">
-    {% for k, label, rs in H.countries %}<a href="/?group={{ k }}{{ accq }}"{% if cur[0] == k %} aria-current="true"{% endif %}>{{ label }}</a>{% endfor %}
+    {% for k, label, rs in H.countries %}<a href="/?group={{ k }}"{% if cur[0] == k %} aria-current="true"{% endif %}>{{ label }}</a>{% endfor %}
   </nav>{% endif %}
   <ol class="hc-rows">
   {% for r in cur[2] %}
     {% set w = (r.name | replace(" Oyj", "") | replace(" Oy", "") | replace(" Ab", "") | replace(" AB", "") | trim).split() %}
-    <li><a class="hc-row" href="/c/{{ r.company_key }}">
-      <span class="hc-mark" aria-hidden="true">{{ ((w[0][:1] if w else "") ~ (w[1][:1] if w | length > 1 else (w[0][1:2] if w else ""))) | upper }}</span>
+    {% set vk = (r.verdict or "none") | lower | replace(" ", "-") %}
+    <li style="--i: {{ loop.index0 if loop.index0 < 12 else 12 }}"><a class="hc-row" href="/c/{{ r.company_key }}">
+      <span class="hc-mark" aria-hidden="true" style="--pct: {{ ((r.covered / r.checks) * 100) | round | int }}%" title="{{ r.covered }} of {{ r.checks }} public-record checks covered">{{ ((w[0][:1] if w else "") ~ (w[1][:1] if w | length > 1 else (w[0][1:2] if w else ""))) | upper }}</span>
       <span class="hc-who"><span class="hc-name">{{ r.name }}</span>{% set second = [r.sector] | select | list %}{% if second %}<span class="hc-sub">{{ second | join(" · ") }}</span>{% endif %}</span>
-      <span class="hc-right">{% if r.signals %}{{ sparkline(r.signals, 72, 26) }}{% endif %}{% if r.verdict %}<span class="hc-pill hc-{{ r.verdict | lower | replace(" ", "-") }}">{{ r.verdict | capitalize }}</span>{% endif %}</span>
+      <span class="hc-right">
+        {% if r.signals %}<span class="hc-spark">{{ sparkline(r.signals, 72, 26) }}</span>{% endif %}
+        {% if r.tape %}<svg class="hc-tape" viewBox="0 0 100 12" preserveAspectRatio="none" role="img" aria-label="{{ r.tape | length }} public record{{ "s" if r.tape | length != 1 }} in the last 12 months"><line x1="0" y1="11.5" x2="100" y2="11.5"/>{% for x in r.tape %}<line class="{{ 'tk-last' if loop.last else 'tk' }}" x1="{{ x }}" y1="{{ 1 if loop.last else 5 }}" x2="{{ x }}" y2="11"/>{% endfor %}</svg>{% endif %}
+        {% if r.verdict %}<span class="hc-pill hc-{{ vk }} v-{{ vk }}">{{ r.verdict | capitalize }}</span>{% endif %}
+      </span>
     </a></li>
   {% endfor %}
   </ol>
-  <p class="hc-note">{{ cur[2] | length }} of {{ H.rows | length }} startups, newest public record first.{% if not (H.groups | selectattr(0, "equalto", "ready") | list) %} Investor-ready appears once a company's investment readiness reads High.{% endif %} Every row opens its sourced company page.</p>
+  <p class="hc-note">{{ cur[2] | length }} of {{ H.rows | length }} startups, {{ "newest public record first" if cur[0] == "new" else "strongest verdict first" }}.{% if not (H.groups | selectattr(0, "equalto", "ready") | list) %} Investor-ready appears once a company's investment readiness reads High.{% endif %} Every row opens its sourced company page.</p>
+  <p class="hc-keys sk-terminal" aria-hidden="true"><kbd>/</kbd> search <kbd>1</kbd>-<kbd>{{ H.groups | length }}</kbd> groups <kbd>j</kbd><kbd>k</kbd> rows <kbd>&#8629;</kbd> open</p>
 </section>
 <details class="hc-more" id="all-records">
 <summary>All public records in the window, weak matches and the rules</summary>

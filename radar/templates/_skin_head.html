@@ -1,0 +1,35 @@
+{# Design C skins (phase 4): ?skin=terminal|editorial|product, remembered in localStorage. Replaces the ?accent= switch.
+   Content works without JavaScript; the script only picks the skin and adds the small behaviours each skin owns:
+   terminal = keyboard (/ search, 1-9 groups, j/k rows, Enter open); editorial = the home number counts up once. #}
+<link rel="preload" href="/static/fonts/ibm-plex-mono-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+<script>
+(function(){
+  var SK = ["terminal", "editorial", "product"], d = document.documentElement, s = null;
+  try {
+    var q = (location.search.match(/[?&]skin=([a-z]+)/) || [])[1];
+    if (SK.indexOf(q) > -1) { s = q; localStorage.setItem("radar-skin", q); }
+    else { var v = localStorage.getItem("radar-skin"); if (SK.indexOf(v) > -1) s = v; }
+  } catch (e) {}
+  d.dataset.skin = s || "product";
+  var still = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  document.addEventListener("DOMContentLoaded", function(){
+    var skin = d.dataset.skin;
+    if (skin === "editorial" && !still) {
+      var n = document.querySelector(".hc-num");
+      if (n) { var to = +n.dataset.n || 0, t0 = null; n.textContent = "0";
+        var step = function(t){ if (!t0) t0 = t; var k = Math.min(1, (t - t0) / 560); n.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(step); };
+        requestAnimationFrame(step); }
+    }
+    if (skin === "terminal") {
+      var rows = [].slice.call(document.querySelectorAll(".hc-row")), at = -1;
+      document.addEventListener("keydown", function(e){
+        var tag = (document.activeElement || {}).tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
+        if (e.key === "/") { var m = document.getElementById("all-records"), q = document.getElementById("q"); if (m) m.open = true; if (q) { e.preventDefault(); q.focus(); } }
+        else if (/^[1-9]$/.test(e.key)) { var g = document.querySelector('.hc-pills a[data-key="' + e.key + '"]'); if (g) location.href = g.href; }
+        else if ((e.key === "j" || e.key === "k") && rows.length) { at = Math.max(0, Math.min(rows.length - 1, at + (e.key === "j" ? 1 : -1))); rows[at].focus(); }
+      });
+    }
+  });
+})();
+</script>

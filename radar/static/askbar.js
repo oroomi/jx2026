@@ -571,7 +571,10 @@
     elSay.textContent = ""; elLinks.textContent = ""; elLinks.hidden = false; sayWords = [];
     typeForm.hidden = true;
   }
+  var PAUSE_MS = 1500;   /* a pause this long ends the question; the browser's own end-of-speech cut in mid-sentence (owner, 17 Oct) */
+  var silenceT = 0, sendHeard = null;
   function stopRec() {
+    clearTimeout(silenceT); silenceT = 0; sendHeard = null;
     if (rec) { rec.onend = null; rec.onerror = null; rec.onresult = null; try { rec.abort(); } catch (e) {} rec = null; }
   }
 
@@ -584,23 +587,31 @@
       return;
     }
     setState("listening");
-    var finalText = "", gotFinal = false;
+    var finalText = "", interimText = "";
+    var send = function () {   /* the words so far, final or not; false when nothing was heard */
+      var t = (finalText + " " + interimText).replace(/\s+/g, " ").trim();
+      if (!t || state !== "listening") return false;
+      heard(t);
+      return true;
+    };
     rec = new SR();
-    rec.lang = "en-US"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
-    rec.onresult = function (e) {
+    sendHeard = send;
+    rec.lang = "en-US"; rec.interimResults = true; rec.continuous = true; rec.maxAlternatives = 1;
+    rec.onresult = function (e) {   /* continuous: the results list holds the whole session, so it is read from the start each time */
       voiceKick = 1;
-      var interim = "";
-      for (var i = e.resultIndex; i < e.results.length; i++) {
+      var fin = "", interim = "";
+      for (var i = 0; i < e.results.length; i++) {
         var r = e.results[i];
-        if (r.isFinal) { finalText += r[0].transcript; gotFinal = true; } else interim += r[0].transcript;
+        if (r.isFinal) fin += r[0].transcript; else interim += r[0].transcript;
       }
-      var shown = (finalText + interim).trim();
-      elLine.textContent = shown; elLine.classList.toggle("is-final", gotFinal && !interim);
-      if (gotFinal && !interim) heard(finalText);
+      finalText = fin; interimText = interim;
+      elLine.textContent = (fin + interim).trim(); elLine.classList.toggle("is-final", !interim);
+      clearTimeout(silenceT); silenceT = setTimeout(send, PAUSE_MS);
     };
     rec.onerror = function (e) {
       var why = e && e.error;
       if (why === "aborted") return;
+      if (send()) return;
       stopRec();
       var msg = why === "not-allowed" || why === "service-not-allowed" ? "The microphone is blocked in this browser. Type your question instead."
         : why === "audio-capture" ? "No microphone was found. Type your question instead."
@@ -612,7 +623,7 @@
     };
     rec.onend = function () {
       if (state !== "listening") return;
-      if (finalText.trim()) heard(finalText);
+      if (send()) return;
       else { setState("idle", "I did not catch that. Tap the orb to try again, or type your question."); showType(elState.textContent); }
     };
     try { rec.start(); if (!touchFirst) startMic(); } catch (err) { setState("error", "Speech recognition could not start. Type your question instead."); showType(); }
@@ -682,7 +693,7 @@
   $("ask-voice-close").addEventListener("click", closeVoice);
   $("ask-orb-btn").addEventListener("click", function () {
     Speech.unlock(true);
-    if (state === "listening") { stopRec(); setState("idle"); }
+    if (state === "listening") { if (!(sendHeard && sendHeard())) { stopRec(); setState("idle"); } }   /* a tap while talking sends now */
     else if (state === "thinking") return;
     else listen();
   });

@@ -270,6 +270,8 @@ and `git log`. Times are UTC commit times. Counts are the ones the repo states; 
 
 **D81. 2026-10-17 (cand/j3). The earliness test leaves the menu.** *Rule:* "Earliness test" is no longer in the header Menu, the footer page links or the phone tab bar (now five tabs: Radar, Search, Lists, Match, Data). `/backtest` and `/api/backtest` still answer, and the documents and the cohort page still link to it. *Why:* owner's call on the eve of judging; the test is honest but is not where the demo leads. *Affected:* the site menu on every page, the footer, the phone tab bar.
 
+**D82. 2026-10-17 (cand/j3). Voice mode waits for a real pause.** *Rule:* the microphone listens continuously and sends the question after 1.5 s without a new word (`PAUSE_MS` in radar/static/askbar.js), not at the browser's own end of speech; a tap on the orb while talking sends what was heard at once, and with nothing heard it stops listening. *Why:* the owner's rehearsal: a short breath mid-sentence sent half a question. *Affected:* voice mode on every page with the demo flag; typed questions are unchanged.
+
 ## T. Taxonomy
 
 ### Signal types
@@ -412,3 +414,4 @@ Batch B1 (`QUESTIONS_B1.md`, 17 Oct): 15 issues. B1-01 to B1-11 come from the fi
 
 - 2026-10-17: D78 (fix/copy_ci: /rules redirects to /method); no earlier rule changed.
 - 2026-10-17: D80, D81 (cand/j3: the public ecosystem file names no private individual; the earliness test leaves the menu); no earlier rule changed.
+- 2026-10-17: D82 (cand/j3: voice mode waits for a 1.5 s pause; a tap sends at once); no earlier rule changed.

@@ -355,7 +355,8 @@ class Turn:
         yield {"event": "entities", "data": {"keys": checked["keys"], "names": names}}
         if ctx.followups:
             yield {"event": "followups", "data": {"questions": ctx.followups}}
-        self.result = {"text": checked["text"], "keys": checked["keys"], "unverified": checked["unverified"], "truncated": truncated, "model": s.model}
+        self.result = {"text": checked["text"], "keys": checked["keys"], "unverified": checked["unverified"], "truncated": truncated, "model": s.model,
+                       "sources": aava_tools.source_lines(ctx, checked["keys"], checked["text"])}
         self._log("ok", flagged=checked["flagged"])
         yield {"event": "done", "data": {**self.result, "usage": dict(self.usage), "steps": self.steps, "ms": self.ms}}
 

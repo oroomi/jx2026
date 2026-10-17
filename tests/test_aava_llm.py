@@ -199,6 +199,24 @@ def test_an_invented_company_is_unlinked_flagged_and_never_streamed_as_a_link(th
     assert "Nordic Kelp Oy" in flagged and "Ghost Marine Oy" in flagged
 
 
+def test_the_source_line_holds_only_addresses_the_tools_returned(th):
+    t, _ = turn_for(th, "Tell me about Viva Jets", [call(tools=[("get_startup", {"company_key": VIVA})]),
+                                                  call(text=f"[Viva Jets Oy](/c/{VIVA}) is an accelerator candidate. Business Finland is the funder to ask. See [here](https://made-up.example/a).")])
+    done = run(t)[-1]["data"]
+    src = done["sources"]
+    viva = next(g for g in src if g["name"] == "Viva Jets Oy")
+    assert 1 <= len(viva["links"]) <= 4 and all(l["url"].startswith("https://") and l["label"] for l in viva["links"])
+    for g in src:
+        for l in g["links"]:
+            assert l["url"] in t.ctx.urls, l                      # nothing the model typed
+    assert any(g["name"] == "Business Finland" for g in src) and "made-up.example" not in json.dumps(src)
+
+
+def test_a_company_seen_only_in_a_search_gets_its_page_as_the_source(th):
+    t, _ = turn_for(th, "hi", [call(tools=[("search_startups", {"text": "viva"})]), call(text=f"Look at [Viva Jets Oy](/c/{VIVA}).")])
+    assert run(t)[-1]["data"]["sources"] == [{"name": "Viva Jets Oy", "links": [{"label": "The radar's record", "url": f"/c/{VIVA}"}]}]
+
+
 def test_a_real_key_with_the_wrong_name_is_not_a_link(th):
     t, _ = turn_for(th, "Tell me about Viva Jets", [call(tools=[("get_startup", {"company_key": VIVA})]), call(text=f"[Arctic Fry Oy](/c/{VIVA}) is a good fit.")])
     done = run(t)[-1]["data"]

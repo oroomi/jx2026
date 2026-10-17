@@ -141,7 +141,7 @@ def _error_stream(request: Request, th: dict, question: str, kind: str, message:
     yield sse("delta", {"text": text, "fallback": True})
     if keys:
         yield sse("entities", {"keys": keys, "names": {}})
-    yield sse("done", {"text": text, "keys": keys, "unverified": [], "fallback": True, "truncated": False, "model": None})
+    yield sse("done", {"text": text, "keys": keys, "unverified": [], "sources": [], "fallback": True, "truncated": False, "model": None})
 
 
 def _refuse(request: Request, th: dict, question: str, kind: str, message: str, status: int, extra: dict | None = None):

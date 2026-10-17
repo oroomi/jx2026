@@ -253,6 +253,7 @@
           x.box.removeAttribute("aria-busy"); x.box.classList.remove("is-thinking"); x.status.remove();
           x.p.listen(x.box, text);
           if (acts.length) { var last = acts[acts.length - 1]; x.box.appendChild(el("p", "chat-act", "Applied to the list: " + describe(last.filters) + (last.for ? ", top matching for " + last.for : "") + (typeof last.matches === "number" ? " (" + last.matches + " shown)" : ""))); }
+          if (final.sources && final.sources.length) x.box.appendChild(sourcesLine(final.sources));
           if (final.unverified && final.unverified.length) x.box.appendChild(el("p", "chat-note", "Not from the records Aava looked at, treat as unverified: " + final.unverified.join(", ") + "."));
           x.p.chips(followups);
         });
@@ -278,6 +279,24 @@
       });
     }
   };
+  /* The records behind the answer, as links the server took from its tool results: "Sources: Viva Jets Oy: PRH register, Business Finland export". */
+  function sourcesLine(list) {
+    var p = el("p", "chat-sources");
+    p.appendChild(el("span", "chat-sources-h", "Sources "));
+    list.forEach(function (g, i) {
+      var span = el("span", "chat-sources-g");
+      span.appendChild(document.createTextNode(g.name + ": "));
+      (g.links || []).forEach(function (l, j) {
+        if (j) span.appendChild(document.createTextNode(", "));
+        var a = linkNode(l.label, l.url);
+        if (a.nodeType === 1) { a.classList.remove("chat-co"); a.classList.add("chat-src"); if (/^\//.test(l.url)) { a.removeAttribute("target"); } }
+        span.appendChild(a);
+      });
+      p.appendChild(span);
+      if (i < list.length - 1) p.appendChild(document.createTextNode(" · "));
+    });
+    return p;
+  }
   function nameOf(text, key) {
     var m = new RegExp("\\[([^\\]]+)\\]\\(/c/" + key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "\\)").exec(text);
     return m ? m[1] : key;

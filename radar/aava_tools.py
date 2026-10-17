@@ -39,6 +39,8 @@ class ToolContext:
         self.actions: list[dict] = []
         self.followups: list[str] = []
         self.calls: list[dict] = []             # {name, ms, ok} for the log
+        self.sources: dict[str, list[tuple[str, str]]] = {}     # company_key -> [(label, address)] of the records its tool results cited
+        self.org_sources: dict[str, str] = {}                   # organisation id -> its declared page
         self.urls: set[str] = set()             # every address a tool result held: the only external links the answer may keep
         self._home: dict | None = None
         self._conns: dict[int, object] = {}     # one read-only connection per thread: the streaming response may call us from several
@@ -77,9 +79,18 @@ class ToolContext:
         if key and name:
             self.seen[str(key)] = str(name)
 
-    def see_org(self, oid: str | None, name: str | None) -> None:
+    def see_org(self, oid: str | None, name: str | None, url: str | None = None) -> None:
         if oid and name:
             self.seen_orgs[str(oid)] = str(name)
+            if url and str(url).startswith("http"):
+                self.org_sources.setdefault(str(oid), str(url))
+
+    def add_source(self, key: str, label: str | None, url: str | None) -> None:
+        """Remember a record a company's facts came from (the answer's source line is built from these, never from the model's own links)."""
+        if key and url and str(url).startswith("http"):
+            lst = self.sources.setdefault(key, [])
+            if all(u != url for _, u in lst):
+                lst.append((str(label or "Source record"), str(url)))
 
     def by_key(self) -> dict[str, dict]:
         return {r["company_key"]: r for r in self.rows()}
@@ -89,6 +100,19 @@ class ToolContext:
         if self._view is None:
             self._view = sanitize_view(self.raw_view, self)
         return self._view
+
+
+def source_lines(ctx: ToolContext, keys: list[str], text: str, per: int = 4) -> list[dict]:
+    """The records behind the answer, for the line printed under it: each company the answer links (its records the tools cited, else its page on this
+    site) and each organisation the answer names (its declared page). Every address comes from a tool result, none from the model."""
+    out = []
+    for k in keys:
+        links = ctx.sources.get(k) or [("The radar's record", f"/c/{k}")]
+        out.append({"name": ctx.seen.get(k, k), "links": [{"label": lb, "url": u} for lb, u in links[:per]]})
+    for oid, name in ctx.seen_orgs.items():
+        if name in text and ctx.org_sources.get(oid):
+            out.append({"name": name, "links": [{"label": "Declared page", "url": ctx.org_sources[oid]}]})
+    return out
 
 
 def sanitize_view(raw: dict, ctx: ToolContext) -> dict:
@@ -275,7 +299,7 @@ def _counterparts(ctx: ToolContext, key: str, k: int = 3) -> dict | None:
         return None
     out = []
     for c in res["counterparts"]:
-        ctx.see_org(c["id"], c["name"])
+        ctx.see_org(c["id"], c["name"], c.get("url"))
         met, link = [], None
         for x in c["components"]:
             if x["met"] and x.get("reason"):
@@ -316,6 +340,14 @@ def get_startup(ctx: ToolContext, a: dict) -> dict:
     signals = [{"date": s.get("date_label") or s.get("date"), "type": s.get("type_label"), "what": _clean(s.get("detail"), nm, th), "source": s.get("source_label"),
                 "url": s.get("source_url"), "confidence": s.get("confidence")} for s in (api.get("signals") or [])[:n_sig]]
     oi = m.get("ocean_impact") or {}
+    ctx.add_source(key, "Trade register record", c.get("source_url"))
+    for sg in (api.get("signals") or [])[:n_sig]:
+        ctx.add_source(key, sg.get("source_label"), sg.get("source_url"))
+    for lv in (api.get("readiness") or {}).values():
+        for e in (lv.get("evidence") or [])[:3] if isinstance(lv, dict) else []:
+            ctx.add_source(key, e.get("source_label"), e.get("source_url"))
+    for e in (oi.get("evidence") or [])[:4]:
+        ctx.add_source(key, e.get("source_label"), e.get("url"))
     declared = (api.get("readiness") or {}).get("declared_dataset") or {}
     ready = declared.get("ready") or {}
     out = {
@@ -359,7 +391,7 @@ def explain_match(ctx: ToolContext, a: dict) -> dict:
     if org is None:
         near = [o for o in reg["orgs"] if oid.casefold() in o["name"].casefold()][:5] if oid else []
         return {"error": f"no organisation with id {oid!r}; call list_organisations", "did_you_mean": [{"org_id": o["id"], "name": o["name"]} for o in near]}
-    ctx.see_org(org["id"], org["name"])
+    ctx.see_org(org["id"], org["name"], org.get("url"))
     idx = matchmaker._index(conn, ctx.th, cfg, today)
     sp = matchmaker.startup(conn, ctx.th, cfg, key, today)
     if sp is None:
@@ -392,7 +424,7 @@ def list_organisations(ctx: ToolContext, a: dict) -> dict:
         rows = [r for r in rows if all(w in f"{r['name']} {r['focus']}".casefold() for w in text.split())]
     shown = rows[:15]
     for r in shown:
-        ctx.see_org(r["id"], r["name"])
+        ctx.see_org(r["id"], r["name"], r.get("url"))
     return {"matches": len(rows), "showing": len(shown), "kinds": kinds,
             "organisations": [{"org_id": r["id"], "name": r["name"], "kind": r["kind_label"], "declared_focus": r["focus"], "demand": r["demand"], "website": r["url"],
                                "deadline": r["deadline"] or r["deadline_text"] or "none stated", "geography": r["geography"], "companies_of_theirs_in_our_records": r["members_in_records"]}

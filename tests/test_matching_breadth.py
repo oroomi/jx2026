@@ -76,3 +76,30 @@ def test_cohort_company_still_gets_investors_from_the_lists(nxt):
 def test_rank_rule_and_group_rules_are_printed():
     assert "five groups" in matching.RANK_RULE
     assert set(matching.GROUP_RULES) == set(GROUP_KEYS)
+
+
+RAW = ("[", "]", "kw ", "caps ", "(", ")", '"')
+
+
+def test_no_reason_carries_raw_tokens(nxt, monkeypatch):
+    import sqlite3 as sq
+    keys = [r[0] for r in sq.connect(f"file:{SNAP / 'radar_redstone_apelago_blue.sqlite'}?mode=ro", uri=True).execute(
+        "SELECT company_key FROM companies WHERE group_tag IN ('cohort','portfolio')")]
+    seen = 0
+    for key in [VIVA, ARCTIC, *keys]:
+        n = nxt(key, limit=20)
+        for g, rows in n.items():
+            for r in rows:
+                seen += 1
+                assert not any(tok in r["reason"] for tok in RAW), (key, g, r["reason"])
+                assert r["reason"].endswith(".") and r["reason"][0].isupper()
+    assert seen > 50
+
+
+def test_plain_why_reads_the_dataset_reason_string():
+    s = matching.plain_why("caps ['C10', 'C3']; kw []; stage 1.0", 67.5)
+    assert s.startswith("Shares C3") and "C10" in s and "stage fits" in s and "dataset match 68 of 100" in s
+    assert "kw" not in s and "[" not in s and "shared keywords" not in s  # no empty keyword clause
+    s = matching.plain_why("caps ['C5']; kw ['fish side-streams']; stage 0.5; impact 2/5")
+    assert "shared keywords fish side-streams" in s and "stage overlap partial" in s and "impact rating 2 of 5" in s
+    assert matching._plain("the company's stage (seed) \"x\" [y]") == "the company's stage, seed, x, y"

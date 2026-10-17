@@ -59,6 +59,101 @@ NEXT_RULES = (
 )
 
 
+# ---- plain reasons: one sentence a fund partner reads, no brackets, quotes, empty lists or bare scores ------------------
+_CAP_LABELS: dict[str, str] = {}
+
+
+def _cap_labels() -> dict[str, str]:
+    """Capability code -> label from the declared dataset, '&' written as 'and'. Empty when the dataset is not here."""
+    if not _CAP_LABELS:
+        eco = _eco_db()
+        if eco is not None:
+            try:
+                _CAP_LABELS.update({c: re.sub(r"\s*&\s*", " and ", l) for c, l in eco.execute("SELECT code, label FROM capability")})
+            finally:
+                eco.close()
+    return _CAP_LABELS
+
+
+def plain_list(items) -> str:
+    items = [str(i) for i in items if str(i).strip()]
+    return items[0] if len(items) == 1 else ", ".join(items[:-1]) + " and " + items[-1] if items else ""
+
+
+def _plain(text: str | None) -> str:
+    """Source text made safe for a reason sentence: brackets become commas, quotes go, spaces collapse."""
+    t = re.sub(r"\s*[(\[]\s*", ", ", text or "")
+    t = re.sub(r"\s*[)\]]\s*(?=[^\s,.;:)\]])", ", ", t)  # a closing bracket before more text becomes a comma
+    t = re.sub(r"\s*[)\]]", "", t)
+    t = re.sub(r"[\"\u201c\u201d]", "", t)
+    t = re.sub(r"(?<![^\W\d_])['\u2018\u2019]|['\u2018\u2019](?![^\W\d_])", "", t)  # quote marks go; an apostrophe inside a word stays
+    t = re.sub(r"\s*,(\s*,)+", ",", t)
+    return re.sub(r"\s+", " ", t).strip(" ,")
+
+
+def _sentence(*parts: str) -> str:
+    body = ", ".join(p.strip().rstrip(".") for p in parts if p and p.strip())
+    return (body[:1].upper() + body[1:] + ".") if body else ""
+
+
+def _caps_phrase(codes) -> str:
+    labels = _cap_labels()
+    return plain_list(f"{c} {labels[c]}" if c in labels else f"capability {c}" for c in sorted(codes, key=lambda c: int(c[1:])))
+
+
+_STAGE_WORDS = {"idea": "idea", "pre_seed": "pre-seed", "seed": "seed", "series_a": "Series A", "series_b_plus": "Series B and later",
+                "growth": "growth", "established": "established", "public": "listed"}
+
+
+def _stage_words(stage: str | None) -> str:
+    return _STAGE_WORDS.get(stage or "", (stage or "").replace("_", " "))
+
+
+def _times(n: int) -> str:
+    return {1: "once", 2: "twice"}.get(n, f"{n} times")
+
+
+def _according(label: str) -> str:
+    return f"according to {label}" if label.isupper() or label in ("Hilma", "OpenAlex") else f"according to the {label}"
+
+
+def plain_why(why: str | None, score: float | None = None) -> str:
+    """The dataset's reason string ("caps [...]; kw [...]; stage 0.5; impact 0/5") as one plain sentence."""
+    w = why or ""
+    m = re.search(r"caps \[([^\]]*)\]", w)
+    codes = re.findall(r"C\d+", m.group(1)) if m else []
+    m = re.search(r"kw \[([^\]]*)\]", w)
+    kws = re.findall(r"'([^']+)'", m.group(1)) if m else []
+    parts = []
+    if codes:
+        parts.append(f"shares {_caps_phrase(codes)} with the company")
+    if kws:
+        parts.append(f"shared keywords {plain_list(_plain(k) for k in kws)}")
+    m = re.search(r"stage ([\d.]+)", w)
+    if m:
+        v = float(m.group(1))
+        parts.append("stage fits" if v >= 1 else "stage overlap partial" if v > 0 else "stage does not overlap")
+    m = re.search(r"impact (\d+)/(\d+)", w)
+    if m:
+        parts.append(f"dataset impact rating {m.group(1)} of {m.group(2)}")
+    if score is not None:
+        parts.append(f"dataset match {round(score)} of 100")
+    if not codes and not kws and not m and score is None and w.strip():
+        return _sentence(_plain(w))
+    return _sentence(*parts)
+
+
+def _word_in(text: str, stem: str) -> str:
+    """The whole word in text that starts with stem, lower case, for a readable reason ('aquacultur' -> 'aquaculture')."""
+    m = re.search(rf"(?<!\w){re.escape(stem)}\w*", (text or "").casefold())
+    return m.group(0) if m else stem
+
+
+def _on(day: str | None) -> str:
+    d = str(day or "")
+    return f"in {d[:4]}" if d[5:] in ("", "01-01") else f"on {d[:10]}"
+
+
 def _read_csv(rel: str | None) -> list[dict]:
     if not rel:
         return []
@@ -198,11 +293,8 @@ def _programmes(thesis: dict, ctx: dict, today: date) -> list[dict]:
         ok, notes = _eligibility(r, ctx)
         if not ok:
             continue
-        reason = f"Open: {r['stage_window'] or 'eligibility not stated'}; deadline: {dl['text']}"
-        if r.get("amount_eur"):
-            reason += f"; amount: {r['amount_eur']}"
-        if notes:
-            reason += ". " + "; ".join(notes)
+        reason = _sentence(f"open to {_plain(r['stage_window']) or 'eligibility not stated'}", f"deadline {_plain(dl['text'])}",
+                           f"amount {_plain(r['amount_eur'])}" if r.get("amount_eur") else "", *(_plain(n) for n in notes))
         out.append({"name": r["name"], "kind": r["type"], "reason": reason, "score": None, "source_url": url,
                     "confidence": None, "deadline": dl["date"], "deadline_text": dl["text"]})
     return out
@@ -243,7 +335,8 @@ def _public_buyers(conn, thesis: dict, ctx: dict, today: date) -> list[dict]:
         hit = next((w for w in words if w in title.casefold()), None)
         if hit and buyer not in best:
             best[buyer] = {"name": buyer, "kind": "public buyer", "score": None, "source_url": s["source_url"], "confidence": s["confidence"],
-                           "date": s["date"], "reason": f"Bought {cat} on {s['date']}: {re.sub(r' [(]EUR [^)]*[)]$', '', title)[:160]} (matched '{hit}')",
+                           "date": s["date"], "reason": _sentence(f"bought {cat} on {s['date']}: {_plain(re.sub(r' [(]EUR [^)]*[)]$', '', title))[:160]}",
+                                                                   f"the title mentions {_word_in(title, hit)}"),
                            "category": cat}
     return list(best.values())
 
@@ -287,7 +380,7 @@ def _assemble(conn, thesis: dict, company_key: str, ctx: dict, t: date) -> dict:
             continue  # a cohort or portfolio company already works with the partner organisations
         if not (r["why"] or "").strip():
             continue  # a row without a stated reason is hidden, never shown with a placeholder
-        row = {"name": r["name"], "kind": (r["target_type"] or "").replace("_", " "), "reason": r["why"].strip(),
+        row = {"name": r["name"], "kind": (r["target_type"] or "").replace("_", " "), "reason": plain_why(r["why"], r["score"]),
                "score": r["score"], "source_url": r["source_url"], "confidence": r["confidence"], "deadline": None,
                "origin": "ecosystem dataset", "facts": None}
         if r["target_type"] in INVESTOR_TYPES:
@@ -307,7 +400,7 @@ def _assemble(conn, thesis: dict, company_key: str, ctx: dict, t: date) -> dict:
                 if not ok:
                     continue
                 if notes:
-                    row["reason"] += ". " + "; ".join(notes)
+                    row["reason"] = _sentence(row["reason"], *(_plain(n) for n in notes))
             row["deadline"] = _deadline_for(r["name"], programmes)
             fund.append(row)
         elif r["target_side"] == "demand":
@@ -386,9 +479,6 @@ def _is_partner(name: str) -> bool:
     return any(key.startswith(fold(p)) for p in store.PARTNER_PREFIXES)
 
 
-def _cap_text(prof: dict, codes) -> str:
-    return "; ".join(f"{c} {prof['labels'].get(c, '')}".strip() for c in sorted(codes))
-
 
 def _topic_words(ctx: dict, thesis: dict, prof: dict | None) -> list[str]:
     """Folded words that say what the company works on: its impact-category words, the thesis's buyer words for that category,
@@ -463,16 +553,14 @@ def _dataset_investors(eco, prof: dict | None, ctx: dict) -> list[dict]:
         names = backed.get(fold(e["name"]), [])
         if not own and not names:
             continue
-        bits = []
-        if fit_stage == "fits":
-            bits.append(f"funds the company's stage ({prof['stage'].replace('_', ' ')}; stated stages: {e['inv_stages']})")
-        else:
-            bits.append("stage window not stated")
+        bits = [f"funds {_stage_words(prof['stage'])} stage, the company's stage" if fit_stage == "fits" else "stage window not stated"]
         if own:
-            bits.append(f"funds capability {_cap_text(prof, own)}")
+            bits.append(f"invests in {_caps_phrase(own)}")
         if names:
-            bits.append(f"backed {len(names)} company{'ies' if len(names) != 1 else ''} with the same capability: {', '.join(sorted(set(names))[:3])}")
-        out.append(_grow(e["name"], (e["entity_type"] or "").replace("_", " "), "; ".join(bits) + " (declared ecosystem dataset).",
+            bits.append(f"backed {plain_list(_plain(n) for n in sorted(set(names))[:3])}, which share{'s' if len(set(names)) == 1 else ''} "
+                        f"a capability with the company")
+        bits.append("according to the declared ecosystem dataset")
+        out.append(_grow(e["name"], (e["entity_type"] or "").replace("_", " "), _sentence(*bits),
                          _eco_url(eco, e["id"], e["website"]), e["last_verified"], "ecosystem dataset",
                          confidence=e["confidence"], key=(0 if fit_stage == "fits" else 1, -len(names), -len(own), e["name"].casefold())))
     return out
@@ -486,9 +574,6 @@ def _programme(detail: str | None) -> str:
     return m.group(1) if m else "EU programme"
 
 
-def _year_label(s: dict) -> str:
-    return s.get("date_label") or s["date"]
-
 
 def _public_funding(conn, eco, prof: dict | None, ctx: dict, topic: list[str], t: date) -> list[dict]:
     out, c = [], ctx["c"]
@@ -498,8 +583,9 @@ def _public_funding(conn, eco, prof: dict | None, ctx: dict, topic: list[str], t
             own.setdefault(_FUNDERS[s["signal_type"]] or _programme(s.get("detail")), []).append(s)
     for funder, sigs in own.items():
         last = max(sigs, key=lambda s: s["date"])
-        out.append(_grow(funder, "public funder", f"Funded this company {len(sigs)} time{'s' if len(sigs) != 1 else ''}, latest "
-                         f"{_year_label(last)} ({store.SOURCE_LABELS.get(last['adapter'], last['adapter'])}).", last["source_url"],
+        out.append(_grow(funder, "public funder", _sentence(f"funded this company {_times(len(sigs))}",
+                         f"latest {_on(last['date'])}", _according(store.SOURCE_LABELS.get(last["adapter"], last["adapter"]))),
+                         last["source_url"],
                          last["date"], "this company's records", confidence=last["confidence"], key=(0, -len(sigs))))
     since = (t - timedelta(days=3 * 365)).isoformat()
     code = (c.get("industry_code") or "").strip()
@@ -510,8 +596,9 @@ def _public_funding(conn, eco, prof: dict | None, ctx: dict, topic: list[str], t
         firms = {r["company_key"] for r in rows}
         if firms and "Business Finland" not in own:
             last = max(rows, key=lambda r: r["date"])
-            out.append(_grow("Business Finland", "public funder", f"Funded {len(firms)} other compan{'ies' if len(firms) != 1 else 'y'} "
-                             f"with the same industry code {code} ({c.get('industry_desc') or 'line of business not stated'}) since {since[:4]}.",
+            desc = f", {_plain(c['industry_desc'])}" if c.get("industry_desc") else ""
+            out.append(_grow("Business Finland", "public funder", _sentence(f"funded {len(firms)} other compan{'ies' if len(firms) != 1 else 'y'} "
+                             f"with the same industry code {code}{desc}, since {since[:4]}", "according to the Business Finland export"),
                              last["source_url"], last["date"], "Business Finland export", confidence="high", key=(1, -len(firms))))
     if topic:
         per: dict[str, list] = {}
@@ -524,13 +611,14 @@ def _public_funding(conn, eco, prof: dict | None, ctx: dict, topic: list[str], t
             if prog in own:
                 continue
             s, w = max(hits, key=lambda h: h[0]["date"])
-            out.append(_grow(prog, "EU funding programme", f"Funded {len(hits)} project{'s' if len(hits) != 1 else ''} since {since[:4]} "
-                             f"whose title holds the company's topic word '{w}'; latest started {s['date']} (CORDIS).", s["source_url"],
+            out.append(_grow(prog, "EU funding programme", _sentence(f"funded {len(hits)} project{'s' if len(hits) != 1 else ''} since {since[:4]} "
+                             f"whose title mentions {_word_in(_project_text(s['detail']), w)}", f"the latest starting on {s['date']}",
+                             "according to CORDIS"), s["source_url"],
                              s["date"], "CORDIS", confidence="medium", key=(2, -len(hits))))
     profile = blueinvest.profile_for(conn, c["company_key"])
     if profile and profile.get("url"):
-        out.append(_grow("EU BlueInvest", "public programme", "Lists this company in the BlueInvest project pipeline"
-                         + (f" (TRL {profile['trl']} stated)." if profile.get("trl") is not None else "."), profile["url"],
+        out.append(_grow("EU BlueInvest", "public programme", _sentence("lists this company in the BlueInvest project pipeline"
+                         + (f" at a stated TRL {profile['trl']}" if profile.get("trl") is not None else "")), profile["url"],
                          profile.get("listed_date"), "BlueInvest pipeline", confidence="high", key=(0, 0)))
     if eco is not None and prof and prof["caps"]:
         q = ",".join("?" * len(prof["caps"]))
@@ -541,15 +629,16 @@ def _public_funding(conn, eco, prof: dict | None, ctx: dict, topic: list[str], t
             if e["status"] in INACTIVE:
                 continue
             shared = set(e["shared"].split(","))
-            bits = [f"funds capability {_cap_text(prof, shared)}"]
+            bits = [f"funds {_caps_phrase(shared)}"]
             if fit_stage == "fits":
-                bits.append(f"funds the company's stage ({prof['stage'].replace('_', ' ')}; stated stages: {e['inv_stages']})")
+                bits.append(f"funds {_stage_words(prof['stage'])} stage, the company's stage")
             elif fit_stage is None:  # a public funder's stated stages rank, never exclude: grants serve every stage
-                bits.append(f"stated stages {e['inv_stages']} do not list the company's stage ({prof['stage'].replace('_', ' ')})")
+                stated = plain_list(_stage_words(x.strip()) for x in re.split(r"[;,]", e["inv_stages"]) if x.strip())
+                bits.append(f"its stated stages, {stated}, do not include the company's {_stage_words(prof['stage'])} stage")
             if e["id"] in scores:
-                bits.append(f"dataset match score {scores[e['id']]:g}")
-            reason = "; ".join(bits)
-            out.append(_grow(e["name"], "public funder", reason[0].upper() + reason[1:] + " (declared ecosystem dataset).",
+                bits.append(f"dataset match {round(scores[e['id']])} of 100")
+            bits.append("according to the declared ecosystem dataset")
+            out.append(_grow(e["name"], "public funder", _sentence(*bits),
                              _eco_url(eco, e["id"], e["website"]), e["last_verified"], "ecosystem dataset", confidence=e["confidence"],
                              key=(3, {"fits": 0, "unknown": 1}.get(fit_stage, 2), -len(shared), -scores.get(e["id"], 0), e["name"].casefold())))
     return out
@@ -581,13 +670,13 @@ def _buyers(conn, ctx: dict, thesis: dict, topic: list[str], t: date) -> list[di
             continue
         ic = (s["industry_code"] or "").strip()
         if s["company_key"] == c["company_key"]:
-            tier, why = 0, "already bought from this company"
+            tier, why = 0, "to this company"
         elif code and ic == code:
-            tier, why = 1, f"bought from a company with the same industry code {code}"
+            tier, why = 1, f"to a company with the same industry code {code}"
         elif code and ic[:2] == code[:2]:
-            tier, why = 2, f"bought from a company in the same industry division {code[:2]}"
+            tier, why = 2, f"to a company in the same industry division {code[:2]}"
         elif _hit(topic, title):
-            tier, why = 3, f"contract title holds the company's topic word '{_hit(topic, title)}'"
+            tier, why = 3, f"with a title that mentions {_word_in(title, _hit(topic, title))}"
         else:
             continue  # a thesis-wide word alone (Finnish compounds: 'vesi' is also in 'vesikatto', a roof) is not the company's category
         b = best.get(buyer)
@@ -599,10 +688,11 @@ def _buyers(conn, ctx: dict, thesis: dict, topic: list[str], t: date) -> list[di
     out = []
     for buyer, b in best.items():
         s = b["last"]
-        val = f", EUR {b['lv']:,.0f}" if b["lv"] else ""
-        total = f"; EUR {b['value']:,.0f} in total" if b["n"] > 1 and b["value"] else ""
-        out.append(_grow(buyer, "public buyer", f"Awarded {b['n']} contract{'s' if b['n'] != 1 else ''} since {since[:7]}: {b['why']}{total}. "
-                         f"Latest {s['date']}: {b['title'][:120]}{val} (Hilma).", s["source_url"], s["date"], "Hilma notices",
+        val = f", worth EUR {b['lv']:,.0f}" if b["lv"] else ""
+        total = f"EUR {b['value']:,.0f} in total" if b["n"] > 1 and b["value"] else ""
+        out.append(_grow(buyer, "public buyer", _sentence(f"awarded {b['n']} contract{'s' if b['n'] != 1 else ''} since {since[:7]} {b['why']}",
+                         total, f"the latest on {s['date']} for {_plain(b['title'])[:120]}{val}", "according to Hilma"),
+                         s["source_url"], s["date"], "Hilma notices",
                          confidence="high" if b["tier"] == 0 else "medium" if b["tier"] <= 2 else "low",
                          key=(b["tier"], -b["n"], "".join(chr(255 - ord(ch)) for ch in s["date"]))))
     return out
@@ -626,17 +716,19 @@ def _project_partners(conn, ctx: dict, thesis: dict, topic: list[str]) -> list[d
         if fit.looks_like_person(s["name"], thesis) or store.is_partner_org(s["name"]):
             continue
         text = _project_text(s["detail"])
-        project = text.split(" (")[0][:120] or "the project"
+        project = _plain(text.split(" (")[0][:120]) or "the project"
         role = re.search(r"role (\w+)", text)
-        role = f", role {role.group(1)}" if role else ""
+        role = f"as {role.group(1)}" if role else ""
         if s["source_url"] in mine:
-            out.append(_grow(s["name"], "project partner", f"In the same EU project as this company: {project}{role}, start {s['date']} (CORDIS).",
+            out.append(_grow(s["name"], "project partner", _sentence(f"took part in the same EU project as this company, {project}",
+                             f"{role} from {s['date']}" if role else f"from {s['date']}", "according to CORDIS"),
                              s["source_url"], s["date"], "CORDIS", confidence="high", key=(0, "".join(chr(255 - ord(ch)) for ch in s["date"]))))
             continue
         w = _hit(topic, text)
         if w:
-            out.append(_grow(s["name"], "project partner", f"Took part in an EU project whose title holds the company's topic word '{w}': "
-                             f"{project}{role}, start {s['date']} (CORDIS).", s["source_url"], s["date"], "CORDIS", confidence="low",
+            out.append(_grow(s["name"], "project partner", _sentence(f"took part in an EU project whose title mentions {_word_in(text, w)}, {project}",
+                             f"{role} from {s['date']}" if role else f"from {s['date']}", "according to CORDIS"),
+                             s["source_url"], s["date"], "CORDIS", confidence="low",
                              key=(1, "".join(chr(255 - ord(ch)) for ch in s["date"]))))
     return out
 
@@ -649,7 +741,7 @@ def _research_institutes(eco, prof: dict | None) -> list[dict]:
                             JOIN entity e ON e.id=m.target_id WHERE m.supply_id=? AND e.entity_type='research_org'""", (prof["id"],)):
         if m["status"] in INACTIVE or not (m["why"] or "").strip():
             continue
-        out.append(_grow(m["name"], "research institute", f"Dataset match score {m['score']:g}: {m['why'].strip()} (declared ecosystem dataset).",
+        out.append(_grow(m["name"], "research institute", _sentence(plain_why(m["why"], m["score"]), "according to the declared ecosystem dataset"),
                          _eco_url(eco, m["target_id"], m["website"]), m["last_verified"], "ecosystem dataset", confidence=m["confidence"],
                          key=(0, -m["score"])))
     if prof["caps"]:
@@ -659,7 +751,8 @@ def _research_institutes(eco, prof: dict | None) -> list[dict]:
             if e["status"] in INACTIVE:
                 continue
             shared = set(e["shared"].split(","))
-            out.append(_grow(e["name"], "research institute", f"Works on capability {_cap_text(prof, shared)} (declared ecosystem dataset).",
+            out.append(_grow(e["name"], "research institute", _sentence(f"works on {_caps_phrase(shared)}, a capability of the company",
+                                                                           "according to the declared ecosystem dataset"),
                              _eco_url(eco, e["id"], e["website"]), e["last_verified"], "ecosystem dataset", confidence=e["confidence"],
                              key=(1, -len(shared), e["name"].casefold())))
     return out
@@ -712,6 +805,9 @@ def who_comes_next(company_key: str, thesis: dict, limit: int = 5, *, conn: sqli
             for r in out[k]:
                 r.setdefault("date", r.get("deadline"))
         out.update(wide)
+        for rows in out.values():
+            for r in rows:  # the last guard: a reason is one plain sentence, whatever a source title carried
+                r["reason"] = _sentence(_plain(r["reason"]))
         return out
     finally:
         if own:
@@ -754,7 +850,8 @@ def next_step(company_key: str, thesis: dict, *, conn: sqlite3.Connection | None
         if trl is not None and trl >= 7 and irl is not None and irl <= 3 and lists["investors"]:
             top = lists["investors"][0]
             return {"sentence": f"Meet now: judge a raise, and introduce them to {top['name']}", "rule": 3, "source_url": top["source_url"],
-                    "because": f"TRL {trl} ({ctx['trl_src']}) with investment level {irl} is a readiness gap; top investor by dataset score {top['score']}: {top['reason']}"}
+                    "because": f"TRL {trl} ({ctx['trl_src']}) with investment level {irl} is a readiness gap; the top investor in the list"
+                               + (f", dataset match {round(top['score'])} of 100" if top.get("score") is not None else "") + f": {top['reason']}"}
         if ctx["c"]["group_tag"] in ("cohort", "portfolio"):
             dated = [s for s in sigs if s["date"] <= t.isoformat()]
             last = max(dated, key=lambda s: s["date"], default=None)

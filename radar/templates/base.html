@@ -17,6 +17,7 @@
 {# design C, phase 5: the skin layer loads last on every page, so editorial (the default) covers the whole site #}
 <link rel="stylesheet" href="/static/skins.css?v={{ asset_v }}">
 <link rel="stylesheet" href="/static/site.css?v={{ asset_v }}">
+<link rel="stylesheet" href="/static/askbar.css?v={{ asset_v }}">
 {% include "_skin_head.html" %}
 </head>
 <body>
@@ -25,13 +26,7 @@
     <a class="brand" href="/"><span class="brand-name">Ocean Opportunity Radar</span> <span class="brand-for">for Redstone Blue x A'Pelago, JunctionX Turku 2026</span></a>
     <button id="theme-toggle" type="button" aria-label="Switch between light and dark">Light or dark</button>
     {% set cur = current_thesis(request) %}
-    <nav aria-label="Main">
-      <a href="/" {% if active == "feed" %}aria-current="page"{% endif %}>New this quarter</a>
-      <a href="/radar" {% if active == "radar" %}aria-current="page"{% endif %}>{{ cur.cohort_label or "Cohort radar" }}</a>
-      <a href="/backtest" {% if active == "backtest" %}aria-current="page"{% endif %}>Earliness test</a>
-      <a href="/method" {% if active == "method" %}aria-current="page"{% endif %}>Rules</a>
-      <a href="/data" {% if active == "data" %}aria-current="page"{% endif %}>Data</a>
-    </nav>
+    {% include "_nav_menu.html" %}
   </div>
   <div class="wrap thesis-bar">
     <details class="sector"><summary><span class="thesis-now">Sector: <strong>{{ cur.title }}</strong> <span class="sep">/</span> Countries: <strong>{{ country_info(cur).codes | join(", ") }}</strong></span> <span class="sector-change">Change sector or region</span></summary>
@@ -50,7 +45,7 @@
 <footer class="wrap foot">
   <span>{{ build_line }}</span>
   <span>Public records only. Companies only.</span>
-  <span class="foot-links"><a class="foot-link" href="/how">How to read this (60 seconds)</a> <a class="foot-link" href="/method">Rules</a></span>
+  <nav class="foot-links" aria-label="Pages"><a class="foot-link" href="/how">How to read this (60 seconds)</a> <a class="foot-link" href="/">New this quarter</a> <a class="foot-link" href="/radar">{{ cur.cohort_label or "Cohort radar" }}</a> <a class="foot-link" href="/backtest">Earliness test</a> <a class="foot-link" href="/method">Rules</a> <a class="foot-link" href="/data">Data</a></nav>
 </footer>
 {% from "_tabbar.html" import tabbar %}{{ tabbar("search" if searching else {"feed": "radar", "radar": "lists", "backtest": "backtest", "data": "data"}.get(active, ""), "c-tab") }}
 {% block scripts %}{% endblock %}

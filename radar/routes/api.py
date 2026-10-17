@@ -17,6 +17,7 @@ ENDPOINTS = [
     {"path": "/api/company/{company_key}?thesis=&limit=", "what": "register facts, signals with sources, readiness levels, who comes next, next step"},
     {"path": "/api/feed?thesis=&window=&type=", "what": "the early-signal feed rows with their reason; window = days (default from the thesis)"},
     {"path": "/api/backtest?thesis=", "what": "the earliness backtest per cohort company"},
+    {"path": "/api/ask?q=&thesis=", "what": "the answer behind the home page's Ask Aava bar: {intent, say, url, action}, deterministic (radar/routes/ask.py)"},
 ]
 
 
@@ -198,8 +199,3 @@ def api_backtest(thesis: str | None = None):
             conn.close()
         return {"thesis": _head(th), "rule": earliness.rule_lines(th), "not_connected": nc, **res}
     return _run(body)
-
-
-@router.get("/{rest:path}", include_in_schema=False)
-def api_not_found(rest: str):
-    return _error(404, f"no API endpoint /api/{rest}", endpoints=ENDPOINTS)

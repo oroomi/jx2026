@@ -9,10 +9,9 @@
 {% set gkey = request.query_params.get("group") or "all" %}
 {% set allg = H.groups + H.countries %}
 {% set cur = (allg | selectattr(0, "equalto", gkey) | first) or H.groups[0] %}
-<section class="hc" aria-labelledby="hc-h">
-  <p class="hc-kicker">In the past {{ thesis.geography.feed_window_days or 90 }} days</p>
-  <h1 id="hc-h" class="hc-head"><span><span class="hc-num" data-n="{{ H.headline.new }}">{{ H.headline.new }}</span> compan{{ "y" if H.headline.new == 1 else "ies" }} surfaced</span>{% if H.headline.month %} <span class="hc-up" aria-label="{{ H.headline.month }} this month">&#9650; {{ H.headline.month }} this month</span>{% endif %}</h1>
-  <p class="hc-src sk-editorial">Count of companies whose first public record falls in the window. Source: PRH/YTJ register, Hilma, CORDIS and Business Finland as stored {{ H.fetched }}.</p>
+<section class="hc" aria-labelledby="ask-h">
+  {# the hero is the Ask Aava bar (design: docs/design_v2/ASK_BAR.md); the old count block lives on as its one-line count #}
+  {% include "_ask_bar.html" %}
   <p class="hc-status sk-terminal" aria-label="Data status"><span class="hc-live">LIVE</span> store {{ H.fetched }} · {{ H.rows | length }} rows · {{ H.window[0] }} to {{ H.window[1] }}</p>
   <nav class="hc-pills" aria-label="Groups">
     {% for k, label, rs in H.groups %}<a href="/?group={{ k }}" data-key="{{ loop.index }}"{% if cur[0] == k %} aria-current="true"{% endif %}><kbd class="sk-terminal">{{ loop.index }}</kbd>{{ label }} <span>{{ rs | length }}</span></a>{% endfor %}

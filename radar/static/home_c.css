@@ -1,0 +1,63 @@
+/* Design C home (phase 3). Phone first, dark default, near-black base, one accent switchable with ?accent=:
+   a = deep sea green, b = amber, c = warm white. Colour other than the accent appears only in the verdict pill. */
+:root[data-theme="dark"] { --bg: #0A0A0B; --surface: #161618; --hairline: #26262A; --text: #FFFFFF; --muted: #9A9AA2; }
+:root[data-theme="dark"], :root[data-theme="dark"][data-accent="a"] { --accent: #3DDC97; --hc-ink: #04140C; }
+:root[data-theme="dark"][data-accent="b"] { --accent: #F5B544; --hc-ink: #1A1205; }
+:root[data-theme="dark"][data-accent="c"] { --accent: #EDE6DA; --hc-ink: #141210; }
+:root[data-theme="light"] { --hc-ink: #FFFFFF; }
+:root[data-theme="light"][data-accent="a"] { --accent: #0E8A5A; }
+:root[data-theme="light"][data-accent="b"] { --accent: #A86400; }
+:root[data-theme="light"][data-accent="c"] { --accent: #2B2722; }
+
+.hc { max-width: 640px; margin: 0 auto; padding: 8px 0 8px; }
+.hc-kicker { margin: 18px 0 0; color: var(--muted); font-size: 16px; }
+.hc-head { margin: 6px 0 18px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; font-family: var(--sans); font-weight: 500; font-size: clamp(1.75rem, 8vw, 2.25rem); line-height: 1.15; letter-spacing: -.02em; }
+.hc-up { color: var(--accent); font-size: 16px; font-weight: 600; letter-spacing: 0; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.hc-pills { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.hc-pills::-webkit-scrollbar { display: none; }
+.hc-pills a { flex: none; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border-radius: 12px; border: 1px solid var(--hairline); color: var(--text); text-decoration: none; font-size: 15px; font-weight: 500; }
+.hc-pills a span { color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+.hc-pills a[aria-current] { background: var(--text); color: var(--bg); border-color: var(--text); }
+.hc-pills a[aria-current] span { color: var(--bg); opacity: .6; }
+.hc-countries { display: flex; gap: 4px 18px; flex-wrap: wrap; margin: 10px 0 2px; }
+.hc-countries a { display: inline-flex; align-items: center; min-height: 44px; min-width: 44px; color: var(--muted); text-decoration: none; font-size: 15px; border-bottom: 2px solid transparent; }
+.hc-countries a[aria-current] { color: var(--text); border-bottom-color: var(--accent); }
+
+.hc-rows { list-style: none; margin: 8px 0 0; padding: 0; }
+.hc-row { display: grid; grid-template-columns: 44px minmax(0,1fr) auto; align-items: center; gap: 14px; padding: 14px 0; min-height: 72px; color: var(--text); text-decoration: none; border-bottom: 1px solid var(--hairline); }
+@media (hover: hover) { .hc-row:hover .hc-name { color: var(--accent); } }
+.hc-mark { width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: var(--surface); font-weight: 600; font-size: 15px; letter-spacing: .02em; }
+.hc-who { display: flex; flex-direction: column; min-width: 0; }
+.hc-name { font-weight: 500; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hc-sub { font-size: 14px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hc-right { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; color: var(--accent); }
+.hc-pill { display: inline-flex; align-items: center; height: 24px; padding: 0 8px; border-radius: 6px; font-size: 14px; font-weight: 600; white-space: nowrap; }
+.hc-watchlist { color: var(--muted); border: 1px solid var(--hairline); }
+.hc-accelerator, .hc-partner-introduction { background: var(--accent); color: var(--hc-ink); }
+.hc-invest, .hc-due-diligence { background: var(--c-pos, #3DD68C); color: #04140C; }
+.hc-reject { background: var(--c-neg, #FF6B6B); color: #fff; }
+.hc-note { margin: 14px 0 0; font-size: 14px; color: var(--muted); }
+
+.hc-more { max-width: 1200px; margin: 28px auto 0; border-top: 1px solid var(--hairline); }
+.hc-more > summary { cursor: pointer; list-style: none; padding: 16px 0; min-height: 44px; font-weight: 600; color: var(--muted); max-width: 640px; margin: 0 auto; }
+.hc-more > summary::-webkit-details-marker { display: none; }
+.hc-more > summary::after { content: "  +"; color: var(--accent); }
+.hc-more[open] > summary::after { content: "  \2212"; }
+
+/* Self-critique round: quieter pills, one-line country row, compact header on phones (home page only). */
+.hc-accelerator, .hc-partner-introduction { background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent); }
+.hc-countries { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.hc-countries::-webkit-scrollbar { display: none; }
+.hc-countries a { flex: none; }
+.hc-right .c-spark { width: 72px; }
+@media (max-width: 600px) {
+  .brand-for { display: none; }
+  .thesis-bar { padding-top: 0; padding-bottom: 6px; }
+  .thesis-bar .thesis-now { font-size: 14px; }
+  .hc-kicker { margin-top: 8px; }
+}
+/* The country and group rows scroll sideways on phones; a soft fade on the right edge says there is more. */
+@media (max-width: 600px) {
+  .hc-countries, .hc-pills { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); padding-right: 24px; }
+}

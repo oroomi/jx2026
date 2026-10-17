@@ -2,7 +2,8 @@
 {% from "_chip.html" import chip, missing %}
 {% block title %}{{ c.name }} | Ocean Opportunity Radar{% endblock %}
 {% block head %}<link rel="stylesheet" href="/static/c_components.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/company.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/matching.css?v={{ asset_v }}">
-<script>try{var a=(location.search.match(/[?&]accent=([abc])/)||[])[1];document.documentElement.dataset.accent=a||"a";}catch(e){}</script>{% endblock %}
+<link rel="stylesheet" href="/static/skins.css?v={{ asset_v }}">
+{% include "_skin_head.html" %}{% endblock %}
 {% block content %}
 {% from "_c_components.html" import verdict_pill, key_stats %}
 {% set m = memo_for(c.company_key, thesis) %}
@@ -20,11 +21,28 @@
 {% set watch = checks | rejectattr(1) | map(attribute=0) | list %}
 <article class="co-c">
   <header class="cc-head" id="aava-who">
-    <span class="cc-mark" aria-hidden="true">{% set w = (c.name | replace(" Oyj", "") | replace(" Oy", "") | replace(" Ab", "") | trim).split() %}{{ ((w[0][:1] if w else "") ~ (w[1][:1] if w | length > 1 else (w[0][1:2] if w else ""))) | upper }}</span>
+    <span class="cc-mark" aria-hidden="true" style="--pct: {{ ((covered | length) / (checks | length) * 100) | round | int }}%">{% set w = (c.name | replace(" Oyj", "") | replace(" Oy", "") | replace(" Ab", "") | trim).split() %}{{ ((w[0][:1] if w else "") ~ (w[1][:1] if w | length > 1 else (w[0][1:2] if w else ""))) | upper }}</span>
     <div><p class="cc-tick">{{ c.y_tunnus or c.company_key }} · {{ c.group_tag }}</p><h1>{{ c.name }}</h1></div>
   </header>
 
-  <div class="cc-verdict">
+  {% set vk = ((rec.decision if rec else none) or "none") | lower | replace(" ", "-") %}
+  {% set LL = lifeline_dots(signals | map(attribute="date") | list, m.as_of if m else none, cohort_entry_for(c.company_key, c.name) if cohort_entry_for is defined else none) if lifeline_dots is defined else none %}
+  {% if LL %}<figure class="cc-life sk-editorial" aria-label="{{ LL.n }} dated public records from {{ LL.first }} to today">
+    <div class="cc-life-axis" aria-hidden="true">
+      {% for y in LL.years %}<b class="yt" style="left: {{ y.x }}%"></b>{% endfor %}
+      {% if LL.entry is not none %}<b class="en" style="left: {{ LL.entry }}%"></b>{% endif %}
+      {% for x in LL.dots %}<i class="{{ 'd-last' if x == LL.latest else 'd' }}" style="left: {{ x }}%"></i>{% endfor %}
+    </div>
+    <div class="cc-life-years">{% for y in LL.years %}<span style="left: {{ y.x }}%">{{ y.label }}</span>{% endfor %}{% if LL.entry is not none %}<span class="en" style="left: {{ LL.entry }}%">cohort entry</span>{% endif %}</div>
+  </figure>{% endif %}
+  <p class="cc-status sk-terminal" aria-label="Data status"><span class="hc-live">LIVE</span> record {{ (c.fetched_at or "")[:10] }} · {{ signals | length }} signal{{ "s" if signals | length != 1 }} · {{ covered | length }}/{{ checks | length }} checks</p>
+  {% if rec %}{% set ev = (m.why | selectattr("url") | first) if m and m.why else none %}
+  <div class="cc-lede sk-editorial">
+    {% set first = (rec.note or "").split(";")[0].split(", so ")[0].rstrip(".") %}<p class="cc-lede-h">{{ c.name }} reads <em class="v-{{ vk }}">{{ rec.decision | lower }}</em>{% if first %}: {{ first[0] | lower }}{{ first[1:] }}{% endif %}.</p>
+    {% set rest = (rec.note or "")[first | length:].lstrip(";, ").rstrip(".") %}{% if rest %}<p class="cc-lede-more">{{ rest[0] | upper }}{{ rest[1:] }}.</p>{% endif %}
+    {% if ev %}<p class="cc-lede-src">Evidence: <a href="{{ ev.url }}" target="_blank" rel="noopener">{{ ev.text }}</a></p>{% endif %}
+  </div>{% endif %}
+  <div class="cc-verdict v-{{ vk }}">
     {% if rec %}<p class="cc-big">{{ rec.decision | capitalize }}</p>{% if rec.matched %}<span class="cc-rule" title="The decision-table entry that matched">{{ rec.matched }}</span>{% endif %}{% endif %}
   </div>
   {% if rec and rec.note %}<p class="cc-reason">{{ rec.note[0] | upper }}{{ rec.note[1:] }}{{ "" if rec.note.rstrip().endswith((".", "!", "?")) else "." }}</p>{% endif %}

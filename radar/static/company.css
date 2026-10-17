@@ -121,11 +121,11 @@ body:has(.co-layout) .top .wrap,body:has(.co-layout) .foot{max-width:1360px}
 :root[data-theme="dark"] { --bg: #0A0A0B; --surface: #161618; --hairline: #26262A; --text: #FFFFFF; --muted: #9A9AA2; }
 :root[data-theme="dark"], :root[data-theme="dark"][data-accent="a"] { --accent: #3DDC97; --cc-accent-ink: #04140C; }
 :root[data-theme="dark"][data-accent="b"] { --accent: #F5B544; --cc-accent-ink: #1A1205; }
-:root[data-theme="dark"][data-accent="c"] { --accent: #A78BFA; --cc-accent-ink: #120B26; }
+:root[data-theme="dark"][data-accent="c"] { --accent: #EDE6DA; --cc-accent-ink: #141210; }
 :root[data-theme="light"] { --cc-accent-ink: #FFFFFF; }
 :root[data-theme="light"][data-accent="a"] { --accent: #0E8A5A; }
 :root[data-theme="light"][data-accent="b"] { --accent: #A86400; }
-:root[data-theme="light"][data-accent="c"] { --accent: #6D4FD8; }
+:root[data-theme="light"][data-accent="c"] { --accent: #2B2722; }
 
 .co-c { max-width: 640px; margin: 0 auto; padding: 8px 0 24px; }
 .cc-head { display: flex; align-items: center; gap: 14px; margin-top: 8px; }

@@ -20,7 +20,7 @@
   .kv .k { font-size: var(--fs-14); color: var(--muted); }
   .kv .v { font-size: var(--fs-16); font-variant-numeric: tabular-nums; }
   .kv .s { font-size: var(--fs-12); color: var(--muted); }
-  .kv .s a { color: var(--muted); }
+  .kv .s a { color: var(--muted); white-space: nowrap; }
   .kv .s a:hover { color: var(--accent); }
   @media (min-width: 760px) { .kv li { grid-template-columns: 170px minmax(0,1fr) 170px; align-items: baseline; } .kv .s { text-align: right; } }
   .nodata { font-size: var(--fs-14); color: var(--muted); padding: 1px 8px; border: 1px dashed var(--hairline-strong); border-radius: 4px; background: var(--hatch); }
@@ -71,7 +71,8 @@
   function day(d){ return (+d.slice(8,10))+' '+M[+d.slice(5,7)-1]+' '+d.slice(0,4); }
   function when(s){ return s.date_precision === 'year' ? s.date.slice(0,4) : s.date_precision === 'month' ? M[+s.date.slice(5,7)-1]+' '+s.date.slice(0,4) : day(s.date); }
   function eur(n){ return 'EUR ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
-  function host(u){ return (u || '').replace(/^https?:\/\/(www\.)?/, '').split('/')[0]; }
+  var HOSTS = {'tietopankki.businessfinland.fi': 'Business Finland export', 'avoindata.prh.fi': 'PRH/YTJ register', 'cordis.europa.eu': 'CORDIS', 'blueinvest-community.converve.io': 'BlueInvest events', 'www.apelago.fi': "A'Pelago", 'apelago.fi': "A'Pelago"};
+  function host(u){ var h = (u || '').replace(/^https?:\/\//, '').split('/')[0]; return HOSTS[h] || h.replace(/^www\./, ''); }
   function src(url, label){ return url ? '<a href="'+esc(url)+'" rel="noopener">'+esc(label || host(url))+' ↗</a>' : '<span>'+esc(label || 'no source')+'</span>'; }
   function row(k, v, s){ return '<li><span class="k">'+k+'</span><span class="v">'+v+'</span><span class="s">'+s+'</span></li>'; }
   var none = '<span class="nodata">not in public records</span>';
@@ -83,7 +84,8 @@
   $('pill').className = 'pill ' + v[1]; $('pill').textContent = v[0];
 
   var team = 'the team’s decision table';
-  $('verdict').innerHTML = '<p class="verdict-line">'+esc(v[0])+(rec.note ? ': ' + esc(rec.note) + '.' : '.')+'</p><ul class="kv">'
+  var note = rec.note ? rec.note.charAt(0).toUpperCase() + rec.note.slice(1) : '';
+  $('verdict').innerHTML = '<p class="verdict-line">'+esc(v[0])+'.'+(note ? ' ' + esc(note) + '.' : '')+'</p><ul class="kv">'
     + (rec.because_labels || []).map(function(b){ return row(esc(b.label), b.band === 'unknown' ? '<span class="nodata">no public evidence</span>' : esc(b.band), '<span>'+team+'</span>'); }).join('') + '</ul>';
 
   var reg = co.source_url;
@@ -107,6 +109,10 @@
   $('ready').innerHTML = Object.keys(names).map(function(k){
     var r = R[k] || {};
     var val = r.level != null ? 'Level ' + r.level + ' of 9: ' + esc(r.because) : '<span class="nodata">no public evidence</span>';
+    if (k === 'investment' && R.investment_dimensions) {
+      var dims = R.investment_dimensions, withEv = dims.filter(function(d){ return d.evidence_count > 0; }).length;
+      val += '<br><span class="muted small">' + withEv + ' of ' + dims.length + ' investment dimensions have public evidence</span>';
+    }
     var ev = (r.evidence || [])[0];
     return row(names[k], val, ev ? src(ev.source_url, ev.source_label) : src(r.framework_url, 'framework'));
   }).join('');
@@ -122,7 +128,7 @@
   $('step').innerHTML = row('Decision table', esc(ns.sentence) + '.', '<span>rule '+esc(ns.rule)+' of 5</span>')
     + (m.actions || []).map(function(a){ return row('Action', esc(a.text), src(a.url, a.source)); }).join('');
 
-  $('slots').innerHTML = ((D.connector_slots || {}).names || []).map(function(n){ return row(esc(n), '<span class="muted">connector slot, not connected</span>', '<span>none</span>'); }).join('');
+  $('slots').innerHTML = row('Connector slots', esc(((D.connector_slots || {}).names || []).join(', ')), '<span>not connected</span>');
 
   $('theme').addEventListener('click', function(){ var r = document.documentElement, c = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = c === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('radar-theme', n); } catch (e) {} });
 })();

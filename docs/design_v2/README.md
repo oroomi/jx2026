@@ -41,3 +41,15 @@ Open the pages straight from disk. Fonts load from `radar/static/fonts`, so noth
 ## Known gaps for phase 2
 - The cohort radar or backtest chart is designed in the task text but not prototyped here; phase 2 builds it on the same chart conventions.
 - The search field and nav items for Cohort radar and Method are visual only in the prototype.
+
+## jx36: research and two directions
+| File | What it is |
+|---|---|
+| `RESEARCH.md` | How 14 investor and ocean tools show a list and one company, plus 10 shared conventions rated for a 40 to 60 partner |
+| `a_home.html`, `a_company.html` | Direction A "Industry pattern": filter rail plus sortable table, and a tabbed profile with KPI tiles |
+| `b_home.html`, `b_company.html` | Direction B "Dayo's": country tabs, then the plain list, and one long company page with a source beside every datum |
+| `build_ab.py` | Embeds the snapshot data (the app API plus `radar.memo` verdicts) into `src/a_*.src.html` and `src/b_*.src.html` |
+| `COMPARE.md` | A versus B on the judges' criteria plus build cost, with one recommendation |
+
+Example companies: Viva Jets Oy (2962040-6) for the company pages; Arctic Fry Oy (3166759-6) first in the lists, because both lists order portfolio and cohort companies A to Z ahead of feed finds.
+Rebuild: `python3 docs/design_v2/build_ab.py && python3 docs/design_v2/shoot.py a_home a_company b_home b_company`.

@@ -14,7 +14,7 @@
   .meta { display: flex; flex-wrap: wrap; gap: 6px var(--s-4); color: var(--muted); font-size: var(--fs-14); margin-top: 6px; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s-3); }
   .pill-go { color: var(--ok); background: var(--ok-soft); }
-  .ptabs { margin-top: var(--s-5); border-bottom: 0; }
+  .ptabs { margin-top: var(--s-5); border-bottom: 0; } .ptabs a.tab { text-decoration: none; }
   .grid { display: grid; gap: var(--s-5); padding-top: var(--s-5); }
   @media (min-width: 1000px) { .grid { grid-template-columns: minmax(0,1fr) 320px; } }
   .panel { background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius); box-shadow: var(--shadow); padding: var(--s-5); }
@@ -49,14 +49,14 @@
   </div>
 </header>
 <div class="phead"><div class="wrap">
-  <div class="prow"><div class="logo" id="logo" aria-hidden="true"></div><div><h1 id="name"></h1><div class="meta" id="meta"></div></div><span id="pill" style="margin-left:auto"></span></div>
+  <div class="prow"><div><h1 id="name"></h1><div class="meta" id="meta"></div></div><span id="pill" style="margin-left:auto"></span></div>
   <div class="tags" id="tags"></div>
-  <div class="tabs ptabs" role="tablist"><button class="tab" aria-selected="true">Overview</button><button class="tab">Signals</button><button class="tab">Readiness</button><button class="tab">Who comes next</button></div>
+  <div class="tabs ptabs" role="tablist"><a class="tab" href="#kpis" aria-selected="true">Overview</a><a class="tab" href="#ai">Summary</a><a class="tab" href="#tl">Timeline</a><a class="tab" href="#facts">Key facts</a></div>
 </div></div>
 <main class="wrap grid">
   <div style="display:grid;gap:var(--s-5);align-content:start">
     <div class="kpis" id="kpis"></div>
-    <section class="panel"><h2>What the public record says <span class="small muted" style="font-weight:400">· AI summary, checked against sources</span></h2><div class="ai-empty">No summary yet.</div></section>
+    <section class="panel" id="ai"><h2>What the public record says <span class="small muted" style="font-weight:400">· AI summary, checked against sources</span></h2><div class="ai-empty">No summary yet.</div></section>
     <section class="panel"><h2>Timeline</h2><ol class="tl" id="tl"></ol></section>
   </div>
   <aside class="side"><section class="panel"><h2>Key facts</h2><dl id="facts"></dl></section></aside>
@@ -72,16 +72,15 @@
   function when(s){ return s.date_precision === 'year' ? s.date.slice(0,4) : day(s.date); }
   var VERDICT = {'PARTNER INTRODUCTION': ['Introduce', 'pill-go'], 'WATCHLIST': ['Watchlist', 'pill-none']};
   var v = VERDICT[rec.decision] || [rec.decision || 'No verdict', 'pill-info'];
-  $('logo').textContent = co.name.charAt(0);
   $('name').textContent = co.name; document.title = co.name + ' · ' + document.title;
   $('meta').innerHTML = '<span>Town: <span class="nodata">no data</span></span><span>Founded '+esc(co.founded.slice(0,4))+'</span><span>Business ID '+esc(co.y_tunnus)+'</span>';
   $('pill').className = 'pill ' + v[1]; $('pill').textContent = v[0];
   $('tags').innerHTML = [co.group_tag === 'portfolio' ? 'Portfolio' : co.group_tag, co.industry_desc].map(function(t){ return '<span class="chip">'+esc(t)+'</span>'; }).join('');
   var money = D.signals.filter(function(s){ return s.amount_eur; }), total = money.reduce(function(a, s){ return a + s.amount_eur; }, 0);
   var R = D.readiness || {}, last = D.signals[0];
-  var src1 = 'Business Finland export, CORDIS';
+  var src1 = money.map(function(s){ return s.source_label; }).filter(function(x, i, a){ return a.indexOf(x) === i; }).join(', ');
   $('kpis').innerHTML = [
-    ['Public funding on record', 'EUR ' + (total/1e6).toFixed(2) + 'M', money.length + ' decisions · ' + src1],
+    ['Public funding on record', 'EUR ' + Math.round(total/1000) + 'k', money.length + ' decisions · ' + src1],
     ['Last signal', last ? last.date.slice(0,4) : '', last ? last.type_label : ''],
     ['Technology readiness', R.technology && R.technology.level != null ? 'TRL ' + R.technology.level : null, 'Aalto TRL'],
     ['Ocean impact', R.ocean_impact && R.ocean_impact.level != null ? R.ocean_impact.level : null, 'Ocean Impact Navigator']

@@ -11,6 +11,14 @@
   @media (min-width: 1000px) { .layout { grid-template-columns: 220px minmax(0,1fr); gap: var(--s-6); } }
   .rail { display: flex; flex-wrap: wrap; gap: var(--s-4) var(--s-6); }
   @media (min-width: 1000px) { .rail { display: block; position: sticky; top: 80px; align-self: start; } }
+  .fwrap summary { display: none; }
+  @media (max-width: 999px) {
+    .fwrap summary { display: inline-flex; cursor: pointer; font-size: var(--fs-14); padding: 6px 12px; border: 1px solid var(--hairline-strong); border-radius: 8px; color: var(--text-2); list-style: none; }
+    .fwrap summary::-webkit-details-marker { display: none; }
+    .fwrap[open] summary { margin-bottom: var(--s-3); }
+    .rail .fgroup { flex: 1 1 140px; min-width: 0; }
+  }
+  .layout > * { min-width: 0; }
   .fgroup { margin-bottom: var(--s-5); }
   .fgroup h3 { font: 600 var(--fs-12)/1 var(--font-sans); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 0 0 var(--s-2); }
   .fgroup label { display: flex; align-items: center; gap: 8px; font-size: var(--fs-14); padding: 4px 0; cursor: pointer; }
@@ -21,7 +29,7 @@
   .tbl-wrap { border: 1px solid var(--hairline); border-radius: var(--radius); overflow: auto; background: var(--surface); box-shadow: var(--shadow); max-height: calc(100vh - 170px); }
   table { width: 100%; border-collapse: collapse; font-size: var(--fs-14); }
   thead th { position: sticky; top: 0; background: var(--surface-2); text-align: left; font-weight: 600; font-size: var(--fs-12); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 10px 12px; border-bottom: 1px solid var(--hairline-strong); white-space: nowrap; cursor: pointer; user-select: none; }
-  thead th[aria-sort]::after { content: " ↓"; color: var(--accent); }
+  thead th[aria-sort="descending"]::after { content: " ↓"; color: var(--accent); } thead th[aria-sort="ascending"]::after { content: " ↑"; color: var(--accent); }
   tbody td { padding: 10px 12px; border-bottom: 1px solid var(--hairline); vertical-align: middle; }
   tbody tr:hover td { background: var(--bg-raised); }
   td.num { text-align: right; font-variant-numeric: tabular-nums; }
@@ -32,7 +40,7 @@
   .lvl { display: inline-grid; grid-template-columns: repeat(9, 4px); gap: 2px; vertical-align: middle; margin-left: 6px; }
   .lvl i { height: 10px; border-radius: 1px; background: var(--hairline-strong); }
   .lvl i.on { background: var(--accent); }
-  .nod { color: var(--muted); }
+  .nod { color: var(--muted); opacity: .7; }
   @media (max-width: 700px) { .hide-sm { display: none; } }
 </style>
 </head>
@@ -46,7 +54,7 @@
   </div>
 </header>
 <main class="wrap layout">
-  <aside class="rail" id="rail"></aside>
+  <details class="fwrap" id="fwrap" open><summary>Filters</summary><aside class="rail" id="rail"></aside></details>
   <div>
     <div class="bar"><h1>Companies</h1><span class="small muted" id="count"></span></div>
     <div class="tbl-wrap"><table>
@@ -85,12 +93,13 @@
         + '<td class="hide-sm">'+esc(r.country_name)+'</td>'
         + '<td>'+(r.newest ? esc(when(r.newest)) + '<span class="sub">'+esc(r.newest.label)+'</span>' : '<span class="nod">no signal</span>')+'</td>'
         + '<td class="num hide-sm">'+r.n_signals+'</td>'
-        + '<td class="hide-sm">'+(t ? t + '<span class="lvl">'+Array.apply(null, Array(9)).map(function(_, i){ return '<i class="'+(i < t ? 'on' : '')+'"></i>'; }).join('')+'</span>' : '<span class="nod">no data</span>')+'</td>'
+        + '<td class="hide-sm">'+(t ? t + '<span class="lvl">'+Array.apply(null, Array(9)).map(function(_, i){ return '<i class="'+(i < t ? 'on' : '')+'"></i>'; }).join('')+'</span>' : '<span class="nod">none</span>')+'</td>'
         + '<td><span class="pill '+v[1]+'">'+esc(v[0])+'</span></td></tr>';
     }).join('');
   }
   document.querySelector('thead').addEventListener('click', function(e){ var th = e.target.closest('th'); if (!th) return; var k = th.dataset.k; dir = sortK === k ? -dir : (k === 'name' || k === 'country' ? 1 : -1); sortK = k; [].forEach.call(this.querySelectorAll('th'), function(x){ x.removeAttribute('aria-sort'); }); th.setAttribute('aria-sort', dir < 0 ? 'descending' : 'ascending'); render(); });
   $('q').addEventListener('input', render);
+  if (matchMedia('(max-width: 999px)').matches) $('fwrap').removeAttribute('open');
   render();
   $('theme').addEventListener('click', function(){ var r = document.documentElement, c = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = c === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('radar-theme', n); } catch (e) {} });
 })();

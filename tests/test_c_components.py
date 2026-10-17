@@ -148,3 +148,18 @@ def test_tabbar_has_five_destinations_and_no_emoji():
     assert out.count("<li>") == 5
     assert 'aria-current="page"' in out and out.count('aria-current="page"') == 1
     assert not re.search(r"[\U0001F300-\U0001FAFF☀-➿]", out), "no emoji, per CLAUDE.md"
+
+
+def test_tokens_css_font_urls_resolve_under_radar_static():
+    """The served copy sits at /static/tokens.css, so every url() must resolve beside it.
+
+    The designer's docs/design_v2/tokens.css keeps its own ../../ paths; this check is
+    only about the copy the app actually serves.
+    """
+    static = TOKENS.parent
+    urls = re.findall(r"""url\(\s*['\"]?([^'\")]+)['\"]?\s*\)""", TOKENS.read_text())
+    assert urls, "tokens.css declares no font files"
+    missing = [u for u in urls if not (static / u).is_file()]
+    assert not missing, f"url() targets that do not exist under {static.name}/: {missing}"
+    assert not any(u.startswith(("/", "http", "../")) for u in urls), \
+        "a served stylesheet must not reach outside radar/static or off the host"

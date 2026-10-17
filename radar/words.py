@@ -29,6 +29,16 @@ def drop_marked_quotes(text: str | None) -> str:
     return t
 
 
+def reason_without_marker(text: str | None) -> str:
+    """A machine-written drop reason ("the quote is not on the page: [name redacted]") without the hidden name: a trailing ': [name]' goes, any
+    other clause that holds a marker is dropped (D31); when nothing is left the reason says that it names someone we do not print."""
+    t = re.sub(r"\s*[:,]\s*" + MARKER.pattern + r"\s*$", "", text or "").strip()
+    if MARKER.search(t):
+        from radar import fit  # imported here: radar.fit imports radar.labels, which calls this module
+        t = fit.drop_redacted_clauses(t).strip()
+    return t or "the reason names a person or place we do not print"
+
+
 def drop_marked_terms(query: str | None) -> str | None:
     """A search query without its marked parts: split on OR, drop the terms that hold a marker; None when nothing sensible is left
     (a query of one term, or one whose remaining terms are not whole quoted phrases)."""

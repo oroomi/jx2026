@@ -130,7 +130,8 @@ def test_viva_jets_memo_matches_its_readiness_section_and_uses_the_fallback(snap
     assert "Medium, implied by sector" in r["because"]
     from app import app
     html = TestClient(app).get("/c/2962040-6").text
-    assert "because: fallback c2, impact implied by sector" in html
+    assert "because: the fallback rule for business readiness Low or Medium, impact implied by sector" in html   # the rule id said in words (D36)
+    assert "fallback c2" not in html
     assert f"investment {irl} of 9" in html and "of 10 investment dimensions have public evidence" in html
 
 
@@ -224,7 +225,10 @@ def test_show_the_searches_redacts_person_names(built, client):
                        "high" if step == "verify" else None, "2026-10-17T00:00:00Z"))
     built.commit()
     t = client.get("/c/9300001-1").text
-    assert 'id="stitch"' in t and "[name redacted]" in t
+    # D36: what the redactor hid is not shown as a gap. The two queries that held a name are not listed (and the page says so), the quote is replaced by a
+    # note, and the drop reason loses its name; no person is printed and no marker is.
+    assert 'id="stitch"' in t and "[name" not in t
     for person in ("Matti Virtanen", "Liisa Korhonen", "Pekka Niemi", "Jussi Lahtinen"):
         assert person not in t, person
+    assert "2 more not listed" in t and "st-quote" not in t, "no quote with a gap is shown"
     assert "Synthetic Harbour Boats" in t

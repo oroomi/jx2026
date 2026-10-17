@@ -849,7 +849,7 @@ def page_view(conn: sqlite3.Connection, company_key: str, thesis: dict | None = 
     events.sort(key=lambda e: (e["date"], e["source_url"]))
     drops = []
     for x in by("verify", "dropped", "refuted"):
-        drops.append({"pass": "second check" if x["outcome"] == "refuted" else "first check", "why": fit.drop_redacted_clauses(red(_reason_text(x["reason"]))),
+        drops.append({"pass": "second check" if x["outcome"] == "refuted" else "first check", "why": words.reason_without_marker(red(_reason_text(x["reason"]))),
                       "source_url": x["source_url"], "host": (urlparse(x["source_url"] or "").hostname or "").removeprefix("www.")})
     # A search query with a redaction marker keeps its place in the count but loses the marked OR-term, or is not listed (D36).
     shown_q = {k: [q for q in (words.drop_marked_terms(x["query"]) for x in by("search", o)) if q] for k, o in (("queries", "query"), ("llm_queries", "llm_query"))}

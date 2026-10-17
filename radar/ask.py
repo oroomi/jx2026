@@ -20,7 +20,7 @@ import unicodedata
 from pathlib import Path
 from urllib.parse import quote, urlencode
 
-from radar import aava, aava_voice, fit as fit_mod, home_list, matching, store, thesis as thesis_mod
+from radar import aava, aava_voice, fit as fit_mod, home_config, home_list, matching, store, thesis as thesis_mod
 
 ROOT = Path(__file__).resolve().parent.parent
 MAX_Q = 200
@@ -321,12 +321,13 @@ def parse_filters(text: str, th: dict, cfg: dict) -> dict | None:
         for p, v in (rules[i].get("set") or {}).items():
             put(p, [str(v)])
         said.append(rules[i].get("say") or "")
-    country_words = {f"{name}": code for code, name in home_list.COUNTRY_NAMES.items()}
+    names = home_config.country_names()
+    country_words = {name: code for code, name in names.items()}
     country_words.update({w: code for code, ws in (cfg.get("countries") or {}).items() for w in ws})
     t, codes = _scan(t, _table([(w, c) for w, c in country_words.items()]))
     if codes:
         put("country", list(dict.fromkeys(codes)))
-        said.append("in " + " or ".join(home_list.COUNTRY_NAMES.get(c, c) for c in dict.fromkeys(codes)))
+        said.append("in " + " or ".join(names.get(c, c) for c in dict.fromkeys(codes)))
     t, secs = _scan(t, _table([(w, s) for s, ws in (cfg.get("sectors") or {}).items() for w in ws]))
     if secs:
         put("sector", list(dict.fromkeys(secs)))

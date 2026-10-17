@@ -115,7 +115,7 @@ CREATE TABLE radar_verdicts (
   as_of            TEXT,
   error            TEXT
 );
-CREATE TABLE radar_ocean_impact (       -- radar.ocean_impact.assess: evidence readiness from public records (D22), not true impact
+CREATE TABLE radar_ocean_impact (       -- radar.ocean_impact.assess: evidence readiness from public records (D27), not true impact
   company_key       TEXT PRIMARY KEY REFERENCES radar_companies(company_key),
   area              TEXT,                 -- the impact area in words, NULL when no record names one
   area_basis        TEXT,                 -- own text | corroborated name word | industry code family
@@ -281,7 +281,7 @@ def readiness_rows(conn: sqlite3.Connection, key: str) -> list[tuple]:
     if cat.get("category"):
         ev = cat.get("evidence") or {}
         url = ev.get("url") or (c.get("source_url") if cat.get("industry") else None)
-        rule = f"keyword '{cat['keyword']}' in " + ("the register industry text" if cat.get("industry") else "a record's text")
+        rule = f"the word {cat['keyword']} in " + ("the register industry text" if cat.get("industry") else "a record's text")
         out.append((key, CATEGORY_DIM, fw["labels"][CATEGORY_DIM], None, cat["category"], rule, url, 1 if url else 0))
     else:
         out.append((key, CATEGORY_DIM, fw["labels"][CATEGORY_DIM], None, None, None, None, 0))

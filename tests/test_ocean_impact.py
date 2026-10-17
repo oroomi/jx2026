@@ -1,4 +1,4 @@
-"""Ocean Impact Assessment (radar/ocean_impact.py, D22): the evidence-readiness ladder, the always-complete shape, no dataset slug in
+"""Ocean Impact Assessment (radar/ocean_impact.py, D27): the evidence-readiness ladder, the always-complete shape, no dataset slug in
 the area, the declared-research gate, the memo and API attachments, and the pages that show it. Fixtures only; the page tests read
 the committed snapshot like tests/test_memo.py does."""
 import re

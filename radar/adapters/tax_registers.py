@@ -70,7 +70,7 @@ def extract(company: dict) -> dict:
     pre = _entries(company, PREPAYMENT_REGISTER)
     emp = _entries(company, EMPLOYER_REGISTER)
     first_sales = None
-    cands = [(min(e["registrationDate"] for e in vat), "VAT liability register (type 6_80)")] if vat else []
+    cands = [(min(e["registrationDate"] for e in vat), "VAT liability register")] if vat else []
     if pre:
         cands.append((min(e["registrationDate"] for e in pre), "prepayment register"))
     if cands:

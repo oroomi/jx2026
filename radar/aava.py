@@ -147,6 +147,23 @@ SOURCE_SPOKEN = {
 }
 
 
+def _spoken_eco(m: re.Match) -> str:
+    """The ecosystem dataset's terse reason ("caps ['C10']; kw []; stage 1.0") in words: the capabilities by their labels (never the
+    codes), keeping the stage and impact numbers."""
+    from radar import matching
+    caps = [c.strip(" '\"") for c in m.group(1).split(",") if c.strip(" '\"")]
+    kws = [k.strip(" '\"") for k in m.group(2).split(",") if k.strip(" '\"")]
+    bits = []
+    if caps:
+        bits.append("shared capabilities " + (matching.plain_list(matching.cap_names(caps)) or "in the declared dataset"))
+    if kws:
+        bits.append("shared keywords " + ", ".join(kws))
+    bits.append(f"stage fit {m.group(3)}")
+    if m.group(4):
+        bits.append(f"impact score {m.group(4)}")
+    return "; ".join(bits)
+
+
 def _source(s: dict) -> tuple[str, str]:
     known = SOURCE_SPOKEN.get(s.get("adapter") or "")
     return known or ("other", "in " + lbl.source_label(s.get("adapter"), s.get("source_url")))

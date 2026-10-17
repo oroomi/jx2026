@@ -335,8 +335,10 @@ def read(conn: sqlite3.Connection, run_id: str, company: dict, queries: list[str
     except ValueError as e:
         _log(conn, run_id, company["company_key"], "read", "read_failed", reason=f"unparseable LLM answer: {e}")
         return []
+    from radar import names as names_mod, thesis as thesis_mod
+    known = names_mod.known_names(conn, thesis_mod.load(), company["company_key"])
     for q in data.get("queries_run") or []:  # the LLM's own query strings: person-shaped names redacted like quotes
-        _log(conn, run_id, company["company_key"], "search", "llm_query", query=redact_people(str(q), company["name"])[:300])
+        _log(conn, run_id, company["company_key"], "search", "llm_query", query=redact_people(str(q), company["name"], known)[:300])
     out, seen = [], set()
     for ev in (data.get("events") or [])[:MAX_EVENTS * 2]:
         p, why = normalise_proposal(ev if isinstance(ev, dict) else {})
@@ -344,7 +346,7 @@ def read(conn: sqlite3.Connection, run_id: str, company: dict, queries: list[str
             _log(conn, run_id, company["company_key"], "read", "rejected", reason=why,
                  source_url=str((ev or {}).get("source_url") or "")[:500] if isinstance(ev, dict) else None)
             continue
-        p["quote"] = redact_people(p["quote"], company["name"])
+        p["quote"] = redact_people(p["quote"], company["name"], known)
         k = (p["signal_type"], p["suggested_type"], p["date"], p["source_url"])
         if k in seen:
             continue
@@ -359,16 +361,39 @@ def read(conn: sqlite3.Connection, run_id: str, company: dict, queries: list[str
 _DASHES = str.maketrans({"\u2014": "-", "\u2013": "-"})  # long dashes become hyphens: folding ignores punctuation, so quotes still match
 
 
-def redact_people(text: str, company_name: str) -> str:
+def redact_people(text: str, company_name: str, known=None) -> str:
     """Replace person-shaped runs of capitalised words ("Firstname Lastname") with [name]. A run survives only if one of
-    its words is part of the company name or a known non-person word. Over-redaction is the accepted cost."""
+    its words is part of the company name or a known non-person word. Words that belong to a known company name (`known`, a
+    radar.fit.NameIndex from radar.names.known_names: D23) are never redacted, and a name takes no other word with it into the
+    redaction. Over-redaction is the accepted cost."""
+    from radar import fit
     own = set(fold(company_name).split())
 
     def sub(m: re.Match) -> str:
-        words = fold(m.group(0)).split()
-        keep = any(w in own or w in _NOT_PERSON for w in words) or any(_hits(ws, " " + " ".join(words) + " ")
-                                                                       for ws in TYPE_WORDS.values())
-        return m.group(0) if keep else "[name]"
+        run = m.group(0)
+        words = fold(run).split()
+        if any(w in own or w in _NOT_PERSON for w in words) or any(_hits(ws, " " + " ".join(words) + " ")
+                                                                    for ws in TYPE_WORDS.values()):
+            return run
+        parts = re.split(r"(\s+)", run)  # words and the spaces between them
+        ws = parts[0::2]
+        cover = fit.known_cover(ws, known)
+        if not any(cover):
+            return "[name]"
+        out, i = [], 0
+        while i < len(ws):  # a stretch of two or more words outside every known name is a person's; the known names stay
+            j = i
+            while j < len(ws) and not cover[j]:
+                j += 1
+            if j - i >= 2:
+                out.append("[name]")
+            else:
+                out.append(" ".join(ws[i:j]))
+            while j < len(ws) and cover[j]:
+                out.append(ws[j])
+                j += 1
+            i = j
+        return " ".join(x for x in out if x)
     return _PERSON_RUN.sub(sub, (text or "").translate(_DASHES))
 
 
@@ -784,7 +809,7 @@ def page_view(conn: sqlite3.Connection, company_key: str, thesis: dict | None = 
     """The latest stitcher run for one company, as the company page shows it: the step counts, what was dropped and why,
     and each event that passed both checks. None when the company has no run (or the store has no stitch_log).
     Every text an LLM wrote or chose (queries, quotes, reasons) goes through radar.fit.redact_person_names first."""
-    from radar import fit, store, thesis as thesis_mod
+    from radar import fit, names, store, thesis as thesis_mod
     try:
         r = conn.execute("SELECT run_id FROM stitch_log WHERE company_key=? AND run_id<>'print-prompt' ORDER BY run_id DESC LIMIT 1",
                          (company_key,)).fetchone()
@@ -796,7 +821,8 @@ def page_view(conn: sqlite3.Connection, company_key: str, thesis: dict | None = 
     th = thesis or thesis_mod.load()
     co = conn.execute("SELECT name FROM companies WHERE company_key=?", (company_key,)).fetchone()
     legal = co[0] if co else ""
-    red = lambda t: fit.redact_person_names(t, legal, th) if t else t  # noqa: E731
+    known = names.known_names(conn, th, company_key)  # a company's name, in any spelling the store holds, is never a person's (D23)
+    red = lambda t: fit.redact_person_names(t, legal, th, known=known) if t else t  # noqa: E731
     rows = [dict(x) for x in conn.execute("SELECT * FROM stitch_log WHERE run_id=? AND company_key=? ORDER BY id", (run_id, company_key))]
     for x in rows:
         for f in ("query", "quote", "reason"):

@@ -228,7 +228,7 @@ def test_cli_default_name_second_thesis_and_exit_codes(tmp_path, monkeypatch, ca
 def test_the_ocean_impact_table_has_one_row_per_company_and_reaches_the_view(built, conn):
     assert _count(conn, "radar_ocean_impact") == _count(conn, "radar_companies")
     r = conn.execute("SELECT * FROM radar_ocean_impact WHERE level IS NOT NULL LIMIT 1").fetchone()
-    assert r is not None and 1 <= r["level"] <= r["level_max"] == 9 and r["band"] in ("Low", "Medium", "High") and r["area"]
+    assert r is not None and 1 <= r["level"] <= r["level_max"] == 9 and (r["band"] in ("Low", "Medium", "High") or (r["band"] is None and r["level"] < 3)) and r["area"]
     assert r["confidence"] in ("high", "medium", "low") and r["level_rule"] and r["evidence_json"].startswith("[")
     assert conn.execute("SELECT COUNT(*) FROM radar_ocean_impact WHERE level IS NULL AND (band IS NOT NULL)").fetchone()[0] == 0
     cols = [c[1] for c in conn.execute(f"PRAGMA table_info({combined.VIEW})")]

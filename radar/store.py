@@ -456,7 +456,8 @@ def _fold(s: str) -> str:
 PARTNER_PREFIXES = ("A'Pelago", "APelago", "Redstone", "Turku Science Park")
 PARTNER_LISTS = ("data/declared/investors.csv", "data/declared/programmes_grants.csv")
 _LEGAL_SUFFIX = re.compile(r"\b(oy|oyj|ab|abp|as|asa|ltd|ky|gmbh|inc|llc|aps)\b", re.I)
-_partner_cache: dict = {}
+_partner_state: tuple | None = None
+_partner_checked = [0.0]  # monotonic time of the last look at the list files
 
 
 def name_key(name: str) -> str:
@@ -464,14 +465,20 @@ def name_key(name: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", _LEGAL_SUFFIX.sub(" ", _fold(name)))
 
 
-def partner_orgs() -> dict:
-    """{'prefixes': [...], 'names': [...]}: the organisations excluded from the feed and the radar. The names come from the
-    declared investor and programme lists, read here once per file version."""
+def _partner_current() -> tuple:
+    """(file signature, {'prefixes', 'names'}, folded prefixes, folded names) for the current version of the declared lists. The lists are
+    read and every name folded once per file version; the files are looked at once a second (the home list asks 66,000 times in a
+    build). The tuple is replaced whole, so a thread never sees a half-built state."""
     import csv
+    import time
+    global _partner_state
+    st, now = _partner_state, time.monotonic()
+    if st is not None and now - _partner_checked[0] < 1.0:
+        return st
+    _partner_checked[0] = now
     root = Path(__file__).resolve().parent.parent
     sig = tuple((rel, (root / rel).stat().st_mtime_ns if (root / rel).is_file() else 0) for rel in PARTNER_LISTS)
-    hit = _partner_cache.get(sig)
-    if hit is None:
+    if st is None or st[0] != sig:
         names: list[str] = []
         for rel in PARTNER_LISTS:
             p = root / rel
@@ -479,20 +486,21 @@ def partner_orgs() -> dict:
                 with p.open(encoding="utf-8", newline="") as f:
                     names += [r["name"].strip() for r in csv.DictReader(f) if (r.get("name") or "").strip()]
         hit = {"prefixes": list(PARTNER_PREFIXES), "names": sorted(set(names), key=str.casefold)}
-        _partner_cache.clear()
-        _partner_cache[sig] = hit
-    return hit
+        keys = frozenset(name_key(n) for n in hit["names"]) | frozenset(name_key(re.sub(r"\s*\([^)]*\)", "", n)) for n in hit["names"])
+        st = _partner_state = (sig, hit, tuple(name_key(p) for p in hit["prefixes"]), keys)
+    return st
+
+
+def partner_orgs() -> dict:
+    """{'prefixes': [...], 'names': [...]}: the organisations excluded from the feed and the radar. The names come from the
+    declared investor and programme lists, read here once per file version."""
+    return _partner_current()[1]
 
 
 def is_partner_org(name: str) -> bool:
-    po = partner_orgs()
+    _, _, prefix_keys, name_keys = _partner_current()
     key = name_key(name)
-    if any(key.startswith(name_key(p)) for p in po["prefixes"]):
-        return True
-    for n in po["names"]:
-        if key == name_key(n) or key == name_key(re.sub(r"\s*\([^)]*\)", "", n)):
-            return True
-    return False
+    return any(key.startswith(p) for p in prefix_keys) or key in name_keys
 
 
 def search(conn, q, limit=20) -> list[dict]:
@@ -516,6 +524,7 @@ def company(conn, key) -> dict | None:
     for s in conn.execute("SELECT * FROM signals WHERE company_key = ? ORDER BY date DESC, id DESC", (key,)):
         d = dict(s)
         d["type_label"] = labels.signal_label(d["signal_type"])
+        d["detail"] = labels.plain_text(d["detail"]) if d.get("detail") else d.get("detail")  # no register type code or snake_case id on a page
         d["evidence"] = evidence(d)
         sigs.append(d)
     with_precision(conn, sigs)

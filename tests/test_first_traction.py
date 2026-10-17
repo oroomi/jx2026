@@ -34,7 +34,7 @@ def test_vat_counts_only_type_6_80():
     t = tr.extract(ytj(("6", "6_81", "2022-03-01", None)))
     assert t["first_sales"] is None
     t = tr.extract(ytj(("6", "80", "2022-03-01", None)))
-    assert t["first_sales"] == ("2022-03-01", "VAT liability register (type 6_80)")
+    assert t["first_sales"] == ("2022-03-01", "VAT liability register")
 
 
 def test_first_sales_is_earliest_of_vat_and_prepayment():

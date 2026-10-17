@@ -114,8 +114,8 @@ ted_cpv:
   - {prefix: "98360", note: "Marine services"}
   - {prefix: "98361", note: "Aquatic-related services"}
 
-# Same ladder and area table as config/thesis.yaml (the Baltic file is the same sector; D22). Edit both together.
-# Ocean Impact Readiness read as EVIDENCE READINESS from public records (radar/ocean_impact.py; D22 in PROJECT_RULES.md). It is not a
+# Same ladder and area table as config/thesis.yaml (the Baltic file is the same sector; D27). Edit both together.
+# Ocean Impact Readiness read as EVIDENCE READINESS from public records (radar/ocean_impact.py; D27 in PROJECT_RULES.md). It is not a
 # measure of true impact. The Ocean Impact Navigator publishes impact areas and KPIs but no levels, and no sponsor definition of the levels
 # is in the repo or in data/declared, so this ladder is ours: each rung says which kind of record must be on file. The highest rung whose
 # test passes wins. Rung text and the line that would raise a company one step live here, applied by code; the area table below is the only
@@ -182,6 +182,7 @@ memo:
     fit:                          # thesis fit from the feed rule's reasons; name-only = Low, no reason = unknown
       high: [industry_code, own_text]
       medium: [line_of_business, corroborated_keyword]
+      medium_codes: []                 # code families whose code match is Medium, not High (none in this thesis; see thesis.yaml, D22)
       declared_member_band: Medium     # a declared cohort or portfolio company has at least this fit (it was selected for the programme)
   decisions:
     source: "The team's decision table (pass 1: exact match on all four, first match wins; pass 2: the team's condition rules; otherwise WATCHLIST). Level mapping to Low / Medium / High is the chief's configuration."

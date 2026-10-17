@@ -69,6 +69,10 @@ def _parse(p: Path) -> dict:
     if "code_alone_weak" in data and not (isinstance(data["code_alone_weak"], list)
                                           and all(isinstance(x, (str, int)) and not isinstance(x, bool) and str(x).strip() for x in data["code_alone_weak"])):
         raise ThesisError(f"thesis file {p}: 'code_alone_weak' must be a list of industry code prefixes (for example [\"711\", \"721\"])")
+    fit_bands = (((data.get("memo") or {}).get("bands") or {}).get("fit")) or {}
+    if "medium_codes" in fit_bands and not (isinstance(fit_bands["medium_codes"], list) and all(
+            isinstance(x, (str, int)) and not isinstance(x, bool) and str(x).strip() for x in fit_bands["medium_codes"])):
+        raise ThesisError(f"thesis file {p}: 'memo.bands.fit.medium_codes' must be a list of industry code prefixes (for example [\"36\", \"37\"])")
     if "country_depth" in data and not isinstance(data["country_depth"], dict):
         raise ThesisError(f"thesis file {p}: 'country_depth' must be a mapping of country code to a depth text")
     if "intake" in data:

@@ -1,6 +1,6 @@
 """Ocean Impact Assessment for one company: impact area, evidence, scalability, Ocean Impact Readiness (x of 9), confidence.
 
-The level is EVIDENCE READINESS from public records, not true impact (D22). The ladder, the area table, the rung texts and the
+The level is EVIDENCE READINESS from public records, not true impact (D27). The ladder, the area table, the rung texts and the
 "what would raise it" lines live in `impact_readiness` of the thesis file; this module only applies them. Every key of the answer
 is always present (SHAPE); a missing value is None, an empty list or a plain sentence saying so, never a made-up number.
 

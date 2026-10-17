@@ -55,6 +55,8 @@ SOURCE_LABELS = {
     "blueinvest": "BlueInvest pipeline",
     "declared": "declared list",
     "openalex": "OpenAlex",
+    "brreg": "Brønnøysund Register Centre (Norway)",
+    "cvr": "Danish Central Business Register (CVR)",
     "webarchive": "Internet Archive",
     "estonia_register": "Estonian e-Business Register",
     "ecosystem": "declared research",

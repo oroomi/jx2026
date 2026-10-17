@@ -84,3 +84,5 @@ Commit every 20-30 minutes; an uncommitted worktree is lost work if the session 
 Overnight tasks go to /root/hack/queue as task files (see /root/hack/templates/task_template.md). Each runs in its own
 worktree on branch task/<name>. Merge in the morning with `git merge --no-ff task/<name>` after reading its RESULT line
 and screenshots. Never work directly on a branch another task owns.
+
+Every rule and dated decision: PROJECT_RULES.md; follow it in every session (assumptions A1.., decisions D1.., taxonomy, formats; new rules get the next number).

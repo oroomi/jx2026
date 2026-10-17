@@ -68,7 +68,7 @@ hilma_keywords: [meri, vesi, satama, väylä, laivaliikenne, jäänmurto, vesist
 # Readiness scales (rules live in radar/readiness.py; this lists what the page prints)
 readiness:
   technology: {scale: "TRL 1-9", source_classes: [patent, eu_project, bf_funding, blueinvest, public_contract]}
-  business:   {scale: "1-5 commercial readiness", source_classes: [register_entry, public_contract, site_customer, job_ad]}
+  business:   {scale: "BRL 1-9 (KTH business readiness)", source_classes: [register_entry, public_contract, site_customer, job_ad]}
   investment: {scale: "IRL 1-9", source_classes: [bf_funding, eu_project, blueinvest]}
   ocean_impact: {scale: "1-5, 'no public evidence' when nothing is published", source_classes: [blueinvest, eu_project]}
 

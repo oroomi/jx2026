@@ -1,5 +1,7 @@
 # Ocean Opportunity Radar: decision-ready venture intelligence for the European Tech Renaissance (Redstone x A'Pelago)
 
+Every rule and dated decision behind these numbers: [PROJECT_RULES.md](PROJECT_RULES.md) (assumptions, decisions, taxonomy, formats; it folds in ASSUMPTIONS.md with the same ids).
+
 Ocean Opportunity Radar finds young blue-economy companies in public records before they reach a fund's or an accelerator's
 pipeline, and answers the partners' four questions about each one with a source link under every fact.
 Built at JunctionX Turku 2026 for the Redstone x A'Pelago challenge by team Old Hackers.
@@ -68,6 +70,8 @@ name word) and there is no impact evidence, the memo reads impact as Medium, imp
 Data page: /data shows every source, company and dated record in the database; the Refresh button re-reads the register notices on a copy and swaps it in only if it checks out. The button is switched off unless the service environment sets `REFRESH_ENABLED=1`.
 
 The same data is served as read-only JSON at <https://jx.hankintaviikko.fi/api> (company search, company, feed, backtest).
+
+Ask Aava (demo flag `?demo=1`) narrates a page from its own records; the voice is pre-rendered MP3 (ElevenLabs text-to-speech, default voice `21m00Tcm4TlvDq8ikWAM`, rendered once with `python3 -m radar.aava_voice render --keys 2962040-6,3166759-6 --feed`, set `ELEVENLABS_API_KEY`, optional `ELEVENLABS_VOICE_ID`), so the demo plays files with no network call and no key at runtime, and falls back to the browser voice when a clip is missing or the text has changed.
 
 ## Run it in 3 commands
 

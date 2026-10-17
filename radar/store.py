@@ -363,7 +363,7 @@ def feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500)
 
 def _feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500) -> tuple[list[dict], int]:
     """(rows, hidden). Hidden = companies left out because the legal name looks like a private person and the company has no
-    signal other than a register entry. One row per company: its earliest in-window feed signal (ties: confidence, then lowest id), newest first.
+    signal other than a register entry, or because the name is a sole trader's that carries the owner's full name (always hidden). One row per company: its earliest in-window feed signal (ties: confidence, then lowest id), newest first.
     Year-only Business Finland records are never the entry signal. Each row carries reasons, strength and why."""
     start, _, _ = _window(thesis, today)
     all_types = _feed_types(thesis)
@@ -382,7 +382,8 @@ def _feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500
             continue
         if is_listed_company(rs[0]["name"]) or excluded_code(rs[0]["industry_code"], thesis):
             continue  # counted in feed_counts as listed / excluded code family
-        if fit.looks_like_person(rs[0]["name"], thesis) and all(o["signal_type"] == "register_entry" for o in others[key]):
+        if fit.sole_trader_name(rs[0]["name"], thesis) or \
+                (fit.looks_like_person(rs[0]["name"], thesis) and all(o["signal_type"] == "register_entry" for o in others[key])):
             hidden += 1
             continue
         best = min(rs, key=lambda r: (r["date"], _CONF_ORDER.get(r["confidence"], 3), r["signal_id"]))

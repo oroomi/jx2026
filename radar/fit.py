@@ -54,9 +54,53 @@ def matched_keywords(text: str, thesis: dict) -> list[str]:
     return [k for k in _keywords(thesis) if any(word_matches(w, k) for w in words)]
 
 
+# A sole trader's legal name carries the owner's full name (Poland's register requires it; a Finnish "Tmi" or a German sole trader
+# often does too), e.g. 'Aqua Project Given Family'. Read as a person when the name has no corporate legal form and a common given
+# name stands next to a surname-shaped word. Compared folded (fold_word), so the list may be written with or without accents.
+GIVEN_NAMES = frozenset("""
+adam agnieszka aleksander aleksandra andrzej anna artur barbara bartosz bartłomiej beata bogdan bożena czesław damian danuta dariusz
+dawid dominik dorota edyta elżbieta ewa ewelina filip grażyna grzegorz halina henryk irena ireneusz iwona jacek jadwiga jakub jan janusz
+jarosław jerzy joanna józef julita justyna kamil karol karolina katarzyna kazimierz konrad krystyna krzysztof leszek łukasz maciej
+magdalena małgorzata marcin marek mariusz marta mateusz michał mirosław monika patryk paweł piotr przemysław rafał robert roman
+ryszard sebastian sławomir stanisław stefan szymon tadeusz teresa tomasz urszula waldemar wiesław wiktor witold wojciech zbigniew
+zdzisław zofia andreas christian dirk jörg jürgen klaus markus matthias michael peter ralf sabine thomas uwe wolfgang antti eero
+heikki hannu jari jukka juha kari markku matti mikko pekka petri sami seppo timo tuomas ville jouni janne päivi tiina minna riikka
+kirsi anders bengt björn bjørn fredrik gunnar håkan johan lars magnus mats nils olof sven ulf ingrid birgitta kristina henrik jesper
+mads rasmus søren morten knut kjell terje trond andris jānis juris kārlis māris aivars ilze inese tõnu toomas priit jonas mindaugas
+""".split())
+# Corporate legal forms and institutions: a name with one of these is a company or a public body, never a sole trader.
+_CORPORATE = re.compile(r"\b(sp\.?\s*z\.?\s*o\.?\s*o|sp\s*zoo|spółk\w*|spolk\w*|s\.\s*a\.|s\.\s*c\.|oy|oyj|oyab|ab|abp|as|asa|aps|a/s|gmbh|ag|"
+                        r"ug|kg|ltd|limited|plc|inc|llc|sia|uab|oü|ou|bv|nv|ry|osk|universit\w*|uniwersytet|instytut\w*|institut\w*|"
+                        r"fundacja|stowarzyszenie|związek|okręg|kommune|stiftung)\b", re.I)
+_SURNAME = re.compile(r"[^\W\d_][^\W\d_'\-]*(?:-[^\W\d_]+)?")
+
+
+def sole_trader_name(name: str, thesis: dict) -> bool:
+    """True for a sole trader's legal name that carries a private person's full name: no corporate legal form (_CORPORATE), and a word
+    from GIVEN_NAMES next to a capitalised, surname-shaped word that is not a business word of the thesis or a generic capitalised word.
+    'Aqua Project Given Family' and 'Family Given Fish Sales' are; 'Given Family Sp. z o.o.' and 'Blue Bay' are not."""
+    if not name or _CORPORATE.search(name):
+        return False
+    words = [w.strip(_EDGE) for w in re.split(r"[\s,/–-]+", name) if w.strip(_EDGE)]
+    biz = {str(w).casefold() for w in thesis.get("non_person_words") or []} | GENERIC_CAPS | LEGAL_FORMS
+    given = {fold_word(g) for g in GIVEN_NAMES}
+
+    def surname(w: str) -> bool:
+        return bool(_SURNAME.fullmatch(w)) and len(w) > 1 and w[0].isupper() and fold_word(w) not in biz \
+            and fold_word(w) not in given and not matched_keywords(w, thesis)
+    for i, w in enumerate(words):
+        if w[:1].isupper() and fold_word(w) in given and \
+                ((i + 1 < len(words) and surname(words[i + 1])) or (i > 0 and surname(words[i - 1]))):
+            return True
+    return False
+
+
 def looks_like_person(name: str, thesis: dict) -> bool:
-    """True for a legal name shaped like a private person's name followed by company suffixes, e.g. 'Given Family Holding Oy'.
+    """True for a legal name shaped like a private person's name followed by company suffixes, e.g. 'Given Family Holding Oy',
+    or for a sole trader's name that carries the owner's full name (sole_trader_name).
     Words on the thesis keyword lists or in the thesis non_person_words list are business words, never names."""
+    if sole_trader_name(name, thesis):
+        return True
     parts = (name or "").replace(",", " ").split()
     i = 0
     while i < len(parts) and _NAME_WORD.fullmatch(parts[i]) and parts[i].casefold() not in PERSON_SUFFIXES:

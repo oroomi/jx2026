@@ -31,6 +31,8 @@ limits:
   home_wait_s: 15                     # how long a tool waits for the home list while it is still being built (the page itself waits 3 s)
   search_default: 10
   search_max: 25
+  org_matches_default: 5              # get_org_matches: rows of an organisation's match list returned (the page prints its own 25)
+  org_matches_max: 10
   signals_in_memo: 6
   followups_max: 3
   followup_chars: 90

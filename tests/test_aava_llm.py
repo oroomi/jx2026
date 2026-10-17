@@ -99,7 +99,7 @@ def test_request_shape_for_the_default_model(th):
     assert kw["max_tokens"] == 1200 + 2048                                                         # thinking counts toward max_tokens
     assert "temperature" not in kw and "tool_choice" not in kw
     assert kw["system"][0]["cache_control"] == {"type": "ephemeral"} and "Aava" in kw["system"][0]["text"] and "cache_control" not in kw["system"][1]
-    assert [x["name"] for x in kw["tools"]] == ["search_startups", "get_startup", "explain_match", "list_organisations", "get_current_view", "apply_filters"]
+    assert [x["name"] for x in kw["tools"]] == ["search_startups", "get_startup", "explain_match", "get_org_matches", "list_organisations", "get_current_view", "apply_filters"]
 
 
 def test_a_budget_model_gets_budget_tokens_and_zero_budget_means_none(th, monkeypatch):

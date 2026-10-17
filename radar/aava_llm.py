@@ -1,6 +1,6 @@
 """Aava on a reasoning model (PROJECT_RULES D61). One chat turn = a short agent loop over the Messages API: the model reads the conversation, calls
-the read-only tools of radar.aava_tools (search the home list, open a company, explain a match, list organisations, look at the visitor's screen,
-set the page's filters), and writes the answer. The answer is streamed, then checked against what the tools returned (radar.aava_entities).
+the read-only tools of radar.aava_tools (search the home list, open a company, explain a match, read an organisation's match list, list
+organisations, look at the visitor's screen, set the page's filters), and writes the answer. The answer is streamed, then checked against what the tools returned (radar.aava_entities).
 
 Nothing here is needed to run the site. Without ANTHROPIC_API_KEY in the environment (the service's EnvironmentFile holds it; this module reads
 os.environ and nothing else) `available()` is False, the page never shows the chat, and the deterministic Aava and /api/ask run as before.
@@ -54,7 +54,8 @@ ANSWER_SHAPE = ("Answer shape, every time: it is read aloud in a room, so ONE sh
                 "results); 'keep watching' is not a next step. Never mention your tools, searches or what they returned: say what the records show. "
                 "No bold, no bullets, then the Follow-ups line. Nothing is written before the tool calls are done.")
 TOOL_LABELS = {"search_startups": "searching the list", "get_startup": "reading the company record", "explain_match": "checking the match",
-               "list_organisations": "looking up organisations", "get_current_view": "looking at your screen", "apply_filters": "setting the filters"}
+               "get_org_matches": "reading the match list", "list_organisations": "looking up organisations", "get_current_view": "looking at your screen",
+               "apply_filters": "setting the filters"}
 _NO_THINKING: set[str] = set()      # models whose API rejected the thinking parameters (this process): later calls skip them
 
 

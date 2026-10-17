@@ -19,10 +19,10 @@ import sys
 import threading
 import time
 from datetime import date
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 from radar.aava_entities import fold, short_name, urls_in
-from radar import fit as fit_mod, home_config, home_filter, home_list, matchmaker, matchmaker_orgs as orgs_mod, matchtext, memo as memo_mod, store
+from radar import fit as fit_mod, home_config, home_filter, home_list, matching, matchmaker, matchmaker_orgs as orgs_mod, matchtext, memo as memo_mod, store
 
 log = logging.getLogger("aava.tools")
 NONE = home_filter.NONE
@@ -542,12 +542,115 @@ def explain_match(ctx: ToolContext, a: dict) -> dict:
         return {"company_key": key, "org_id": oid, "org": org["name"], "already_connected": True, "why": org["members"][key]["basis"]}
     ev = matchmaker.evaluate(sp, org, cfg, idx, reg["df"], today)
     row = matchmaker._org_row(org, cfg)
+    closed = matchmaker._open(org, today)       # match_company leaves a closed call out before it weighs a reason (D76)
+    excluded = matching.closed_words(row["deadline_text"] or closed) if closed else ev["excluded"]
     return {"company_key": key, "org_id": oid, "organisation": {"name": org["name"], "kind": row["kind_label"], "declared_focus": row["focus"], "demand": row["demand"],
                                                               "website": row["url"], "deadline": row["deadline"] or row["deadline_text"] or "none stated", "geography": row["geography"]},
-            "listed_as_a_counterpart": not ev["excluded"], "excluded_because": ev["excluded"], "reasons_met": f"{ev['met']} of {ev['of']}",
+            "listed_as_a_counterpart": not excluded, "excluded_because": excluded, "reasons_met": f"{ev['met']} of {ev['of']}",
             "components": [{"component": x["label"], "holds": x["met"], "weight": x["weight"], "reason": x["reason"], "note": x["note"],
                             "links": [{"text": l.get("text"), "url": l.get("url")} for l in (x.get("links") or [])[:2]]} for x in ev["components"]],
             "weights_note": "component weights are a stated hypothesis for the partners to rate; the page shows the reasons, never one score"}
+
+
+def _call(row: dict) -> str | None:
+    """D76: why a counterpart row (matchmaker._org_row) takes no startup today, said the only way a closed call may be said; None when open."""
+    closed = matching.call_closed({"open": row.get("open", True), "date": row.get("deadline"), "text": row.get("deadline_text")}, store._today(None))
+    return matching.closed_words(row.get("deadline_text") or closed) if closed else None
+
+
+def _org_named(rows: list[dict], ref: str) -> tuple[dict | None, list[dict]]:
+    """(the counterpart `ref` names, near misses). `ref` is an org_id or a name as the person wrote it ("A'Pelago", "redstone blue"): the id, then
+    the same name (case, punctuation, legal-form words ignored), then the one counterpart whose name starts with it."""
+    ref = str(ref or "").strip()
+    if not ref:
+        return None, []
+    by_id = next((r for r in rows if r["id"] == ref or r["id"] == orgs_mod.slug(ref)), None)
+    if by_id:
+        return by_id, []
+    want = orgs_mod.okey(ref)
+    same = [r for r in rows if want and orgs_mod.okey(r["name"]) == want]
+    starts = [r for r in rows if len(want) >= 4 and orgs_mod.okey(r["name"]).startswith(want)]
+    hit = same or starts
+    if len(hit) == 1:
+        return hit[0], []
+    near = hit or [r for r in rows if fold(ref) and fold(ref) in fold(r["name"])]
+    return None, near[:5]
+
+
+_org_lock = threading.Lock()
+_org_cache: dict[tuple, dict] = {}      # (sector id, store version, org id) -> matchmaker.match_org result; a rebuilt store gets a new version
+
+
+def _match_org(ctx: ToolContext, org_id: str) -> dict | None:
+    """matchmaker.match_org(org_id) with the page's default limit, kept once per store version (it takes about 1.5 s per organisation)."""
+    try:
+        stamp = home_list.stamp(ctx.th)
+    except Exception:  # noqa: BLE001  (no version to key on: build it, keep nothing)
+        stamp = None
+    key = (ctx.th.get("id"), stamp, org_id)
+    with _org_lock:
+        hit = _org_cache.get(key) if stamp is not None else None
+    if hit is not None:
+        return hit
+    res = matchmaker.match_org(org_id, ctx.th, conn=ctx.conn())
+    if res is not None and stamp is not None:
+        with _org_lock:
+            if len(_org_cache) >= 16:
+                _org_cache.clear()
+            _org_cache[key] = res
+    return res
+
+
+def get_org_matches(ctx: ToolContext, a: dict) -> dict:
+    """The /match?org=<id> page as data (D77): matchmaker.match_org with the page's own default limit, so the order, the reasons and the verdict
+    path are the ones that page prints. Only the first `limit` rows are returned; the page holds the rest."""
+    cfg = matchtext.config(ctx.th)
+    if cfg is None:
+        return {"error": "matchmaking is not configured for this sector file"}
+    rows = matchmaker.org_list(ctx.th, conn=ctx.conn()) or []
+    org, near = _org_named(rows, a.get("org") or a.get("org_id") or a.get("name"))
+    if org is None:
+        return {"error": f"no organisation called {a.get('org')!r}; call list_organisations", "did_you_mean": [{"org_id": r["id"], "name": r["name"]} for r in near]}
+    res = _match_org(ctx, org["id"])
+    if res is None:
+        return {"error": f"the match list for {org['name']} could not be built"}
+    try:
+        n = int(a["limit"]) if a.get("limit") is not None else int(ctx.limits.get("org_matches_default", 5))
+    except (TypeError, ValueError):
+        n = int(ctx.limits.get("org_matches_default", 5))
+    n = max(1, min(n, int(ctx.limits.get("org_matches_max", 10))))
+    o, pipe = res["org"], res.get("pipeline") or {}
+    page = "/match?" + urlencode({"org": o["id"]})
+    ctx.see_org(o["id"], o["name"], o.get("url"))
+    ctx.urls.add(page)                  # the one site page an answer may link besides /c/<key> (aava_entities.check_link)
+    shown = res["startups"][:n]
+    out_rows = []
+    for s in shown:
+        ctx.see(s["key"], s["name"])
+        held = [c for c in s["components"] if c["met"] and c.get("chip")]
+        path = s.get("verdict") or "no verdict"
+        if s.get("early") and pipe.get("early_label"):
+            path += f", {pipe['early_label']}"
+        out_rows.append({"rank": s["rank"], "company_key": s["key"], "name": s["name"], "country": s.get("country") or "not stated", "verdict_path": path,
+                         "reasons_that_hold": [c["chip"] for c in held], "reasons_met": f"{s['met']} of {sum(1 for c in s['components'] if c['met'] is not None)}",
+                         "page": s["url"]})
+    connected = res.get("connected") or []
+    for s in connected[:5]:
+        ctx.see(s["key"], s["name"])
+    out = {"organisation": {"org_id": o["id"], "name": o["name"], "kind": o["kind_label"], "declared_focus": _cut(o.get("focus"), 160), "demand": o.get("demand"),
+                            "deadline": o.get("deadline") or o.get("deadline_text") or "none stated", "geography": o.get("geography")},
+           "match_page": page, "startups_listed": res["listed"], "showing": len(out_rows),
+           "ordered_by": "the matchmaker's order on the match page: how many reasons hold and the weight the sector file gives each, early pipeline after the ready ones",
+           "startups": out_rows,
+           "already_connected": {"count": len(connected), "first": [{"company_key": s["key"], "name": s["name"]} for s in connected[:5]],
+                                 "note": "its declared cohort or portfolio in our records: not ranked, it already knows them"}}
+    if pipe.get("note"):
+        out["pipeline_note"] = pipe["note"]
+    if o.get("closed_note"):
+        out["closed"] = matching.closed_words(o["closed_note"])
+    if not out_rows and o.get("empty_reason"):
+        out["why_none"] = o["empty_reason"]
+    return out
 
 
 def list_organisations(ctx: ToolContext, a: dict) -> dict:
@@ -568,7 +671,8 @@ def list_organisations(ctx: ToolContext, a: dict) -> dict:
         ctx.see_org(r["id"], r["name"], r.get("url"))
     return {"matches": len(rows), "showing": len(shown), "kinds": kinds,
             "organisations": [{"org_id": r["id"], "name": r["name"], "kind": r["kind_label"], "declared_focus": r["focus"], "demand": r["demand"], "website": r["url"],
-                               "deadline": r["deadline"] or r["deadline_text"] or "none stated", "geography": r["geography"], "companies_of_theirs_in_our_records": r["members_in_records"]}
+                               "deadline": r["deadline"] or r["deadline_text"] or "none stated", "geography": r["geography"], "companies_of_theirs_in_our_records": r["members_in_records"],
+                               **({"call": _call(r)} if _call(r) else {})}
                               for r in shown]}
 
 
@@ -726,9 +830,17 @@ def tools_for(th: dict | None) -> list[dict]:
          "description": ("Why one organisation does or does not fit one company: the matchmaker's six reasons (sector or impact area, portfolio lookalike, shared words, readiness window, timing, "
                          "geography), each with the sentence and record behind it, and the hard filter that excluded the pair if there is one. Use an org_id from get_startup or list_organisations."),
          "input_schema": {"type": "object", "properties": {"company_key": {"type": "string"}, "org_id": {"type": "string"}}, "required": ["company_key", "org_id"]}},
+        {"name": "get_org_matches",
+         "description": ("THE answer to 'who should <organisation> meet', 'which startups fit <organisation>' or 'who should <organisation> invest in or accept': the ranked list "
+                         "the site's match page /match?org=<org_id> prints for that investor, accelerator, programme, funder or pilot partner, in its order, each startup "
+                         "with its verdict path and the reasons that hold, plus how many are listed, the companies it is already connected to, and the match_page address "
+                         "to link. Takes the organisation's name as the person wrote it (for example A'Pelago or Redstone Blue) or its org_id."),
+         "input_schema": {"type": "object", "properties": {"org": {"type": "string", "description": "The organisation's name or org_id, for example A'Pelago or redstone-blue"},
+                                                           "limit": {"type": "integer", "description": "How many of the ranked startups to return (default 5, at most 10)."}},
+                          "required": ["org"]}},
         {"name": "list_organisations",
          "description": ("The investors, accelerators, programmes, public funders, clusters, corporates and ports the matchmaker knows, with their declared focus, demand, deadline and geography. "
-                         "Filter by kind and by words in the name or focus. Returns org_id values for explain_match."),
+                         "Filter by kind and by words in the name or focus. Returns org_id values for explain_match. A row with `call` takes no application now: never a next step."),
          "input_schema": {"type": "object", "properties": {"kind": {"type": "string", "description": "A kind id or label, for example investor, accelerator, funder; omit for all."},
                                                            "text": {"type": "string", "description": "Words that must appear in the name or declared focus."}}}},
         {"name": "get_current_view",
@@ -756,8 +868,8 @@ def _default_tools() -> list[dict]:
 
 TOOLS: list[dict] = _default_tools()      # the default sector file's schema; a Turn asks tools_for(its own sector file)
 
-HANDLERS = {"search_startups": search_startups, "get_startup": get_startup, "explain_match": explain_match, "list_organisations": list_organisations,
-            "get_current_view": get_current_view, "apply_filters": apply_filters, "suggest_followups": suggest_followups}
+HANDLERS = {"search_startups": search_startups, "get_startup": get_startup, "explain_match": explain_match, "get_org_matches": get_org_matches,
+            "list_organisations": list_organisations, "get_current_view": get_current_view, "apply_filters": apply_filters, "suggest_followups": suggest_followups}
 
 
 # ---- warm-up: no tool call should wait for a cold cache ------------------------------------------------------------------------------
@@ -767,7 +879,8 @@ _warmed: dict[str, tuple] = {}      # sector id -> the store version (home_list.
 
 def warm(th: dict) -> float:
     """Build, on this thread, what the tools would otherwise build on their first call: the cached home list (the rows every search reads), and the
-    memo, counterpart and organisation indexes behind get_startup and list_organisations (one company opened and discarded). Returns the seconds taken;
+    memo, counterpart and organisation indexes behind get_startup and list_organisations (one company opened and discarded), and the match lists
+    get_org_matches reads for the picker's organisations (D77). Returns the seconds taken;
     a cache that is already warm costs a few milliseconds. Never raises."""
     t0 = time.monotonic()
     ctx = ToolContext(th)
@@ -777,6 +890,11 @@ def warm(th: dict) -> float:
         if rows:
             get_startup(ctx, {"company_key": rows[0]["company_key"]})
             list_organisations(ctx, {})
+            from radar import home_orgs      # the match lists a partner question reads first: the default organisation and the first of each picker kind
+            orgs = home_orgs.organisations(th)
+            for oid in dict.fromkeys([home_orgs.default_org(orgs), *{o["kind"]: o["id"] for o in reversed(orgs)}.values()]):
+                if oid:
+                    _match_org(ctx, oid)
     except Exception:  # noqa: BLE001  (a failed warm-up only means the first tool call builds the cache itself)
         log.exception("aava warm-up failed")
     finally:

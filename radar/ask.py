@@ -1,8 +1,8 @@
 """Ask Aava: the deterministic answers behind the home bar (GET /api/ask?q=, radar/routes/ask.py). No model, no network call.
 
 One question in, one answer out: {intent, say, url, action, ...}. The intent is chosen by rules over the question's words, in this order:
-  1. "who should <org> meet" / "match <org>" (patterns in thesis `ask.meet_patterns`): a company gets Aava's question 4 answer, an organisation
-     from the declared lists gets the match view with that organisation selected.
+  1. "who should <org> meet" / "which startups fit <org>" / "match <org>" (patterns in thesis `ask.meet_patterns`): a company gets Aava's question 4
+     answer, an organisation from the declared lists gets the match view with that organisation selected and the first startups it ranks (D77).
   2. a company by name or business id (legal-form words ignored, fuzzy for speech): Aava's question 1 answer and a link to the full memo.
   3. filter phrases (verdict words, countries, sector words, "TRL above 4"): the querystring of the home filter rail, and how many companies
      of the cached home list match.
@@ -269,7 +269,19 @@ def find_org(text: str, rows: list[dict] | None = None) -> dict | None:
     return out
 
 
-def match_answer(q: str, org: dict, cfg: dict, has_match: bool, thesis_id: str | None) -> dict:
+def _match_list(th: dict | None, org_id: str | None) -> dict | None:
+    """The match view's ranking for one organisation (radar.home_orgs.ranking over radar.matchmaker.match_org: the list /match?org= prints), or
+    None while it is still being built or when there is no matchmaker (D77)."""
+    if not th or not org_id:
+        return None
+    try:
+        from radar import home_orgs
+        return home_orgs.ranking(th, org_id)
+    except Exception:  # noqa: BLE001  (no matchmaker in this build)
+        return None
+
+
+def match_answer(q: str, org: dict, cfg: dict, has_match: bool, thesis_id: str | None, th: dict | None = None) -> dict:
     kind = (cfg.get("org_types") or {}).get(org["type"])
     if kind:
         say = f"{org['name']} is on the declared lists as {kind}."
@@ -278,10 +290,22 @@ def match_answer(q: str, org: dict, cfg: dict, has_match: bool, thesis_id: str |
     else:
         say = f"{org['name']} is {cfg.get('org_default') or 'an organisation in the declared lists'}."
     url = f"/match?{urlencode({'org': org.get('id') or org['name'], **({'thesis': thesis_id} if thesis_id else {})})}"
-    if has_match:
+    rank = _match_list(th, org.get("id")) if has_match else None
+    rows = (rank or {}).get("rows") or []
+    if rows:      # D77: the same startups, in the same order, as the match view (and the model's get_org_matches); D38: the connected apart
+        first = [r["name"] for r in rows[:3]]
+        say += f" Of the startups that fit it, the match view puts {', '.join(first[:-1]) + ' and ' + first[-1] if len(first) > 1 else first[0]} first"
+        say += f"; the {rank['connected']} companies it is already connected to are listed apart." if rank.get("connected") else "."
+        if rank.get("note"):
+            say += " " + rank["note"]
+    elif rank and (rank.get("closed_note") or rank.get("empty_reason")):
+        why = matching.closed_words(rank["closed_note"]) + "." if rank.get("closed_note") else rank["empty_reason"]     # D76: a closed call is said one way
+        say += f" No startup is listed for it: {why}" + (" The companies it is already connected to are on the match view." if rank.get("connected") else "")
+    elif has_match:
         say += " The match view lists the startups that fit it and the companies it is already connected to."
     return answer("match", q, say, url=url if has_match else None, action="open" if has_match else "none", label="Open the match view",
-                  org={"name": org["name"], "type": org["type"], "id": org.get("id")})
+                  items=[{"label": r["name"], "url": f"/c/{quote(r['key'], safe='')}"} for r in rows[:TOP_ITEMS]],
+                  count=len(rows) if rows else None, total=(rank or {}).get("listed"), org={"name": org["name"], "type": org["type"], "id": org.get("id")})
 
 
 # ---- the top matching ranking --------------------------------------------------------------------------------------------------------
@@ -570,7 +594,7 @@ def resolve(q: str, th: dict, conn, *, inputs, has_match: bool = False, thesis_i
     if kind == "meet_company":
         return company_answer(q, hit["company_key"], hit["name"], th, conn, inputs, "meet")
     if kind == "meet_org":
-        return match_answer(q, hit, cfg, has_match, thesis_id)
+        return match_answer(q, hit, cfg, has_match, thesis_id, th)
     if kind == "meet_search":
         return search_answer(hit, thesis_id)
     if kind == "company":
@@ -582,7 +606,7 @@ def resolve(q: str, th: dict, conn, *, inputs, has_match: bool = False, thesis_i
     if kind == "feed":
         return feed_answer(q, th, conn, feed_reader)
     if kind == "match":
-        return match_answer(q, hit, cfg, has_match, thesis_id)
+        return match_answer(q, hit, cfg, has_match, thesis_id, th)
     if kind == "many":
         return search_answer(core, thesis_id, [{"label": h["name"], "url": f"/c/{quote(h['company_key'], safe='')}"} for h in hit])
     if store.search(conn, core, 1):          # the search page would list something for these letters

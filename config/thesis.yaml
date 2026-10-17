@@ -574,6 +574,10 @@ ask:
     - "match {org}"
     - "matches for {org}"
     - "introductions for {org}"
+    - "which startups fit {org}"          # D77: the same match list as "who should {org} meet"
+    - "which startups should {org} meet"
+    - "startups that fit {org}"
+    - "who fits {org}"
   top_phrases:                    # "top startups" and its kin: the Top matching ranking of the default organisation (A'Pelago), or of the one named (D63)
     [top startups, best startups, top matching startups, top matching, top matches, best matches, best match, top match, best investment, best investments,
      best startup, top startup, who should we invest in, who should we back, who to invest in]

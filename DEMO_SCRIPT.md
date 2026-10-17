@@ -20,10 +20,10 @@ Two companies carry the demo, both real and both on the live site:
 | 0-10 s | Feed `/` already loaded: companies whose earliest public record falls in the last 90 days | The opener sentence. These are the companies your pipeline has not seen yet. |
 | 10-30 s | Tap the source chip on the top row; the PRH/YTJ record opens | Every line is a public record with a link. "How sure" says how the company was matched. |
 | 30-60 s | Type `Arctic Fry` in Find a startup; the company page opens | Your four questions, in your order. The memo says Watchlist and names the missing evidence. Its first public trace is first sales in October 2020; every level prints its rule. |
-| 60-80 s | `/backtest`: point at the headline, then at Taikoa's blank lane | Applying our own rule to live records, we would have shown 1 of your 19 before January 2026, the programme start we declared as the reference. Declared research adds 12. Blanks stay blank. All 7 Finnish ones had records in our store before January; the rule counted one, because the others are registered as software, retail, consulting, R&D and freshwater aquaculture. |
+| 60-80 s | `/backtest`: point at the headline, then at Taikoa's blank lane | Applying our own rule to live records, we would have shown 0 of your 19 before January 2026, the programme start we declared as the reference. Declared research adds 12. Blanks stay blank. All 7 Finnish ones had records in our store before January; the rule counted none, because they are registered as software, retail, wholesale, consulting, R&D and freshwater aquaculture. |
 | 80-90 s | Open `/?thesis=health_tech_turku` | Same code, different file: transferable. Takeaway line. |
 
-The 60-80 s numbers come from the live `/backtest` <!-- recheck after data swap -->. If the moment needs data we do not have,
+The 60-80 s numbers come from the live `/backtest`. If the moment needs data we do not have,
 change the moment, not the data.
 
 ---
@@ -50,7 +50,7 @@ something working before they hear any architecture.
 
 Opener (partners' words): "We find promising blue-economy startups as early as possible for accelerator and fund teams, so that you see the companies your pipeline has not seen yet, with the public record behind every line."
 Takeaway line: "Ocean Opportunity Radar finds blue-economy startups from public records before they reach your pipeline, and answers your four questions with a link under every fact."
-Closing number: "1 of your 19 cohort companies was visible to our rule in live public records before January 2026, our declared reference for the Nordic Blue start, and 13 of 19 with declared research; 1 had nothing public. Scan this and try it on your own company." <!-- recheck after data swap -->
+Closing number: "0 of your 19 cohort companies were visible to our rule in live public records before January 2026, our declared reference for the Nordic Blue start, and 12 of 19 with declared research; 1 had nothing public. Scan this and try it on your own company."
 
 ---
 
@@ -74,7 +74,7 @@ Closing number: "1 of your 19 cohort companies was visible to our rule in live p
 | 0:00-0:20 | Hook and one-sentence opener |
 | 0:20-0:40 | The problem in the partners' words: "find promising startups as early as possible" in "fragmented startup and ecosystem data"; no solution yet |
 | 0:40-2:10 | Live demo on the deployed URL: feed, Arctic Fry Oy, Viva Jets Oy, `/backtest`, the sector swap; one honest miss (Arctic Fry's 2020 record not counted) and the source row |
-| 2:10-2:40 | Tech and real-world impact: 1 of 19 from live records, all 7 Finnish cohort companies already in our store, and the stitcher's 168 first-check events cut to 128 by the second check (EVAL.md) |
+| 2:10-2:40 | Tech and real-world impact: 0 of 19 from live records, all 7 Finnish cohort companies already in our store, and the stitcher's 168 first-check events cut to 128 by the second check (EVAL.md) |
 | 2:40-3:00 | Close and takeaway line |
 
 Confirm stage length with organisers Sunday morning before the ceremony.
@@ -106,7 +106,7 @@ Answer: request-time computation. Every page computes the feed rule from the who
 ## Closing line (peak-end, JUDGE_LEVERS A6)
 
 The last thing said is ONE real number (from EVAL.md) and the ask. The ask is "scan this and try it on your phone". It is never "vote for us".
-Closing line: "1 of 19 from live records today, and all 7 Finnish ones were already in our store: the miss is the sector rule, and the radar shows you exactly where. Scan this and try it yourself." <!-- recheck after data swap -->
+Closing line: "0 of 19 from live records today, and all 7 Finnish ones were already in our store: the miss is the sector rule, and the radar shows you exactly where. Scan this and try it yourself."
 Opener languages: English first. For Madeleine, a Finnish opener with its English gloss: "Löydämme lupaavat sinisen talouden startupit julkisista rekistereistä ennen kuin ne tulevat teidän tietoonne, ja jokaisen rivin takana on linkki lähteeseen." (We find promising blue-economy startups in public registers before you hear of them, and there is a link to the source behind every line.) Ask the judge's preference, do not assume.
 Short version (45 s, crowded hall or late rotation): opener, one action, closing line.
 

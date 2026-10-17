@@ -1,0 +1,317 @@
+{
+ "company_key": "1840910-3",
+ "name": "Kilocode Oy",
+ "business_id": "1840910-3",
+ "founded": "2003-07-11",
+ "country": "FI",
+ "group": "cohort",
+ "register_status": "active",
+ "industry": {
+  "code": "58290",
+  "description": "Other software publishing"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "exhibitor",
+   "type_label": "Exhibitor or demo",
+   "date": "2026-08-19",
+   "date_label": "2026-08-19",
+   "source_url": "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/780532",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Exhibitor or demo. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-02-09",
+   "date_label": "2026-02-09",
+   "source_url": "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (accelerator_or_programme_entry). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2025-01-03",
+   "date_label": "2025-01-03",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/1840910-3",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2024-11-04",
+   "date_label": "2024-11-04",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?name=Kilocode",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2022-01-21",
+   "date_label": "2022-01-21",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/1840910-3",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2022-01-21 (PRH). Register entries: Board of directors (HAL). Record number: 2022/025001.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S6",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2003-08-01",
+   "date_label": "2003-08-01",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/1840910-3",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S7",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2003-07-11",
+   "date_label": "2003-07-11",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3",
+   "source_label": "PRH/YTJ register",
+   "confidence": "high",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": 2,
+   "rule": "stated by the declared research",
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Exhibitor or demo on 2026-08-19: Exhibitor or demo. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/780532"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / Medium",
+  "note": "more public evidence needed: Ocean impact, Investment readiness",
+  "why": [
+   {
+    "text": "Technology readiness Low (level 2): the declared research dataset reads TRL 2",
+    "url": "https://weareaquaculture.com/news/aquaculture/new-nordic-blue-accelerator-targets-early-stage-blue-economy-innovators"
+   },
+   {
+    "text": "Thesis fit: declared cohort company",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+   },
+   {
+    "text": "Why now: BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) closes 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+   }
+  ]
+ },
+ "next": {
+  "investors": [
+   {
+    "name": "Meyer Turku (GT Lab - MERiON programme)",
+    "kind": "investor corporate",
+    "reason": "caps ['C10']; kw []; stage 0.5",
+    "url": "https://www.meyerturku.fi"
+   },
+   {
+    "name": "Royal Caribbean Group",
+    "kind": "investor corporate",
+    "reason": "caps ['C10']; kw []; stage 0.5",
+    "url": "https://www.royalcaribbeangroup.com"
+   },
+   {
+    "name": "Ålands Utvecklings Ab (ÅUAB)",
+    "kind": "investor vc",
+    "reason": "caps ['C10']; kw []; stage 0.5",
+    "url": "https://www.crowdfundinsider.com/2016/11/93095-invesdor-will-help-companies-raise-capital-aland-islands/"
+   },
+   {
+    "name": "Viking Line",
+    "kind": "investor corporate",
+    "reason": "caps ['C10']; kw []; stage 0.5; impact 1/5",
+    "url": "https://www.vikingline.com"
+   }
+  ],
+  "funding": [
+   {
+    "name": "Elinvoimakeskus Lounais-Suomi (EMFAF / EMKVR fisheries tasks, ex-ELY)",
+    "kind": "public funder",
+    "reason": "caps ['C10']; kw []; stage 0.5; impact 1/5",
+    "url": "https://www.elinvoimakeskus.fi"
+   },
+   {
+    "name": "Interreg Central Baltic Programme 2021-2027",
+    "kind": "public funder",
+    "reason": "caps ['C10']; kw []; stage 0.5; impact 1/5",
+    "url": "https://centralbaltic.eu"
+   },
+   {
+    "name": "Save the Baltic Sea Award (Finnish Fair Foundation)",
+    "kind": "public funder",
+    "reason": "caps ['C10']; kw []; stage 0.5; impact 1/5",
+    "url": "https://www.messukeskus.com"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   },
+   {
+    "name": "Helsinki Blue Economy Studio by A'Pelago 2027",
+    "kind": "accelerator",
+    "reason": "Open: pre-seed, seed or early-stage with an MVP; deadline: 2026-11-30; amount: equity-free",
+    "url": "https://www.apelago.fi/helsinki-blue-economy-studio/"
+   }
+  ],
+  "partners": [
+   {
+    "name": "Eckerö Line Abp (Eckerö Group)",
+    "kind": "shipowner operator",
+    "reason": "caps ['C10']; kw []; stage 0.5",
+    "url": "https://www.eckeroline.fi"
+   },
+   {
+    "name": "Nautor Swan (Nautor Oy / Nautor Holding)",
+    "kind": "corporate",
+    "reason": "caps ['C10']; kw []; stage 0.5",
+    "url": "https://nautorswan.com"
+   },
+   {
+    "name": "Suomen Varustamot (Finnish Shipowners' Association)",
+    "kind": "cluster network",
+    "reason": "caps ['C10']; kw []; stage 0.5",
+    "url": "https://shipowners.fi"
+   },
+   {
+    "name": "Tallink Grupp (Silja Line, Finnish operations)",
+    "kind": "shipowner operator",
+    "reason": "caps ['C10']; kw []; stage 0.5",
+    "url": "https://www.tallink.com"
+   }
+  ]
+ },
+ "counts": {
+  "signals": 7,
+  "by_type": {
+   "exhibitor": 1,
+   "ecosystem_event": 2,
+   "first_hire": 1,
+   "board_change": 1,
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 4,
+  "next_funding": 5,
+  "next_partners": 4
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/1840910-3",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?name=Kilocode",
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://centralbaltic.eu",
+  "https://nautorswan.com",
+  "https://shipowners.fi",
+  "https://tietopalvelu.ytj.fi/yritys/1840910-3",
+  "https://weareaquaculture.com/news/aquaculture/new-nordic-blue-accelerator-targets-early-stage-blue-economy-innovators",
+  "https://www.apelago.fi/helsinki-blue-economy-studio/",
+  "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+  "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/780532",
+  "https://www.crowdfundinsider.com/2016/11/93095-invesdor-will-help-companies-raise-capital-aland-islands/",
+  "https://www.eckeroline.fi",
+  "https://www.elinvoimakeskus.fi",
+  "https://www.messukeskus.com",
+  "https://www.meyerturku.fi",
+  "https://www.royalcaribbeangroup.com",
+  "https://www.tallink.com",
+  "https://www.vikingline.com"
+ ]
+}

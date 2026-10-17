@@ -1,0 +1,411 @@
+{
+ "company_key": "3399187-5",
+ "name": "NanoHalen Oy",
+ "business_id": "3399187-5",
+ "founded": "2023-10-23",
+ "country": "FI",
+ "group": "portfolio",
+ "register_status": "active",
+ "industry": {
+  "code": "26510",
+  "description": "Manufacture of instruments and appliances for measuring, testing and navigation"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "equity_event",
+   "type_label": "equity_event",
+   "date": "2025-10-10",
+   "date_label": "2025-10-10",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Share issue registered 2025-10-10 (PRH). Register entries: Capital increase (KOROI). Record number: 2025/389134.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "bf_funding",
+   "type_label": "Business Finland funding",
+   "date": "2025-01-01",
+   "date_label": "2025 (year only)",
+   "source_url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+   "source_label": "Business Finland export",
+   "confidence": "high",
+   "adapter": "businessfinland",
+   "title": null,
+   "note": "Business Finland funding granted in 2025 (year only; the export has no decision date): grant EUR 60 000. Row from the manual dashboard export, no per-row link.",
+   "amount_eur": 60000.0
+  },
+  {
+   "ref": "S3",
+   "type": "equity_event",
+   "type_label": "equity_event",
+   "date": "2024-06-13",
+   "date_label": "2024-06-13",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Share issue registered 2024-06-13 (PRH). Register entries: Decision to issue shares (ANTIP), Capital increase (KOROI). Record number: 2024/725969.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2024-06-13",
+   "date_label": "2024-06-13",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2024-06-13 (PRH). Register entries: Board of directors (HAL). Record number: 2024/725969.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2024-06-01",
+   "date_label": "2024-06-01",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3399187-5",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S6",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2024-05-21",
+   "date_label": "2024-05-21",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2024-05-21 (PRH). Register entries: Board of directors (HAL). Record number: 2024/246224.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S7",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2024-05-01",
+   "date_label": "2024-05-01",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3399187-5",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S8",
+   "type": "funding_round",
+   "type_label": "Funding round",
+   "date": "2024-01-01",
+   "date_label": "2024 (year only)",
+   "source_url": "https://www.redstone.vc/portfolio/nanohalen",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Funding round. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S9",
+   "type": "startup_notice",
+   "type_label": "startup_notice",
+   "date": "2023-11-30",
+   "date_label": "2023-11-30",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2023-11-30 (PRH). Register entries: Start-up notification. Record number: 2023/742711.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S10",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2023-11-30",
+   "date_label": "2023-11-30",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2023-11-30 (PRH). Register entries: Board of directors (HAL). Record number: 2023/742711.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S11",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2023-10-23",
+   "date_label": "2023-10-23",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5",
+   "source_label": "PRH/YTJ register",
+   "confidence": "high",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": 4,
+   "rule": "Business Finland or EU project funding: a funded development project",
+   "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 4,
+   "rule": "first grant: Business Finland funding decision or EU project participation",
+   "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": 3,
+   "rule": "public non-dilutive funding (Business Finland decision or EU project)",
+   "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "equity_event on 2025-10-10: Share issue registered 2025-10-10 (PRH). Register entries: Capital increase (KOROI). Record number: 2025/389134.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5"
+  },
+  {
+   "text": "Business Finland funding on 2025 (year only): Business Finland funding granted in 2025 (year only; the export has no decision date): grant EUR 60 000. Row from the manual dashboard export, no per-row link.",
+   "confidence": "high",
+   "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+  },
+  {
+   "text": "equity_event on 2024-06-13: Share issue registered 2024-06-13 (PRH). Register entries: Decision to issue shares (ANTIP), Capital increase (KOROI). Record number: 2024/725969.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5"
+  },
+  {
+   "text": "startup_notice on 2023-11-30: Start-up notification registered 2023-11-30 (PRH). Register entries: Start-up notification. Record number: 2023/742711.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5"
+  },
+  {
+   "text": "Funding round on 2024 (year only): Funding round. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://www.redstone.vc/portfolio/nanohalen"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Medium / Low / Medium",
+  "note": "more public evidence needed: Ocean impact",
+  "why": [
+   {
+    "text": "Business readiness Medium (level 4): first grant: Business Finland funding decision or EU project participation",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   },
+   {
+    "text": "Investment readiness Low (level 2): 2 of the 10 investment dimensions have public evidence",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   },
+   {
+    "text": "Technology readiness Medium (level 4): Business Finland or EU project funding: a funded development project",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   },
+   {
+    "text": "Thesis fit: declared portfolio company",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5"
+   },
+   {
+    "text": "Why now: BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) closes 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Investment readiness is Low on the stored evidence",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5"
+   },
+   {
+    "text": "Check in: no public signal since 2025-10-10",
+    "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5"
+   }
+  ]
+ },
+ "next": {
+  "investors": [
+   {
+    "name": "Korkia",
+    "kind": "investor vc",
+    "reason": "caps ['C3']; kw []; stage 1.0",
+    "url": "https://korkia.fi"
+   },
+   {
+    "name": "Meyer Turku (GT Lab - MERiON programme)",
+    "kind": "investor corporate",
+    "reason": "caps ['C3']; kw []; stage 1.0",
+    "url": "https://www.meyerturku.fi"
+   },
+   {
+    "name": "Investinor",
+    "kind": "investor vc",
+    "reason": "caps ['C3']; kw []; stage 1.0",
+    "url": "https://www.ellty.com/investors/oslo-maritime-tech-investors"
+   },
+   {
+    "name": "Motion Ventures",
+    "kind": "investor vc",
+    "reason": "caps ['C3']; kw []; stage 1.0",
+    "url": "https://carbon-pulse.com/379390/"
+   },
+   {
+    "name": "Neste Ventures",
+    "kind": "investor corporate",
+    "reason": "caps ['C3']; kw []; stage 1.0",
+    "url": "https://www.neste.com"
+   }
+  ],
+  "funding": [
+   {
+    "name": "Baltic Sea Action Plan (BSAP) Fund (NIB + NEFCO)",
+    "kind": "public funder",
+    "reason": "caps ['C3']; kw []; stage 1.0; impact 1/5",
+    "url": "https://www.nib.int/about/cooperation/bsap-fund"
+   },
+   {
+    "name": "Business Turku / Turku Science Park (Blue Economy and Maritime)",
+    "kind": "accelerator incubator",
+    "reason": "caps ['C3']; kw []; stage 1.0; impact 1/5",
+    "url": "https://businessturku.fi/en/blue-economy-and-maritime/"
+   },
+   {
+    "name": "Nordic Innovation (NOCA - Nordic Ocean Cluster Accelerator)",
+    "kind": "public funder",
+    "reason": "caps ['C3']; kw []; stage 1.0; impact 1/5",
+    "url": "https://www.nordicinnovation.org/programs/nordic-ocean-cluster-accelerator-noca"
+   },
+   {
+    "name": "EIC Accelerator (European Innovation Council)",
+    "kind": "public funder",
+    "reason": "caps ['C3']; kw []; stage 1.0; impact 1/5",
+    "url": "https://eic.ec.europa.eu"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "partners": [
+   {
+    "name": "ABB Marine & Ports (ABB Oy, Helsinki)",
+    "kind": "corporate",
+    "reason": "caps ['C3']; kw []; stage 0.5",
+    "url": "https://new.abb.com/marine"
+   },
+   {
+    "name": "Arctia Oy (Arctia Icebreaking Oy / Arctia Meritaito Oy)",
+    "kind": "shipowner operator",
+    "reason": "caps ['C3']; kw []; stage 0.5",
+    "url": "https://www.arctia.fi"
+   },
+   {
+    "name": "Eckerö Line Abp (Eckerö Group)",
+    "kind": "shipowner operator",
+    "reason": "caps ['C3']; kw []; stage 0.5",
+    "url": "https://www.eckeroline.fi"
+   },
+   {
+    "name": "Elomatic Consulting & Engineering Oy",
+    "kind": "corporate",
+    "reason": "caps ['C3']; kw []; stage 0.5",
+    "url": "https://www.elomatic.com"
+   },
+   {
+    "name": "Eniram Oy",
+    "kind": "corporate",
+    "reason": "caps ['C3']; kw []; stage 0.5",
+    "url": "https://www.wartsila.com"
+   }
+  ]
+ },
+ "counts": {
+  "signals": 11,
+  "by_type": {
+   "equity_event": 2,
+   "bf_funding": 1,
+   "board_change": 3,
+   "first_hire": 1,
+   "first_sales": 1,
+   "funding_round": 1,
+   "startup_notice": 1,
+   "register_entry": 1
+  },
+  "next_investors": 5,
+  "next_funding": 5,
+  "next_partners": 5
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5",
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://businessturku.fi/en/blue-economy-and-maritime/",
+  "https://carbon-pulse.com/379390/",
+  "https://eic.ec.europa.eu",
+  "https://korkia.fi",
+  "https://new.abb.com/marine",
+  "https://tietopalvelu.ytj.fi/yritys/3399187-5",
+  "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+  "https://www.arctia.fi",
+  "https://www.eckeroline.fi",
+  "https://www.ellty.com/investors/oslo-maritime-tech-investors",
+  "https://www.elomatic.com",
+  "https://www.meyerturku.fi",
+  "https://www.neste.com",
+  "https://www.nib.int/about/cooperation/bsap-fund",
+  "https://www.nordicinnovation.org/programs/nordic-ocean-cluster-accelerator-noca",
+  "https://www.redstone.vc/portfolio/nanohalen",
+  "https://www.wartsila.com"
+ ]
+}

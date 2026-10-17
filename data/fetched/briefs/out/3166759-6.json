@@ -1,0 +1,45 @@
+{
+ "company_key": "3166759-6",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Arctic Fry Oy is a cohort company registered on 2020-10-23 under the industry code 03220, freshwater aquaculture.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   ]
+  },
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules; ocean impact reads Medium.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Aqua-Spark as an investor, Hatch Blue as a programme or funding source and Natural Resources Institute Finland as a partner.",
+   "cites": [
+    "https://aqua-spark.nl",
+    "https://hatch.blue",
+    "https://www.luke.fi"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact Medium, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category); no public financials evidence (grants and contracts).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   ]
+  }
+ }
+}

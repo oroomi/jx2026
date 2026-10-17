@@ -1,0 +1,42 @@
+{
+ "company_key": "dk-reefcircular",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "ReefCircular is a cohort company whose country is recorded as DK, and the sources we read hold no register entry for it.",
+   "cites": [
+    "https://www.reefcircular.com/"
+   ]
+  },
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://www.reefcircular.com/"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 3, while business readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://www.reefcircular.com/"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name BlueInvest E-Pitching Session as a programme or funding source.",
+   "cites": [
+    "https://blueinvest-community.converve.io/all_events.html"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness unknown, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://www.reefcircular.com/"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; no public evidence for business readiness; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://www.reefcircular.com/"
+   ]
+  }
+ }
+}

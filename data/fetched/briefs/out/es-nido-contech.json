@@ -1,0 +1,42 @@
+{
+ "company_key": "es-nido-contech",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "NIDO Contech is a cohort company whose country is recorded as ES, and the sources we read hold no register entry for it.",
+   "cites": [
+    "https://www.nido.eco/"
+   ]
+  },
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://www.nido.eco/"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 4 and investment readiness is level 3; ocean impact reads Medium.",
+   "cites": [
+    "https://cordis.europa.eu/project/id/101292324"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name BlueInvest E-Pitching Session as a programme or funding source.",
+   "cites": [
+    "https://blueinvest-community.converve.io/all_events.html"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact Medium, business readiness Medium, investment readiness Low, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://www.nido.eco/"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category); no public financials evidence (grants and contracts).",
+   "cites": [
+    "https://www.nido.eco/"
+   ]
+  }
+ }
+}

@@ -1,0 +1,46 @@
+{
+ "company_key": "2902007-2",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Kelluu Oy builds autonomous airships, judging by the title of a notice on its own site, and is registered under the industry code 30310, manufacture of civilian air and spacecraft and related machinery.",
+   "cites": [
+    "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"
+   ]
+  },
+  "thesis_fit": {
+   "text": "It is a declared portfolio company, and the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 6 and investment readiness is level 4; ocean impact reads Low.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Ilmarinen as an investor, EIC Accelerator as a programme or funding source and Finnish Meteorological Institute as a partner.",
+   "cites": [
+    "https://www.ilmarinen.fi",
+    "https://eic.ec.europa.eu",
+    "https://en.ilmatieteenlaitos.fi"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact Low, business readiness Medium, investment readiness Low, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: ocean impact is Low on the stored evidence; investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"
+   ]
+  }
+ }
+}

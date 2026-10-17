@@ -1,0 +1,45 @@
+{
+ "company_key": "2962040-6",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Viva Jets Oy is a portfolio company registered on 2018-12-28 under the industry code 30120, building of pleasure and sporting boats.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"
+   ]
+  },
+  "thesis_fit": {
+   "text": "It is a declared portfolio company, and the memo reads thesis fit as High.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 4 and investment readiness is level 4; ocean impact reads Medium.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Meyer Turku as an investor, Interreg Central Baltic Programme 2021-2027 as a programme or funding source and Eckerö Line Abp as a partner.",
+   "cites": [
+    "https://www.meyerturku.fi",
+    "https://centralbaltic.eu",
+    "https://www.eckeroline.fi"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact Medium, business readiness Medium, investment readiness Low, thesis fit High), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6"
+   ]
+  }
+ }
+}

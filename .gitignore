@@ -8,7 +8,8 @@ shots/
 .next/
 data/radar*.sqlite
 data/cache/
-data/fetched/
+data/fetched/*
+!data/fetched/briefs/
 .local/
 *.sqlite-journal
 *.sqlite-wal

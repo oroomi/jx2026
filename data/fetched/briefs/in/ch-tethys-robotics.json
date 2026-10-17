@@ -1,0 +1,215 @@
+{
+ "company_key": "ch-tethys-robotics",
+ "name": "Tethys Robotics",
+ "business_id": null,
+ "founded": null,
+ "country": "CH",
+ "group": "portfolio",
+ "register_status": null,
+ "industry": {
+  "code": null,
+  "description": null
+ },
+ "company_url": "https://www.tethys-robotics.ch/",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "funding_round",
+   "type_label": "Funding round",
+   "date": "2025-11-05",
+   "date_label": "2025-11-05",
+   "source_url": "https://www.osborneclarke.com/news/osborne-clarke-advises-euregio-and-redstone-pre-seed-financing-eth-spin-tethys-robotics",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Funding round amount EUR 3 500 000. Open the source link for the details",
+   "amount_eur": 3500000.0
+  },
+  {
+   "ref": "S2",
+   "type": "pilot_named",
+   "type_label": "First customer or pilot named",
+   "date": "2025-10-16",
+   "date_label": "2025-10-16",
+   "source_url": "https://www.tethys-robotics.ch/",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "First customer or pilot named. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2025-05-27",
+   "date_label": "2025-05-27",
+   "source_url": "https://www.tethys-robotics.ch/",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2023-06-04",
+   "date_label": "2023-06-04",
+   "source_url": "https://www.netzwoche.ch/news/2023-06-04/tauchroboter-fuer-gefaehrliche-einsaetze",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Funding round on 2025-11-05: Funding round amount EUR 3 500 000. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://www.osborneclarke.com/news/osborne-clarke-advises-euregio-and-redstone-pre-seed-financing-eth-spin-tethys-robotics"
+  },
+  {
+   "text": "First customer or pilot named on 2025-10-16: First customer or pilot named. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://www.tethys-robotics.ch/"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / unknown / unknown / Medium",
+  "note": "more public evidence needed: Ocean impact, Business readiness, Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Thesis fit: declared portfolio company",
+    "url": "https://www.tethys-robotics.ch/"
+   },
+   {
+    "text": "Why now: EIC Accelerator 2026 (cut-off 4 Nov 2026) closes 2026-11-04",
+    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "No public evidence for business readiness",
+    "url": null
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Business readiness, Investment readiness, Technology readiness",
+    "url": "https://www.tethys-robotics.ch/"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [
+   {
+    "name": "EIC Accelerator 2026 (cut-off 4 Nov 2026)",
+    "kind": "grant",
+    "reason": "Open: SMEs scaling up; short proposal then full proposal; deadline: 2026-11-04; amount: grant below 2500000 (lump sum) plus equity 1000000 to 10000000. TRL window 6 to 8; company TRL not in public records",
+    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   },
+   {
+    "name": "Helsinki Blue Economy Studio by A'Pelago 2027",
+    "kind": "accelerator",
+    "reason": "Open: pre-seed, seed or early-stage with an MVP; deadline: 2026-11-30; amount: equity-free",
+    "url": "https://www.apelago.fi/helsinki-blue-economy-studio/"
+   },
+   {
+    "name": "A'Pelago Lab2Impact 2027",
+    "kind": "accelerator",
+    "reason": "Open: researchers and research-based innovations (incubator); deadline: TBA",
+    "url": "https://www.apelago.fi/laboff/"
+   },
+   {
+    "name": "A'Pelago Nordic Ocean Accelerator Programme (NOCA) 2027",
+    "kind": "accelerator",
+    "reason": "Open: ocean economy startups and SMEs; deadline: applications open; deadline not stated",
+    "url": "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/"
+   }
+  ],
+  "partners": []
+ },
+ "counts": {
+  "signals": 4,
+  "by_type": {
+   "funding_round": 1,
+   "pilot_named": 1,
+   "ecosystem_event": 2
+  },
+  "next_investors": 0,
+  "next_funding": 5,
+  "next_partners": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json",
+  "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/",
+  "https://www.apelago.fi/helsinki-blue-economy-studio/",
+  "https://www.apelago.fi/laboff/",
+  "https://www.netzwoche.ch/news/2023-06-04/tauchroboter-fuer-gefaehrliche-einsaetze",
+  "https://www.osborneclarke.com/news/osborne-clarke-advises-euregio-and-redstone-pre-seed-financing-eth-spin-tethys-robotics",
+  "https://www.tethys-robotics.ch/"
+ ]
+}

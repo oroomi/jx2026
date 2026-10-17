@@ -1,0 +1,423 @@
+{
+ "company_key": "dk-reefcircular",
+ "name": "ReefCircular",
+ "business_id": null,
+ "founded": null,
+ "country": "DK",
+ "group": "cohort",
+ "register_status": null,
+ "industry": {
+  "code": null,
+  "description": null
+ },
+ "company_url": "https://www.reefcircular.com/",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "exhibitor",
+   "type_label": "Exhibitor or demo",
+   "date": "2026-08-19",
+   "date_label": "2026-08-19",
+   "source_url": "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/772623",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Exhibitor or demo. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-07-31",
+   "date_label": "2026-07-31",
+   "source_url": "https://www.reefcircular.com/projects-reefcircular",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "award",
+   "type_label": "Award or pitch win",
+   "date": "2026-06-30",
+   "date_label": "2026-06-30",
+   "source_url": "https://invest4nature.eu/2026/06/16/strong-showing-from-nature-based-enterprises-at-eu-green-week/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Award or pitch win. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-02-09",
+   "date_label": "2026-02-09",
+   "source_url": "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (accelerator_or_programme_entry). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-01-01",
+   "date_label": "2026 (year only)",
+   "source_url": "https://www.reefcircular.com/projects-reefcircular",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S6",
+   "type": "public_funding",
+   "type_label": "Grant or public funding",
+   "date": "2025-11-20",
+   "date_label": "2025-11-20",
+   "source_url": "https://www.cleancluster.dk/en/case/reefcircular-lands-international-dream-partner-new-collaboration-with-wsp-stems-directly-from-clean-funded-pilot/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Grant or public funding. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S7",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2025-11-20",
+   "date_label": "2025-11-20",
+   "source_url": "https://www.cleancluster.dk/en/case/reefcircular-lands-international-dream-partner-new-collaboration-with-wsp-stems-directly-from-clean-funded-pilot/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S8",
+   "type": "award",
+   "type_label": "Award or pitch win",
+   "date": "2025-10-10",
+   "date_label": "2025-10-10",
+   "source_url": "https://nordicwomenintechawards.com/winners-2025/",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Award or pitch win. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S9",
+   "type": "award",
+   "type_label": "Award or pitch win",
+   "date": "2025-08-25",
+   "date_label": "2025-08-25",
+   "source_url": "https://midspar.dk/klimaboost/reefcircular-har-potentiale-til-at-blive-havets-bedste-ven/",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Award or pitch win. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S10",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2025-03-22",
+   "date_label": "2025-03-22",
+   "source_url": "https://www.reefcircular.com/projects-reefcircular",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S11",
+   "type": "pilot_named",
+   "type_label": "First customer or pilot named",
+   "date": "2025-02-04",
+   "date_label": "2025-02-04",
+   "source_url": "https://kemifokus.dk/reefcircular-skal-forbedre-biodiversiteten-i-havet-ud-for-skotlands-kyst",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "First customer or pilot named. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S12",
+   "type": "public_funding",
+   "type_label": "Grant or public funding",
+   "date": "2025-02-03",
+   "date_label": "2025-02-03",
+   "source_url": "https://via.ritzau.dk/pressemeddelelse/14246473/reefcircular-sikrer-forste-store-internationale-projekt-der-skal-forbedre-biodiversiteten-i-havet-ud-for-skotlands-kyst",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Grant or public funding. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S13",
+   "type": "pilot_named",
+   "type_label": "First customer or pilot named",
+   "date": "2024-06-14",
+   "date_label": "2024-06-14",
+   "source_url": "https://www.sn.dk/art5625859/halsnaes/nyhed/havn-faar-kunstige-rev/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "First customer or pilot named. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S14",
+   "type": "funding_round",
+   "type_label": "Funding round",
+   "date": "2024-02-15",
+   "date_label": "2024-02-15",
+   "source_url": "https://www.mynewsdesk.com/dk/roest-kommunikation/pressreleases/paa-kanten-af-udvisning-til-fremadstormende-startup-kathryn-larsen-har-faaet-investeringer-for-over-1-million-kroner-i-nyt-projekt-der-skal-hjaelpe-havmiljoeet-3304218",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Funding round. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S15",
+   "type": "award",
+   "type_label": "Award or pitch win",
+   "date": "2024-01-01",
+   "date_label": "2024 (year only)",
+   "source_url": "https://www.danishdesignaward.com/projects/reeftile",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Award or pitch win. Open the source link for the details",
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": 3,
+   "rule": "stated by the BlueInvest profile",
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Award or pitch win on 2026-06-30: Award or pitch win. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high; month only, stored as the last day of the month]",
+   "confidence": "high",
+   "url": "https://invest4nature.eu/2026/06/16/strong-showing-from-nature-based-enterprises-at-eu-green-week/"
+  },
+  {
+   "text": "Grant or public funding on 2025-11-20: Grant or public funding. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://www.cleancluster.dk/en/case/reefcircular-lands-international-dream-partner-new-collaboration-with-wsp-stems-directly-from-clean-funded-pilot/"
+  },
+  {
+   "text": "First customer or pilot named on 2025-02-04: First customer or pilot named. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://kemifokus.dk/reefcircular-skal-forbedre-biodiversiteten-i-havet-ud-for-skotlands-kyst"
+  },
+  {
+   "text": "Grant or public funding on 2025-02-03: Grant or public funding. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://via.ritzau.dk/pressemeddelelse/14246473/reefcircular-sikrer-forste-store-internationale-projekt-der-skal-forbedre-biodiversiteten-i-havet-ud-for-skotlands-kyst"
+  },
+  {
+   "text": "First customer or pilot named on 2024-06-14: First customer or pilot named. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://www.sn.dk/art5625859/halsnaes/nyhed/havn-faar-kunstige-rev/"
+  },
+  {
+   "text": "Funding round on 2024-02-15: Funding round. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://www.mynewsdesk.com/dk/roest-kommunikation/pressreleases/paa-kanten-af-udvisning-til-fremadstormende-startup-kathryn-larsen-har-faaet-investeringer-for-over-1-million-kroner-i-nyt-projekt-der-skal-hjaelpe-havmiljoeet-3304218"
+  },
+  {
+   "text": "Award or pitch win on 2024 (year only): Award or pitch win. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://www.danishdesignaward.com/projects/reeftile"
+  },
+  {
+   "text": "Exhibitor or demo on 2026-08-19: Exhibitor or demo. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/772623"
+  },
+  {
+   "text": "Award or pitch win on 2025-10-10: Award or pitch win. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://nordicwomenintechawards.com/winners-2025/"
+  },
+  {
+   "text": "Award or pitch win on 2025-08-25: Award or pitch win. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://midspar.dk/klimaboost/reefcircular-har-potentiale-til-at-blive-havets-bedste-ven/"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / unknown / unknown / Medium",
+  "note": "more public evidence needed: Ocean impact, Business readiness, Investment readiness",
+  "why": [
+   {
+    "text": "Technology readiness Low (level 3): the BlueInvest profile states TRL 3",
+    "url": "https://blueinvest-community.converve.io/pipeline_front.html?action=detail&params%5Bevent_id%5D=1&params%5Bshow%5D=comp&params%5Bq%5D=&params%5Bother_id%5D=490"
+   },
+   {
+    "text": "Thesis fit: declared cohort company",
+    "url": "https://www.reefcircular.com/"
+   },
+   {
+    "text": "Why now: BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) closes 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "No public evidence for business readiness",
+    "url": null
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Business readiness, Investment readiness",
+    "url": "https://www.reefcircular.com/"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   },
+   {
+    "name": "Helsinki Blue Economy Studio by A'Pelago 2027",
+    "kind": "accelerator",
+    "reason": "Open: pre-seed, seed or early-stage with an MVP; deadline: 2026-11-30; amount: equity-free",
+    "url": "https://www.apelago.fi/helsinki-blue-economy-studio/"
+   },
+   {
+    "name": "A'Pelago Lab2Impact 2027",
+    "kind": "accelerator",
+    "reason": "Open: researchers and research-based innovations (incubator); deadline: TBA",
+    "url": "https://www.apelago.fi/laboff/"
+   },
+   {
+    "name": "A'Pelago Nordic Ocean Accelerator Programme (NOCA) 2027",
+    "kind": "accelerator",
+    "reason": "Open: ocean economy startups and SMEs; deadline: applications open; deadline not stated",
+    "url": "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/"
+   },
+   {
+    "name": "A'Pelago Northern Blue 2027",
+    "kind": "accelerator",
+    "reason": "Open: growth and scale-up companies; deadline: applications open; deadline not stated; amount: equity-free (no money given)",
+    "url": "https://www.apelago.fi/apelago-northern-blue/"
+   }
+  ],
+  "partners": []
+ },
+ "counts": {
+  "signals": 15,
+  "by_type": {
+   "exhibitor": 1,
+   "ecosystem_event": 5,
+   "award": 4,
+   "public_funding": 2,
+   "pilot_named": 2,
+   "funding_round": 1
+  },
+  "next_investors": 0,
+  "next_funding": 5,
+  "next_partners": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://blueinvest-community.converve.io/pipeline_front.html?action=detail&params%5Bevent_id%5D=1&params%5Bshow%5D=comp&params%5Bq%5D=&params%5Bother_id%5D=490",
+  "https://invest4nature.eu/2026/06/16/strong-showing-from-nature-based-enterprises-at-eu-green-week/",
+  "https://kemifokus.dk/reefcircular-skal-forbedre-biodiversiteten-i-havet-ud-for-skotlands-kyst",
+  "https://midspar.dk/klimaboost/reefcircular-har-potentiale-til-at-blive-havets-bedste-ven/",
+  "https://nordicwomenintechawards.com/winners-2025/",
+  "https://via.ritzau.dk/pressemeddelelse/14246473/reefcircular-sikrer-forste-store-internationale-projekt-der-skal-forbedre-biodiversiteten-i-havet-ud-for-skotlands-kyst",
+  "https://www.apelago.fi/apelago-northern-blue/",
+  "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/",
+  "https://www.apelago.fi/helsinki-blue-economy-studio/",
+  "https://www.apelago.fi/laboff/",
+  "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+  "https://www.b2match.com/e/apelago-initiative-matchmaking/participations/772623",
+  "https://www.cleancluster.dk/en/case/reefcircular-lands-international-dream-partner-new-collaboration-with-wsp-stems-directly-from-clean-funded-pilot/",
+  "https://www.danishdesignaward.com/projects/reeftile",
+  "https://www.mynewsdesk.com/dk/roest-kommunikation/pressreleases/paa-kanten-af-udvisning-til-fremadstormende-startup-kathryn-larsen-har-faaet-investeringer-for-over-1-million-kroner-i-nyt-projekt-der-skal-hjaelpe-havmiljoeet-3304218",
+  "https://www.reefcircular.com/",
+  "https://www.reefcircular.com/projects-reefcircular",
+  "https://www.sn.dk/art5625859/halsnaes/nyhed/havn-faar-kunstige-rev/"
+ ]
+}

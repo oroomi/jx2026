@@ -31,7 +31,7 @@ QUESTIONS = (
     (5, "next", "What is the next move?"),
     (6, "missing", "What would change your mind?"),
 )
-FEED_QUESTIONS = ((1, "brief", "Aava, what is new this week?"),)
+FEED_QUESTIONS = ((1, "brief", "Aava, what is new on the radar?"),)
 MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 MAX_ANSWER = 450
 MAX_FEED = 600
@@ -690,7 +690,7 @@ def feed_script(rows: list[dict], limit: int = 5, today=None) -> dict:
     if fresh:
         opener = "Here is what is new this week."
     else:
-        opener = f"Nothing new in the last {FEED_DAYS} days, so here are the newest records on the feed, the latest from {newest}."
+        opener = f"Here are the newest records on the radar, the latest from {newest}."
     chosen = (fresh + [r for r in rows if r not in fresh])[:limit]
     out, used = [], 0
     for r in chosen:

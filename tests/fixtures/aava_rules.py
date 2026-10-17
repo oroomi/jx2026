@@ -3,7 +3,7 @@ import re
 
 QUESTIONS = ("Aava, what do you think about this company?", "What is their official score on the report?", "How sure are you?",
              "Who should we meet, and what do we say?", "What is the next move?", "What would change your mind?")
-FEED_QUESTION = "Aava, what is new this week?"
+FEED_QUESTION = "Aava, what is new on the radar?"
 
 # plain substrings (the owner's list, plus the next-step line the old reader spoke for a company with a verdict)
 SUBSTRINGS = ("http", "www.", "fallback c", "type 6_", "keyword '", "dataset match", "Question", "[name redacted]",

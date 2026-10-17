@@ -228,7 +228,7 @@ def test_the_feed_answer_stays_under_the_limit_and_says_when_nothing_is_new():
     assert segs[0]["text"].startswith("Here is what is new this week. Fixture 0 Oy, in manufacture of other electrical equipment")
     assert "first sales on 16 October 2026" in segs[0]["text"]
     old = aava.feed_script([_row(1, "2026-09-18"), _row(2, "2026-09-17")], today="2026-10-17")["segments"]
-    assert old[0]["text"].startswith("Nothing new in the last 7 days, so here are the newest records on the feed, the latest from 18 September 2026.")
+    assert old[0]["text"].startswith("Here are the newest records on the radar, the latest from 18 September 2026.")
     none_desc = aava.feed_script([_row(1, "2026-10-16", desc="")], today="2026-10-17")["segments"][0]["text"]
     assert "with no line of business on record" in none_desc
 

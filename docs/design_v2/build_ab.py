@@ -33,6 +33,17 @@ def blueinvest_text():
     return {k: {"text": d, "url": u, "sector": s} for k, d, u, s in rows if d}
 
 
+def what_it_does(co, bi_row):
+    """The card's "what it does" sentence: the BlueInvest profile's first sentence when one is stored, otherwise the
+    registered line of business (PRH industry code). Rule-written, never generated."""
+    if bi_row:
+        return {"text": one_line(bi_row["text"]) + ".", "src": bi_row["url"], "src_label": "BlueInvest profile"}
+    if co.get("industry_desc"):
+        return {"text": f"{co['industry_desc']} (industry code {co['industry_code']}).",
+                "src": co["source_url"], "src_label": "PRH/YTJ register"}
+    return None
+
+
 def one_line(text, limit=110):
     t = " ".join((text or "").split())
     first = t.split(". ")[0].rstrip(".")
@@ -55,8 +66,7 @@ def main():
         sigs = c["signals"]
         newest = sigs[0] if sigs else None
         b = bi.get(k)
-        line = ({"text": one_line(b["text"]), "src": b["url"], "src_label": "BlueInvest profile"} if b else
-                {"text": co.get("industry_desc") or None, "src": co["source_url"], "src_label": "PRH industry code"} if co.get("industry_desc") else None)
+        line = what_it_does(co, b)
         rows.append({
             "key": k, "name": co["name"], "country": co.get("country") or "", "country_name": COUNTRY.get(co.get("country"), co.get("country")),
             "group": co.get("group_tag"), "founded": co.get("founded"), "y": co.get("y_tunnus"), "reg_src": co.get("source_url"),
@@ -76,6 +86,7 @@ def main():
     k = client.get(f"/api/company/{DOSSIER_KEY}").json()
     k["memo"] = memo.for_template(DOSSIER_KEY, th)
     k["blueinvest"] = bi.get(DOSSIER_KEY)
+    k["what_it_does"] = what_it_does(k["company"], bi.get(DOSSIER_KEY))
     for name, data in (("a_home", home), ("b_home", home), ("a_company", k), ("b_company", k)):
         src = HERE / "src" / f"{name}.src.html"
         if not src.exists():

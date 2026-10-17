@@ -13,6 +13,37 @@
   .title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-4); margin: var(--s-3) 0 var(--s-2); }
   .title h1 { font: 400 clamp(2rem, 4vw, 3rem)/1.1 var(--font-serif); margin: 0; letter-spacing: -.015em; }
   .pill-go { color: var(--ok); background: var(--ok-soft); }
+  .strip { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-5); padding: var(--s-3) 0 var(--s-4); border-bottom: 1px solid var(--hairline); font-size: var(--fs-14); color: var(--muted); }
+  .strip b { color: var(--text); font-weight: 500; font-variant-numeric: tabular-nums; }
+  .strip a { color: var(--muted); font-size: var(--fs-12); white-space: nowrap; }
+  .card6 { margin-top: var(--s-5); border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow); overflow: hidden; }
+  .card6-head { padding: var(--s-5) var(--s-5) var(--s-3); display: grid; gap: 4px; }
+  .card6-head h2 { font: 400 var(--fs-22)/1.25 var(--font-serif); margin: 0; }
+  .rows6 { list-style: none; margin: 0; padding: 0; }
+  .rows6 > li { display: grid; grid-template-columns: 1fr; gap: 4px var(--s-5); padding: var(--s-4) var(--s-5); border-top: 1px solid var(--hairline); }
+  @media (min-width: 760px) { .rows6 > li { grid-template-columns: 190px minmax(0,1fr); } }
+  .q6 { font-size: var(--fs-14); font-weight: 600; color: var(--text-2); }
+  .a6 { font-size: var(--fs-16); line-height: 1.5; }
+  .a6 sup a { font-size: 11px; color: var(--accent); text-decoration: none; margin-left: 2px; font-weight: 600; }
+  .a6 .empty6 { display: inline-block; padding: 2px 10px; border: 1px dashed var(--hairline-strong); border-radius: 4px; background: var(--hatch); color: var(--muted); font-size: var(--fs-14); }
+  .lv4 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 6px var(--s-4); margin-top: 2px; }
+  @media (min-width: 760px) { .lv4 { grid-template-columns: repeat(4, minmax(0,1fr)); } }
+  .lv4 div { font-size: var(--fs-14); color: var(--muted); }
+  .lv4 b { display: block; font: 400 var(--fs-22)/1.1 var(--font-serif); color: var(--text); font-variant-numeric: lining-nums; }
+  .lv4 .hz b { font: 400 var(--fs-14)/1.6 var(--font-sans); color: var(--muted); }
+  .srcs { margin: 0; padding: var(--s-3) var(--s-5) var(--s-4) calc(var(--s-5) + 18px); border-top: 1px solid var(--hairline); background: var(--bg-raised); font-size: var(--fs-12); color: var(--muted); columns: 1; }
+  @media (min-width: 760px) { .srcs { columns: 2; column-gap: var(--s-6); } }
+  .srcs li { padding: 2px 0; break-inside: avoid; }
+  .srcs a { color: var(--muted); }
+  .ev-intro { margin: var(--s-7) 0 var(--s-2); font: 600 var(--fs-12)/1 var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  details.blk { border-top: 1px solid var(--hairline-strong); }
+  details.blk:last-of-type { border-bottom: 1px solid var(--hairline-strong); }
+  details.blk summary { cursor: pointer; list-style: none; padding: var(--s-4) 0; font-weight: 600; display: flex; justify-content: space-between; gap: var(--s-4); }
+  details.blk summary::-webkit-details-marker { display: none; }
+  details.blk summary::after { content: "+"; color: var(--accent); font-weight: 400; font-size: var(--fs-22); line-height: 1; }
+  details.blk[open] summary::after { content: "−"; }
+  details.blk summary .n { margin-left: auto; color: var(--muted); font-weight: 400; }
+  details.blk > :not(summary) { margin-bottom: var(--s-4); }
   section.blk { margin-top: var(--s-7); }
   .blk > h2 { font: 600 var(--fs-12)/1 var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 var(--s-3); padding-bottom: var(--s-2); border-bottom: 1px solid var(--hairline-strong); }
   .kv { list-style: none; margin: 0; padding: 0; }
@@ -43,24 +74,29 @@
 </header>
 <main class="wrap"><div class="col">
   <a class="back" href="b_home.html" id="back"></a>
-  <div class="title"><h1 id="name"></h1><span id="pill"></span></div>
+  <div class="title"><h1 id="name"></h1></div>
+  <div class="strip" id="strip"></div>
 
-  <section class="ai" aria-labelledby="ai-h">
-    <h2 id="ai-h">What the public record says</h2>
-    <p class="tag">AI summary of the sources on this page. Every sentence links to the record it rests on.</p>
-    <div class="empty"><b>No summary yet.</b> It appears here once it has been written from these sources and checked against them.</div>
+  <section class="card6" aria-labelledby="card-h">
+    <div class="card6-head">
+      <h2 id="card-h">What the public record says</h2>
+      <span class="small muted">Six partner questions. Each answer is written from the numbered sources under it and links to them.</span>
+    </div>
+    <ol class="rows6" id="card"></ol>
+    <ol class="srcs" id="srcs"></ol>
   </section>
 
-  <section class="blk"><h2>Verdict</h2><div id="verdict"></div></section>
-  <section class="blk"><h2>Company</h2><ul class="kv" id="company"></ul></section>
-  <section class="blk"><h2>Public record, newest first</h2><ul class="kv" id="signals"></ul></section>
-  <section class="blk"><h2>Readiness</h2><ul class="kv" id="ready"></ul></section>
-  <section class="blk"><h2>Why and risks</h2><ul class="kv" id="why"></ul></section>
-  <section class="blk"><h2>Who comes next</h2><ul class="kv" id="next"></ul></section>
-  <section class="blk"><h2>Next step</h2><ul class="kv" id="step"></ul></section>
-  <section class="blk"><h2>Not connected</h2><ul class="kv" id="slots"></ul></section>
+  <p class="ev-intro">Evidence behind the card</p>
+  <details class="blk" open><summary>Public record, newest first <span class="n" id="n-sig"></span></summary><ul class="kv" id="signals"></ul></details>
+  <details class="blk"><summary>Verdict from the decision table</summary><div id="verdict"></div></details>
+  <details class="blk"><summary>Company register facts</summary><ul class="kv" id="company"></ul></details>
+  <details class="blk"><summary>Readiness, level by level</summary><ul class="kv" id="ready"></ul></details>
+  <details class="blk"><summary>Why and risks</summary><ul class="kv" id="why"></ul></details>
+  <details class="blk"><summary>Who comes next, ranked</summary><ul class="kv" id="next"></ul></details>
+  <details class="blk"><summary>Next step and the rule behind it</summary><ul class="kv" id="step"></ul></details>
+  <details class="blk"><summary>Not connected</summary><ul class="kv" id="slots"></ul></details>
 </div></main>
-<footer class="foot"><div class="wrap"><span>Ocean Opportunity Radar · direction B prototype</span><span>Source beside every datum. Companies only.</span></div></footer>
+<footer class="foot"><div class="wrap"><span>Ocean Opportunity Radar · direction B with the summary card</span><span>Source beside every datum. Companies only.</span></div></footer>
 <script id="data" type="application/json">__DATA__</script>
 <script>
 (function(){
@@ -81,7 +117,44 @@
 
   $('back').textContent = '← ' + ({FI:'Finland',SE:'Sweden',DK:'Denmark',NO:'Norway'}[co.country] || co.country) + ' startups';
   $('name').textContent = co.name; document.title = co.name + ' · ' + document.title;
-  $('pill').className = 'pill ' + v[1]; $('pill').textContent = v[0];
+  var lastSig = D.signals[0];
+  $('strip').innerHTML = '<span class="pill '+v[1]+'" title="Fund memo verdict">'+esc(v[0])+'</span>'
+    + '<span>Founded <b>'+(co.founded ? esc(day(co.founded)) : 'no data')+'</b> '+src(co.source_url, 'PRH')+'</span>'
+    + '<span>Business ID <b>'+esc(co.y_tunnus)+'</b> '+src(co.source_url, 'PRH')+'</span>'
+    + '<span>Last signal <b>'+(lastSig ? esc(lastSig.type_label)+', '+esc(when(lastSig)) : 'none yet')+'</b> '+(lastSig ? src(lastSig.source_url, lastSig.source_label) : '')+'</span>';
+  $('n-sig').textContent = D.signals.length;
+
+  // Six-row card. Sources are numbered once, in order of first use.
+  var SRC = [], idx = {};
+  function cite(url, label){ if (!url) return ''; if (!(url in idx)) { SRC.push([url, label || host(url)]); idx[url] = SRC.length; } return '<sup><a href="#s'+idx[url]+'" title="'+esc(label || host(url))+'">'+idx[url]+'</a></sup>'; }
+  var EMPTY = '<span class="empty6">no public evidence yet</span>';
+  var R = D.readiness || {};
+  // 1 What it does
+  var wid = D.what_it_does;
+  var a1 = wid ? esc(wid.text) + cite(wid.src, wid.src_label) + (co.website ? ' Website: <a href="'+esc(co.website)+'" rel="noopener">'+esc(host(co.website))+'</a>.' + cite(co.source_url, 'PRH/YTJ register') : '') : EMPTY;
+  // 2 Thesis fit
+  var fitB = (rec.because_labels || []).filter(function(b){ return /fit/i.test(b.label); })[0];
+  var fitWhy = (m.why || []).filter(function(w){ return /^Thesis fit/.test(w.text); });
+  var a2 = fitB && fitB.band !== 'unknown' ? esc(fitB.band) + '. ' + fitWhy.map(function(w){ var t = w.text.replace(/^Thesis fit:\s*/, '').replace(/\.$/, ''); return esc(t.charAt(0).toUpperCase() + t.slice(1)) + '.' + cite(w.url); }).join(' ') : EMPTY;
+  // 3 Readiness, four frameworks levels
+  var FW = [['technology','Technology'],['business','Business'],['investment','Investment'],['ocean_impact','Ocean impact']];
+  var a3 = '<div class="lv4">' + FW.map(function(f){ var r = R[f[0]] || {}, ev = (r.evidence || [])[0];
+    if (r.level == null) return '<div class="hz"><b>no public evidence</b>'+f[1]+'</div>';
+    return '<div><b>'+r.level+'<span class="muted" style="font-size:14px"> / 9</span></b>'+f[1]+(ev ? cite(ev.source_url, ev.source_label) : cite(r.framework_url, 'framework'))+'</div>'; }).join('') + '</div>';
+  if (R.investment_dimensions) { var dd = R.investment_dimensions; a3 += '<span class="muted small">'+dd.filter(function(d){ return d.evidence_count > 0; }).length+' of '+dd.length+' investment dimensions have public evidence.</span>'; }
+  // 4 Who to meet
+  var N = D.who_comes_next || {}, meet = (N.investors || []).concat(N.funding || []).slice(0, 3);
+  var a4 = meet.length ? meet.map(function(x){ return esc(x.name) + (x.deadline ? ' (deadline ' + esc(day(x.deadline)) + ')' : '') + cite(x.source_url); }).join('; ') + '.' + ((N.investors || []).length ? '' : ' <span class="muted small">No investor in the declared dataset matches yet.</span>') : EMPTY;
+  // 5 What the fund should do
+  var ns = D.next_step || {};
+  var a5 = ns.sentence ? esc(ns.sentence) + '.' + cite(ns.source_url || co.source_url, 'decision table, rule ' + ns.rule) : EMPTY;
+  // 6 What is missing
+  var miss = (m.risks || []).filter(function(r){ return /^No public/.test(r.text); }).map(function(r){ return esc(r.text.replace(/^No public (evidence for )?/, '').replace(/^\w/, function(c){ return c.toUpperCase(); })); });
+  miss.push('Town (not stored yet)');
+  var a6 = miss.length ? 'No public evidence yet for: ' + miss.join('; ') + '.' : EMPTY;
+  var Q = [['What it does', a1], ['Thesis fit', a2], ['Readiness', a3], ['Who to meet', a4], ['What the fund should do', a5], ["What's missing", a6]];
+  $('card').innerHTML = Q.map(function(q){ return '<li><span class="q6">'+q[0]+'</span><div class="a6">'+q[1]+'</div></li>'; }).join('');
+  $('srcs').innerHTML = SRC.map(function(x, i){ return '<li id="s'+(i+1)+'"><a href="'+esc(x[0])+'" rel="noopener">'+esc(x[1])+'</a> <span>'+esc(host(x[0]) === x[1] ? '' : x[0].replace(/^https?:\/\//, '').split('/')[0])+'</span></li>'; }).join('');
 
   var team = 'the team’s decision table';
   var note = rec.note ? rec.note.charAt(0).toUpperCase() + rec.note.slice(1) : '';

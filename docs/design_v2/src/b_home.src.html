@@ -34,6 +34,10 @@
   }
   .tw-none { color: var(--muted); opacity: .75; font-style: italic; }
   @media (max-width: 899px) { .tw-none { display: none; } }
+  .listbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: var(--s-2) var(--s-4); padding-top: var(--s-4); }
+  .listbar .count { padding: 0; margin: 0; }
+  .sort { font-size: var(--fs-14); color: var(--muted); display: inline-flex; align-items: center; gap: 8px; }
+  .sort select { font: inherit; color: var(--text-2); background: transparent; border: 1px solid var(--hairline); border-radius: 6px; padding: 4px 8px; }
   .count { font-size: var(--fs-14); color: var(--muted); padding: var(--s-4) 0 0; }
   .pill-go { color: var(--ok); background: var(--ok-soft); }
 </style>
@@ -48,7 +52,7 @@
 </header>
 <div class="countries"><div class="wrap"><div class="tabs" role="tablist" id="tabs"></div></div></div>
 <main class="wrap">
-  <p class="count" id="count"></p>
+  <div class="listbar"><p class="count" id="count"></p><label class="sort">Sort <select id="sort"><option value="declared">Portfolio and cohort first</option><option value="newest">Newest signal</option><option value="name">Name, A to Z</option></select></label></div>
   <div class="head"><span>Startup</span><span title="The PRH register holds the address; the radar does not store it yet">Town</span><span>Newest public signal</span><span>Verdict</span></div>
   <ol class="list" id="list"></ol>
 </main>
@@ -63,18 +67,20 @@
   function when(n){ if (!n) return ''; var d = n.date; return n.prec === 'year' ? d.slice(0,4) : (n.prec === 'month' ? M[+d.slice(5,7)-1]+' '+d.slice(0,4) : (+d.slice(8,10))+' '+M[+d.slice(5,7)-1]+' '+d.slice(0,4)); }
   var VERDICT = {'PARTNER INTRODUCTION': ['Introduce', 'pill-go'], 'WATCHLIST': ['Watchlist', 'pill-none']};
   function pill(v){ var p = VERDICT[v] || [v ? v.charAt(0) + v.slice(1).toLowerCase() : 'No verdict', 'pill-info']; return '<span class="pill '+p[1]+'" title="Fund memo verdict: '+esc(v)+'">'+esc(p[0])+'</span>'; }
-  // Order: portfolio and cohort companies first (A to Z), then companies the feed found, newest signal first.
   function declared(r){ return r.group === 'portfolio' || r.group === 'cohort'; }
-  var rows = D.rows.slice().sort(function(a, b){
-    if (declared(a) !== declared(b)) return declared(a) ? -1 : 1;
-    if (declared(a)) return a.name.localeCompare(b.name);
-    return (b.newest ? b.newest.date : '') < (a.newest ? a.newest.date : '') ? -1 : 1;
-  });
+  function nd(r){ return r.newest ? r.newest.date : ''; }
+  var ORDER = {
+    declared: ['Portfolio and cohort first, A to Z, then new finds, newest first.', function(a, b){ if (declared(a) !== declared(b)) return declared(a) ? -1 : 1; return declared(a) ? a.name.localeCompare(b.name) : (nd(b) < nd(a) ? -1 : 1); }],
+    newest: ['Newest public signal first.', function(a, b){ return nd(b) < nd(a) ? -1 : nd(b) > nd(a) ? 1 : a.name.localeCompare(b.name); }],
+    name: ['Name, A to Z.', function(a, b){ return a.name.localeCompare(b.name); }]
+  };
+  var rows = D.rows.slice();
   var cur = D.countries[0].code;
   function render(){
     var q = ($('q').value || '').toLowerCase();
-    var list = rows.filter(function(r){ return r.country === cur && (!q || r.name.toLowerCase().indexOf(q) > -1 || (r.y || '').indexOf(q) > -1); });
-    $('count').textContent = list.length + (list.length === 1 ? ' startup' : ' startups') + '. Portfolio and cohort first, A to Z, then new finds, newest first.';
+    var o = ORDER[$('sort').value] || ORDER.declared;
+    var list = rows.slice().sort(o[1]).filter(function(r){ return r.country === cur && (!q || r.name.toLowerCase().indexOf(q) > -1 || (r.y || '').indexOf(q) > -1); });
+    $('count').textContent = list.length + (list.length === 1 ? ' startup. ' : ' startups. ') + o[0];
     $('list').innerHTML = list.map(function(r){
       return '<li><a class="item" href="b_company.html">'
         + '<div class="cell1"><div class="nm">'+esc(r.name)+'</div>'
@@ -87,6 +93,7 @@
   $('tabs').innerHTML = D.countries.map(function(c, i){ return '<button class="tab" role="tab" data-c="'+c.code+'" aria-selected="'+(i===0)+'">'+esc(c.name)+'<span class="n">'+c.n+'</span></button>'; }).join('');
   $('tabs').addEventListener('click', function(e){ var b = e.target.closest('.tab'); if (!b) return; [].forEach.call(this.children, function(x){ x.setAttribute('aria-selected', x === b); }); cur = b.dataset.c; render(); });
   $('q').addEventListener('input', render);
+  $('sort').addEventListener('change', render);
   $('fetched').textContent = 'Data as stored ' + D.fetched.slice(0,10) + '. Companies only.';
   render();
   $('theme').addEventListener('click', function(){ var r = document.documentElement, c = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = c === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('radar-theme', n); } catch (e) {} });

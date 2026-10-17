@@ -21,13 +21,13 @@
         requestAnimationFrame(step); }
     }
     if (skin === "terminal") {
-      var rows = [].slice.call(document.querySelectorAll(".hc-row")), at = -1;
+      var at = -1;
       document.addEventListener("keydown", function(e){
         var tag = (document.activeElement || {}).tagName;
         if (tag === "INPUT" || tag === "TEXTAREA" || e.metaKey || e.ctrlKey || e.altKey) return;
         if (e.key === "/") { var m = document.getElementById("all-records"), q = document.getElementById("q"); if (m) m.open = true; if (q) { e.preventDefault(); q.focus(); } }
-        else if (/^[1-9]$/.test(e.key)) { var g = document.querySelector('.hc-pills a[data-key="' + e.key + '"]'); if (g) location.href = g.href; }
-        else if ((e.key === "j" || e.key === "k") && rows.length) { at = Math.max(0, Math.min(rows.length - 1, at + (e.key === "j" ? 1 : -1))); rows[at].focus(); }
+        else if (/^[1-9]$/.test(e.key)) { var g = document.querySelector('.hc-pills a[data-key="' + e.key + '"]'); if (g) g.click(); }   /* the group tab is a link with hx-get: a click swaps the list in place, location.href would reload */
+        else if (e.key === "j" || e.key === "k") { var rows = [].slice.call(document.querySelectorAll(".hc-row")); if (!rows.length) return;   /* read now: the rows are replaced by each swap */ at = Math.max(0, Math.min(rows.length - 1, at + (e.key === "j" ? 1 : -1))); rows[at].focus(); }
       });
     }
   });

@@ -1,0 +1,64 @@
+/* Home list filters (state in the URL, list swapped in place): the active-filter chips, Clear all, the empty state, the country links and the
+   busy state. Tokens come from skins.css / site.css: --bg --surface --hairline --text --muted --accent. Loaded after criteria.css. */
+
+.hc-active { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; margin: 12px 0 0; }
+.hc-chips { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.hc-chip { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 12px 0 14px; border: 1px solid var(--text); border-radius: 22px; color: var(--text);
+  text-decoration: none; font-size: 15px; line-height: 1.2; background: transparent; }
+.hc-chip i { font-style: normal; font-size: 20px; line-height: 1; color: var(--muted); }
+.hc-chip:focus-visible, .hc-clearall:focus-visible, .hc-cc:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (hover: hover) { .hc-chip:hover { border-color: var(--accent); } .hc-chip:hover i { color: var(--accent); } }
+.hc-clearall { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-weight: 600; text-underline-offset: 3px; }
+:root[data-skin="editorial"] .hc-chip { border-radius: 0; }
+:root[data-skin="terminal"] .hc-chip { border-radius: 2px; font-family: var(--mono); font-size: 14px; }
+
+.hc-empty { margin: 16px 0 0; padding: 14px 0 6px; border-top: 1px solid var(--text); color: var(--muted); font-size: 16px; }
+.hc-empty-h { margin: 0 0 12px; color: var(--text); font-size: 20px; font-weight: 600; line-height: 1.25; }
+.hc-empty .hc-chips { margin-bottom: 8px; }
+.hc-empty-p { margin: 8px 0 0; }
+.hc-empty-p a { color: var(--accent); font-weight: 600; }
+:root[data-skin="editorial"] .hc-empty-h { font-family: var(--e-serif); font-weight: 500; font-size: 24px; }
+
+/* the default chip: the sector in view. It is a label, not a control: no cross, no link */
+.hc-chip-default { border-color: var(--hairline); background: var(--surface); padding: 0 14px; cursor: default; }
+.hc-chip-default > span { color: var(--text); }
+
+/* the Sector group takes one choice: a round mark instead of a square one */
+.hr-radio .hr-box { border-radius: 50%; }
+.hr-radio.on .hr-box::after { left: 3px; top: 3px; width: 10px; height: 10px; border: 0; border-radius: 50%; background: var(--bg); transform: none; }
+
+/* the full records under the list, when another sector than the page's own is in view */
+.hc-stale { max-width: 640px; margin: 28px auto 0; padding-top: 14px; border-top: 1px solid var(--hairline); }
+.hc-stale a { color: var(--accent); font-weight: 600; }
+
+/* country links: a multi-select row (the same state as the rail's Country group) */
+.hc-countries a.hc-cc[aria-checked="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.hc-countries a.hc-cc { gap: 6px; }
+
+/* the rail's options are checkboxes: Space toggles one as well as Enter (radar/static/filters.js) */
+.hr-o[aria-checked="true"] .hr-t { font-weight: 600; }
+
+/* a request is in flight: the list dims a little; reduced motion gets no transition */
+.hc[aria-busy="true"] .hc-rows, .hc[aria-busy="true"] .hc-empty { opacity: .55; transition: opacity .12s ease; }
+@media (prefers-reduced-motion: reduce) { .hc[aria-busy="true"] .hc-rows { transition: none; } }
+
+/* no list to filter yet (no store for the sector): the sectors as plain links, so the way to another sector is never lost */
+.hc-sectors { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 16px 0 0; }
+.hc-sectors a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-weight: 600; text-underline-offset: 3px; }
+.hc-sectors a[aria-current] { color: var(--text); text-decoration: none; }
+
+/* a 16 px flag beside a country's name (flag-icons, MIT: radar/static/vendor/flags/README.md); decorative, the name is always printed */
+.hc-flag { display: inline-block; flex: none; width: 16px; height: 12px; margin-right: 8px; vertical-align: -1px; object-fit: cover; outline: 1px solid var(--hairline); outline-offset: -1px; }
+.hc-chip .hc-flag { margin-right: 6px; }
+
+/* Top matching: the investor or accelerator picker, and each row's two reasons in words */
+.hc-for { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; margin: 14px 0 0; }
+.hc-for label { color: var(--muted); font-size: 14px; }
+.hc-for select { flex: 1 1 260px; min-width: 0; max-width: 100%; min-height: 44px; padding: 0 10px; background: var(--surface); color: var(--text); border: 1px solid var(--hairline); border-bottom-color: var(--text);
+  border-radius: 0; font: 400 16px var(--sans); }
+.hc-for select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.hc-for-note { flex-basis: 100%; margin: 0; font-size: 14px; color: var(--muted); }
+.hc-why { display: flex; flex-wrap: wrap; gap: 4px 6px; margin-top: 6px; }
+.hc-whyc { display: inline-block; max-width: 100%; padding: 2px 8px; border: 1px solid var(--hairline); border-radius: 999px; font-size: 13px; line-height: 1.35; color: var(--muted); overflow-wrap: anywhere; }
+:root[data-skin="editorial"] .hc-whyc { border-radius: 0; }
+:root[data-skin="terminal"] .hc-whyc { border-radius: 2px; font-family: var(--mono); }

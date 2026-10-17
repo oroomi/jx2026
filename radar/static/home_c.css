@@ -53,8 +53,6 @@
 .hc-right .c-spark { width: 72px; }
 @media (max-width: 600px) {
   .brand-for { display: none; }
-  .thesis-bar { padding-top: 0; padding-bottom: 6px; }
-  .thesis-bar .thesis-now { font-size: 14px; }
   .hc-kicker { margin-top: 8px; }
 }
 /* The country and group rows scroll sideways on phones; a soft fade on the right edge says there is more. */

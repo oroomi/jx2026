@@ -241,9 +241,10 @@ def test_the_old_nav_links_still_resolve(client):
         assert client.get(href).status_code == 200, href
 
 
-def test_the_sector_line_is_kept_as_one_line(client):
-    t = client.get("/").text
-    assert "Sector: <strong>" in t and "Change sector or region" in t and 'class="thesis-now"' in t
+def test_the_header_sector_block_is_gone_and_the_sector_lives_in_the_filter(client):
+    for url in ("/", "/radar", "/match", "/method", "/data", "/backtest"):
+        t = client.get(url).text
+        assert 'class="thesis-bar"' not in t and "thesis-select" not in t and "Change sector or region" not in t and 'class="thesis-switch"' not in t, url
 
 
 # ---- the site pages list: one source for the Menu and the footer; Match only when its route exists ------------------------------------------

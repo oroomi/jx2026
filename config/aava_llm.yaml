@@ -10,7 +10,8 @@ defaults:
   AAVA_TIMEOUT_S: 25                  # seconds one model call may stay silent (SDK timeout)
   AAVA_DAILY_CAP: 400                 # model turns per UTC day, all visitors together (in memory: a restart resets it)
   AAVA_RATE_PER_MIN: 8                # model turns per client IP per minute
-  AAVA_EFFORT: ""                     # low | medium | high | xhigh | max, or empty to derive it from AAVA_THINKING_BUDGET
+  AAVA_EFFORT: low                    # low | medium | high | xhigh | max, or empty to derive it from AAVA_THINKING_BUDGET. Measured 17 Oct on the live store: low and medium
+                                      # gave the same answers within a second of each other (5 s a turn), low with fewer tokens
   AAVA_MAX_STEPS: 3                   # model calls in one normal turn: find, read, answer. The last allowed call is told to answer; if it still calls a data
                                       # tool, one more call (tool_choice none) must answer, so the hard ceiling is this plus one
   AAVA_TURN_DEADLINE_S: 75            # the whole turn, tools included

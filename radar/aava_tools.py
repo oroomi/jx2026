@@ -27,6 +27,10 @@ from radar import fit as fit_mod, home_config, home_filter, home_list, matchmake
 log = logging.getLogger("aava.tools")
 NONE = home_filter.NONE
 NO_RECORD = "no public record"
+# The order of the home list (radar.home_list.build, `strength`, D48): what "top of the list" means.
+ORDER_RULE = ("verdict strength first (" + ", ".join(home_list.VERDICT_ORDER) + "); inside one verdict a declared cohort or portfolio company comes first, then the higher "
+              "Ocean Impact level, its confidence (high, medium, low), the business readiness level, the number of dated public records, the newest record, then the name; "
+              "a company with no level sorts after one that has a level")
 
 
 # ---- the turn's state ---------------------------------------------------------------------------------------------------------------------
@@ -347,7 +351,7 @@ def search_startups(ctx: ToolContext, a: dict) -> dict:
     shown = hits[:n]
     for r in shown:
         ctx.see(r["company_key"], r["name"])
-    out = {"matches": len(hits), "companies_on_the_list": len(rows), "showing": len(shown), "ordered_by": "verdict strength, then thesis fit, then newest public record",
+    out = {"matches": len(hits), "companies_on_the_list": len(rows), "showing": len(shown), "ordered_by": ORDER_RULE,
            "applied_filters": shown_filters(sel), "results": [row_summary(r) for r in shown]}
     if text:
         out["applied_text"] = text
@@ -427,6 +431,22 @@ def _company_named(ctx: ToolContext, ref: str) -> str | None:
     return found[0] if len(found) == 1 else None
 
 
+def _position(ctx: ToolContext, key: str):
+    """Where the company stands on the home list and the values the list's order reads, so "why is it at the top?" can be answered from the record."""
+    rows = ctx.rows()
+    i = next((n for n, r in enumerate(rows) if r["company_key"] == key), None)
+    if i is None:
+        return "not on the home list (it exists in the register; the list holds the companies the radar surfaces plus the declared cohort and portfolio)"
+    r = rows[i]
+    oi = r.get("ocean") or {}
+    brl = ((r.get("criteria") or {}).get("brl") or {}).get("level")
+    return {"rank": i + 1, "of": len(rows), "ordered_by": ORDER_RULE,
+            "this_company": {"verdict": r.get("verdict") or "no verdict", "declared_group": r.get("group_tag") if r.get("group_tag") in ("cohort", "portfolio") else None,
+                             "ocean_impact_level": f"{oi['level']} of 9" if oi.get("level") else NO_RECORD, "ocean_impact_confidence": oi.get("confidence"),
+                             "business_readiness_level": f"{brl} of 9" if brl else NO_RECORD, "dated_public_records": len(r.get("signals") or []), "newest_record": r.get("latest")},
+            "companies_ahead_with_the_same_verdict": sum(1 for x in rows[:i] if x.get("verdict") == r.get("verdict"))}
+
+
 def get_startup(ctx: ToolContext, a: dict) -> dict:
     from radar.routes import api as api_routes   # the company page's own assembly, so a number here is the number on the page
 
@@ -491,6 +511,7 @@ def get_startup(ctx: ToolContext, a: dict) -> dict:
         "next_step_rule": {"sentence": (api.get("next_step") or {}).get("sentence"), "because": (api.get("next_step") or {}).get("because"),
                            "url": (api.get("next_step") or {}).get("source_url")},
     }
+    out["position_on_the_home_list"] = _position(ctx, key)
     try:
         out["who_to_meet"] = _counterparts(ctx, key) or "matchmaking is not configured for this sector file"
     except Exception:  # noqa: BLE001  (the memo is still useful without the counterparts)

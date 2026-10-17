@@ -45,6 +45,8 @@ EXIT_BLOCKED = 3
 LAST_ROUND_NOTE = ("This is your last round. Do not call a data tool again: write the answer now from what the tools returned, ending with the Follow-ups line.")
 ANSWER_NOW = ("Write your answer now, in this turn, from the tool results you already have: 2 to 4 sentences that name the companies with one concrete fact each, then why, "
               "then one next step, then the Follow-ups line. Do not call a tool.")
+ANSWER_SHAPE = ("Answer shape, every time: three short paragraphs (the direct answer in at most 4 sentences naming at most 3 companies, why in at most 2 sentences, "
+                "the next step in 1 sentence), about 100 words in all, no bold, no bullets, then the Follow-ups line. Nothing is written before the tool calls are done.")
 TOOL_LABELS = {"search_startups": "searching the list", "get_startup": "reading the company record", "explain_match": "checking the match",
                "list_organisations": "looking up organisations", "get_current_view": "looking at your screen", "apply_filters": "setting the filters"}
 _NO_THINKING: set[str] = set()      # models whose API rejected the thinking parameters (this process): later calls skip them
@@ -203,7 +205,8 @@ def clean_messages(raw, s: Settings) -> list[dict]:
 
 def _system_extra(ctx: aava_tools.ToolContext, today: str) -> str:
     th = ctx.th
-    lines = [f"Today is {today}. Sector file: {th.get('title') or th.get('id')}. The investor partners are A'Pelago and Redstone Blue."]
+    lines = [f"Today is {today}. Sector file: {th.get('title') or th.get('id')}. The investor partners are A'Pelago and Redstone Blue.",
+             ANSWER_SHAPE]
     if ctx.page_company:
         conn = ctx.conn()
         d = None

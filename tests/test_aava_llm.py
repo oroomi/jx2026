@@ -10,7 +10,7 @@ import anthropic
 import httpx2
 import pytest
 
-from radar import aava_entities, aava_llm, aava_tools, home_filter, matchmaker, sectors, thesis
+from radar import aava_entities, aava_llm, aava_tools, home_filter, matchmaker, sectors, store, thesis
 from tests.fixtures.aava_fakes import FakeClient, call, tool_results
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -95,7 +95,7 @@ def test_request_shape_for_the_default_model(th):
     run(t)
     kw = client.messages.calls[0]
     assert kw["model"] == "claude-sonnet-5-5"
-    assert kw["thinking"] == {"type": "adaptive"} and kw["output_config"] == {"effort": "medium"}   # a 4.6+ model rejects budget_tokens
+    assert kw["thinking"] == {"type": "adaptive"} and kw["output_config"] == {"effort": "low"}   # a 4.6+ model rejects budget_tokens; low and medium measured the same on the live store
     assert kw["max_tokens"] == 1200 + 2048                                                         # thinking counts toward max_tokens
     assert "temperature" not in kw and "tool_choice" not in kw
     assert kw["system"][0]["cache_control"] == {"type": "ephemeral"} and "Aava" in kw["system"][0]["text"] and "cache_control" not in kw["system"][1]
@@ -615,3 +615,19 @@ def test_the_followups_line_at_the_end_of_the_answer_becomes_buttons_and_is_not_
     assert aava_tools.split_followups(f"A.\nFollow-ups: {long_q} | Fine?")[1][0] == "x" * 90
     t, _ = turn_for(th, "hi", [call(text="Just an answer.")])
     assert not [e for e in run(t) if e["event"] == "followups"]
+
+
+def test_get_startup_says_where_the_company_stands_on_the_list_and_what_the_order_reads(th):
+    ctx = aava_tools.ToolContext(th, limits=aava_llm.settings().limits)
+    rows = ctx.rows()
+    d = json.loads(aava_tools.run_tool(ctx, "get_startup", {"company_key": VIVA})[0])
+    pos = d["position_on_the_home_list"]
+    assert pos["rank"] == 1 + [r["company_key"] for r in rows].index(VIVA) and pos["of"] == len(rows) and pos["ordered_by"] == aava_tools.ORDER_RULE
+    me = pos["this_company"]
+    row = next(r for r in rows if r["company_key"] == VIVA)
+    assert me["verdict"] == row["verdict"] and me["dated_public_records"] == len(row["signals"])
+    assert pos["companies_ahead_with_the_same_verdict"] == sum(1 for r in rows[:pos["rank"] - 1] if r["verdict"] == row["verdict"])
+    assert "declared cohort or portfolio company comes first" in aava_tools.ORDER_RULE
+    outside = next(k for k in (c["company_key"] for c in store.search(ctx.conn(), "oy", 40)) if k not in {r["company_key"] for r in rows})
+    d = json.loads(aava_tools.run_tool(ctx, "get_startup", {"company_key": outside})[0])
+    assert d["position_on_the_home_list"].startswith("not on the home list")

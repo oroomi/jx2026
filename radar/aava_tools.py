@@ -650,7 +650,7 @@ def get_org_matches(ctx: ToolContext, a: dict) -> dict:
         out["pipeline_note"] = pipe["note"]
     if res.get("not_startups"):     # D83: the page's line on the companies an investor or accelerator is not offered
         out["not_offered"] = (f"{res['not_startups']:,} companies on the radar are not startups on the thesis' rule (founded more than "
-                              f"{(ctx.th.get('geography') or {}).get('stage_max_company_age_years')} years ago, or listed as a counterpart organisation) "
+                              f"{memo_mod.startup_age_limit(ctx.th)} years ago, or listed as a counterpart organisation) "
                               f"and are not offered to {o['name']}")
     if o.get("closed_note"):
         out["closed"] = matching.closed_words(o["closed_note"])

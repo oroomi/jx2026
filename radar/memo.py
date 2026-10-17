@@ -13,7 +13,7 @@ WATCHLIST with "more public evidence needed: <level>". REJECT / LOW FIT needs ev
 Nothing is said without a link: a bullet with no source row is an evidence gap and is shown as one.
 One engine (D75): `verdict_of` computes the decision and every band it rests on; the memo, the matchmaker's paths and every page that
 names a verdict or a path read it, so two surfaces can never disagree. After the table, the startup cut (D83) applies: a company that is
-not a startup on the thesis' own rule (older than `geography.stage_max_company_age_years`, or itself a counterpart organisation) cannot
+not a startup on the thesis' own rule (older than `geography.startup_max_age_years`, D88, or itself a counterpart organisation) cannot
 hold a startup-only verdict (`memo.decisions.stage_cut.verdicts`, ACCELERATOR) and gets the configured decision instead."""
 from __future__ import annotations
 
@@ -115,11 +115,18 @@ def company_age(founded, today: date) -> float | None:
     return None if d is None else (today - d).days / 365.25
 
 
+def startup_age_limit(thesis: dict):
+    """D88: the startup cut's age limit in years: `geography.startup_max_age_years` (10 in the thesis files), else the young-company
+    signal cut `geography.stage_max_company_age_years` (5), which stays the window for spotting new companies (A22)."""
+    geo = thesis.get("geography") or {}
+    return geo.get("startup_max_age_years", geo.get("stage_max_company_age_years"))
+
+
 def not_startup(c: dict, thesis: dict, today: date, counterparts: dict | None = None) -> str | None:
     """D83: why a company is not a startup on the thesis' own rule, in words, or None when it is one. A declared cohort or portfolio
     company is a startup by declaration (the partners selected it). Any other company is not one when it is itself a counterpart
     organisation (its folded name is a counterpart the thesis declares, `matchmaker_orgs.counterpart_index`, or a partner organisation,
-    A23), or when the register's founding date is more than `geography.stage_max_company_age_years` years before today. A company with no
+    A23), or when the register's founding date is more than `startup_age_limit` years before today (D88). A company with no
     founding date on record is not cut: an empty value is not an old one (A25)."""
     if c.get("group_tag") in ("cohort", "portfolio"):
         return None
@@ -131,7 +138,7 @@ def not_startup(c: dict, thesis: dict, today: date, counterparts: dict | None = 
         label = (((thesis.get("matching") or {}).get("kinds") or {}).get(kind) or {}).get("label") if kind else None
         kind_words = f", {'an' if label[:1].lower() in 'aeiou' else 'a'} {label.lower()}" if label else ""  # no nested brackets on the page
         return f"listed as a counterpart organisation{kind_words}"
-    years = (thesis.get("geography") or {}).get("stage_max_company_age_years")
+    years = startup_age_limit(thesis)
     age = company_age(c.get("founded"), today)
     if years is not None and age is not None and age > float(years):
         return f"founded in {str(c['founded'])[:4]}, more than {years} years ago"
@@ -719,7 +726,7 @@ def table_lines(thesis: dict) -> list[str]:
         out.append(text)
     cut = (cfg.get("stage_cut") or {}).get("text")
     if cut:   # D83: the cut after the table is part of the decision, so the whole table prints it, with the thesis' own age cut
-        out.append(cut.replace("{years}", str((thesis.get("geography") or {}).get("stage_max_company_age_years") or "")))
+        out.append(cut.replace("{years}", str(startup_age_limit(thesis) or "")))
     return out
 
 

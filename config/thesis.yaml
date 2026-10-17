@@ -12,6 +12,7 @@ geography:
   countries: [FI]                # register adapters run for these; other countries appear only via declared lists
   feed_window_days: 90           # early-signal feed shows companies whose FIRST signal falls inside this window
   stage_max_company_age_years: 5 # "young company" cut for Hilma first-contract and register-entry signals
+  startup_max_age_years: 10       # D88: the startup cut (accelerator verdict, companies offered to investors and accelerators)
 
 themes:                          # Redstone Blue's four areas plus A'Pelago's wording
   - id: maritime_port_tech
@@ -138,7 +139,7 @@ matching:
     WATCHLIST: [accelerator, programme, funder]
     REJECT / LOW FIT: []
   always_kinds: [corporate, port]  # every startup also sees these as pilot partners
-  startup_kinds: [investor, accelerator]   # D83: these meet startups only; a company that is not a startup on the thesis' rule (older than geography.stage_max_company_age_years, or itself a counterpart organisation; a declared cohort or portfolio company always is one) is never offered to them
+  startup_kinds: [investor, accelerator]   # D83: these meet startups only; a company that is not a startup on the thesis' rule (older than geography.startup_max_age_years, D88, or itself a counterpart organisation; a declared cohort or portfolio company always is one) is never offered to them
   show_startups: 25              # org view and the home Top matching tab: how many ranked startups both print (one number, so the two never disagree)
   org_pipeline:                  # org view (D63): a kind that meets startups before they reach its own verdict path is shown the early pipeline, not nothing
     investor:
@@ -538,7 +539,7 @@ memo:
         - {id: c1, when: {business: [Low, Medium], technology: Low}, team: "Early-Stage Impact Startup", decision: GRANT SUPPORT, action: "TRL 1-3: recommend grants and incubation support"}
         - {id: c2, when: {business: [Low, Medium]}, team: "Accelerator Candidate", decision: ACCELERATOR, action: "Accept into accelerator and provide mentoring"}
         - {id: c3, when: {business: High, investment: High}, team: "Investment Preparation", decision: DUE DILIGENCE, action: "Help prepare fundraising and connect with investors"}
-    # After the table (D83): a startup-only verdict needs a startup. A company founded more than geography.stage_max_company_age_years ago,
+    # After the table (D83): a startup-only verdict needs a startup. A company founded more than geography.startup_max_age_years ago (D88),
     # or one that is itself a counterpart organisation in the declared lists, gets `decision` instead; a declared cohort or portfolio
     # company is a startup by declaration (and is decided by pass 0 anyway).
     stage_cut:

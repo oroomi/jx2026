@@ -10,6 +10,7 @@ geography:
   countries: [FI, SE, EE, LV, LT, DK, "NO", DE, PL]  # same list as the top-level `countries` key
   feed_window_days: 90           # early-signal feed shows companies whose FIRST signal falls inside this window
   stage_max_company_age_years: 5 # "young company" cut for Hilma first-contract and register-entry signals
+  startup_max_age_years: 10       # D88: the startup cut (accelerator verdict, companies offered to investors and accelerators)
 
 themes:                          # Redstone Blue's four areas plus A'Pelago's wording
   - id: maritime_port_tech

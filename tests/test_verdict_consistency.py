@@ -96,7 +96,7 @@ def test_verdict_of_is_the_one_engine_behind_the_memo(conn):
 
 def test_not_startup_reads_the_age_cut_from_the_thesis_file():
     th = thesis.load()
-    cut = th["geography"]["stage_max_company_age_years"]
+    cut = th["geography"]["startup_max_age_years"]
     young = {"name": "Young Fixture Oy", "founded": _day(int(365.25 * cut) - 30), "group_tag": "feed"}
     old = {"name": "Old Fixture Oy", "founded": _day(int(365.25 * cut) + 30), "group_tag": "feed"}
     assert memo.not_startup(young, th, TODAY, {}) is None
@@ -105,7 +105,7 @@ def test_not_startup_reads_the_age_cut_from_the_thesis_file():
     assert memo.not_startup({**old, "founded": None}, th, TODAY, {}) is None                # no date on record: empty is not old
     for tag in ("cohort", "portfolio"):                                                    # a declared member is a startup by declaration
         assert memo.not_startup({**old, "group_tag": tag}, th, TODAY, {}) is None
-    wide = {**th, "geography": {**th["geography"], "stage_max_company_age_years": 50}}
+    wide = {**th, "geography": {**th["geography"], "startup_max_age_years": 50}}
     assert memo.not_startup(old, wide, TODAY, {}) is None                                  # the cut is the sector file's, not the code's
 
 
@@ -139,11 +139,11 @@ def test_an_old_company_reads_watchlist_and_says_why_on_every_surface(conn):
     rec = m["recommendation"]
     year = _day(365 * 12)[:4]
     assert rec["decision"] == "WATCHLIST" and rec["kind"] == "stage" and rec["cut_decision"] == "ACCELERATOR"
-    assert rec["note"].startswith(f"Not a startup on the thesis' rule (founded in {year}, more than 5 years ago)")
+    assert rec["note"].startswith(f"Not a startup on the thesis' rule (founded in {year}, more than 10 years ago)")
     assert m["plain_why"][0]["text"].startswith("Not a startup on the thesis' rule") and m["plain_why"][0]["url"]
     ns = memo.next_step_view(m, None, th)
     assert ns["decision"] == "WATCHLIST" and ns["because"].startswith("Not a startup") and ns["rule"].startswith("the startup cut: ")
-    assert any(line.startswith("Startup cut (after the table)") and "5 years" in line for line in ns["table"])
+    assert any(line.startswith("Startup cut (after the table)") and "10 years" in line for line in ns["table"])
     assert matchmaker._verdict(conn, th, "9500003-8", TODAY)["decision"] == "WATCHLIST"
     wi = aava.what_if(m, th)                                     # no hypothetical band makes it an accelerator: the cut holds in the what-if
     assert wi is not None and "ACCELERATOR" not in {d for opts in wi["single"].values() for d in opts.values()}
@@ -292,7 +292,7 @@ def test_the_company_page_says_the_rule_its_path_and_a_true_count(site):
     else:
         assert int(m.group(1)) == shown
     old = _visible(site.get("/c/9500011-4").text)
-    assert re.search(r"Old Sea Project Oy reads watchlist\s*: not a startup on the thesis' rule \(founded in \d{4}, more than 5 years ago\)", old)
+    assert re.search(r"Old Sea Project Oy reads watchlist\s*: not a startup on the thesis' rule \(founded in \d{4}, more than 10 years ago\)", old)
     assert "this company meets" in old and "no investor or accelerator is offered to it" in old
 
 

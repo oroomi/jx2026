@@ -86,7 +86,7 @@ def test_company_page_prints_dataset_reading_beside_the_rule(imported, monkeypat
     assert "Dataset evidence (16 Oct 2026)" in t
     assert "The dataset reads TRL 6; the register rule gives no level" in t
     assert "not a rule level" in t
-    assert "Fixture Capital" in t and "caps [&#39;C1&#39;]" in t           # reason string as given, escaped
+    assert "Fixture Capital" in t and "Shares C1" in t and "caps [" not in t  # the dataset's reason, as a plain sentence
     assert "linkedin.com/in" not in t.lower()
 
 

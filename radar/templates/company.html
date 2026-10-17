@@ -58,6 +58,7 @@
   {% else %}median for Finnish companies founded in {{ speed.year }} in our sample: {{ missing("not shown, sample size " ~ speed.sample ~ " is under " ~ min_sample) }}{% endif %}</p>
 </section>
 
+{% include "company_memo.html" %}
 <section id="q1" class="q q-fit">
   <h2><span class="num">01</span> Who is most promising</h2>
   {% if reasons %}

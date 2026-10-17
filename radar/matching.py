@@ -27,11 +27,11 @@ RANK_RULE = ("Rank = the dataset's match score (highest first), then the nearest
              "a TRL outside the programme's stated window or a company older than the programme's age limit is left out. "
              "The last slot of the funding list is kept for the soonest open programme.")
 NEXT_RULES = (
-    "1. No grant on record, TRL 4 to 6 and an open programme in the funding list: apply to that programme before its deadline.",
-    "2. A public buyer in the company's category awarded a contract in the last 12 months: contact that buyer.",
-    "3. Readiness gap (TRL 7 or more and investment level 3 or less): raise, starting with the top investor in the list.",
+    "1. No grant on record, TRL 4 to 6 and an open programme in the funding list: introduce them to that programme before its deadline.",
+    "2. A public buyer in the company's category awarded a contract in the last 12 months: ask about that buyer's contract.",
+    "3. Readiness gap (TRL 7 or more and investment level 3 or less): meet now to judge a raise, and introduce them to the top investor in the list.",
     "4. Cohort or portfolio company with no dated public event in 12 months: check in.",
-    "5. Otherwise: not enough public evidence for a next step yet.",
+    "5. Otherwise: watch; there is not enough public evidence for a next step yet.",
 )
 
 
@@ -75,6 +75,26 @@ def age_limit(stage_window: str | None) -> int | None:
     return int(m.group(1)) if m else None
 
 
+LATER_STAGES = ("series_a", "series_b_plus", "growth", "established")
+_EARLY_WORDS = ("pre-seed", "preseed", "seed", "early", "startup", "start-up", "new startup", "mvp", "idea")
+_LATER_WORDS = ("growth", "scale-up", "scaleup", "scale up", "series a", "series b", "venture and growth", "scaling")
+
+
+def stage_mismatch(stage: str | None, window: str | None) -> str | None:
+    """Two-way stage check. A text reason when the programme's stated stage window excludes a company at this stage, else None.
+    An early-stage company is not offered a growth-only programme, and a later-stage company (series A and beyond) is not
+    offered a programme that names only early stages. A window that names both, or neither, rules nobody out."""
+    sw = (window or "").casefold()
+    if not stage or not sw:
+        return None
+    early, later = any(w in sw for w in _EARLY_WORDS), any(w in sw for w in _LATER_WORDS)
+    if stage in EARLY_STAGES and later and not early:
+        return f"the dataset puts the company at {stage.replace('_', ' ')} stage and the programme names only growth stages ({window})"
+    if stage in LATER_STAGES and early and not later:
+        return f"the dataset puts the company at {stage.replace('_', ' ')} stage and the programme names only early stages ({window})"
+    return None
+
+
 def company_context(conn, company_key: str) -> dict | None:
     """The company, its signals and the levels the page prints (rule levels from frameworks, never the dataset's)."""
     data = store.company(conn, company_key)
@@ -111,36 +131,49 @@ def _eco_rows(conn, key: str) -> list[dict]:
     return [dict(r) for r in rows]
 
 
+def _eligibility(r: dict, ctx: dict) -> tuple[bool, list[str]]:
+    """(eligible, notes) for one programmes_grants.csv row: TRL window, two-way stage check, age limit."""
+    founded = (ctx["c"].get("founded") or "")[:4]
+    today_year = ctx.get("year") or date.today().year
+    notes = []
+    win = trl_window(r.get("TRL_window_if_stated"))
+    if win:
+        if ctx["trl"] is None:
+            notes.append(f"TRL window {win[0]} to {win[1]}; company TRL not in public records")
+        elif not win[0] <= ctx["trl"] <= win[1]:
+            return False, []
+        else:
+            notes.append(f"TRL {ctx['trl']} ({ctx['trl_src']}) is inside the stated window {win[0]} to {win[1]}")
+    if stage_mismatch(ctx.get("stage"), r.get("stage_window")):
+        return False, []
+    lim = age_limit(r.get("stage_window"))
+    if lim and founded.isdigit():
+        if today_year - int(founded) >= lim:
+            return False, []
+        notes.append(f"founded {founded}, inside the age limit of {lim} years")
+    elif lim:
+        notes.append(f"age limit {lim} years; founding year not in public records")
+    return True, notes
+
+
+def _programme_rows(thesis: dict) -> list[dict]:
+    return _read_csv((thesis.get("matching") or {}).get("programmes"))
+
+
 def _programmes(thesis: dict, ctx: dict, today: date) -> list[dict]:
     """Open programmes from the declared list that the company is not ruled out of."""
     out = []
-    founded = (ctx["c"].get("founded") or "")[:4]
-    for r in _read_csv((thesis.get("matching") or {}).get("programmes")):
+    ctx = dict(ctx, year=today.year)
+    for r in _programme_rows(thesis):
         dl = parse_deadline(r.get("next_deadline"))
         if not dl["open"] or (dl["date"] and dl["date"] < today.isoformat()):
             continue
         url = (r.get("source_url") or r.get("url") or "").strip()
         if not url.startswith("http"):
             continue
-        win = trl_window(r.get("TRL_window_if_stated"))
-        notes = []
-        if win:
-            if ctx["trl"] is None:
-                notes.append(f"TRL window {win[0]} to {win[1]}; company TRL not in public records")
-            elif not win[0] <= ctx["trl"] <= win[1]:
-                continue
-            else:
-                notes.append(f"TRL {ctx['trl']} ({ctx['trl_src']}) is inside the stated window {win[0]} to {win[1]}")
-        sw = (r.get("stage_window") or "").casefold()
-        if ctx.get("stage") in EARLY_STAGES and ("growth" in sw or "scale-up" in sw) and not any(w in sw for w in ("seed", "early", "startup", "start-up", "new")):
-            continue  # the window names only growth companies and the dataset puts this company at an early stage
-        lim = age_limit(r.get("stage_window"))
-        if lim and founded.isdigit():
-            if today.year - int(founded) >= lim:
-                continue
-            notes.append(f"founded {founded}, inside the age limit of {lim} years")
-        elif lim:
-            notes.append(f"age limit {lim} years; founding year not in public records")
+        ok, notes = _eligibility(r, ctx)
+        if not ok:
+            continue
         reason = f"Open: {r['stage_window'] or 'eligibility not stated'}; deadline: {dl['text']}"
         if r.get("amount_eur"):
             reason += f"; amount: {r['amount_eur']}"
@@ -149,6 +182,12 @@ def _programmes(thesis: dict, ctx: dict, today: date) -> list[dict]:
         out.append({"name": r["name"], "kind": r["type"], "reason": reason, "score": None, "source_url": url,
                     "confidence": None, "deadline": dl["date"], "deadline_text": dl["text"]})
     return out
+
+
+def _declared_programme(name: str, rows: list[dict]) -> dict | None:
+    """The programmes_grants.csv row an ecosystem funding row names (same name, or the csv name starts with it)."""
+    f = fold(name)
+    return next((r for r in rows if fold(r["name"]) == f), None) or next((r for r in rows if f and fold(r["name"]).startswith(f)), None)
 
 
 def _investor_facts(thesis: dict) -> dict[str, dict]:
@@ -217,10 +256,14 @@ def _assemble(conn, thesis: dict, company_key: str, ctx: dict, t: date) -> dict:
     programmes = _programmes(thesis, ctx, t) if known else []
     inv, fund, part = [], [], []
     declared_member = ctx["c"]["group_tag"] in ("cohort", "portfolio")
+    prog_rows = _programme_rows(thesis)
+    ectx = dict(ctx, year=t.year)
     for r in eco_rows:
         if declared_member and store.is_partner_org(r["name"]):
             continue  # a cohort or portfolio company already works with the partner organisations
-        row = {"name": r["name"], "kind": (r["target_type"] or "").replace("_", " "), "reason": r["why"] or "no reason string in the dataset",
+        if not (r["why"] or "").strip():
+            continue  # a row without a stated reason is hidden, never shown with a placeholder
+        row = {"name": r["name"], "kind": (r["target_type"] or "").replace("_", " "), "reason": r["why"].strip(),
                "score": r["score"], "source_url": r["source_url"], "confidence": r["confidence"], "deadline": None,
                "origin": "ecosystem dataset", "facts": None}
         if r["target_type"] in INVESTOR_TYPES:
@@ -231,6 +274,16 @@ def _assemble(conn, thesis: dict, company_key: str, ctx: dict, t: date) -> dict:
                 row["facts"] = "investors.csv: " + ", ".join(bits) if bits else None
             inv.append(row)
         elif r["target_type"] in FUNDING_TYPES:
+            decl = _declared_programme(r["name"], prog_rows)
+            if decl is not None:  # the declared programme's own window, deadline and stage apply to this row too
+                dl = parse_deadline(decl.get("next_deadline"))
+                if not dl["open"] or (dl["date"] and dl["date"] < t.isoformat()):
+                    continue
+                ok, notes = _eligibility(decl, ectx)
+                if not ok:
+                    continue
+                if notes:
+                    row["reason"] += ". " + "; ".join(notes)
             row["deadline"] = _deadline_for(r["name"], programmes)
             fund.append(row)
         elif r["target_side"] == "demand":
@@ -282,7 +335,7 @@ def next_step(company_key: str, thesis: dict, *, conn: sqlite3.Connection | None
     """{sentence, because, source_url, rule}: the first rule of NEXT_RULES that the stored facts satisfy."""
     own = conn is None
     conn = conn or store.open_db(thesis=thesis)
-    none = {"sentence": "Not enough public evidence for a next step yet", "because": "no company with this key in the database",
+    none = {"sentence": "Watch: not enough public evidence for a next step yet", "because": "no company with this key in the database",
             "source_url": None, "rule": 5}
     if conn is None:
         return none
@@ -292,7 +345,7 @@ def next_step(company_key: str, thesis: dict, *, conn: sqlite3.Connection | None
             return none
         t = store._today(today)
         if ctx["status"] in INACTIVE:
-            return {"sentence": "Not enough public evidence for a next step yet", "rule": 5, "source_url": None,
+            return {"sentence": "Watch: not enough public evidence for a next step yet", "rule": 5, "source_url": None,
                     "because": "the declared ecosystem dataset marks this company as defunct"}
         full = _assemble(conn, thesis, company_key, ctx, t)
         lists = {k: _rank(v, 10**6) for k, v in full.items()}
@@ -303,17 +356,17 @@ def next_step(company_key: str, thesis: dict, *, conn: sqlite3.Connection | None
                 or next((r for r in lists["funding"] if r.get("origin") == "programmes_grants.csv"), None)
             if prog:
                 dl = prog.get("deadline")
-                sentence = f"Apply to {prog['name']} before {dl}" if dl else f"Apply to {prog['name']} (open, deadline: {prog['deadline_text']})"
+                sentence = f"Introduce them to {prog['name']} before {dl}" if dl else f"Introduce them to {prog['name']} (open, deadline: {prog['deadline_text']})"
                 return {"sentence": sentence, "rule": 1, "source_url": prog["source_url"],
                         "because": f"no grant or EU project record, TRL {trl} ({ctx['trl_src']}), and the programme is open: {prog['reason']}"}
         year_ago = (t - timedelta(days=365)).isoformat()
         buyer = max((b for b in lists["partners"] if b.get("kind") == "public buyer" and b["date"] >= year_ago), key=lambda b: b["date"], default=None)
         if buyer:
-            return {"sentence": f"Contact {buyer['name']}, which bought {buyer['category']} on {buyer['date']}", "rule": 2,
+            return {"sentence": f"Ask about their {buyer['category']} contract with {buyer['name']} ({buyer['date']})", "rule": 2,
                     "source_url": buyer["source_url"], "because": f"a public buyer in the company's category ({buyer['category']}) awarded a contract within the last 12 months: {buyer['reason']}"}
         if trl is not None and trl >= 7 and irl is not None and irl <= 3 and lists["investors"]:
             top = lists["investors"][0]
-            return {"sentence": f"Raise: start with {top['name']}", "rule": 3, "source_url": top["source_url"],
+            return {"sentence": f"Meet now: judge a raise, and introduce them to {top['name']}", "rule": 3, "source_url": top["source_url"],
                     "because": f"TRL {trl} ({ctx['trl_src']}) with investment level {irl} is a readiness gap; top investor by dataset score {top['score']}: {top['reason']}"}
         if ctx["c"]["group_tag"] in ("cohort", "portfolio"):
             dated = [s for s in sigs if s["date"] <= t.isoformat()]
@@ -324,7 +377,7 @@ def next_step(company_key: str, thesis: dict, *, conn: sqlite3.Connection | None
             if last["date"] < year_ago:
                 return {"sentence": f"Check in: no public signal since {last['date']}", "rule": 4, "source_url": last["source_url"],
                         "because": f"{ctx['c']['group_tag']} company whose latest dated public event is older than 12 months"}
-        return {"sentence": "Not enough public evidence for a next step yet", "rule": 5, "source_url": None,
+        return {"sentence": "Watch: not enough public evidence for a next step yet", "rule": 5, "source_url": None,
                 "because": "none of rules 1 to 4 is satisfied by the records stored for this company"}
     finally:
         if own:

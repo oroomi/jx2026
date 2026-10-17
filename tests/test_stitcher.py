@@ -402,3 +402,10 @@ def test_type_is_read_from_the_page_words_under_a_redacted_quote():
     ev = kept("funding_round", "Fixture Oy closes an [name] of EUR 2M.")  # the stored quote lost the word 'Raise'
     ok, why = stitcher.recheck_event(c, ev, page)
     assert ok and "raise" in why
+
+
+def test_llm_query_strings_are_redacted_before_logging(conn):
+    payload = dict(LLM, queries_run=['"Kelluu Oy" Jane Doe interview', '"Kelluu Oy" Business Finland'])
+    run(conn, payload)
+    qs = [r[0] for r in conn.execute("SELECT query FROM stitch_log WHERE outcome='llm_query'")]
+    assert qs == ['"Kelluu Oy" [name] interview', '"Kelluu Oy" Business Finland']

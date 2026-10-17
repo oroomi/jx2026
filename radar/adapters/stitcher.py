@@ -334,8 +334,8 @@ def read(conn: sqlite3.Connection, run_id: str, company: dict, queries: list[str
     except ValueError as e:
         _log(conn, run_id, company["company_key"], "read", "read_failed", reason=f"unparseable LLM answer: {e}")
         return []
-    for q in data.get("queries_run") or []:
-        _log(conn, run_id, company["company_key"], "search", "llm_query", query=str(q)[:300])
+    for q in data.get("queries_run") or []:  # the LLM's own query strings: person-shaped names redacted like quotes
+        _log(conn, run_id, company["company_key"], "search", "llm_query", query=redact_people(str(q), company["name"])[:300])
     out, seen = [], set()
     for ev in (data.get("events") or [])[:MAX_EVENTS * 2]:
         p, why = normalise_proposal(ev if isinstance(ev, dict) else {})

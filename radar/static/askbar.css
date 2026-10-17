@@ -206,3 +206,6 @@ html.ask-voice-open { overflow: hidden; }
   .av-edge { transition: none; }
 }
 @media print { .ask-voice, .ask-try, .navmenu { display: none !important; } }
+
+/* phone polish (chief, 17 Oct): no keyboard hint on touch screens */
+@media (hover: none), (max-width: 639px) { .ask-key { display: none !important; } }

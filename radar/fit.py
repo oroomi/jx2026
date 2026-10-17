@@ -225,6 +225,41 @@ def redact_person_names(text: str | None, company_name: str | None, thesis: dict
     return text
 
 
+_MARKER = re.compile(r"\[name(?: redacted)?\]")
+_ABBREV = frozenset({"incl", "e.g", "i.e", "etc", "vs", "approx", "ca", "inc", "ltd", "co", "corp", "no", "st", "dr"})
+_CLAUSE_END = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9(\"\u201c])|\s*;\s+")
+
+
+def drop_redacted_clauses(text: str | None) -> str:
+    """Display rule for an organisation's declared description (D31): every sentence or semicolon-separated clause that holds a
+    redaction marker is dropped, so the text that is shown never has a gap in it. Run after redact_person_names (privacy first), before
+    any cut to length. Returns "" when nothing is left. A full stop after an abbreviation ("incl.", "e.g.") does not end a sentence."""
+    text = text or ""
+    if not _MARKER.search(text):
+        return text
+    pieces, start = [], 0
+    for m in _CLAUSE_END.finditer(text):
+        before = text[start:m.start()].rsplit(None, 1)
+        if m.group(0).strip() != ";" and before and before[-1].rstrip(".").casefold() in _ABBREV:
+            continue
+        pieces.append((text[start:m.start()], m.group(0)))
+        start = m.end()
+    pieces.append((text[start:], ""))
+    out, sep_before, gap = "", "", False
+    for piece, sep in pieces:
+        if _MARKER.search(piece):
+            gap = True
+            continue
+        if not out:
+            out = piece
+        elif gap and piece[:1].islower():  # what follows a dropped sentence is a clause of the one before: join it with a semicolon
+            out = out.rstrip(" .;,") + "; " + piece
+        else:
+            out += (sep_before or " ") + piece
+        sep_before, gap = sep, False
+    return out.rstrip(" ;")
+
+
 def _company_evidence(company: dict) -> dict:
     return store.evidence({"source_url": company.get("source_url"), "fetched_at": company.get("fetched_at"),
                            "date": company.get("founded") or (company.get("fetched_at") or "")[:10],

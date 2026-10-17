@@ -44,8 +44,10 @@ def company_json(company_key: str, thesis: dict) -> Markup:
     return _json(aava.company_groups(x["c"], x["signals"], nxt=x["nxt"], step=x["step"], memo=x["memo"], thesis=thesis))
 
 
-def feed_json(rows: list[dict]) -> Markup:
-    return _json({"brief": aava.feed_script([r for r in rows if r.get("strength") == "strong"])["segments"]})
+def feed_json(rows: list[dict], thesis: dict | None = None) -> Markup:
+    """The reader's feed answer, embedded in the home page. The sector file's utility code families are read here (D22)."""
+    strong = [r for r in rows if r.get("strength") == "strong"]
+    return _json({"brief": aava.feed_script(strong, skip=aava.code_only_skip(thesis))["segments"]})
 
 
 templates.env.globals["aava_company_json"] = company_json
@@ -63,7 +65,7 @@ def feed_script(request: Request):
             rows = store.feed(conn, th, limit=50)
         finally:
             conn.close()
-    return aava.feed_script([r for r in rows if r["strength"] == "strong"])
+    return aava.feed_script([r for r in rows if r["strength"] == "strong"], skip=aava.code_only_skip(th))
 
 
 @router.get("/aava/script/{company_key:path}")

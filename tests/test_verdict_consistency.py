@@ -13,7 +13,7 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
-from radar import aava, db, emit, frameworks, home_list, matchmaker, matchmaker_orgs, memo, store, thesis
+from radar import aava, briefs, db, emit, frameworks, home_list, matchmaker, matchmaker_orgs, memo, store, thesis
 from radar.adapters import prh_notices  # noqa: F401  (registers the notice signal types on emit.SIGNAL_TYPES)
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -188,6 +188,23 @@ def test_an_empty_investor_page_counts_startups_only(conn):
             seen += 1
             assert m.group(1) == "1" and r["not_startups"] == 1, (org["id"], r["org"]["empty_reason"])
     assert seen
+
+
+# ---- D81: a stored brief sentence that states a level the page no longer prints is left out ------------------------------------
+
+def test_a_stored_brief_sentence_with_a_level_the_page_no_longer_prints_is_dropped():
+    th = thesis.load()
+    page = {"recommendation": {"decision": "WATCHLIST", "kind": None, "because_labels": [
+        {"label": "Ocean impact", "band": "unknown"}, {"label": "Business readiness", "band": "Medium"},
+        {"label": "Investment readiness", "band": "unknown"}, {"label": "Thesis fit", "band": "Medium"}]},
+        "levels": {"technology": {"band": "unknown"}}}
+    now = briefs._memo_now(page, th)
+    old = "On the radar's rules technology readiness is level 7 and business readiness is level 6, while investment readiness has no level."
+    assert briefs.stale_reason(old, "readiness", now) == "names technology readiness level 7, the memo now says unknown"
+    assert briefs.stale_reason("On the radar's rules business readiness is level 6.", "readiness", now) is None
+    assert briefs.stale_reason("Business readiness is level 2 on the rules.", "readiness", now).startswith("names business readiness level 2")
+    page["levels"]["technology"]["band"] = "Medium"
+    assert briefs.stale_reason("On the radar's rules technology readiness is level 4.", "readiness", briefs._memo_now(page, th)) is None
 
 # ---- D77: a public contract sets business readiness, never TRL -------------------------------------------------------------
 

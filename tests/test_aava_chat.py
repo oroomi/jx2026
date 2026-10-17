@@ -186,7 +186,9 @@ def test_partial_text_then_a_failure_still_ends_with_error_and_fallback(client, 
     with_key(monkeypatch, [Half()])
     ev = sse(chat(client, "Viva Jets"))
     names = [e for e, _ in ev]
-    assert names.index("delta") < names.index("error") < len(names) - 1 and names[-1] == "done" and dict(ev)["done"]["fallback"] is True
+    # the half sentence the model had written is never sent (text is held until the call ends); the visitor gets the error, then the deterministic answer
+    assert names.count("delta") == 1 and names.index("error") < names.index("delta") and names[-1] == "done" and dict(ev)["done"]["fallback"] is True
+    assert "I was saying" not in json.dumps(ev)
 
 
 # ---- no key -------------------------------------------------------------------------------------------------------------------------------------

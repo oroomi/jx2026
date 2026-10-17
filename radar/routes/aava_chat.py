@@ -16,6 +16,7 @@ import json
 import logging
 import os
 import re
+import sys
 import threading
 import time
 from collections import deque
@@ -25,7 +26,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from radar import aava_llm, ask, store, thesis as thesis_mod
+from radar import aava_llm, aava_tools, ask, store, thesis as thesis_mod
 from radar.routes import api as api_routes
 from radar.routes.aava import _inputs
 from radar.routes.ask import has_page
@@ -39,6 +40,21 @@ templates.env.globals["aava_chat_on"] = aava_llm.available   # the pages load th
 
 DEMO_HEADER = "x-aava-demo"
 SSE_HEADERS = {"Cache-Control": "no-store", "X-Accel-Buffering": "no", "Connection": "keep-alive"}
+
+
+def _warm_aava() -> None:
+    """When a key is configured (even with the kill switch on: the switch can be lifted without a restart), build the caches the tools read, once at
+    start, so the first question's first tool call is not the one that pays for them (the home list takes seconds to build cold). A rebuilt store is
+    warmed again at the next turn (aava_tools.ensure_warm)."""
+    try:
+        if aava_llm.api_key_present():
+            aava_tools.ensure_warm(thesis_mod.load())
+    except Exception as e:  # noqa: BLE001  (a failed warm-up only means the first tool call builds the cache itself)
+        print(f"aava warm-up: {type(e).__name__}: {e}", file=sys.stderr)
+
+
+if "pytest" not in sys.modules and os.environ.get("RADAR_NO_WARM") is None:
+    threading.Thread(target=_warm_aava, name="aava-warm-start", daemon=True).start()
 
 
 # ---- limits (in memory; a restart resets them) ----------------------------------------------------------------------------------------------

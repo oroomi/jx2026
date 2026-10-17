@@ -227,7 +227,7 @@
       var body = { messages: msgs.slice(-MAX_TURNS).map(function (m) { return { role: m.role, content: m.content }; }), view: currentView(), thesis: thesisId() };
       if (companyKey && o.withCompany) body.company = companyKey;
       var handlers = {
-        status: function (d) { label(d.state === "tool" ? "Aava is " + (d.label || "using " + d.tool) : "Aava is thinking"); },
+        status: function (d) { label(d.label ? "Aava is " + d.label : d.state === "tool" ? "Aava is using " + d.tool : "Aava is thinking"); },
         delta: function (d) { raw += d.text; queue(); },
         action: function (d) {
           acts.push(d);

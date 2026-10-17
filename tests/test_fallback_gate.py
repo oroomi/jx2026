@@ -68,7 +68,7 @@ def test_fallback_function_applies_the_gate():
     assert memo.decide(b, cfg)[0] is None
     for ev in ("declared_member", "own_text", "corroborated_signal"):
         assert memo.fallback(b, cfg, {ev})["id"] == "c2" and not memo.fallback_blocked(b, cfg, {ev})
-        assert memo.decide(b, cfg, {ev})[0]["text"] == "fallback c2, impact implied by sector"
+        assert memo.decide(b, cfg, {ev})[0]["text"] == "the High-fit rule, impact implied by sector"
     assert memo.fallback(b, cfg, {"something_else"}) is None
     not_reached = dict(b, fit="Medium")                                                            # the fallback never reached it
     assert memo.fallback(not_reached, cfg, {"own_text"}) is None and not memo.fallback_blocked(not_reached, cfg)
@@ -93,14 +93,14 @@ def test_declared_company_gets_the_fallback(conn):
         key = f"9400002-{tag[0]}"
         _company(conn, key, "Plain Declared Oy", tag=tag)
         r = _memo(conn, key)["recommendation"]
-        assert r["decision"] == "ACCELERATOR" and r["matched"] == "fallback c2, impact implied by sector", tag
+        assert r["decision"] == "ACCELERATOR" and r["matched"] == "the High-fit rule, impact implied by sector", tag
         assert r["fallback_blocked"] is False
 
 
 def test_own_text_company_gets_the_fallback(conn):
     _company(conn, "9400003-3", "Plain Project Oy", extra=[("eu_project", "cordis", {"objective": "A study of the sea and its fish."})])
     r = _memo(conn, "9400003-3")["recommendation"]
-    assert r["decision"] == "ACCELERATOR" and r["matched"] == "fallback c2, impact implied by sector"
+    assert r["decision"] == "ACCELERATOR" and r["matched"] == "the High-fit rule, impact implied by sector"
     # a High fit from the source's own text alone (the code is off the list) passes too
     _company(conn, "9400003-4", "Plain Text Oy", code=CODE_OFF_LIST, extra=[("eu_project", "cordis", {"objective": "A study of the sea and its fish."})])
     m = _memo(conn, "9400003-4")

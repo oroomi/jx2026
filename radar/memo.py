@@ -96,7 +96,7 @@ def _fallback_match(bands: dict[str, str], cfg: dict) -> dict | None:
                 return {**r, "kind": "fallback", "implied_impact": None, "measured_impact": level,
                         "text": f"the High-fit rule, impact {level} on record"}
             return {**r, "kind": "fallback", "implied_impact": implied["impact"],
-                    "text": f"fallback {r['id']}, impact implied by sector"}
+                    "text": "the High-fit rule, impact implied by sector"}   # no rule id on screen (D36)
     return None
 
 
@@ -472,7 +472,7 @@ def table_lines(thesis: dict) -> list[str]:
     for r in cfg["rows"]:
         cells = ", ".join(f"{lb.get(d, d).lower()} {r.get(d)}" for d in TABLE_DIMS)
         out.append(f"Row {r['id']}: {cells} gives {r['decision'].lower()}.")
-    out += [f"Condition rule {r['id']}: {str(r.get('action') or '').rstrip('.')} gives {r['decision'].lower()}." for r in cfg["rules"]]
+    out += [f"Condition: {str(r.get('action') or '').rstrip('.')} gives {r['decision'].lower()}." for r in cfg["rules"]]   # no rule letter on screen (D36)
     text = ((thesis.get("memo") or {}).get("decisions") or {}).get("fallback_text")
     if text:
         out.append(text)

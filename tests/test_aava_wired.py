@@ -91,9 +91,10 @@ def test_viva_jets_and_arctic_fry_answers_are_clean_short_and_in_order(corpus):
 
 
 def test_arctic_fry_reads_as_a_company_to_watch_not_call(corpus):
+    # D53: Arctic Fry's ocean impact is Medium on record and it is a declared cohort member (High fit), so it reads ACCELERATOR now.
     a = _answers(ARCTIC)
-    assert "I think we should watch, not call, and here is why:" in a[1]["text"]
-    assert "The verdict is watchlist." in a[2]["text"] and a[5]["text"].startswith("No call yet.")
+    assert "I think it is a good accelerator candidate" in a[1]["text"]
+    assert "The verdict is accelerator" in a[2]["text"] and not a[5]["text"].startswith("No call yet.")
     assert "Watch: not enough public evidence" not in " ".join(s["text"] for s in a.values())
 
 

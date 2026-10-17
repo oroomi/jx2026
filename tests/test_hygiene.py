@@ -101,13 +101,15 @@ def test_none_of_the_judged_strings_is_on_any_judged_page(site):
 
 
 def test_rule_ids_in_a_stored_brief_are_said_in_the_rules_words(site):
+    # The stored brief sentences that named a rule now disagree with the coherent memo (D46-D53) and are dropped by the stale guard,
+    # so the words are checked on the helper, and the pages are checked for any leftover id.
     client, _ = site
-    t = _visible(client.get(f"/c/{VIVA}").text)
-    assert "under the fallback rule for business readiness Low or Medium (ocean impact" in t
-    assert "under the rule for technology readiness High and business readiness Low or Medium, but" in t
-    assert "under the Watchlist row of the decision table (all four Medium)" in t
-    assert "under the Watchlist row of the decision table (ocean impact Medium)" in _visible(client.get(f"/c/{ARCTIC}").text)
-
+    from radar import thesis as thesis_mod, words
+    th = thesis_mod.load()
+    assert "the fallback rule for business readiness Low or Medium" in words.rule_words("recommends an accelerator under fallback c2.", th)
+    for key in (VIVA, ARCTIC):
+        t = _visible(client.get(f"/c/{key}").text)
+        assert not re.search(r"\b(?:fallback|rule) c\d\b", t), key
 
 def test_rule_words_leave_unknown_ids_and_ordinary_sentences_alone():
     th = thesis.load()
@@ -240,8 +242,8 @@ def test_a_company_page_finds_the_sector_that_holds_the_company(site):
 
 
 def _sector(page_html: str) -> str:
-    """The sector the page header says it shows (the selected option of the sector switcher)."""
-    return re.search(r'<option value="([a-z_]+)" selected', page_html).group(1)
+    """The sector the page shows: the checked option of the Sector filter group (the header switcher moved there, D33)."""
+    return re.search(r'href="/\?thesis=([a-z_]+)"[^>]*role="radio" aria-checked="true"', page_html).group(1)
 
 
 def sqlite3_rows_in(path: Path, key: str):

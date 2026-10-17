@@ -32,8 +32,6 @@ VERDICT_ORDER = ("INVEST", "DUE DILIGENCE", "ACCELERATOR", "PARTNER INTRODUCTION
 FIT_ORDER = ("High", "Medium", "Low")
 CONFIDENCE_ORDER = ("high", "medium", "low")
 DECLARED_TAGS = ("cohort", "portfolio")
-COUNTRY_NAMES = {"FI": "Finland", "SE": "Sweden", "NO": "Norway", "DK": "Denmark", "EE": "Estonia", "IS": "Iceland",
-                 "DE": "Germany", "PL": "Poland", "LV": "Latvia", "LT": "Lithuania", "ES": "Spain", "BG": "Bulgaria", "CH": "Switzerland"}
 
 log = logging.getLogger(__name__)
 WAIT_SECONDS = 3.0  # the longest a request waits for a list that is still being built

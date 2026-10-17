@@ -477,7 +477,8 @@ def _plain_rule(rec: dict) -> str:
     kind = rec.get("kind")
     if kind == "fallback":
         core = re.sub(r",?\s*(?:and )?fallback \S+ of the decision rules applies$", "", note)
-        core = re.sub(r",\s*so impact is read as .*$", "", core).replace("; ", ", and ")
+        core = re.sub(r",\s*so impact is read as .*$", "", core)
+        core = re.sub(r",\s*so the decision table's High-fit rule applies$", "", core).replace("; ", ", and ")
         return "The rule that fired is the table's fallback: " + _lc(_plain(core)) + "."
     if kind == "row":
         return "The rule that fired is a row of the team's decision table that matches all four bands exactly."

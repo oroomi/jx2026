@@ -264,6 +264,8 @@ and `git log`. Times are UTC commit times. Counts are the ones the repo states; 
 
 **D74. 2026-10-17 (fix/j3_ui). The earliness test says "no counted signal", says how many records are on file, and prints its tuning note under its headline.** *Rule:* the fourth group of the earliness test is "No counted signal" (it was "No public signal"): none of the company's stored records passes the thesis rule. A blank lane says how many records the company has on file ("no counted signal, 6 records on file"; each is listed under "Show every company" with the reason it was not counted), and a paragraph under the group list and one on /radar explain that the cohort radar counts seven kinds of record before the thesis rule, so the two pages differ on purpose. The sector file's `tuning_note` (code families added after the backtest showed a miss, so those results are in-sample) is printed directly under the headline (`id="tuning-note"`) as well as under the intake section, and only where the sector file has one. *Why:* the judge's finding that /backtest said Taikoa had no public signal while /radar listed two records for it, and that a "1 of 19 found earlier" headline was read as out-of-sample when its code family was added after the miss was seen. *Affected:* `earliness.py` (words only, no group changes), `routes/backtest.py`, `backtest.html`, `radar.html`; the four groups still add up to the cohort size.
 
+**D78. 2026-10-17 (fix/copy_ci). /rules redirects to the rules page.** *Rule:* `GET /rules` answers 302 to `/method` and keeps the query string, the same way `/how` does (D73). *Why:* the submission text sends judges to "the Rules page", and `/rules` answered 404; the page itself lives at `/method` and the menu already calls it "Rules". No page links to `/rules`. *Affected:* `radar/routes/how.py`, `tests/test_ease.py` (`test_rules_redirects_to_the_rules_page`).
+
 ## T. Taxonomy
 
 ### Signal types
@@ -403,3 +405,4 @@ Batch B1 (`QUESTIONS_B1.md`, 17 Oct): 15 issues. B1-01 to B1-11 come from the fi
 - 2026-10-17: D62 (Aava: final turn's text only, sub-sector search, follow-ups line, warm caches, 3-step cap, effort low); amends D61.
 - 2026-10-17: D63 (fix/j3_match: an investor's early pipeline, one ranking behind the home tab and the Match page, the Ask bar's top startups); D35 amended: the tab no longer intersects the ranking with the home list.
 - 2026-10-17: D70 to D74 (fix/j3_ui: the ranking in words, the sector named on the company page, the Ask button off the answer, one first-seen count, /how retired, "No counted signal" and the tuning note under the backtest headline); numbers renumbered at merge; no earlier rule changed.
+- 2026-10-17: D78 (fix/copy_ci: /rules redirects to /method); no earlier rule changed.

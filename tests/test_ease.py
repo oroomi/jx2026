@@ -80,6 +80,18 @@ def test_how_is_gone_and_old_links_land_on_the_rules(dbpath):
     assert not (ROOT / "radar" / "templates" / "how.html").exists() and not (ROOT / "radar" / "static" / "how").exists()
 
 
+def test_rules_redirects_to_the_rules_page(dbpath):
+    """The submission sends judges to "the Rules page", which lives at /method (D78): /rules answers 302 to it and keeps the query string."""
+    import app
+    c = TestClient(app.app)
+    r = c.get("/rules", follow_redirects=False)
+    assert r.status_code == 302 and r.headers["location"] == "/method"
+    assert c.get("/rules?thesis=health_tech_turku", follow_redirects=False).headers["location"] == "/method?thesis=health_tech_turku"
+    followed = c.get("/rules")
+    assert followed.status_code == 200 and "Rules" in followed.text
+    assert 'href="/rules"' not in c.get("/").text  # the menu still links /method; /rules only keeps the submission's wording working
+
+
 def test_company_questions_in_order_with_see_why(dbpath):
     import app
     t = TestClient(app.app).get("/c/9000001-1").text

@@ -3,7 +3,7 @@
 Built 17 Oct 2026 (branch `feat/matchmaking`; rules D28 to D30 and A34 in [PROJECT_RULES.md](../PROJECT_RULES.md)).
 Code: `radar/matchmaker.py` (filters, components, ranking), `radar/matchmaker_orgs.py` (the counterpart side), `radar/matchtext.py`
 (words, stems, keyword groups). Pages and API: `/match`, `/api/match/company/{key}`, `/api/match/org/{id}`, `/api/match/orgs`, and the
-"Next steps" block on every company page. Everything sector-specific (kinds, paths, regions, weights, keyword groups, stop words) is in
+"Next steps" block on every company page, and the home page's tab "Top matching startups for {investor or accelerator}" (D35, default A'Pelago, `radar/home_orgs.py`), which reads `match_org`'s ranking, intersected with the home list and the other filters, and shows each row's top two reasons in words (declared membership first, then the satisfied reasons by weight); it changes no order, reason or threshold. Everything sector-specific (kinds, paths, regions, weights, keyword groups, stop words) is in
 `config/thesis.yaml` under `matching:`; no sector word is in Python (a test fails if one is).
 
 The data partner's rule for any ranking: it must explain itself in words ("Climate focus, Seed stage, Baltic region" is good; "AI score = 92"
@@ -54,15 +54,15 @@ The dataset's `person` table is never read, and neither are contact or "note" co
 
 ## 4. Measured on the live store copy (17 Oct)
 
-- Speed: a company's matches take about 6 ms once the indexes are built (2 to 3 s the first time after a start; a background thread warms them). A counterpart's view takes 0.2 to 0.6 s.
-- Coverage: of the 19 cohort companies 17 have at least one counterpart that passes the filters with a topic reason, and all 9 portfolio companies; of the 56 dataset companies 49 are matchable and all 49 have one; of the 711 matchable feed companies 503 have one (208 do not, mostly consultancy code 71121 with no sector evidence beyond the thesis code, and the page says so). 22 non-intake companies are not matchable at all (ended or bankrupt, or a person-shaped legal name, A16). Of 275 matchable companies in a random sample of 300 intake companies (bare register entries), 261 have none: a software or consultancy company with no sea or water evidence has no honest next step in this ecosystem, and the page says so rather than inventing one.
-- Viva Jets (ACCELERATOR path, already connected to Redstone Blue; 56 counterparts pass): Business Finland, Meyer Turku, A'Pelago, each on sector, stage window and geography. Arctic Fry (WATCHLIST path, already in A'Pelago's cohort; 33 pass): Baltic Sea Action Plan, Hatch Blue, Helsinki Blue Economy Studio (deadline 2026-11-30, 44 days).
+- Speed: a company's matches take 4 to 15 ms once the indexes are built (1.4 to 2.7 s the first time after a start in three runs on 17 Oct at 15:28 UTC; a background thread warms them). A counterpart's view takes 0.6 to 1.1 s.
+- Coverage: of the 19 cohort companies 17 have at least one counterpart that passes the filters with a topic reason, and all 9 portfolio companies; of the 56 dataset companies 49 are matchable and all 49 have one; of the 711 matchable feed companies 503 have one (208 do not, mostly consultancy code 71121 with no sector evidence beyond the thesis code, and the page says so). 22 non-intake companies are not matchable at all (ended or bankrupt, or a person-shaped legal name, A16). Of 300 matchable intake companies (bare register entries) drawn with a fixed seed (17) from the 14,723 matchable ones, 281 have none (the earlier random sample of 300 gave 261 of 275 matchable): a software or consultancy company with no sea or water evidence has no honest next step in this ecosystem, and the page says so rather than inventing one.
+- Viva Jets (ACCELERATOR path, already connected to Redstone Blue; 56 counterparts pass): Business Finland, Meyer Turku, A'Pelago, each on sector, stage window and geography. Arctic Fry (ACCELERATOR path since the 15:04 UTC restart, WATCHLIST before it, already in A'Pelago's cohort; 33 pass): Baltic Sea Action Plan, Hatch Blue, Helsinki Blue Economy Studio (deadline 2026-11-30, 44 days).
 - A'Pelago's view lists its 20 declared cohort companies in our records under "Already connected" and ranks 25 other startups (a test); before D38 the top 25 held 20 of its own cohort.
 
 ## 5. Limitations (read before quoting a match)
 
 - **No ground truth.** There is no list of which startup should have met which counterpart, so the weights are a stated hypothesis, not a fit. The words were tuned by reading junk matches on the live store (in-sample). A partner rating of 20 pairs would be the first real check (PILOT.md).
-- **Thin text.** Most startups have only a registered line of business. 2,286 of 15,511 have any raw word evidence, 885 have prose or a declared role, 11,259 have at least one sector group (mostly from the industry code). Shared words are the weakest reason and fire rarely.
+- **Thin text.** Most startups have only a registered line of business. 2,286 of 15,511 have any raw word evidence, 611 have any text beyond the register's description of the industry code, 11,259 have at least one sector group (mostly from the industry code). Shared words are the weakest reason and fire rarely.
 - **Stage and TRL are mostly unknown.** Stage exists for the dataset's startups only; TRL is the radar's rule level, "not in public records" for most. Counterparts with a stated window therefore list few startups.
 - **Revealed demand is small:** 14 counterparts, 67 links. A lookalike is a share of a handful of companies.
 - **Ticket size is not scored** (no ask on record).

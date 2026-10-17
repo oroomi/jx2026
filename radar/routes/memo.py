@@ -9,3 +9,4 @@ from radar.routes.home import templates
 
 router = APIRouter()
 templates.env.globals["memo_for"] = memo.for_template
+templates.env.globals["next_step_for"] = memo.next_step_view

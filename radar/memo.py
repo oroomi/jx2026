@@ -315,8 +315,9 @@ def plain_bullets(rec: dict, why: list[dict], oi: dict | None, labels: dict) -> 
         basis = {"own text": "the source's own text", "corroborated name word": "a corroborated name word",
                  "industry code family": "the registered industry code family"}.get(oi["area_basis"], oi["area_basis"])
         url = next((e["url"] for e in oi["evidence"] if e.get("url")), None)
-        out.append(("impact", {"text": f"{impact_label} area is {oi['area'][:1].lower() + oi['area'][1:]}, found through {basis}; evidence "
-                                       f"readiness is {(oi['band'] or 'not yet evidenced').lower()} and confidence is {oi['confidence']}.", "url": url}))
+        ready = f"evidence readiness is {oi['band'].lower()}" if oi["band"] else "it is not yet evidenced beyond the sector"
+        out.append(("impact", {"text": f"{impact_label} area is {oi['area'][:1].lower() + oi['area'][1:]}, found through {basis}; "
+                                       f"{ready} and confidence is {oi['confidence']}.", "url": url}))
     elif oi is not None:
         out.append(("impact", {"text": f"No public record names an {impact_label.lower()} area yet.", "url": None}))
     elif band_of.get(impact_label, "unknown") != "unknown":
@@ -430,6 +431,58 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
     if oi is not None:  # a thesis that defines no impact areas (the health swap) has no assessment and no such key
         out["ocean_impact"] = oi
     return out
+
+
+def rule_label(rec: dict) -> str:
+    """Which entry of the decision table decided, in words: 'decision table row 7', 'rule c2: impact implied by the sector' (fallback),
+    'decision table condition rule e', or that none matched."""
+    kind, matched = rec.get("kind"), rec.get("matched") or ""
+    if kind == "row":
+        return matched.replace("row ", "decision table row ", 1)
+    if kind == "rule":
+        return matched.replace("rule ", "decision table condition rule ", 1)
+    if kind == "fallback":
+        return matched.replace("fallback ", "rule ", 1).replace(", impact implied by sector", ": impact implied by the sector")
+    return "no row or rule of the decision table matched"
+
+
+def table_lines(thesis: dict) -> list[str]:
+    """The whole decision table as plain lines for the page: the rows, the condition rules and the fallback text, all from the thesis file."""
+    cfg = _cfg(thesis)
+    lb = cfg["labels"]
+    out = []
+    for r in cfg["rows"]:
+        cells = ", ".join(f"{lb.get(d, d).lower()} {r.get(d)}" for d in TABLE_DIMS)
+        out.append(f"Row {r['id']}: {cells} gives {r['decision'].lower()}.")
+    out += [f"Condition rule {r['id']}: {str(r.get('action') or '').rstrip('.')} gives {r['decision'].lower()}." for r in cfg["rules"]]
+    if cfg["fallback"].get("fallback_text"):
+        out.append(cfg["fallback"]["fallback_text"])
+    return out
+
+
+def next_step_view(m: dict | None, step: dict | None, thesis: dict | None = None) -> dict | None:
+    """Question 04 as the verdict says it (D32). The older next-step rules (matching.next_step) are a list of concrete leads: an open
+    programme, a buyer's contract, a readiness gap, a check-in. They never state a verdict, so the verdict sentence comes from the memo's
+    decision table, and a concrete lead (rules 1 to 4) is added beside it. Rule 5 of the old list ("watch; not enough public evidence")
+    says nothing the verdict does not say better and is not shown. {sentence, because, source_url, rule, decision, table, concrete}."""
+    if not m or not m.get("recommendation"):
+        return None
+    rec = m["recommendation"]
+    cfg = _cfg(thesis) if thesis else {"rows": [], "labels": {}}
+    action = rec.get("table_action") if rec.get("kind") in ("row", "fallback") else None
+    if not action:  # a condition rule or no match: the table's own action for this verdict
+        action = next((r.get("action") for r in cfg["rows"] if r.get("decision") == rec["decision"] and r.get("action")), None)
+    word = rec["decision"][:1] + rec["decision"][1:].lower()
+    sentence = f"{word}: {action[:1].lower() + action[1:]}" if action else word
+    cells = ", ".join(f"{x['label'].lower()} {str(x['band']).lower()}" for x in rec.get("because_labels") or [])
+    note = rec.get("note") or ""
+    because = (note[:1].upper() + note[1:]) if rec.get("kind") is None and note else f"{rule_label(rec)}: {cells}"
+    url = next((w["url"] for w in m.get("why") or [] if w.get("url")), None)
+    concrete = None
+    if step and step.get("rule") in (1, 2, 3, 4) and step.get("sentence"):
+        concrete = {"sentence": step["sentence"], "because": step.get("because"), "source_url": step.get("source_url")}
+    return {"sentence": sentence.rstrip(".") + ".", "because": because, "source_url": url, "rule": rule_label(rec), "decision": rec["decision"], "concrete": concrete,
+            "table": table_lines(thesis) if thesis else []}
 
 
 def for_template(company_key: str, thesis: dict) -> dict | None:

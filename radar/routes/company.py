@@ -144,7 +144,7 @@ def company_page(request: Request, company_key: str):
                  readiness=readiness_rows(thesis, sigs), sources=sources(c, sigs), connectors=CONNECTORS,
                  cohort_n=n, radar_exists=_has_route(request)("/radar"),
                  fw=fw, connections=frameworks.connections(rule_sigs),
-                 nxt=nxt, step=step, step_rule=matching.NEXT_RULES[step["rule"] - 1], step_rules=matching.NEXT_RULES, rank_rule=matching.RANK_RULE, eco=eco,
+                 nxt=nxt, step=step, rank_rule=matching.RANK_RULE, eco=eco,
                  type_labels=store.TYPE_LABELS, lifeline=lifeline.build(c, sigs), speed=speed, min_sample=lifeline.MIN_SAMPLE,
                  stitch=stitch)
 

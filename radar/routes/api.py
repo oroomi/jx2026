@@ -7,14 +7,14 @@ from fastapi import APIRouter, Query, Request
 from fastapi.responses import JSONResponse
 
 from radar import labels
-from radar import blueinvest, earliness, fit as fit_mod, frameworks, matching, ocean_impact, store, thesis as thesis_mod
+from radar import blueinvest, earliness, fit as fit_mod, frameworks, matching, memo as memo_mod, ocean_impact, store, thesis as thesis_mod
 from radar.routes.company import CONNECTORS, ecosystem as eco_reading
 
 router = APIRouter(prefix="/api")
 
 ENDPOINTS = [
     {"path": "/api/companies?q=&thesis=&limit=&offset=", "what": "search companies by name, key or Y-tunnus; no q lists all by name"},
-    {"path": "/api/company/{company_key}?thesis=&limit=", "what": "register facts, signals with sources, readiness levels, the Ocean Impact Assessment (area, evidence, scalability, level of 9, confidence), who comes next, next step"},
+    {"path": "/api/company/{company_key}?thesis=&limit=", "what": "register facts, signals with sources, readiness levels, the Ocean Impact Assessment (area, evidence, scalability, level of 9, confidence), the fund memo verdict with its four bands, who comes next, next step (the verdict as an action, with a concrete first step when the records give one)"},
     {"path": "/api/feed?thesis=&window=&type=", "what": "the early-signal feed rows with their reason; window = days (default from the thesis)"},
     {"path": "/api/backtest?thesis=", "what": "the earliness backtest per cohort company"},
     {"path": "/api/match/company/{company_key}?thesis=&limit=", "what": "matchmaking: the counterparts that are the next steps for a startup, each with its reasons in words"},
@@ -70,7 +70,22 @@ def _level(name: str, lv: dict, rules: list[dict], url: str | None) -> dict:
             "because": lv.get("because") or "no public evidence", "evidence": ev, "rules": rules}
 
 
-def _readiness(conn, key: str, c: dict, sigs: list[dict]) -> dict:
+def _impact_readiness(fw: dict, c: dict, ocean: dict | None) -> dict:
+    """The ocean impact entry of `readiness`: the Ocean Impact Assessment's level, band, area and confidence (the one impact truth, D32)
+    when the thesis defines one, with the Navigator-style category the frameworks rule finds beside it as context. Without an assessment
+    (a sector that defines no impact areas) only the category is stated."""
+    cat = fw["category"]
+    category = {"category": cat["category"], "keyword": cat["keyword"],
+                "source_url": (cat.get("evidence") or {}).get("url") or (c.get("source_url") if cat.get("industry") else None),
+                "because": f"the word {cat['keyword']} in a signal detail or the industry text" if cat["category"] else "no public evidence"}
+    head = {"framework": frameworks.LABELS["ocean_impact"], "framework_url": fw["urls"].get("navigator")}
+    if ocean is None:
+        return {**head, **category}
+    return {**head, "level": ocean["level"], "level_max": ocean["level_max"], "band": ocean["band"], "area": ocean["area"],
+            "confidence": ocean["confidence"], "because": ocean["level_rule"], "see": "ocean_impact", "navigator_category": category}
+
+
+def _readiness(conn, key: str, c: dict, sigs: list[dict], ocean: dict | None = None) -> dict:
     """Rule levels exactly as the company page computes them: declared research signals never enter a rule, a BlueInvest TRL wins."""
     fw = frameworks.assess(c, [s for s in sigs if s["adapter"] != "ecosystem"])
     trl = fw["trl"]
@@ -78,15 +93,11 @@ def _readiness(conn, key: str, c: dict, sigs: list[dict]) -> dict:
     if prof and prof.get("trl") is not None:
         trl = {"level": prof["trl"], "because": f"the BlueInvest profile states TRL {prof['trl']}",
                "evidence": [{"id": None, "evidence": {"url": prof.get("url"), "label": "BlueInvest pipeline", "date_label": "no date stated"}}]}
-    cat = fw["category"]
     return {
         "technology": _level("technology", trl, fw["trl_map"], fw["urls"].get("trl")),
         "business": _level("business", fw["brl"], fw["brl_map"], fw["urls"].get("brl")),
         "investment": _level("investment", fw["irl"], fw["irl_map"], None),
-        "ocean_impact": {"framework": frameworks.LABELS["ocean_impact"], "framework_url": fw["urls"].get("navigator"),
-                         "category": cat["category"], "keyword": cat["keyword"],
-                         "source_url": (cat.get("evidence") or {}).get("url") or (c.get("source_url") if cat.get("industry") else None),
-                         "because": f"the word {cat['keyword']} in a signal detail or the industry text" if cat["category"] else "no public evidence"},
+        "ocean_impact": _impact_readiness(fw, c, ocean),
         "declared_dataset": eco_reading(conn, key, fw),
         "investment_dimensions": [{"name": d["name"], "evidence_count": d["n"], "note": d["note"],
                                    "evidence": [{"source_url": e.get("url"), "source_label": e.get("label"), "date": e.get("date_label")}
@@ -135,6 +146,16 @@ def api_companies(q: str = "", thesis: str | None = None, limit: int = Query(50,
     return _run(body)
 
 
+def _verdict(memo: dict | None) -> dict | None:
+    """The fund memo's verdict and the four bands it rests on: the same words the company page's headline and analysts bars print."""
+    if not memo:
+        return None
+    rec = memo["recommendation"]
+    return {"decision": rec["decision"], "matched": rec.get("matched"), "action": rec.get("table_action"), "note": rec.get("note"),
+            "bands": [{"label": b["label"], "band": b["band"]} for b in rec["because_labels"]],
+            "why": [b["text"] for b in memo.get("plain_why") or []]}
+
+
 @router.get("/company/{company_key:path}")
 def api_company(company_key: str, thesis: str | None = None, limit: int = Query(5, ge=1, le=20)):
     def body():
@@ -146,10 +167,11 @@ def api_company(company_key: str, thesis: str | None = None, limit: int = Query(
                 raise _Fail(404, {"error": f"no company with key {company_key!r} in this radar", "thesis": th["id"],
                                   "did_you_mean": [_company_row(r) for r in store.search(conn, company_key, 5)]})
             c, sigs = data["company"], data["signals"]
-            readiness = _readiness(conn, company_key, c, sigs)
+            ocean = ocean_impact.for_company(conn, th, company_key)
+            readiness = _readiness(conn, company_key, c, sigs, ocean)
             nxt = matching.who_comes_next(company_key, th, limit, conn=conn)
             step = matching.next_step(company_key, th, conn=conn)
-            ocean = ocean_impact.for_company(conn, th, company_key)
+            memo = memo_mod.build(conn, th, company_key)
         finally:
             conn.close()
         reasons = [{"kind": r["kind"], "confidence": r["confidence"], "text": r["text"], "source_url": r["evidence"].get("url")}
@@ -158,7 +180,8 @@ def api_company(company_key: str, thesis: str | None = None, limit: int = Query(
                 "fit": {"rule": fit_mod.RULE_LINE, "reasons": reasons}, "readiness": readiness, "ocean_impact": ocean,
                 "connections": frameworks.connections([s for s in sigs if s["adapter"] != "ecosystem"]),
                 "who_comes_next": {**nxt, "rank_rule": matching.RANK_RULE},
-                "next_step": {**step, "rule_text": matching.NEXT_RULES[step["rule"] - 1], "rules": list(matching.NEXT_RULES)},
+                "verdict": _verdict(memo),
+                "next_step": memo_mod.next_step_view(memo, step, th),
                 "connector_slots": {"status": "not connected", "names": list(CONNECTORS)}}
     return _run(body)
 

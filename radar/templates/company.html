@@ -333,12 +333,18 @@
 
 <section id="q4" class="q q-step">
   <h2><span class="num">04</span> What should happen next</h2>
-  <p class="step-sentence">{{ step.sentence }}</p>
-  <p class="plain">Because: {{ step.because }}{% if step.source_url %} <a class="ev-chip" href="{{ step.source_url }}" target="_blank" rel="noopener"><span class="ev-src">evidence</span></a>{% endif %}</p>
-  <p class="rule">Rule used: {{ step_rule }}</p>
+  {% set ns = next_step_for(m, step, thesis) if m else none %}
+  {% if ns %}
+  <p class="step-sentence">{{ ns.sentence }}</p>
+  <p class="plain">Because: {{ ns.because }}{% if ns.source_url %} <a class="ev-chip" href="{{ ns.source_url }}" target="_blank" rel="noopener"><span class="ev-src">evidence</span></a>{% endif %}</p>
+  {% if ns.concrete %}<p class="plain">A concrete first step on file: {{ ns.concrete.sentence }}. Because: {{ ns.concrete.because }}{% if ns.concrete.source_url %} <a class="ev-chip" href="{{ ns.concrete.source_url }}" target="_blank" rel="noopener"><span class="ev-src">evidence</span></a>{% endif %}</p>{% endif %}
+  <p class="rule">Decision used: {{ ns.rule }}</p>
   <details class="why-box"><summary>The whole decision table</summary>
-    <ol class="reasons">{% for r in step_rules %}<li>{{ r[3:] }}</li>{% endfor %}</ol>
+    <ol class="reasons">{% for r in ns.table %}<li>{{ r }}</li>{% endfor %}</ol>
   </details>
+  {% else %}
+  <p class="step-sentence">{{ missing("no verdict yet: the memo could not be built for this company") }}</p>
+  {% endif %}
 </section>
 
 <section class="q signals" id="signals">

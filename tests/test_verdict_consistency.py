@@ -45,7 +45,8 @@ def _company(conn, key, name, *, code=CODE_ON_LIST, desc="Fixture activity", tag
                          confidence="high", adapter=ad)
     for i, (typ, ad, text) in enumerate(extra):
         url = f"https://example.test/{ad}/{key}/{typ}/{i}"
-        detail = (text or {}).pop("detail", None) if text else None
+        text = dict(text or {})                       # the module constants are shared: never change them
+        detail = text.pop("detail", None)
         emit.emit_signal(conn, company_key=key, signal_type=typ, date=_day(20 + i), source_url=url, confidence="medium", adapter=ad, detail=detail)
         sid = conn.execute("SELECT id FROM signals WHERE source_url=?", (url,)).fetchone()[0]
         for field, t in (text or {}).items():
@@ -274,3 +275,29 @@ def test_the_match_engine_agrees_with_the_memo_for_every_home_row(site):
             assert v["bands"]["technology"] == m["levels"]["technology"]["band"], r["name"]
     finally:
         conn.close()
+
+
+# ---- D80: a public contract's title is the buyer's words: a Medium fit ----------------------------------------------------
+
+def test_a_contract_title_alone_gives_a_medium_fit_and_the_row_stays_strong(conn):
+    """The shape of the dredging contractor: off-list code, a register label with 'water', and a Hilma title with a thesis word."""
+    th = thesis.load()
+    for path in thesis.available().values():
+        assert thesis.load(path)["memo"]["bands"]["fit"].get("buyer_text_types") == ["public_contract"], path
+    _company(conn, "9500012-2", "Plain Works Oy", code=CODE_OFF_LIST, desc="Construction of water projects", extra=[CONTRACT])
+    m = _memo(conn, "9500012-2", th)
+    assert m["levels"]["fit"]["band"] == "Medium" and m["recommendation"]["decision"] == "WATCHLIST"
+    ctx = memo.matching.company_context(conn, "9500012-2")
+    own = [s for s in ctx["sigs"] if s["signal_type"] in th["feed_signal_types"]]
+    ex = store.explain({**ctx["c"], **own[0]}, own[1:], th, store.source_texts(conn, own))
+    assert ex["strength"] == "strong" and "own_text" in ex["reasons"]          # the feed rule (A5) is unchanged: still a main-list row
+
+
+def test_a_contract_title_beside_a_listed_code_or_a_project_text_still_gives_high(conn):
+    th = thesis.load()
+    _company(conn, "9500013-0", "Plain Yard Oy", code=CODE_ON_LIST, extra=[CONTRACT])          # code on the list + a buyer's title
+    assert _memo(conn, "9500013-0", th)["levels"]["fit"]["band"] == "High"
+    _company(conn, "9500014-9", "Plain Works Two Oy", code=CODE_OFF_LIST, desc="Construction of water projects", extra=[CONTRACT, PROJECT])
+    m = _memo(conn, "9500014-9", th)
+    assert m["levels"]["fit"]["band"] == "High"                                              # the company's own project text
+    assert next(w["text"] for w in m["why"] if w["text"].startswith("Thesis fit:")).startswith("Thesis fit: The ")

@@ -308,6 +308,9 @@ memo:
       code_alone_band: Medium
       code_alone_reasons: [industry_code, line_of_business]
       code_alone_note: "the industry code alone gives at most a Medium fit"
+      # D80: own text found only in these records is a buyer's words (a public contract's title says what a buyer bought): it keeps the
+      # feed row strong (A5) and gives a Medium fit, like the line of business. A High fit from own text needs the company's own words.
+      buyer_text_types: [public_contract]
   decisions:
     source: "The team's decision table (pass 1: exact match on all four, first match wins; pass 2: the team's condition rules; otherwise WATCHLIST). Level mapping to Low / Medium / High is the chief's configuration."
     rows:

@@ -269,15 +269,25 @@ def _fit(conn, ctx: dict, thesis: dict, spec: dict) -> dict:
     own = [s for s in sigs if s["adapter"] != "ecosystem" and s["signal_type"] in feed_types]
     first = own[0] if own else {"signal_type": "register_entry", "adapter": "prh", "detail": None, "date": c.get("founded") or "", "id": -1}
     row = {**c, **first}
-    ex = store.explain(row, [s for s in own if s is not own[0]] if own else [], thesis, store.source_texts(conn, own))
+    texts = store.source_texts(conn, own)
+    ex = store.explain(row, [s for s in own if s is not own[0]] if own else [], thesis, texts)
     reasons = ex["reasons"]
     bullets = []
     # A code in a `medium_codes` family (D22) is a sector match, not a High fit on the code alone: it counts as Medium. A reason of the
     # source's own text still lifts the fit to High; a corroborated name word or the line of business is Medium anyway.
     code_medium = "industry_code" in reasons and medium_code(c.get("industry_code"), spec)
-    if any(r in reasons for r in spec.get("high", []) if not (r == "industry_code" and code_medium)):
+    # D80: own text found only in the records of `buyer_text_types` (a public contract's title: what a buyer bought, in the buyer's words)
+    # shows the sector, so the feed row stays strong (A5), but it gives a Medium fit, like the line of business; a High fit from own
+    # text needs the company's own words (a project text, a profile).
+    buyer_types = set(spec.get("buyer_text_types") or [])
+    hit_types = {s["signal_type"] for s in own if store._own_text_hit(s, thesis, texts)} if buyer_types and "own_text" in reasons else set()
+    buyer_only = bool(hit_types) and hit_types <= buyer_types
+
+    def gives_high(r):
+        return r in spec.get("high", []) and not (r == "industry_code" and code_medium) and not (r == "own_text" and buyer_only)
+    if any(gives_high(r) for r in reasons):
         b = "High"
-    elif code_medium or any(r in reasons for r in spec.get("medium", [])):
+    elif code_medium or buyer_only or any(r in reasons for r in spec.get("medium", [])):
         b = "Medium"
     elif fit_mod.matched_keywords(c.get("name"), thesis) and c.get("source_url"):
         b = "Low"
@@ -295,7 +305,7 @@ def _fit(conn, ctx: dict, thesis: dict, spec: dict) -> dict:
         # D78: the line names the reason that sets the band. A High fit leads with a High-class reason (the source's own text, or the code
         # when it is not capped), never with the line of business, which is the code's register label and gives at most Medium.
         parts = ex.get("parts") or {}
-        high = [r for r in reasons if b == "High" and r in spec.get("high", []) and not (r == "industry_code" and code_medium)]
+        high = [r for r in reasons if b == "High" and gives_high(r)]
         lead = high[0] if high and high[0] in parts else reasons[0]
         more = len(reasons) - 1
         text = (parts[lead][:1].upper() + parts[lead][1:] + (f"; {more} more reason{'s' if more != 1 else ''}." if more else ".")) if lead in parts \

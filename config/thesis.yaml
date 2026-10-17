@@ -490,6 +490,9 @@ memo:
       code_alone_band: Medium
       code_alone_reasons: [industry_code, line_of_business]
       code_alone_note: "the industry code alone gives at most a Medium fit"
+      # D80: own text found only in these records is a buyer's words (a public contract's title says what a buyer bought): it keeps the
+      # feed row strong (A5) and gives a Medium fit, like the line of business. A High fit from own text needs the company's own words.
+      buyer_text_types: [public_contract]
   decisions:
     # pass 0 (D65): a declared portfolio or cohort company is already inside, so it is supported, not assessed for entry. The sentence names
     # the relationship and the next support from the who-comes-next lists (a pilot partner and a grant), the organisations in `own` left out.

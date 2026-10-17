@@ -189,3 +189,22 @@ body:has(.co-layout) .top .wrap,body:has(.co-layout) .foot{max-width:1360px}
 @media print { .cc-evidence { display: block; } .cc-evidence > summary { display: none; } .no-print { display: none !important; } }
 .co-c .c-ks-grid a { color: var(--text); text-decoration-color: var(--hairline); text-underline-offset: 4px; }
 .co-c .c-ks-grid a:hover { text-decoration-color: var(--accent); }
+
+/* The AI brief (company_brief.html, jx35) in the About slot: same card look; rows without evidence are hidden
+   on this page (Dayo's no-empties rule) while the partial itself keeps its tested markup. */
+.co-c .brief { background: var(--surface); border-radius: 20px; overflow: hidden; padding: 0; margin: 0; }
+.co-c .brief > h2 { margin: 0; padding: 14px 16px 4px; font-family: var(--sans); font-size: 16px; font-weight: 600; }
+.co-c .brief-rows { margin: 0; }
+.co-c .brief-row { display: grid; gap: 4px; padding: 14px 16px; border-top: 1px solid var(--hairline); margin: 0; }
+.co-c .brief-row:has(.ev-missing) { display: none; }
+.co-c .brief-label { font-size: 14px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.co-c .brief-sentence { margin: 0; font-size: 16px; line-height: 1.5; }
+.co-c .brief-foot { margin: 0; padding: 12px 16px 14px; border-top: 1px solid var(--hairline); font-size: 14px; color: var(--muted); }
+.co-c .brief-none { display: none; }
+
+/* 44 px tap targets without changing the look: the hit area grows, the glyph stays where it was. */
+.co-c .c-ks-grid a { display: inline-block; min-width: 44px; min-height: 44px; line-height: 44px; margin: -11px 0; }
+.co-c .cc-line a { display: inline-block; min-width: 44px; text-align: center; }
+.co-c .cc-a sup a, .co-c .brief-cite { display: inline-block; min-width: 44px; padding: 0; margin: 0 -18px; text-align: center; position: relative; }
+.co-c .cc-a sup a { margin: 0 -16px 0 -14px; }
+.co-c .brief-cite { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 14px; margin: 0 -14px; }

@@ -65,6 +65,8 @@ Named by the official Redstone x A'Pelago brief; levels on the company page are 
 | Claude Code cloud session (claude.ai) | Second builder | yes |
 | Browser SpeechSynthesis API (the visitor's own device voices; Aava, radar/static/aava.js) | Reads the page's records aloud; no audio or text is sent to any service by us, no microphone is used | built into the browser |
 
+Narration audio pre-rendered with ElevenLabs text-to-speech from the page's own segment text; no runtime calls, no key in the app (build-time tool radar/aava_voice.py, model eleven_multilingual_v2, MP3 files in radar/static/aava/audio/). The browser voice above stays as the fallback.
+
 ## Not used
 No code from any earlier project. No private or scraped personal data. No named private individuals.
 

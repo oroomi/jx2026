@@ -1,13 +1,18 @@
 /* Aava: reads the records on this page aloud and moves the page in step. Vanilla JS, voice output only, no microphone.
-   Speech starts only after a tap. Without an English voice the same script plays as captions with the same timing. */
+   Speech starts only after a tap. Without an English voice the same script plays as captions with the same timing.
+   Narration: when /static/aava/audio/<key>/manifest.json (pre-rendered by radar/aava_voice.py) holds a clip for the sha of EVERY segment of the
+   question, the clips play in order from same-origin MP3 files; otherwise (no manifest, one sha that differs, a file that will not load) the
+   browser's SpeechSynthesis reads the same text exactly as before. No third party is contacted either way. */
 (function () {
   "use strict";
   var root = document.getElementById("aava");
   if (!root) return;
+  var self = document.currentScript;
   var $ = function (id) { return document.getElementById(id); };
   var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var synth = "speechSynthesis" in window ? window.speechSynthesis : null;
   var segs = [], idx = 0, run = 0, timer = null, guard = null, paused = false, current = null, lastIntent = "brief";
+  var clips = null, clipBase = "", entries = null, audio = null, mode = null; /* mode: "clips" while a recording plays, "speech" otherwise */
   /* The scripts for every question are embedded in the page: a tap plays them at once, so speech starts inside the tap
      (mobile browsers refuse speech that starts after a network wait). */
   var groups = {};
@@ -25,9 +30,45 @@
   }
 
   function setMode() {
-    $("aava-mode").textContent = canSpeak() ? "Voice and captions" : "Captions only (no English voice on this device)";
+    var m = mode || (clips ? "clips" : "speech");
+    $("aava-mode").textContent = m === "clips" ? "Recorded voice and captions"
+      : canSpeak() ? "Voice and captions" : "Captions only (no English voice on this device)";
   }
   if (synth && synth.addEventListener) synth.addEventListener("voiceschanged", setMode);
+
+  /* Pre-rendered narration. The directory name is the key with anything outside A-Z a-z 0-9 . _ - replaced by "_" (radar/aava_voice.dir_name). */
+  function dirFor(key) {
+    var d = String(key).replace(/[^A-Za-z0-9._-]/gu, "_");
+    return /^\.*$/.test(d) ? "_" + d : d;
+  }
+
+  function loadClips() {
+    var key = root.dataset.kind === "company" ? (root.dataset.script || "").replace(/^\/aava\/script\//, "") : "feed";
+    var ver = /[?&]v=([^&]+)/.exec((self && self.src) || "");
+    var base = "/static/aava/audio/" + dirFor(key) + "/";
+    fetch(base + "manifest.json" + (ver ? "?v=" + ver[1] : ""), { headers: { Accept: "application/json" } })
+      .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+      .then(function (m) {
+        var map = {};
+        ((m && m.segments) || []).forEach(function (e) {
+          if (e && typeof e.text_sha === "string" && e.rendered !== false && /^[A-Za-z0-9._-]+\.mp3$/.test(e.file || "")) map[e.text_sha] = e;
+        });
+        if (Object.keys(map).length) { clips = map; clipBase = base; setMode(); }
+      })
+      .catch(function () { clips = null; }); /* no recording for this page: the browser voice reads it */
+  }
+
+  /* One clip per segment, matched by the segment's own sha. Any segment without a clip means no recording for this question at all. */
+  function clipsFor(list) {
+    if (!clips) return null;
+    var out = [];
+    for (var i = 0; i < list.length; i++) {
+      var e = list[i].sha ? clips[list[i].sha] : null;
+      if (!e) return null;
+      out.push(e);
+    }
+    return out;
+  }
 
   function clearHighlight() {
     if (current) current.classList.remove("aava-hl");
@@ -114,6 +155,32 @@
   function play(token) {
     var s = segs[idx];
     show(s);
+    if (mode === "clips" && entries && entries[idx]) playClip(s, entries[idx], token);
+    else playSpeech(s, token);
+  }
+
+  function playClip(s, e, token) {
+    if (!audio) { /* one element for the whole briefing: a browser that let the tap start it lets it play the next clips too */
+      audio = document.createElement("audio");
+      audio.id = "aava-audio"; audio.preload = "auto";
+      root.appendChild(audio);
+    }
+    audio.onended = function () { next(token); };
+    audio.onerror = function () { fallBack(s, token); };
+    audio.src = clipBase + e.file;
+    var p = audio.play();
+    if (p && p.catch) p.catch(function (err) { if (!err || err.name !== "AbortError") fallBack(s, token); });
+  }
+
+  /* A clip that will not load or play: this segment and the rest of the briefing go to the browser voice. */
+  function fallBack(s, token) {
+    if (token !== run) return;
+    mode = "speech"; setMode();
+    if (audio) { audio.onended = null; audio.onerror = null; audio.pause(); }
+    playSpeech(s, token);
+  }
+
+  function playSpeech(s, token) {
     var words = s.text.length;
     var ms = Math.max(2200, words * 60);
     var voice = pickVoice();
@@ -137,11 +204,14 @@
     run += 1; paused = false;
     clearTimeout(timer); clearTimeout(guard);
     if (synth && (synth.speaking || synth.pending)) synth.cancel(); /* a cancel right before speak can swallow it in Chrome */
+    if (audio) { audio.onended = null; audio.onerror = null; audio.pause(); }
   }
 
   function begin(list) {
     segs = list || []; idx = 0;
     if (!segs.length) { $("aava-caption").textContent = "No public record to read."; return; }
+    entries = clipsFor(segs);
+    mode = entries ? "clips" : "speech";
     $("aava-pause").disabled = false; $("aava-stop").disabled = false;
     $("aava-sheet").classList.add("playing");
     setMode();
@@ -171,6 +241,14 @@
   }
 
   function pause() {
+    if (mode === "clips" && audio) { /* a recording pauses and resumes where it is; the run stays the same so its ended event still advances */
+      paused = !paused;
+      $("aava-pause").textContent = paused ? "Resume" : "Pause";
+      if (paused) audio.pause();
+      else if (audio.ended) next(run); /* the clip finished while paused: go on to the next one, do not replay it */
+      else { var p = audio.play(); if (p && p.catch) p.catch(function (err) { if (!err || err.name !== "AbortError") fallBack(segs[idx], run); }); }
+      return;
+    }
     if (!paused) {
       paused = true; run += 1;
       clearTimeout(timer); clearTimeout(guard);
@@ -192,5 +270,6 @@
   window.addEventListener("pagehide", halt);
   window.addEventListener("beforeunload", halt);
   document.body.addEventListener("htmx:beforeRequest", stop); /* the feed pills swap the rows Aava is reading */
-  window.Aava = { stop: stop, voices: function () { return synth ? synth.getVoices().length : 0; } };
+  window.Aava = { stop: stop, voices: function () { return synth ? synth.getVoices().length : 0; }, audioDir: dirFor };
+  loadClips();
 })();

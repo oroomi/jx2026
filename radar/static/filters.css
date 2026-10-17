@@ -62,8 +62,8 @@
 .hc-whyc { display: inline-block; max-width: 100%; padding: 2px 8px; border: 1px solid var(--hairline); border-radius: 999px; font-size: 13px; line-height: 1.35; color: var(--muted); overflow-wrap: anywhere; }
 :root[data-skin="editorial"] .hc-whyc { border-radius: 0; }
 :root[data-skin="terminal"] .hc-whyc { border-radius: 2px; font-family: var(--mono); }
-/* the first reason a row prints, in words (D70): visible text, so a phone shows it as well as a desktop; two lines at most, the sentence is already cut at a clause */
-.hc-reason { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; margin-top: 6px; font-size: 14px; line-height: 1.4; color: var(--text); opacity: .88; }
+/* the first reason a row prints, in words (D70): visible text, so a phone shows it as well as a desktop; three lines at most (110 characters fill three lines on a phone), the sentence is already cut at a clause */
+.hc-reason { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; margin-top: 6px; font-size: 14px; line-height: 1.4; color: var(--text); opacity: .88; }
 /* the list's sort order, one line above it (D70); the whole rule opens under it */
 .hc-sort { margin: 12px 0 2px; font-size: 14px; line-height: 1.45; color: var(--muted); }
 details.hc-sort > summary { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; list-style: none; }

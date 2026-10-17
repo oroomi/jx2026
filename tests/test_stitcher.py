@@ -456,3 +456,15 @@ def test_intake_fit_writes_one_file_per_company(tmp_path):
     assert counts == {"yes": 1, "no": 0, "unclear": 1}
     rec = json.loads((tmp_path / "out" / "9100002-2.json").read_text())
     assert rec["thesis_evidence"] == "unclear" and rec["checked"] == "no saved LLM answer"
+
+
+def test_an_unmapped_label_is_never_an_early_find(conn):
+    from radar import earliness, thesis
+    pages = {"https://example.org/eye-founded": "Emission-Eye Oy was founded on 5 March 2025 in Helsinki."}
+    llm = {"queries_run": [], "events": [{"signal_type": "unmapped", "suggested_type": "incorporation", "date": "2025-03-05",
+                                          "date_precision": "day", "source_url": "https://example.org/eye-founded",
+                                          "quote": "Emission-Eye Oy was founded on 5 March 2025", "confidence": "high"}]}
+    res = stitcher.stitch_company(conn, EYE, run_id="r", runner=lambda p: json.dumps(llm), fetch=pages.get,
+                                  capture=lambda u: ("2025-03-06", "https://web.archive.org/x"), refetch=pages.get, today="2026-10-16")
+    assert res["confirmed"] == 1 and res["not_emitted"] == 1
+    assert earliness.backtest(conn, thesis.load())["stitcher"]["companies"] == 0

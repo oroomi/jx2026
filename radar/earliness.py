@@ -60,7 +60,7 @@ def rule_lines(th: dict) -> list[str]:
         "The four groups always add up to the cohort size.",
         "Undated profile evidence (a BlueInvest profile with a TRL and no listing date) is shown as a note and never moves a company between groups.",
         "AI stitcher events (proposed by an LLM, checked by code) never count in the four groups. They are counted on a separate line, only when the event "
-        "passed both code checks and the Internet Archive captured its page before the company's reference date (public since, not the event date).",
+        "passed both code checks, is of a type the radar emits, and the Internet Archive captured its page before the company's reference date (public since, not the event date).",
         "Confidence is printed beside the signal that set the first date. A low confidence keyword match is shown but is never proof.",
     ]
 

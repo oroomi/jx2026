@@ -1,0 +1,56 @@
+# Stitcher batch, 17 Oct 2026: the 28 declared cohort and portfolio companies, then every Main-feed company of
+# data/snapshot (26, fewer than the 30 asked; feed page order: confidence, newest first, name). One company_key per line.
+3166759-6  # cohort: Arctic Fry Oy
+fi-edilm  # cohort: Edilm
+3543918-7  # cohort: Emission-Eye Oy
+3516783-9  # cohort: Finnish Sauna Shop Oy
+dk-just-measure  # cohort: Just-measure
+1840910-3  # cohort: Kilocode Oy
+se-mor  # cohort: MOR
+es-nido-contech  # cohort: NIDO Contech
+dk-peatz  # cohort: PEATZ
+dk-race-for-oceans-technology  # cohort: Race for Oceans Technology
+bg-redget-io  # cohort: RedGet.io
+dk-reefcircular  # cohort: ReefCircular
+dk-sensemakers  # cohort: Sensemakers
+3568392-1  # cohort: Sireness Oy
+3197621-7  # cohort: Sub Marine Store Oy
+3380111-1  # cohort: Taikoa Oy
+no-tunisea  # cohort: TuniSea
+es-vesselchain  # cohort: VesselChain
+se-your-devocean  # cohort: Your Devocean
+2902007-2  # portfolio: Kelluu Oy
+dk-klimate  # portfolio: Klimate
+3399187-5  # portfolio: NanoHalen Oy
+2982240-3  # portfolio: Norolan Artisanlures Oy
+3154837-8  # portfolio: Redkik Oy
+ch-tethys-robotics  # portfolio: Tethys Robotics
+fi-unique-docks  # portfolio: Unique Docks
+3274823-2  # portfolio: Valkama Watercrafts Oy
+2962040-6  # portfolio: Viva Jets Oy
+3508136-5  # main feed: Suomen Vesistökunnostus Oy (high, 2026-07-20)
+3650691-9  # main feed: Alanamman vesiosuuskunta (medium, 2026-08-25)
+3644889-4  # main feed: Otter Marine Operations Oy (medium, 2026-08-07)
+3640856-9  # main feed: Kåhlman Marine Oy (medium, 2026-07-22)
+3661460-2  # main feed: Maatz rakennnus & kumppanit Oy (low, 2026-10-09)
+3658264-7  # main feed: SU Engineering Oy (low, 2026-09-27)
+3657918-1  # main feed: Kustservice i Finland Ab Oy (low, 2026-09-25)
+3656103-7  # main feed: Hazero Oy (low, 2026-09-17)
+3655639-3  # main feed: Pollari Works Oy (low, 2026-09-15)
+3654770-2  # main feed: Keski-Suomen Laiturirakentajat Oy (low, 2026-09-12)
+3649936-8  # main feed: Boat Services Finland Oy (low, 2026-08-25)
+3649670-6  # main feed: MIRVIKA Oy (low, 2026-08-24)
+3649116-3  # main feed: JSL Konsultointi Oy (low, 2026-08-22)
+3648578-3  # main feed: Paattikiiltoon Oy (low, 2026-08-20)
+3648675-1  # main feed: VOLNOR OY (low, 2026-08-20)
+3647844-4  # main feed: FerroNord Oy (low, 2026-08-18)
+3646410-6  # main feed: Aggriv Oy (low, 2026-08-13)
+3645602-6  # main feed: Sahara Solutions Oy (low, 2026-08-10)
+3644849-9  # main feed: Styrbord service Oy (low, 2026-08-07)
+3644250-5  # main feed: Crw Boats Oy Ab (low, 2026-08-06)
+3642235-2  # main feed: Drainlogic Oy (low, 2026-07-29)
+3641964-7  # main feed: BB Ships AB (low, 2026-07-28)
+3641969-8  # main feed: MittaTopi Oy (low, 2026-07-28)
+3640750-7  # main feed: TM-työt Oy (low, 2026-07-21)
+3640416-2  # main feed: New Shipbuilding Oy (low, 2026-07-20)
+3640248-2  # main feed: Barone sanitation Oy (low, 2026-07-19)

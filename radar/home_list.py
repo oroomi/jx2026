@@ -7,7 +7,7 @@ dates. Groups are computed from those fields only:
   new     = first public record inside the feed window (the thesis' window, ending today)
   fit     = memo verdict INVEST, DUE DILIGENCE or ACCELERATOR, or thesis fit High
 Every group is ordered by verdict strength (INVEST, DUE DILIGENCE, ACCELERATOR, PARTNER INTRODUCTION, GRANT SUPPORT, WATCHLIST), and inside
-a verdict by evidence (D34): declared cohort or portfolio company, Ocean Impact ladder level, its confidence, business readiness level, number
+a verdict by evidence (D48): declared cohort or portfolio company, Ocean Impact ladder level, its confidence, business readiness level, number
 of dated records, newest record; "New this quarter" stays newest record first.
   ready   = memo investment readiness band High
   country = companies.country
@@ -219,7 +219,7 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
         # the five judging criteria plus the verdict, and the rail's facets (computed once per cache warm, from the same memo)
         rows[-1]["criteria"], rows[-1]["facets"] = criteria(m, matching.company_context(conn, key), nxt, thesis, today)
     def strength(r):
-        """Verdict strength first (the verdict rules are untouched). Inside one verdict, evidence decides (D34): a declared cohort or
+        """Verdict strength first (the verdict rules are untouched). Inside one verdict, evidence decides (D48): a declared cohort or
         portfolio company first, then the Ocean Impact ladder level (higher first), then its confidence (high, medium, low), then the
         business readiness level, then the number of dated public records, then the newest record, then the name. A company with no
         level sorts after one that has a level; it is never ranked as if it had a low one."""

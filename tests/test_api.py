@@ -59,7 +59,7 @@ def test_company_has_facts_sourced_signals_levels_and_next(client):
     for k in ("investors", "funding", "partners"):
         for i, row in enumerate(nxt[k], 1):
             assert row["rank"] == i and row["reason"] and row["name"] and _is_link(row["source_url"])
-    ns = d["next_step"]  # the verdict as an action (D32), the same decision the memo states
+    ns = d["next_step"]  # the verdict as an action (D46), the same decision the memo states
     assert ns["sentence"] and ns["decision"] == d["verdict"]["decision"] and ns["rule"] and ns["table"]
     assert "not enough public evidence" not in ns["sentence"]
     assert d["connector_slots"]["status"] == "not connected"

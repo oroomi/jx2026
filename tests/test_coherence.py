@@ -1,4 +1,4 @@
-"""One truth per page (D32 to D37): the impact band is the Ocean Impact ladder's, question 04 and /api/company state the memo's verdict,
+"""One truth per page (D46 to D51): the impact band is the Ocean Impact ladder's, question 04 and /api/company state the memo's verdict,
 Aava never says more evidence would lower a verdict, the home list orders by evidence inside a verdict, stored brief sentences that
 contradict the memo are left out, and the raise line never asks for a second source family twice. The page tests read the committed
 snapshot like tests/test_ocean_impact.py; the rest are fakes."""

@@ -6,7 +6,7 @@ One decision per company, exactly one of DECISIONS. It comes from a decision tab
 then pass 3, the fallback (`memo.decisions.fallback`): thesis fit High with no impact evidence reads impact as implied by the sector,
 but only when the High fit rests on more than an industry code (`fallback.requires_any`, see SUPPORT_KEYS); no match is WATCHLIST. The Low / Medium / High cells come from exactly the levels question 02 of the company page prints
 (radar.frameworks.page_levels) through the bands in `memo.bands`; the impact cell is the exception, it is read from the Ocean Impact
-Assessment when the thesis defines one (D32): the ladder's Medium or High is the impact band, a ladder level with no band
+Assessment when the thesis defines one (D46): the ladder's Medium or High is the impact band, a ladder level with no band
 ("not yet evidenced", sector-implied only) or no level stays unknown so the fallback applies.
 A level with no public evidence is "unknown", never Low: a row that names a band does not match it, so the company lands in
 WATCHLIST with "more public evidence needed: <level>". REJECT / LOW FIT needs evidence of low fit and low impact.
@@ -35,7 +35,7 @@ def _cfg(thesis: dict) -> dict:
     m = thesis.get("memo") or {}
     d = m.get("decisions") or {}
     # The impact spec carries the thesis itself (`_thesis`) so a caller that reads only `cfg["bands"]["impact"]` and calls `_impact` (the
-    # matchmaker's light verdict) gets the same ladder band as memo.build, with no edit of its own (D32).
+    # matchmaker's light verdict) gets the same ladder band as memo.build, with no edit of its own (D46).
     bands = {**(m.get("bands") or {}), "impact": {**((m.get("bands") or {}).get("impact") or {}), "_thesis": thesis}}
     return {"labels": m.get("labels") or {}, "bands": bands, "rows": d.get("rows") or [], "rules": d.get("rules") or [],
             "source": d.get("source") or "", "fallback": d.get("fallback") or {}}
@@ -140,7 +140,7 @@ def dimensions_line(fw: dict) -> dict:
 
 
 def _impact(conn, ctx: dict, key: str, spec: dict, oi: dict | None = None) -> dict:
-    """The ocean impact cell of the decision table (D32). When the thesis defines the Ocean Impact Assessment (`oi`, radar.ocean_impact),
+    """The ocean impact cell of the decision table (D46). When the thesis defines the Ocean Impact Assessment (`oi`, radar.ocean_impact),
     the band is the ladder's: Medium or High is the impact band, and a ladder level with no band (1-2, sector implied only: "not yet
     evidenced") or no level at all stays unknown, so the fallback applies; the page's headline, bullets, ocean block, criteria cell and
     Aava then cannot disagree. Without an assessment (a sector that defines no impact areas) the band is the Navigator-style category
@@ -415,7 +415,7 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
     for d in TABLE_DIMS:
         if bands[d] == UNKNOWN:
             implied = " (read as implied by the sector for this decision)" if d == "impact" and rec.get("kind") == "fallback" else ""
-            if d == "impact" and oi is not None:  # the ladder is the source of the impact band: say what it holds (D32)
+            if d == "impact" and oi is not None:  # the ladder is the source of the impact band: say what it holds (D46)
                 url = next((e["url"] for e in oi.get("evidence") or [] if e.get("url")), None)
                 risks.append({"text": (f"{labels.get(d, d)} is not yet evidenced beyond the sector (level {oi['level']} of {oi['level_max']}){implied}"
                                        if oi.get("level") is not None else f"No public record names an {labels.get(d, d).lower()} area yet{implied}"), "url": url})
@@ -468,7 +468,7 @@ def table_lines(thesis: dict) -> list[str]:
 
 
 def next_step_view(m: dict | None, step: dict | None, thesis: dict | None = None) -> dict | None:
-    """Question 04 as the verdict says it (D32). The older next-step rules (matching.next_step) are a list of concrete leads: an open
+    """Question 04 as the verdict says it (D46). The older next-step rules (matching.next_step) are a list of concrete leads: an open
     programme, a buyer's contract, a readiness gap, a check-in. They never state a verdict, so the verdict sentence comes from the memo's
     decision table, and a concrete lead (rules 1 to 4) is added beside it. Rule 5 of the old list ("watch; not enough public evidence")
     says nothing the verdict does not say better and is not shown. {sentence, because, source_url, rule, decision, table, concrete}."""

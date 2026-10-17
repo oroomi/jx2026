@@ -126,7 +126,7 @@ def test_viva_jets_memo_matches_its_readiness_section_and_reads_the_ladder(snap)
     inv_why = [w["text"] for w in m["why"] if w["text"].startswith("Investment readiness ")]
     assert inv_why and f"(level {irl})" in inv_why[0]
     r = m["recommendation"]
-    # D32: the impact band is the Ocean Impact ladder's. Viva Jets is listed on the Redstone Blue page (level 5, Medium), so impact is no
+    # D46: the impact band is the Ocean Impact ladder's. Viva Jets is listed on the Redstone Blue page (level 5, Medium), so impact is no
     # longer implied by the sector and the fallback does not apply; no row or rule covers Medium / Medium / Medium / High.
     assert m["ocean_impact"]["level"] == 5 and m["levels"]["impact"]["band"] == "Medium"
     assert r["decision"] == "WATCHLIST" and r["matched"] is None and "no row or rule of the decision table covers" in r["note"]

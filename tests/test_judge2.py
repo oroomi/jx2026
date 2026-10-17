@@ -109,7 +109,7 @@ def test_own_text_still_lifts_a_utility_code_to_high(conn):
 
 
 def test_a_declared_member_on_a_utility_code_reads_high(conn):
-    """D33 raises the floor of a declared cohort or portfolio member from Medium to High, so the utility code (Medium, D22) is lifted."""
+    """D47 raises the floor of a declared cohort or portfolio member from Medium to High, so the utility code (Medium, D22) is lifted."""
     _company(conn, "9500004-1", "Plain Declared Utility Oy", "37000", tag="portfolio")
     assert _memo(conn, "9500004-1")["levels"]["fit"]["band"] == "High"
 
@@ -169,7 +169,7 @@ def test_the_category_keyword_is_the_whole_word_not_the_stem():
 
 
 def test_the_impact_reason_prints_no_quoted_stem(conn):
-    """The impact line of the memo is the Ocean Impact ladder's (D32): level and area in words, never a quoted word stem."""
+    """The impact line of the memo is the Ocean Impact ladder's (D46): level and area in words, never a quoted word stem."""
     _company(conn, "9500006-1", "Plain Fry Oy", "03220", desc="Freshwater aquaculture",
              extra=[("eu_project", "cordis", {"objective": "A project on freshwater aquaculture."})])
     m = _memo(conn, "9500006-1")

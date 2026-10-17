@@ -261,7 +261,7 @@ def _cond(wi: dict, changes: list[tuple[str, str]]) -> str:
 
 def _moves(wi: dict, better: bool) -> list[tuple[list[tuple[str, str]], str]]:
     """Changes that move the verdict down (or up), fewest changes first, then dimension priority and the smallest step; one per new verdict.
-    A fall is only ever claimed for levels the records already state (D35): a level with no record yet is never said to pull a verdict
+    A fall is only ever claimed for levels the records already state (D49): a level with no record yet is never said to pull a verdict
     down, because a new record cannot lower what the absence of records did not."""
     cur = _RANK[wi["current"]]
     found = []
@@ -286,7 +286,7 @@ def _moves(wi: dict, better: bool) -> list[tuple[list[tuple[str, str]], str]]:
 
 
 def _lifts(wi: dict, dim: str) -> str | None:
-    """What a new record on one level could gain, said as what the record would change (D35): the bands that move the verdict up, grouped by
+    """What a new record on one level could gain, said as what the record would change (D49): the bands that move the verdict up, grouped by
     the verdict they lead to. It never says a record would lower the verdict. When no band changes anything the answer says so; when the only
     change the table gives is a fall it says nothing about this level (None)."""
     cur = _RANK[wi["current"]]
@@ -337,7 +337,7 @@ def _gap_clause(text: str) -> str:
 
 
 def _impact_gap(memo: dict | None) -> str | None:
-    """The ocean impact gap in words when the Ocean Impact Assessment holds records (D32): never 'no evidence' for a company whose ladder has
+    """The ocean impact gap in words when the Ocean Impact Assessment holds records (D46): never 'no evidence' for a company whose ladder has
     rows. A level with no band says the sector implies an area and nothing more; rows without a level say no record names an area."""
     oi = (memo or {}).get("ocean_impact")
     if not isinstance(oi, dict) or not oi.get("evidence"):
@@ -351,7 +351,7 @@ def _impact_gap(memo: dict | None) -> str | None:
 
 def _needs(memo: dict | None) -> tuple[list[str], str | None]:
     """(the dimensions with no public record at all, the ocean impact gap in words). A company whose Ocean Impact Assessment holds rows is not
-    said to have 'no evidence' for ocean impact (D32): that dimension moves to the second item."""
+    said to have 'no evidence' for ocean impact (D46): that dimension moves to the second item."""
     rec = (memo or {}).get("recommendation") or {}
     impact_gap = _impact_gap(memo)
     impact_label = ((rec.get("because_labels") or [{}])[0]).get("label")

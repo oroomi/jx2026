@@ -355,7 +355,7 @@ def store_brief(conn: sqlite3.Connection, brief: dict) -> None:
                  (brief["company_key"], brief.get("written") or date.today().isoformat(), json.dumps(brief["slots"], ensure_ascii=False)))
 
 
-# ---- keep a stored brief true to the page (D36) ---------------------------------------------------------------
+# ---- keep a stored brief true to the page (D50) ---------------------------------------------------------------
 # A brief is written once and stored; the memo moves (a new rule, a new record, a new band). A stored sentence that names a verdict or
 # a band level different from the memo the page shows now is dropped when the brief is rendered, and a rule id is never printed.
 _RULE_AFTER_UNDER = re.compile(r"\s+under\s+(?:the\s+)?(?:fallback|rule|row|decision table row)\s+\w{1,3}\b", re.I)

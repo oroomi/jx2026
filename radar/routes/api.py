@@ -71,7 +71,7 @@ def _level(name: str, lv: dict, rules: list[dict], url: str | None) -> dict:
 
 
 def _impact_readiness(fw: dict, c: dict, ocean: dict | None) -> dict:
-    """The ocean impact entry of `readiness`: the Ocean Impact Assessment's level, band, area and confidence (the one impact truth, D32)
+    """The ocean impact entry of `readiness`: the Ocean Impact Assessment's level, band, area and confidence (the one impact truth, D46)
     when the thesis defines one, with the Navigator-style category the frameworks rule finds beside it as context. Without an assessment
     (a sector that defines no impact areas) only the category is stated."""
     cat = fw["category"]

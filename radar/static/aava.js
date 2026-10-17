@@ -2,7 +2,9 @@
    Speech starts only after a tap. Without an English voice the same script plays as captions with the same timing.
    Narration: when /static/aava/audio/<key>/manifest.json (pre-rendered by radar/aava_voice.py) holds a clip for the sha of EVERY segment of the
    question, the clips play in order from same-origin MP3 files; otherwise (no manifest, one sha that differs, a file that will not load) the
-   browser's SpeechSynthesis reads the same text exactly as before. No third party is contacted either way. */
+   browser's SpeechSynthesis reads the same text exactly as before. No third party is contacted either way.
+   Conversation: the sheet lists the questions in order. A tap on a question plays its answer; Next (button, space bar, right arrow) plays the
+   answer after the last one played and highlights its question. */
 (function () {
   "use strict";
   var root = document.getElementById("aava");
@@ -11,12 +13,23 @@
   var $ = function (id) { return document.getElementById(id); };
   var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var synth = "speechSynthesis" in window ? window.speechSynthesis : null;
-  var segs = [], idx = 0, run = 0, timer = null, guard = null, paused = false, current = null, lastIntent = "brief";
+  var segs = [], idx = 0, run = 0, timer = null, guard = null, paused = false, current = null;
+  var order = [], byq = {}, cur = -1; /* order: question numbers in page order; byq: number -> its segments; cur: index of the question last asked */
   var clips = null, clipBase = "", entries = null, audio = null, mode = null; /* mode: "clips" while a recording plays, "speech" otherwise */
   /* The scripts for every question are embedded in the page: a tap plays them at once, so speech starts inside the tap
      (mobile browsers refuse speech that starts after a network wait). */
   var groups = {};
   try { groups = JSON.parse(($("aava-data") || {}).textContent || "{}") || {}; } catch (e) { groups = {}; }
+  /* Every segment knows its question (q). The old intent groups share some answers (why holds questions 2 and 3, meet and talk question 4):
+     a segment is kept once per question. */
+  Object.keys(groups).forEach(function (g) {
+    (groups[g] || []).forEach(function (s) {
+      if (!s || typeof s.q !== "number") return;
+      var list = byq[s.q] = byq[s.q] || [];
+      if (!list.some(function (x) { return x.sha === s.sha; })) list.push(s);
+    });
+  });
+  root.querySelectorAll(".aava-q").forEach(function (b) { order.push(Number(b.dataset.q)); });
 
   function pickVoice() {
     var vs = synth ? synth.getVoices() : [];
@@ -140,8 +153,7 @@
     $("aava-pause").disabled = true;
     $("aava-pause").textContent = "Pause";
     $("aava-stop").disabled = true;
-    clearHighlight();
-    $("aava-caption").textContent = "Done. Tap a question to hear it again.";
+    clearHighlight(); /* the answer stays on screen as a caption */
   }
 
   function next(token) {
@@ -213,30 +225,62 @@
     entries = clipsFor(segs);
     mode = entries ? "clips" : "speech";
     $("aava-pause").disabled = false; $("aava-stop").disabled = false;
+    $("aava-pause").textContent = "Pause"; /* a new answer starts running, even when Next was pressed while the last one was paused */
     $("aava-sheet").classList.add("playing");
     setMode();
     play(run);
   }
 
-  function start(intent) {
+  /* The question buttons: the current one is marked, the ones already asked are quieter, and the list scrolls to keep the current one in view. */
+  function mark() {
+    var btns = root.querySelectorAll(".aava-q");
+    btns.forEach(function (b, i) {
+      b.classList.toggle("is-now", i === cur);
+      b.classList.toggle("is-done", cur >= 0 && i < cur);
+      if (i === cur) b.setAttribute("aria-current", "step"); else b.removeAttribute("aria-current");
+    });
+    var list = $("aava-qs"), b = btns[cur];
+    if (b && list) {
+      if (b.offsetTop < list.scrollTop) list.scrollTop = b.offsetTop;
+      else if (b.offsetTop + b.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = b.offsetTop + b.offsetHeight - list.clientHeight;
+    }
+    $("aava-next").disabled = cur >= order.length - 1;
+  }
+
+  /* One question. Called inside the tap (or key press), so the browser lets speech start. */
+  function ask(q) {
+    var i = order.indexOf(Number(q));
+    if (i < 0) return;
     halt();
-    lastIntent = intent;
-    if (groups[intent]) { begin(groups[intent]); return; } /* same tick as the tap: speech is allowed to start */
+    cur = i; mark();
+    if (byq[q] && byq[q].length) { begin(byq[q]); return; } /* same tick as the tap: speech is allowed to start */
     $("aava-caption").textContent = "Loading the records.";
-    var url = root.dataset.script + (root.dataset.kind === "company" ? "?intent=" + encodeURIComponent(intent) : "") ;
+    var btn = root.querySelectorAll(".aava-q")[i];
+    var url = root.dataset.script + (root.dataset.kind === "company" ? "?intent=" + encodeURIComponent(btn.dataset.intent) : "");
     var thesis = new URLSearchParams(location.search).get("thesis");
     if (thesis) url += (url.indexOf("?") < 0 ? "?" : "&") + "thesis=" + encodeURIComponent(thesis);
+    var token = run;
     fetch(url, { headers: { Accept: "application/json" } })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (data) { begin(data.segments); })
+      .then(function (data) {
+        if (token !== run) return;
+        var list = (data.segments || []).filter(function (s) { return typeof s.q !== "number" || s.q === Number(q); });
+        byq[q] = list; begin(list);
+      })
       .catch(function () { $("aava-caption").textContent = "Aava could not load the records. Try again."; });
+  }
+
+  /* Next: the question after the one last asked (the first one when none has been asked yet). */
+  function nextQuestion() {
+    if (cur >= order.length - 1) return; /* the last question: Next is disabled, a tap on any question plays it again */
+    ask(order[cur + 1]);
   }
 
   function stop() {
     halt(); resetVisuals(); clearHighlight();
     $("aava-sheet").classList.remove("playing");
     $("aava-pause").disabled = true; $("aava-pause").textContent = "Pause"; $("aava-stop").disabled = true;
-    $("aava-caption").textContent = "Stopped. Tap a question to start again.";
+    $("aava-caption").textContent = "Stopped. Tap a question, or press Next.";
     $("aava-source").textContent = "";
   }
 
@@ -261,12 +305,39 @@
     }
   }
 
-  $("aava-open").addEventListener("click", function () { $("aava-sheet").hidden = false; setMode(); $("aava-open").setAttribute("aria-expanded", "true"); });
-  $("aava-close").addEventListener("click", function () { stop(); $("aava-sheet").hidden = true; $("aava-open").setAttribute("aria-expanded", "false"); $("aava-open").focus(); });
+  function sheetOpen() { return !$("aava-sheet").hidden; }
+
+  $("aava-open").addEventListener("click", function () {
+    $("aava-sheet").hidden = false; setMode(); mark();
+    $("aava-open").setAttribute("aria-expanded", "true");
+    $("aava-next").focus({ preventScroll: true });
+  });
+  $("aava-close").addEventListener("click", function () {
+    stop(); cur = -1; mark(); $("aava-sheet").hidden = true; $("aava-open").setAttribute("aria-expanded", "false"); $("aava-open").focus();
+    $("aava-caption").textContent = "Tap a question, or press Next (space bar or right arrow). Aava speaks only after you tap.";
+  });
   $("aava-stop").addEventListener("click", stop);
   $("aava-pause").addEventListener("click", pause);
-  root.querySelectorAll("[data-intent]").forEach(function (b) { b.addEventListener("click", function () { start(b.dataset.intent); }); });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && !$("aava-sheet").hidden) $("aava-close").click(); });
+  $("aava-next").addEventListener("click", nextQuestion);
+  root.querySelectorAll(".aava-q").forEach(function (b) { b.addEventListener("click", function () { ask(b.dataset.q); }); });
+
+  /* Keys while the sheet is open: Escape closes, space bar and right arrow play the next answer. Typing fields and the Pause, Stop and Close
+     buttons keep the space bar for themselves. */
+  function keyIsNext(e) {
+    if (!sheetOpen() || e.altKey || e.ctrlKey || e.metaKey) return false;
+    if (e.key !== " " && e.key !== "ArrowRight") return false;
+    var t = e.target;
+    if (t && t.closest && t.closest("input, textarea, select, [contenteditable=''], [contenteditable='true']")) return false;
+    if (e.key === " " && t && t.closest && t.closest("#aava-pause, #aava-stop, #aava-close, a")) return false;
+    return true;
+  }
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && sheetOpen()) { $("aava-close").click(); return; }
+    if (!keyIsNext(e)) return;
+    e.preventDefault();
+    if (!e.repeat) nextQuestion();
+  });
+  document.addEventListener("keyup", function (e) { if (keyIsNext(e) && e.key === " ") e.preventDefault(); }); /* a button would click on the key's release */
   window.addEventListener("pagehide", halt);
   window.addEventListener("beforeunload", halt);
   document.body.addEventListener("htmx:beforeRequest", stop); /* the feed pills swap the rows Aava is reading */

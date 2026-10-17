@@ -207,12 +207,13 @@ def test_the_module_never_opens_a_file_that_could_hold_a_key():
 
 
 # ---- the player (chromium; skipped where it is missing) ----------------------------------------------------------------------
-def _manifest_for(client, key=RICH, tamper=None):
-    """A manifest listing a clip for every text the page embeds, built the way the render writes it. tamper(sha) -> sha changes one entry."""
-    page = embedded(client.get(f"/c/{key}").text)
+def _manifest_for(client, key=RICH, tamper=None, url=None):
+    """A manifest listing a clip for every text the page embeds, built the way the render writes it. tamper(sha) -> sha changes one entry.
+    url is the page that embeds the script (the company page by default, "/" for the feed)."""
+    page = embedded(client.get(url or f"/c/{key}").text)
     rows, seen = [], set()
-    for intent in aava.INTENTS:
-        for s in page[intent]:
+    for segs in page.values():
+        for s in segs:
             if s["sha"] in seen:
                 continue
             seen.add(s["sha"])
@@ -237,35 +238,46 @@ def _serve_audio(page, manifest, hits, mp3_status=200):
     page.route(re.compile(r".*/static/aava/audio/.*"), handler)
 
 
+SPY = ("window.__spoken = []; if (window.speechSynthesis) { var o = window.speechSynthesis.speak.bind(window.speechSynthesis);"
+       " window.speechSynthesis.speak = function (u) { window.__spoken.push(u.text); return o(u); }; }")
+
+
 def _caption(page):
     return page.locator("#aava-caption").inner_text()
 
 
-def test_player_plays_the_mp3_sequence_when_every_hash_matches(client, live_url):
+def _by_q(data):
+    return {s["q"]: s for segs in data.values() for s in segs}
+
+
+def test_player_plays_each_answer_from_its_clip_when_the_hash_matches(client, live_url):
     sync_api = pytest.importorskip("playwright.sync_api")
     p, browser, page = _page(sync_api, {"width": 390, "height": 800})
     try:
         data, manifest = _manifest_for(client)
+        q = _by_q(data)
         hits, requests = [], []
         _serve_audio(page, manifest, hits)
         page.on("request", lambda r: requests.append(r.url))
-        page.add_init_script("window.__spoken = []; if (window.speechSynthesis) { var o = window.speechSynthesis.speak.bind(window.speechSynthesis);"
-                             " window.speechSynthesis.speak = function (u) { window.__spoken.push(u.text); return o(u); }; }")
+        page.add_init_script(SPY)
         page.goto(f"{live_url}/c/{RICH}?demo=1")
         page.wait_for_function("window.Aava && window.Aava.audioDir", timeout=5000)
         page.click("#aava-open")
         time.sleep(0.5)  # the manifest fetch settles
-        segs = data["brief"]
-        page.click("[data-intent=brief]")
-        assert _caption(page) == segs[0]["text"]
-        assert page.locator("#aava-mode").inner_text() == "Recorded voice and captions"
-        page.wait_for_function("t => document.getElementById('aava-caption').textContent === t", arg=segs[1]["text"], timeout=5000)  # advanced on 'ended'
-        page.wait_for_function("t => document.getElementById('aava-caption').textContent === t", arg=segs[2]["text"], timeout=5000)
-        assert page.locator(".aava-hl").count() <= 1
-        assert page.evaluate("document.getElementById('aava-audio').src").endswith(".mp3")
-        clips = [u for u in hits if u.endswith(".mp3")]
         by_sha = {e["text_sha"]: e["file"] for e in manifest["segments"]}
-        assert [u.rsplit("/", 1)[1] for u in clips[:3]] == [by_sha[s["sha"]] for s in segs[:3]]
+        page.click("[data-q='1']")
+        assert _caption(page) == q[1]["text"]
+        assert page.locator("#aava-mode").inner_text() == "Recorded voice and captions"
+        page.wait_for_function("document.getElementById('aava-audio').ended", timeout=5000)
+        assert _caption(page) == q[1]["text"]                      # the answer stays on screen; nothing plays until Next
+        page.click("#aava-next")
+        assert _caption(page) == q[2]["text"]
+        page.wait_for_function("document.getElementById('aava-audio').ended", timeout=5000)
+        page.keyboard.press("ArrowRight")
+        assert _caption(page) == q[3]["text"] and page.evaluate("document.getElementById('aava-audio').src").endswith(".mp3")
+        assert page.locator(".aava-hl").count() <= 1
+        clips = [u for u in hits if u.endswith(".mp3")]
+        assert [u.rsplit("/", 1)[1] for u in clips[:3]] == [by_sha[q[n]["sha"]] for n in (1, 2, 3)]
         assert page.evaluate("window.__spoken") == []  # the browser voice never spoke
         assert all(u.startswith(live_url) or u.startswith(("data:", "about:", "blob:")) for u in requests), [u for u in requests if not u.startswith(live_url)]
         page.click("#aava-stop")
@@ -278,16 +290,44 @@ def test_player_plays_the_mp3_sequence_when_every_hash_matches(client, live_url)
         p.stop()
 
 
+def test_player_plays_the_feed_answer_clip_by_clip(client, live_url):
+    sync_api = pytest.importorskip("playwright.sync_api")
+    p, browser, page = _page(sync_api, {"width": 390, "height": 800})
+    try:
+        data, manifest = _manifest_for(client, key="feed", url="/")
+        segs = data["brief"]
+        assert len(segs) >= 3
+        hits = []
+        _serve_audio(page, manifest, hits)
+        page.goto(f"{live_url}/?demo=1")
+        page.click("#aava-open")
+        time.sleep(0.5)
+        page.click("[data-q='1']")
+        assert _caption(page) == segs[0]["text"]
+        for s in segs[1:3]:
+            page.wait_for_function("t => document.getElementById('aava-caption').textContent === t", arg=s["text"], timeout=5000)  # advanced on 'ended'
+        by_sha = {e["text_sha"]: e["file"] for e in manifest["segments"]}
+        for _ in range(30):  # the request for the third clip is recorded a moment after its caption shows
+            if len([u for u in hits if u.endswith(".mp3")]) >= 3:
+                break
+            time.sleep(0.1)
+        assert [u.rsplit("/", 1)[1] for u in hits if u.endswith(".mp3")][:3] == [by_sha[s["sha"]] for s in segs[:3]]
+        page.click("#aava-stop")
+    finally:
+        browser.close()
+        p.stop()
+
+
 def test_player_pause_holds_the_recording_and_resume_goes_on(client, live_url):
     sync_api = pytest.importorskip("playwright.sync_api")
     p, browser, page = _page(sync_api, {"width": 390, "height": 800})
     try:
-        data, manifest = _manifest_for(client)
+        data, manifest = _manifest_for(client, key="feed", url="/")
         _serve_audio(page, manifest, [])
-        page.goto(f"{live_url}/c/{RICH}?demo=1")
+        page.goto(f"{live_url}/?demo=1")
         page.click("#aava-open")
         time.sleep(0.5)
-        page.click("[data-intent=brief]")
+        page.click("[data-q='1']")
         page.click("#aava-pause")
         assert page.locator("#aava-pause").inner_text() == "Resume"
         held = _caption(page)
@@ -302,28 +342,56 @@ def test_player_pause_holds_the_recording_and_resume_goes_on(client, live_url):
         p.stop()
 
 
-def test_player_falls_back_to_the_browser_voice_when_one_hash_differs(client, live_url):
+def test_player_falls_back_to_the_browser_voice_for_an_answer_whose_hash_differs(client, live_url):
     sync_api = pytest.importorskip("playwright.sync_api")
     p, browser, page = _page(sync_api, {"width": 390, "height": 800})
     try:
-        second = embedded(client.get(f"/c/{RICH}").text)["brief"][1]["sha"]
+        second = _by_q(embedded(client.get(f"/c/{RICH}").text))[2]["sha"]
         page_data, manifest = _manifest_for(client, tamper=lambda sha: "0" * 16 if sha == second else sha)  # one text was edited since the render
         assert any(e["text_sha"] == "0" * 16 for e in manifest["segments"])
+        q = _by_q(page_data)
         hits = []
         _serve_audio(page, manifest, hits)
-        page.add_init_script("window.__spoken = []; if (window.speechSynthesis) { var o = window.speechSynthesis.speak.bind(window.speechSynthesis);"
-                             " window.speechSynthesis.speak = function (u) { window.__spoken.push(u.text); return o(u); }; }")
+        page.add_init_script(SPY)
         page.goto(f"{live_url}/c/{RICH}?demo=1")
         page.click("#aava-open")
         time.sleep(0.5)
-        page.click("[data-intent=brief]")
+        page.click("[data-q='1']")                                  # an untouched answer still plays from its clip
+        assert page.locator("#aava-mode").inner_text() == "Recorded voice and captions"
+        page.wait_for_function("document.getElementById('aava-audio').ended", timeout=5000)
+        clips = [u for u in hits if u.endswith(".mp3")]
+        page.click("#aava-next")                                    # the edited one goes to the browser voice
+        assert _caption(page) == q[2]["text"]
+        assert page.locator("#aava-mode").inner_text() != "Recorded voice and captions"
+        time.sleep(0.8)
+        assert [u for u in hits if u.endswith(".mp3")] == clips     # no clip was requested for it
+        assert page.evaluate("window.__spoken")[-1:] == [q[2]["text"]]  # the browser voice was asked to read it
+        page.click("#aava-stop")
+    finally:
+        browser.close()
+        p.stop()
+
+
+def test_a_feed_answer_with_one_changed_hash_plays_from_no_clip_at_all(client, live_url):
+    sync_api = pytest.importorskip("playwright.sync_api")
+    p, browser, page = _page(sync_api, {"width": 390, "height": 800})
+    try:
+        second = embedded(client.get("/").text)["brief"][1]["sha"]
+        page_data, manifest = _manifest_for(client, key="feed", url="/", tamper=lambda sha: "0" * 16 if sha == second else sha)
+        hits = []
+        _serve_audio(page, manifest, hits)
+        page.add_init_script(SPY)
+        page.goto(f"{live_url}/?demo=1")
+        page.click("#aava-open")
+        time.sleep(0.5)
+        page.click("[data-q='1']")
         segs = page_data["brief"]
         assert _caption(page) == segs[0]["text"]
         assert page.locator("#aava-mode").inner_text() != "Recorded voice and captions"
         time.sleep(0.8)
         assert [u for u in hits if u.endswith(".mp3")] == []  # not one clip was requested: all or nothing for a question
         assert page.locator("#aava-audio").count() == 0
-        assert page.evaluate("window.__spoken")[:1] == [segs[0]["text"]]  # the browser voice was asked to read the first sentence
+        assert page.evaluate("window.__spoken")[:1] == [segs[0]["text"]]
         page.click("#aava-stop")
     finally:
         browser.close()
@@ -336,12 +404,12 @@ def test_player_without_a_manifest_behaves_exactly_as_before(client, live_url):
     try:
         hits = []
         page.route(re.compile(r".*/static/aava/audio/.*"), lambda route: (hits.append(route.request.url), route.fulfill(status=404, body="no")))
-        data = embedded(client.get(f"/c/{RICH}").text)
+        q = _by_q(embedded(client.get(f"/c/{RICH}").text))
         page.goto(f"{live_url}/c/{RICH}?demo=1")
         page.click("#aava-open")
         time.sleep(0.5)
-        page.click("[data-intent=brief]")
-        assert _caption(page) == data["brief"][0]["text"]
+        page.click("[data-q='1']")
+        assert _caption(page) == q[1]["text"]
         assert page.locator("#aava-mode").inner_text() in ("Voice and captions", "Captions only (no English voice on this device)")
         assert page.locator("#aava-audio").count() == 0
         assert len(hits) == 1 and hits[0].split("?")[0].endswith(f"/static/aava/audio/{RICH}/manifest.json")
@@ -360,9 +428,9 @@ def test_a_clip_that_will_not_load_hands_the_rest_to_the_browser_voice(client, l
         page.goto(f"{live_url}/c/{RICH}?demo=1")
         page.click("#aava-open")
         time.sleep(0.5)
-        page.click("[data-intent=brief]")
+        page.click("[data-q='1']")
         page.wait_for_function("document.getElementById('aava-mode').textContent !== 'Recorded voice and captions'", timeout=5000)
-        assert _caption(page) == data["brief"][0]["text"]  # still on the first sentence, now read by the browser voice or its captions
+        assert _caption(page) == _by_q(data)[1]["text"]  # still on the first answer, now read by the browser voice or its captions
         page.click("#aava-stop")
     finally:
         browser.close()

@@ -14,17 +14,13 @@ window.AAVA_DEMO=on;})();</script>
       <button id="aava-close" class="aava-btn" type="button">Close</button>
     </div>
     <p class="aava-label">Aava reads only the records on this page, with no AI model and no network call. Captions are always on; no microphone is used.</p>
-    <div class="aava-ask">
-      {% if aava_kind == "company" %}
-      <button class="aava-btn aava-primary" type="button" data-intent="brief">Ask Aava about {{ c.name }}</button>
-      <div class="aava-menu" role="group" aria-label="Questions for Aava">
-      {% for intent, label in aava_questions %}<button class="aava-btn" type="button" data-intent="{{ intent }}">{{ label }}</button>{% endfor %}
-      </div>
-      {% else %}
-      <button class="aava-btn aava-primary" type="button" data-intent="brief">Ask Aava what is new</button>
-      {% endif %}
-    </div>
-    <p id="aava-caption" class="aava-caption" aria-live="polite">Tap a question. Aava speaks only after you tap.</p>
+    {# The questions, in order. A tap plays that answer; Next (button, space bar, right arrow) plays the one after the last played. #}
+    <ol id="aava-qs" class="aava-qs" aria-label="Questions for Aava">
+      {% for n, intent, label in (aava_questions if aava_kind == "company" else aava_feed_questions) %}
+      <li><button class="aava-btn aava-q" type="button" data-q="{{ n }}" data-intent="{{ intent }}"><span class="aava-qn" aria-hidden="true">{{ n }}</span><span class="aava-qt">{{ label }}</span></button></li>
+      {% endfor %}
+    </ol>
+    <p id="aava-caption" class="aava-caption" aria-live="polite">Tap a question, or press Next (space bar or right arrow). Aava speaks only after you tap.</p>
     <div id="aava-meter" class="aava-meter" hidden>
       <span id="aava-meter-num" class="aava-num">0</span><span id="aava-meter-max" class="aava-max"></span>
       <span class="aava-bar"><span id="aava-meter-fill"></span></span>
@@ -32,6 +28,7 @@ window.AAVA_DEMO=on;})();</script>
     <div id="aava-line" class="aava-line" hidden aria-hidden="true"><span id="aava-line-fill"></span></div>
     <p id="aava-source" class="aava-src"></p>
     <div class="aava-ctl">
+      <button id="aava-next" class="aava-btn aava-primary" type="button" aria-keyshortcuts="Space ArrowRight">Next</button>
       <button id="aava-pause" class="aava-btn" type="button" disabled>Pause</button>
       <button id="aava-stop" class="aava-btn" type="button" disabled>Stop</button>
       <span id="aava-mode" class="aava-mode"></span>

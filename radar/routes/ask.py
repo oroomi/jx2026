@@ -9,11 +9,25 @@ from fastapi.responses import JSONResponse
 from radar import ask, store
 from radar.routes import api as api_routes
 from radar.routes.aava import _inputs
-from radar.routes.home import _has_route, templates
+from radar.routes.home import templates
 
 router = APIRouter()
 templates.env.globals["ask_examples"] = ask.examples
 api_routes.ENDPOINTS.append({"path": "/api/ask?q=&thesis=", "what": "the answer behind the home page's Ask Aava bar: {intent, say, url, action}, deterministic, no model"})
+
+def _paths(routes):
+    """Every route path of the app, through the routers that include_router wraps (FastAPI 0.14x keeps them as objects without a `path`)."""
+    for r in routes:
+        if getattr(r, "path", None):
+            yield r.path
+        inner = getattr(r, "original_router", None)
+        if inner is not None:
+            yield from _paths(inner.routes)
+
+
+def has_page(request: Request, path: str) -> bool:
+    return path in set(_paths(request.app.routes))
+
 
 # The pages the header's tab row used to list. The Menu sheet (header) and the footer both read this one list. A page whose route is not in
 # this build (Match, from the matchmaking branch) is listed only when the route exists, so no link ever points at a missing page.
@@ -22,8 +36,8 @@ SITE_PAGES = (("/", "New this quarter", "feed", False), ("/radar", None, "radar"
 
 
 def site_pages(request: Request, cur: dict) -> list[tuple[str, str, str]]:
-    has = _has_route(request)
-    return [(href, label or cur.get("cohort_label") or "Cohort radar", key) for href, label, key, optional in SITE_PAGES if not optional or has(href)]
+    paths = set(_paths(request.app.routes))
+    return [(href, label or cur.get("cohort_label") or "Cohort radar", key) for href, label, key, optional in SITE_PAGES if not optional or href in paths]
 
 
 templates.env.globals["site_pages"] = site_pages
@@ -33,7 +47,7 @@ templates.env.globals["site_pages"] = site_pages
 def ask_api(request: Request, q: str = Query("", max_length=400), thesis: str | None = None):
     th, conn = store.context(request)
     try:
-        out = ask.resolve(q, th, conn, inputs=_inputs, has_match=_has_route(request)("/match"), thesis_id=th["id"] if thesis else None)
+        out = ask.resolve(q, th, conn, inputs=_inputs, has_match=has_page(request, "/match"), thesis_id=th["id"] if thesis else None)
     finally:
         if conn is not None:
             conn.close()

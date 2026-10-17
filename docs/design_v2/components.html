@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en" data-theme="dark"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Direction C components</title>
+<link rel="stylesheet" href="../../radar/static/app.css">
+<link rel="stylesheet" href="../../radar/static/c_components.css">
+<style>
+/* demo page only, not shipped with the components */
+.c-demo-list{list-style:none;padding:0;margin:0}
+.c-demo-row{display:flex;gap:var(--s3);align-items:baseline;padding:var(--s2) 0;border-top:1px solid var(--hairline);font-size:var(--fs-small)}
+.c-demo-name{flex:1;color:var(--text)}
+.c-demo-row time{color:var(--muted)}
+.c-demo-pills{display:flex;flex-wrap:wrap;gap:var(--s2);list-style:none;padding:0;margin:0}
+.c-demo-block{border-top:1px solid var(--hairline);padding-top:var(--s4);margin-top:var(--s6)}
+.c-demo-note{color:var(--muted);font-size:var(--fs-small);margin:0 0 var(--s3);max-width:60ch}
+.c-demo-strip{display:flex;align-items:center;gap:var(--s3);padding:var(--s3) 0;border-top:1px solid var(--hairline)}
+.c-demo-strip .mark{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;flex:none;
+  border:1px solid var(--hairline);border-radius:var(--radius);font-weight:600;font-size:.8125rem;color:var(--muted)}
+.c-demo-strip .who{flex:1;min-width:0}
+.c-demo-strip .who b,.c-demo-strip .who span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.c-demo-strip .who b{font-weight:600}
+.c-demo-strip .who span{color:var(--muted);font-size:var(--fs-small)}
+</style>
+</head><body>
+<main class="wrap">
+<h1>Direction C components</h1>
+<p class="lede">The reusable pieces for the Trading 212 feel, rendered from
+<code>radar/templates/_c_components.html</code> and <code>_tabbar.html</code> with the real
+snapshot record for Viva Jets Oy (2962040-6). Server-rendered, no JavaScript on this page.</p>
+
+<section class="c-demo-block">
+<h2>1. Startup row with sparkline and verdict pill</h2>
+<p class="c-demo-note">The row as it appears in a list: initials mark, name, town or sector,
+the sparkline of its dated records, and the verdict pill on the right. Viva Jets has no
+computed verdict, so the pill shows its empty state.</p>
+<div class="c-demo-strip">
+  <span class="mark">VJ</span>
+  <span class="who"><b>Viva Jets Oy</b><span>Mikkeli, building of pleasure and sporting boats</span></span>
+  <svg class="c-spark" width="80" height="24" viewBox="0 0 80 24"
+     role="img" aria-label="4 public records, 2018-12-28 to 2024-01-01"><polyline points="2.0,17.0 2.1,12.0 32.5,7.0 78.0,2.0" fill="none" stroke="currentColor"
+            stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="78.0" cy="2.0" r="2.6" fill="currentColor"/></svg>
+  <span class="hatch">no verdict yet</span>
+</div>
+<div class="c-demo-strip">
+  <span class="mark">NA</span>
+  <span class="who"><b>A company with no public record</b><span>the empty state</span></span>
+  <span class="c-spark c-spark-none" role="img" aria-label="no public evidence yet"
+      style="width:80px;height:24px"></span>
+  <span class="hatch">no verdict yet</span>
+</div>
+</section>
+
+<section class="c-demo-block">
+<h2>2. Sparkline</h2>
+<p class="c-demo-note">80 by 24 px inline SVG, a dot on the newest record. There is no value
+axis in the data, so the line is the running count of public records, which is the only
+quantity the signals carry. With no records it renders hatched, never an empty box.</p>
+<p><svg class="c-spark" width="80" height="24" viewBox="0 0 80 24"
+     role="img" aria-label="4 public records, 2018-12-28 to 2024-01-01"><polyline points="2.0,17.0 2.1,12.0 32.5,7.0 78.0,2.0" fill="none" stroke="currentColor"
+            stroke-width="1.25" stroke-linejoin="round" stroke-linecap="round"/>
+  <circle cx="78.0" cy="2.0" r="2.6" fill="currentColor"/></svg> &nbsp; four records, 2018 to 2024 &nbsp;&nbsp; <svg class="c-spark" width="80" height="24" viewBox="0 0 80 24"
+     role="img" aria-label="1 public record, 2018-12-28 to 2018-12-28"><line x1="2" y1="12.0" x2="78" y2="12.0"
+        stroke="currentColor" stroke-width="1.25" opacity=".55"/>
+  <circle cx="78" cy="12.0" r="2.6" fill="currentColor"/></svg> &nbsp; one record
+&nbsp;&nbsp; <span class="c-spark c-spark-none" role="img" aria-label="no public evidence yet"
+      style="width:80px;height:24px"></span> &nbsp; none</p>
+</section>
+
+<section class="c-demo-block">
+<h2>3. Life-line with range chips</h2>
+<p class="c-demo-note">Dated records on a time axis. The 1Y, 3Y and MAX chips are radio inputs
+and sibling selectors, so the ranges work with CSS alone and MAX is what shows with no
+JavaScript and with no CSS. Viva Jets has no record in the last year, so that range says so
+rather than drawing an empty axis.</p>
+<div class="c-ll" role="group" aria-label="Public records over time"><input class="c-ll-radio" type="radio" name="ll-viva" id="ll-viva-1y"
+         ><input class="c-ll-radio" type="radio" name="ll-viva" id="ll-viva-3y"
+         ><input class="c-ll-radio" type="radio" name="ll-viva" id="ll-viva-max"
+         checked><div class="c-ll-chips"><label class="c-ll-chip" for="ll-viva-1y">1Y</label><label class="c-ll-chip" for="ll-viva-3y">3Y</label><label class="c-ll-chip" for="ll-viva-max">MAX</label></div><div class="c-ll-pane c-ll-1y">
+    <svg width="100%" viewBox="0 0 320 64"
+         role="img" aria-label="0 public records in this range">
+      <line x1="6" y1="44" x2="314" y2="44"
+            stroke="var(--hairline)" stroke-width="1"/></svg>
+    <p class="c-ll-note">no public record in this range</p>
+  </div><div class="c-ll-pane c-ll-3y">
+    <svg width="100%" viewBox="0 0 320 64"
+         role="img" aria-label="1 public record in this range">
+      <line x1="6" y1="44" x2="314" y2="44"
+            stroke="var(--hairline)" stroke-width="1"/><line x1="27.2" y1="14" x2="27.2" y2="44"
+              stroke="var(--hairline)" stroke-width="1"/>
+        <circle cx="27.2" cy="44" r="4"
+                fill="var(--accent)"
+                stroke="var(--accent)" stroke-width="1.5"/></svg>
+    <p class="c-ll-note">1 record, 2024-01-01 to 2024-01-01</p>
+  </div><div class="c-ll-pane c-ll-max">
+    <svg width="100%" viewBox="0 0 320 64"
+         role="img" aria-label="4 public records in this range">
+      <line x1="6" y1="44" x2="314" y2="44"
+            stroke="var(--hairline)" stroke-width="1"/><line x1="6.0" y1="14" x2="6.0" y2="44"
+              stroke="var(--hairline)" stroke-width="1"/>
+        <circle cx="6.0" cy="44" r="3"
+                fill="var(--bg)"
+                stroke="var(--accent)" stroke-width="1.5"/><line x1="6.4" y1="14" x2="6.4" y2="44"
+              stroke="var(--hairline)" stroke-width="1"/>
+        <circle cx="6.4" cy="44" r="3"
+                fill="var(--bg)"
+                stroke="var(--accent)" stroke-width="1.5"/><line x1="85.3" y1="14" x2="85.3" y2="44"
+              stroke="var(--hairline)" stroke-width="1"/>
+        <circle cx="85.3" cy="44" r="3"
+                fill="var(--bg)"
+                stroke="var(--accent)" stroke-width="1.5"/><line x1="203.7" y1="14" x2="203.7" y2="44"
+              stroke="var(--hairline)" stroke-width="1"/>
+        <circle cx="203.7" cy="44" r="4"
+                fill="var(--accent)"
+                stroke="var(--accent)" stroke-width="1.5"/></svg>
+    <p class="c-ll-note">4 records, 2018-12-28 to 2024-01-01</p>
+  </div></div>
+</section>
+
+<section class="c-demo-block">
+<h2>4. Verdict pill</h2>
+<p class="c-demo-note">The word carries the meaning and the colour only repeats it, because
+DESIGN.md does not let colour be the only signal. Green and red appear here and nowhere else
+in direction C. An unrecognised verdict reads neutral.</p>
+<ul class="c-demo-pills"><li><span class="c-pill c-pill-grey">Watchlist</span></li>
+<li><span class="c-pill c-pill-teal">Accelerator</span></li>
+<li><span class="c-pill c-pill-teal">Partner introduction</span></li>
+<li><span class="c-pill c-pill-green">Invest</span></li>
+<li><span class="c-pill c-pill-green">Due diligence</span></li>
+<li><span class="c-pill c-pill-red">Reject / low fit</span></li>
+<li><span class="hatch">no verdict yet</span></li></ul>
+</section>
+
+<section class="c-demo-block">
+<h2>5. Key statistics</h2>
+<p class="c-demo-note">Every value links to the record it came from. A value we do not hold
+renders as the hatched chip.</p>
+<section class="c-ks" aria-label="Key statistics, Viva Jets Oy">
+  <h2 class="c-ks-title">Key statistics, Viva Jets Oy</h2>
+  <dl class="c-ks-grid"><div class="c-ks-cell">
+      <dt>Business ID</dt>
+      <dd><a href="https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6">2962040-6</a></dd>
+    </div><div class="c-ks-cell">
+      <dt>Founded</dt>
+      <dd><a href="https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6">2018-12-28</a></dd>
+    </div><div class="c-ks-cell">
+      <dt>Register status</dt>
+      <dd><a href="https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6">active</a></dd>
+    </div><div class="c-ks-cell">
+      <dt>Line of business</dt>
+      <dd><a href="https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6">30120 Building of pleasure and sporting boats</a></dd>
+    </div><div class="c-ks-cell">
+      <dt>First public record</dt>
+      <dd><a href="https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6">2018-12-28</a></dd>
+    </div><div class="c-ks-cell">
+      <dt>Last signal</dt>
+      <dd><a href="https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html">2024 (year only)</a></dd>
+    </div></dl>
+</section>
+<section class="c-ks" aria-label="Empty state, shown on purpose">
+  <h2 class="c-ks-title">Empty state, shown on purpose</h2>
+  <dl class="c-ks-grid"><div class="c-ks-cell">
+      <dt>Technology readiness</dt>
+      <dd><span class="hatch">no public evidence yet</span></dd>
+    </div><div class="c-ks-cell">
+      <dt>Business readiness</dt>
+      <dd><span class="hatch">no public evidence yet</span></dd>
+    </div><div class="c-ks-cell">
+      <dt>Investment readiness</dt>
+      <dd><span class="hatch">no public evidence yet</span></dd>
+    </div><div class="c-ks-cell">
+      <dt>Ocean impact</dt>
+      <dd><span class="hatch">no public evidence yet</span></dd>
+    </div></dl>
+</section>
+<p class="c-demo-note" style="margin-top:var(--s3)">The four rows above are the empty state of
+the macro. This page does not call <code>radar/readiness.py</code>, so they are not Viva Jets'
+real levels and must not be read as such.</p>
+</section>
+
+<section class="c-demo-block">
+<h2>6. Dated records, newest first</h2>
+<p class="c-demo-note">The list the sparkline summarises, with its source links.</p>
+<ul class="c-demo-list"><li class="c-demo-row"><span class="c-demo-name">Register entry</span><time>2018-12-28</time><a href="https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2962040-6">source</a></li>
+<li class="c-demo-row"><span class="c-demo-name">Business Finland funding</span><time>2019-01-01</time><a href="https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html">source</a></li>
+<li class="c-demo-row"><span class="c-demo-name">Business Finland funding</span><time>2021-01-01</time><a href="https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html">source</a></li>
+<li class="c-demo-row"><span class="c-demo-name">Business Finland funding</span><time>2024-01-01</time><a href="https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html">source</a></li></ul>
+</section>
+
+<section class="c-demo-block">
+<h2>7. Bottom tab bar</h2>
+<p class="c-demo-note">Fixed to the bottom on a phone, 44 px targets, clear of the home
+indicator through the safe-area inset. Hidden from 640 px up, where the top nav is already on
+screen, so it is visible in this page only at phone width.</p>
+</section>
+</main>
+<nav class="c-tabbar" aria-label="Sections">
+  <ul><li>
+      <a href="/">
+        <svg class="c-tab-icon" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"
+             fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><circle cx="11" cy="11" r="3.5"/><path d="M11 3v3"/></svg>
+        <span>Radar</span>
+      </a>
+    </li><li>
+      <a href="/search">
+        <svg class="c-tab-icon" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"
+             fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="9.5" cy="9.5" r="6"/><path d="M14 14l5 5"/></svg>
+        <span>Search</span>
+      </a>
+    </li><li>
+      <a href="/lists" aria-current="page">
+        <svg class="c-tab-icon" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"
+             fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h14M4 11h14M4 16h9"/></svg>
+        <span>Lists</span>
+      </a>
+    </li><li>
+      <a href="/backtest">
+        <svg class="c-tab-icon" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"
+             fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18V9M9.5 18V4M15 18v-6M20 18h-17"/></svg>
+        <span>Backtest</span>
+      </a>
+    </li><li>
+      <a href="/data">
+        <svg class="c-tab-icon" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"
+             fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="12.5" y="3.5" width="6" height="6" rx="1"/>
+          <rect x="3.5" y="12.5" width="6" height="6" rx="1"/><rect x="12.5" y="12.5" width="6" height="6" rx="1"/></svg>
+        <span>Data</span>
+      </a>
+    </li></ul>
+</nav>
+</body></html>

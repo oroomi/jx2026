@@ -18,12 +18,11 @@ import time
 from datetime import date
 
 from radar.aava_entities import urls_in
-from radar import fit as fit_mod, home_filter, home_list, matchmaker, matchmaker_orgs as orgs_mod, matchtext, memo as memo_mod, store
+from radar import fit as fit_mod, home_config, home_filter, home_list, matchmaker, matchmaker_orgs as orgs_mod, matchtext, memo as memo_mod, store
 
 log = logging.getLogger("aava.tools")
 NONE = home_filter.NONE
 NO_RECORD = "no public record"
-_SRC_ALIASES = {"src": "source", "source": "src"}   # the rail's parameter is spelled src on some branches and source on others
 
 
 # ---- the turn's state ---------------------------------------------------------------------------------------------------------------------
@@ -97,8 +96,9 @@ def sanitize_view(raw: dict, ctx: ToolContext) -> dict:
     filters: dict[str, list[str]] = {}
     f = raw.get("filters")
     if isinstance(f, dict):
-        for p in home_filter.PARAMS:
-            vals = f.get(p) if p in f else f.get(_SRC_ALIASES.get(p, p))
+        old = {new: o for o, new in home_filter.ALIAS.items()}     # a parameter's old name is still read
+        for p in home_filter.params():
+            vals = f.get(p) if p in f else f.get(old.get(p, p))
             vals = [vals] if isinstance(vals, str) else (vals if isinstance(vals, list) else [])
             vals = [v.strip() for v in vals if isinstance(v, str) and v.strip() and len(v) <= home_filter.MAX_LEN][: home_filter.MAX_VALUES]
             if vals:
@@ -142,7 +142,7 @@ def _canon(param: str, value: str, ctx: ToolContext, present: dict[str, list[dic
     if param == "irl":
         return "known" if low in ("known", "on record", "yes", "evidenced") else v
     if param == "country":
-        by_name = {n.casefold(): c for c, n in home_list.COUNTRY_NAMES.items()}
+        by_name = {n.casefold(): c for c, n in home_config.country_names().items()}
         return by_name.get(low, v.upper() if len(v) == 2 else v)
     return v
 
@@ -156,10 +156,10 @@ def normalize_filters(raw, ctx: ToolContext) -> tuple[dict[str, list[str]], list
         return sel, notes
     present = _facet_options(ctx)
     for key, vals in raw.items():
-        param = key if key in home_filter.PARAMS else _SRC_ALIASES.get(key) if _SRC_ALIASES.get(key) in home_filter.PARAMS else None
-        if param is None:
+        param = home_filter.ALIAS.get(key, key)
+        if param not in home_filter.params():
             if key not in ("text", "subsector", "limit", "group"):
-                notes.append(f"'{key}' is not a filter; the filters are {', '.join(home_filter.PARAMS)}")
+                notes.append(f"'{key}' is not a filter; the filters are {', '.join(home_filter.params())}")
             continue
         vals = [vals] if not isinstance(vals, (list, tuple)) else list(vals)
         out = []
@@ -201,7 +201,7 @@ def row_summary(r: dict) -> dict:
 def _text_hit(r: dict, text: str) -> bool:
     t = text.casefold()
     hay = " ".join(str(x or "") for x in (r.get("name"), r.get("sector"), (r.get("ocean") or {}).get("area"),
-                                         home_list.COUNTRY_NAMES.get(r.get("country") or "", r.get("country")), r.get("company_key"))).casefold()
+                                         home_config.country_name(r.get("country") or "") if r.get("country") else "", r.get("company_key"))).casefold()
     return all(w in hay for w in t.split())
 
 
@@ -211,7 +211,7 @@ def search_startups(ctx: ToolContext, a: dict) -> dict:
     rows = ctx.rows()
     if not rows:
         return {"error": "the home list is not available right now (it is still being prepared); try again in a moment, or use get_startup with a company_key"}
-    sel, notes = normalize_filters({k: a[k] for k in home_filter.PARAMS if k in a} | {k: a[k] for k in ("src", "source") if k in a}, ctx)
+    sel, notes = normalize_filters({k: v for k, v in a.items() if k not in ("text", "subsector", "limit")}, ctx)
     hits = home_filter.apply(rows, sel)
     sub, text = str(a.get("subsector") or "").strip().casefold(), str(a.get("text") or "").strip()
     if sub:
@@ -420,13 +420,18 @@ def get_current_view(ctx: ToolContext, a: dict) -> dict:
 def apply_filters(ctx: ToolContext, a: dict) -> dict:
     raw = a.get("filters") if isinstance(a.get("filters"), dict) else {}
     sel, notes = normalize_filters(raw, ctx)
-    group = a.get("group") if isinstance(a.get("group"), str) else ""
+    group = a.get("group").strip() if isinstance(a.get("group"), str) else ""
+    if group.startswith("cc-"):        # an old country tab is the country filter now
+        sel["country"] = list(dict.fromkeys([*sel.get("country", []), group[3:].upper()]))
+        group = ""
     H = ctx.home()
-    groups = {g[0]: g for g in (H.get("groups") or []) + (H.get("countries") or [])}
-    base = groups[group][2] if group in groups else ctx.rows()
-    if group and group not in groups:
+    groups = {g[0]: g for g in (H.get("groups") or [])}
+    if group in ("", "all"):
+        group = ""
+    elif group not in groups:
         notes.append(f"group '{group}' does not exist; groups: {', '.join(groups)}")
         group = ""
+    base = groups[group][2] if group else ctx.rows()
     remain = len(home_filter.apply(base, sel))
     action = {"type": "apply_filters", "filters": sel, "group": group, "matches": remain}
     ctx.actions.append(action)
@@ -498,7 +503,7 @@ TOOLS: list[dict] = [
      "description": ("Change the home page's filters for the person (the page updates in place). Same values as search_startups. The server does not run it; it checks the values, "
                      "tells you how many rows will remain, and the browser applies it. An empty filters object clears every filter. Use it when they ask to show, filter, narrow or clear the list."),
      "input_schema": {"type": "object", "properties": {"filters": {"type": "object", "properties": _FILTERS, "description": "The complete filter state to show (it replaces the current one)."},
-                                                       "group": {"type": "string", "description": "Optional group tab: all, fit, ready, new, or a country tab such as cc-FI."}},
+                                                       "group": {"type": "string", "description": "Optional group tab: all, fit (Top fits), ready (Investor-ready) or new (New this quarter). Countries are the country filter."}},
                       "required": ["filters"]}},
     {"name": "suggest_followups",
      "description": "Show the person 2 or 3 short follow-up questions as buttons. Call it once, last, after your answer is complete.",

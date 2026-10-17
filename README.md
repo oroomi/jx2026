@@ -1,5 +1,7 @@
 # Ocean Opportunity Radar: decision-ready venture intelligence for the European Tech Renaissance (Redstone x A'Pelago)
 
+Every rule and dated decision behind these numbers: [ASSUMPTIONS.md](ASSUMPTIONS.md).
+
 Ocean Opportunity Radar finds young blue-economy companies in public records before they reach a fund's or an accelerator's
 pipeline, and answers the partners' four questions about each one with a source link under every fact.
 Built at JunctionX Turku 2026 for the Redstone x A'Pelago challenge by team Old Hackers.

@@ -64,7 +64,7 @@ so the pages, the API and the tests call the same code. The module map with a co
 | `emit.py` | The only code that writes companies and signals | One event shape means the feed, the company page, the backtest and the API read one table. The confidence rule lives in one place. The stored date is the event date, never the fetch date, and a missing value stays NULL | `radar/emit.py`, `radar/schema/001_core.sql` |
 | SQLite per thesis | One database file per thesis file | A sector swap is one environment variable (`RADAR_THESIS`) or one `?thesis=` parameter, and the two stores never mix. A file can be copied, checked with `PRAGMA quick_check` and swapped with `os.replace`, which is how the refresh works. No database server to run; a judge can open the file | `radar/db.py`, `radar/thesis.py` (`db_path`), `radar/schema/*.sql` |
 | Numbered schema files | A new table goes in a new numbered file | Parallel branches add tables without touching each other's files | `radar/schema/005` to `040` |
-| Read side and rules | Pure functions over a connection and the thesis | No web code inside, so each one imports and tests alone, and the pages and the API cannot disagree | `radar/store.py`, `fit.py`, `frameworks.py`, `earliness.py`, `intake.py`, `matching.py`, `memo.py`, `lifeline.py` |
+| Read side and rules | Pure functions over a connection and the thesis | No web code inside, so each one imports and tests alone, and the pages and the API cannot disagree | `radar/store.py`, `fit.py`, `frameworks.py`, `earliness.py`, `intake.py`, `matching.py`, `memo.py`, `lifeline.py`, `home_list.py` (the home page's list and tabs) |
 | Fund memo | One decision per company from the team's decision table | The table is data in the thesis file, so the partners can change it without code. Rules only, no LLM, so it runs with no API key. A level with no public evidence is "unknown", never Low | `radar/memo.py`, `memo:` in `config/thesis.yaml` |
 | The stitcher | Finds dated events on the public web | An LLM is good at finding pages and bad at quoting and dating them faithfully. So the LLM only proposes; code fetches each page itself and keeps an event only when the page names the company and prints the date, then fetches it again and checks the quote, the name next to it and the event words. The Internet Archive's first capture of the URL is stored as `public_since`, the earliest day anyone could have read it, and that is the date the backtest uses. Its events are counted apart from the four backtest groups | `radar/adapters/stitcher.py`, `radar/schema/040_stitch_log.sql`, [METHOD.md](METHOD.md) |
 | Web pages | FastAPI routes render Jinja2 templates; htmx swaps the feed rows when a filter is picked | Server-rendered honesty: what the page says is what the database returned, and every source link is in the HTML. No client build step and no JavaScript framework. htmx is vendored and the fonts are self-hosted, so a page makes no third-party request | `app.py`, `radar/routes/*.py`, `radar/templates/`, `radar/static/` |
@@ -115,15 +115,21 @@ each value beside the `source_url` of the row it came from, and counts are compu
   company page), so a judge can check a row by hand.
 - The stitcher keeps an LLM's proposal only after two code checks against the page it cites, and logs every drop with its reason.
 - Partner organisations and capital sources are never shown as discovered startups (71 names on 17 Oct, listed on `/method`).
-- Tests: `python3 -m pytest -q` (397 passed on 17 Oct, 29 s) and CI on every push (`.github/workflows/ci.yml`). The deployed site:
+- Tests: `python3 -m pytest -q` (590 passed on 17 Oct, 304 s on a busy host) and CI on every push (`.github/workflows/ci.yml`). The deployed site:
   `/root/hack/bin/smoke.py https://jx.hankintaviikko.fi` loads 13 pages with no error (PASS 13/13 on 17 Oct).
 
 ## What breaks first at scale
 
 Request-time computation. Every page computes the feed rule and the intake tier from the whole store on each request; nothing is
-precomputed. Today `/api/feed` answers in 0.34 to 0.39 s over the public URL with 17,195 companies in the store. The wide intake run on a store copy added 15,584 companies and 41,220 signals, and before it was
+precomputed. Today `/api/feed` answers in 0.47 to 0.63 s over the public URL (10 requests on 17 Oct, 09:58 UTC, with the host under heavy load) with 17,193 companies in the store. The wide intake run on a store copy added 15,584 companies and 41,220 signals, and before it was
 rewritten into one pass the intake tier took 10 s per request on 4,600 intake companies (now under 1 s). Adding the Nordic registers
 multiplies the store again. The fix is to compute the feed, the tiers and the backtest once per refresh into tables and serve those.
+
+The one cached exception is the home list (`radar/home_list.py`, the editorial home): it builds a fund memo for every row (about
+0.1 s each, per its docstring), so it is kept in memory per thesis and per store file and is warmed for the default thesis when the
+app starts. A thesis that nobody has opened since a restart builds its list on its first request, which is why the first load of
+`/?thesis=baltic_blue` can take 30 seconds (independent dry run, 17 Oct) and why DEMO_SCRIPT.md has a "before going live"
+checklist that opens every page once.
 
 The second limit is freshness: the network adapters read at one request every 2 seconds, and the refresh button re-reads only the
 register notices and recent registrations and is switched off on this deployment.
@@ -134,6 +140,6 @@ register notices and recent registrations and is switched off on this deployment
   have no Finnish business ID, and 8 of those 12 are Danish, Swedish or Norwegian.
 - Precompute the feed, the intake tiers and the backtest at refresh time, and run the existing copy, check and swap refresh on a
   schedule.
-- Count a keyword in a legal name as corroborated only when the second record comes from a different source family (0 of the 36
+- Count a keyword in a legal name as corroborated only when the second record comes from a different source family (0 of the 30
   main-list companies carry the corroborated-name reason today), and move the sector words still in
   code into the thesis file.

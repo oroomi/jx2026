@@ -21,8 +21,11 @@ applicants for the Nordic Blue accelerator.
 **What it does.** It reads Finnish and EU public records (trade register, tax registers, register notices, public contracts,
 EU projects, Business Finland funding), keeps one dated event per record with its link, and shows three screens:
 
-1. **New this quarter** (`/`): companies whose earliest public record falls in the last 90 days, newest first. Each row says what
-   was found, when, why it fits the sector, how sure we are, and links to the record.
+1. **The home page** (`/`): one list of companies, each row showing the name, the registered line of business, a life-line of
+   dated public records and the memo's verdict, in three tabs (All startups, Top fits, New this quarter) under a headline count of
+   companies that surfaced in the last 90 days. Every row opens its company page; the folded section "All public records in the
+   window, weak matches and the rules" lists each record with what was found, when, why it fits the sector, how sure we are and
+   the link to the record.
 2. **The company page** (`/c/{company key}`, the business ID for a Finnish company): a memo for the fund (one decision from the team's decision table), then the four
    questions in the partners' order: 01 Who is most promising, 02 How ready are they, 03 Who comes next, 04 What should happen next.
    Every level prints its rule and its evidence.
@@ -34,6 +37,11 @@ companies before January 2026. With declared research added, 12 of 19 have a cou
 signal before that date. The reason the number is low is the finding: of the 7 cohort companies
 with a Finnish business ID, none is registered under an industry code on the sector list. They are registered as software,
 retail, wholesale, consulting, R&D and freshwater aquaculture. Method and every caveat: [EVAL.md](EVAL.md).
+The wide intake (it takes startup-shaped companies in before any sector test) held 4 of those 7 before January 2026: Kilocode,
+Sireness, Arctic Fry and Emission-Eye. That is less than it sounds: Kilocode's intake date is a 2003 VAT registration, Kilocode and
+Arctic Fry are there only because we added their code families after seeing them (in-sample, labelled on `/backtest`), Sireness
+enters on a declared-research record rather than a public one, and Emission-Eye, on a public start-up notice, ranks 132 of 1,176
+among the 2025 registrations in its code family. The four, with their dates and ranks, are in [EVAL.md](EVAL.md), "Wide intake".
 Corroboration rule (17 Oct): a sector word in a legal name is backed only by a record from a different source family, and PRH register
 entries, PRH notices and PRH tax registers count as one registry; with that rule the live store shows 0 of 19 (the one hit was the word
 "marin" plus a PRH tax-register record).
@@ -42,10 +50,22 @@ name word) and there is no impact evidence, the memo reads impact as Medium, imp
 
 ## The demo path (what to click)
 
-1. Open <https://jx.hankintaviikko.fi>. The feed lists 122 companies in the 90-day window, 30 main matches and 92 weak matches
-   kept in a closed list. Every row names its source (for example PRH/YTJ tax registers or the
-   PRH notices API), links to the record and carries a "How sure" line.
-2. Type `Arctic Fry` in **Find a startup**. It opens <https://jx.hankintaviikko.fi/c/3166759-6>, Arctic Fry Oy, a Nordic Blue
+1. Open <https://jx.hankintaviikko.fi>. The editorial home carries three different counts, so read the label beside each number
+   (window 2026-07-19 to 2026-10-17, 90 days; the numbers below are the ones on the page and in `/api/feed` on 17 Oct 2026, and
+   they move as the store is refreshed):
+   - **Headline, "22 companies surfaced":** companies whose first public record falls inside the window. All 22 are among the 30
+     strong-tier companies; none of the declared cohort or portfolio companies has its first record in the window.
+   - **Tabs, "All startups 58", "Top fits 31", "New this quarter 22":** the home list. 58 is the 30 strong-tier companies (found with a
+     stated reason: industry code, line of business, the source's own text or a corroborated name) plus the 28 declared cohort and
+     portfolio companies (19 + 9). Top fits 31 are those whose memo verdict is Invest, Due diligence or Accelerator, or whose thesis
+     fit is High. New this quarter 22 is the headline's 22.
+   - **Folded section "All public records in the window, weak matches and the rules":** the full feed window list, 122 companies
+     (279 signals) on their first counted signal in the window: 30 strong (the same 30) and 92 weak. The weak ones stay in a closed
+     list because the stored record gives no sector reason the rule accepts ([PROJECT_RULES.md](PROJECT_RULES.md), A5). Here every
+     row names its source (for example PRH/YTJ tax registers or the PRH notices API), links to the record and carries a "How sure"
+     line.
+2. Press `/` (it opens the folded section and focuses **Find a startup**) and type `Arctic Fry`, or click Arctic Fry Oy in the
+   list. It opens <https://jx.hankintaviikko.fi/c/3166759-6>, Arctic Fry Oy, a Nordic Blue
    2026 cohort company. The memo reads WATCHLIST, because Ocean impact Medium, Business readiness Low, Investment readiness
    unknown and Thesis fit Medium, and it names the evidence still missing. The life-line shows its first public trace:
    first sales on 2020-10-05 (VAT register), first hire on 2025-04-01 (employer register).
@@ -62,16 +82,20 @@ name word) and there is no impact evidence, the memo reads impact as Medium, imp
 6. Click **Earliness test** (`/backtest`): the four groups (found earlier by live public records, found earlier only by declared
    research, found later, no public signal), the chart of first signal against the reference date, the rule in full, the wide
    intake table, and the AI stitcher line, which is counted apart and never added to the groups.
-7. Swap the sector: <https://jx.hankintaviikko.fi/?thesis=health_tech_turku>. Same code, a different thesis file: the heading
-   reads "Early signals of health-tech startups" and the list has 30 companies, 1 main and 29 weak.
-   A third file, `baltic_blue`, widens the blue-economy thesis to the Baltic Sea countries.
-8. Click **Data** (`/data`): every source, company and dated record in the database (17,193 companies and 47,691 dated records), each with its link.
+7. Swap the sector: <https://jx.hankintaviikko.fi/?thesis=health_tech_turku>. Same code, a different thesis file, and a thin demo.
+   Read the measure beside each number: the headline says "1 company surfaced" (the headline measure, first public record inside the
+   window) and the home list holds that 1 company, KE Pharma Oy, registered under retail sale of medical and orthopaedic goods. The
+   folded "All public records in the window" section lists 30 companies, 1 strong and 29 weak, and many of the weak ones are not
+   health companies (for example two "auto care" firms matched on the word "care"). It shows that the sector swap works; it is not an
+   evaluated health thesis.
+   A third file, `baltic_blue`, widens the blue-economy thesis to the Baltic Sea countries; it is not part of the demo path.
+8. Click **Data** (`/data`): every source, company and dated record in the database (17,193 companies and 47,693 dated records), each with its link.
 
 Data page: /data shows every source, company and dated record in the database; the Refresh button re-reads the register notices on a copy and swaps it in only if it checks out. The button is switched off unless the service environment sets `REFRESH_ENABLED=1`.
 
 The same data is served as read-only JSON at <https://jx.hankintaviikko.fi/api> (company search, company, feed, backtest).
 
-Ask Aava (demo flag `?demo=1`) narrates a page from its own records; the voice is pre-rendered MP3 (ElevenLabs text-to-speech, default voice `21m00Tcm4TlvDq8ikWAM`, rendered once with `python3 -m radar.aava_voice render --keys 2962040-6,3166759-6 --feed`, set `ELEVENLABS_API_KEY`, optional `ELEVENLABS_VOICE_ID`), so the demo plays files with no network call and no key at runtime, and falls back to the browser voice when a clip is missing or the text has changed.
+Ask Aava (demo flag `?demo=1`, remembered on that device; `?demo=0` turns it off) narrates a page from its own records. Only two things have a recorded voice: the Viva Jets Oy company page (40 clips) and the home feed reader (5 clips), 45 MP3 files and 6,913 characters in `radar/static/aava/audio/`, rendered once with ElevenLabs text-to-speech (model `eleven_multilingual_v2`, premade voice Lily, voice id `pFZP5JQG7iQjIQuC4Bku`; the code's default voice is `21m00Tcm4TlvDq8ikWAM`, so the render sets `ELEVENLABS_VOICE_ID`). Every other page, Arctic Fry Oy included, has no recording and is read by the browser's own voice; the player also falls back to the browser voice when a clip is missing or the page text has changed. The recorded pages play files with no network call and no key at runtime. To render again: `ELEVENLABS_API_KEY=... ELEVENLABS_VOICE_ID=pFZP5JQG7iQjIQuC4Bku python3 -m radar.aava_voice render --keys 2962040-6 --feed`.
 
 ## Run it in 3 commands
 
@@ -87,12 +111,12 @@ python3 -m uvicorn app:app --port 8130     # open http://127.0.0.1:8130
 adapters read public APIs at one request every 2 seconds and cache what they read under `data/cache/`, so the first full build is
 slow (the wide intake pass alone made 616 requests in its run on a store copy). Two quicker ways, both checked in a fresh clone on 17 Oct:
 
-- Offline, in about 3 seconds: `python3 -m radar.build --adapters declared,businessfinland,ecosystem` loads the 28 declared
+- Offline, in under 10 seconds (8.4 s on 17 Oct, on a busy host): `python3 -m radar.build --adapters declared,businessfinland,ecosystem` loads the 28 declared
   companies, the Business Finland export and the declared ecosystem dataset (147 signals), and every page renders.
 - The committed snapshot of 16 Oct, about 21:40 UTC: `RADAR_DATA_DIR=data/snapshot python3 -m uvicorn app:app --port 8130`. Its
   numbers are older than the live site's.
 
-Second thesis: `python3 -m radar.build --thesis config/thesis_health_turku.yaml`. Tests: `python3 -m pytest -q` (397 passed on 17 Oct).
+Second thesis: `python3 -m radar.build --thesis config/thesis_health_turku.yaml`. Tests: `python3 -m pytest -q` (590 passed on 17 Oct, in 304 s on a busy host).
 
 Combined database (team only): `python3 -m radar.combined --thesis redstone_apelago_blue` writes `data/combined/redstone_apelago_blue_combined.sqlite`, the declared ecosystem file unchanged plus the radar's public-record tables (`radar_*`) and the view `v_entity_public_record`; it carries the dataset's `person` table, so it is not for publication.
 

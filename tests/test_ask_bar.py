@@ -64,6 +64,15 @@ def test_what_is_new_is_the_feed_answer(client):
         assert all(i["url"].startswith("/c/") for i in d["items"])
 
 
+def test_the_high_thesis_fit_example_chip_sets_the_fit_filter(client):
+    """Judge-fix: the home chip "Show high thesis fit companies in Finland" must read "high thesis fit" as the fit filter, not drop the words."""
+    d = _ask(client, "Show high thesis fit companies in Finland")
+    assert d["intent"] == "filter" and d["filters"] == {"fit": ["High"], "country": ["FI"]}
+    assert "did not use" not in d["say"]
+    d = _ask(client, "portfolio support companies")
+    assert d["filters"] == {"verdict": ["PORTFOLIO SUPPORT"]}
+
+
 def test_verdict_and_country_words_become_the_filter_rail_querystring_with_a_count(client):
     d = _ask(client, "watchlist companies in Finland")   # D65: no company reads ACCELERATOR in the snapshot now
     assert d["intent"] == "filter" and d["action"] == "filter"

@@ -611,7 +611,8 @@ ask:
     - {words: [partner introduction, partner introductions], set: {verdict: PARTNER INTRODUCTION}, say: "partner introduction candidates"}
     - {words: [low fit, rejected, reject], set: {verdict: "REJECT / LOW FIT"}, say: "rejected or low fit"}
     - {words: [high impact, impact high], set: {impact: High}, say: "high ocean impact"}
-    - {words: [high fit, top fit, top fits, thesis fit high, strong fit], set: {fit: High}, say: "high thesis fit"}
+    - {words: [high thesis fit, high fit, top fit, top fits, thesis fit high, strong fit], set: {fit: High}, say: "high thesis fit"}
+    - {words: [portfolio support], set: {verdict: PORTFOLIO SUPPORT}, say: "portfolio support (declared cohort or portfolio)"}
     - {words: [new this quarter, first seen lately], set: {group: new}, say: "new this quarter"}
   countries:                      # code -> the words that name it; the names the home list prints are always understood too
     FI: [finland, finnish]

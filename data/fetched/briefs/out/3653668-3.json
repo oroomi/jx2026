@@ -1,0 +1,33 @@
+{
+ "company_key": "3653668-3",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Havukko Oy is a newly registered company, entered in the register on 2026-09-08 under the industry code 62100, computer programming activities.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3653668-3",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3653668-3"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-09-08, and a start-up notification and a board change were registered on 2026-10-13.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3653668-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3653668-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3653668-3"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file, and nothing in the record shows a fit with the thesis.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3653668-3"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case, and thesis fit is one of the things still unknown.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3653668-3"
+   ]
+  }
+ ]
+}

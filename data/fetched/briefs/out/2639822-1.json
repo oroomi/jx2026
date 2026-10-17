@@ -1,0 +1,42 @@
+{
+ "company_key": "2639822-1",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "ICEYE Oy is a company registered on 2014-09-04 under the industry code 71121, engineering design and technical consultancy, and the record does not say what it makes.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2639822-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2639822-1"
+   ]
+  },
+  {
+   "text": "It has the longest funding trail of the feed companies: nine Business Finland decisions between 2015 and 2026, the largest listed at EUR 41 067 720 for 2025, and each given by year only.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "The register shows ten share issues, the latest on 2026-10-07, and an EU project record dated 2025-10-01 at low confidence with EUR 178 806.25 attached.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2639822-1",
+    "https://cordis.europa.eu/project/id/101225981"
+   ]
+  },
+  {
+   "text": "On the radar's rules technology, business and investment readiness are all level 4.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "For the fund the memo says watchlist because no decision row matches, and this company is already large in funding terms, so the open question is fit with the thesis rather than evidence of activity.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  }
+ ]
+}

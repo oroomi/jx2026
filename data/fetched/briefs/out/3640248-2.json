@@ -1,0 +1,33 @@
+{
+ "company_key": "3640248-2",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Barone sanitation Oy is a company registered on 2026-07-19 under the industry code 37000, sewerage.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640248-2",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640248-2"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were registered on 2026-07-20, and first sales are recorded on 2026-08-01.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3640248-2",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3640248-2",
+    "https://tietopalvelu.ytj.fi/yritys/3640248-2"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640248-2"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is sewerage, which is on the thesis list, but no public record yet shows technology or growth.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640248-2"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "company_key": "3641969-8",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "MittaTopi Oy is a company registered on 2026-07-28 under the industry code 71121, engineering design and technical consultancy.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641969-8",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641969-8"
+   ]
+  },
+  {
+   "text": "First sales, a start-up notification and a board change are all dated 2026-07-28.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3641969-8",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3641969-8",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3641969-8"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641969-8"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the record shows a consultancy and nothing about an ocean use.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641969-8"
+   ]
+  }
+ ]
+}

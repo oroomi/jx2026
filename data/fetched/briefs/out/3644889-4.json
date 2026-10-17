@@ -1,0 +1,33 @@
+{
+ "company_key": "3644889-4",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Otter Marine Operations Oy is a company registered on 2026-08-07 under the industry code 52229, other service activities incidental to water transportation.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-08-07, and a start-up notification and a board change were registered on 2026-08-12.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3644889-4",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3644889-4",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3644889-4"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is a water transport service on the thesis list, but no public record yet shows technology or growth.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4"
+   ]
+  }
+ ]
+}

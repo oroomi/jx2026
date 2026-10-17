@@ -1,0 +1,33 @@
+{
+ "company_key": "3641919-6",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Aalto Kirurgia Oy is a company registered on 2026-07-28 under the industry code 86220, medical specialists activities.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641919-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641919-6"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were registered on 2026-07-28, and first sales are recorded on 2026-08-05.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3641919-6",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3641919-6",
+    "https://tietopalvelu.ytj.fi/yritys/3641919-6"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641919-6"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name has a word that can mean waves in Finnish, but the registered industry is medical practice and the record shows no ocean use.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641919-6"
+   ]
+  }
+ ]
+}

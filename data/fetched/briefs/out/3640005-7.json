@@ -1,0 +1,34 @@
+{
+ "company_key": "3640005-7",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Iconic-Team Oy is a company registered on 2026-07-17 under the industry code 30110, building of civilian ships and floating structures.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640005-7",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640005-7"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were registered on 2026-07-17, and a first hire and first sales are recorded on 2026-08-01.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3640005-7",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3640005-7",
+    "https://tietopalvelu.ytj.fi/yritys/3640005-7",
+    "https://tietopalvelu.ytj.fi/yritys/3640005-7"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640005-7"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is on the thesis list, but no public record yet shows technology or growth.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640005-7"
+   ]
+  }
+ ]
+}

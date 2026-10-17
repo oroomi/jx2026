@@ -1,0 +1,33 @@
+{
+ "company_key": "3642605-4",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Cold Water Club Oy is a company registered on 2026-07-31 under the industry code 93290, amusement and recreation activities.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642605-4",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642605-4"
+   ]
+  },
+  {
+   "text": "First sales, a start-up notification and a board change are all dated 2026-07-31.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3642605-4",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3642605-4",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3642605-4"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642605-4"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name has a water word but the registered industry is recreation and the record shows no ocean technology.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642605-4"
+   ]
+  }
+ ]
+}

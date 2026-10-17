@@ -1,0 +1,33 @@
+{
+ "company_key": "3640856-9",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Kåhlman Marine Oy is a company registered on 2026-07-22 under the industry code 33150, repair and maintenance of civilian ships and boats.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640856-9",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640856-9"
+   ]
+  },
+  {
+   "text": "First sales, a start-up notification and a board change are all dated 2026-07-22.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3640856-9",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3640856-9",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3640856-9"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640856-9"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is on the thesis list, but no public record yet shows technology or growth.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640856-9"
+   ]
+  }
+ ]
+}

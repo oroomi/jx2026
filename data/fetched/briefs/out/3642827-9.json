@@ -1,0 +1,33 @@
+{
+ "company_key": "3642827-9",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Venetek marine Oy is a company registered on 2026-08-01 under the industry code 47631, retail sale of boats and boating accessories.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642827-9",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642827-9"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-08-01, and a start-up notification and a board change were registered on 2026-08-03.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3642827-9",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3642827-9",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3642827-9"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642827-9"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is boat retail, which is trade rather than technology, and no other record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642827-9"
+   ]
+  }
+ ]
+}

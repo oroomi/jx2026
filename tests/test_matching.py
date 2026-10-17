@@ -1,3 +1,5 @@
+import re
+
 import pytest
 
 from radar import emit, matching, store, thesis
@@ -37,7 +39,7 @@ def test_lists_are_ranked_by_score_and_carry_the_reason_and_a_link(world):
     assert [r["name"] for r in n["investors"]] == ["Fixture Angels", "Fixture Capital"]
     assert [r["rank"] for r in n["investors"]] == [1, 2]
     reason = n["investors"][1]["reason"]  # the dataset's reason string, as one plain sentence
-    assert reason.startswith("Shares C1") and "shared keywords x" in reason and "stage fits" in reason and "[" not in reason
+    assert reason.startswith("Shares Maritime autonomy") and not re.search(r"\bC\d+\b", reason) and "shared keywords x" in reason and "stage fits" in reason and "[" not in reason
     assert n["investors"][1]["facts"] == "investors.csv: stage seed, ticket EUR 100000 to 500000"
     assert all(r["source_url"].startswith("https://") for k in n for r in n[k])
     assert n["investors"][0]["confidence"] == "low"       # the weaker of the two entities' dataset words (angel low, startup medium)

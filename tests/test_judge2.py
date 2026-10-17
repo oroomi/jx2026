@@ -414,3 +414,9 @@ def test_a_failed_build_gives_the_plain_feed_without_a_note_and_is_tried_again(w
     assert hl.for_template(th) is None
     _wait_idle(hl)
     assert hl.for_template(th) is None and len(calls) == 2
+
+
+def test_partner_organisations_are_still_found_by_the_folded_name_lists():
+    from radar import store
+    assert store.is_partner_org("A'Pelago Accelerator Oy") and store.is_partner_org("Redstone Blue Oy")
+    assert store.is_partner_org("Voima Ventures") and not store.is_partner_org("Viva Jets Oy")

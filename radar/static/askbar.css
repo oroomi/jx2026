@@ -25,12 +25,6 @@
 :root[data-skin="terminal"] .navmenu-sheet a { font-family: var(--mono); font-size: 14px; }
 :root[data-skin="product"] .navmenu > summary, :root[data-skin="product"] .navmenu-sheet { border-radius: 12px; }
 
-/* the sector line: one quiet line, cut with an ellipsis, the change link at its end */
-.thesis-bar .sector > summary { display: flex; align-items: center; gap: 12px; min-height: var(--tap, 44px); padding: 0; }
-.thesis-bar .thesis-now { flex: 1 1 auto; min-width: 0; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; color: var(--muted); }
-.thesis-bar .thesis-now strong { font-weight: 400; color: var(--muted); }
-:root[data-skin] .thesis-bar .sector-change { flex: none; margin: 0; white-space: nowrap; font-size: 13px; font-weight: 400; color: var(--muted); text-decoration-color: var(--hairline); }
-.thesis-bar .sector > summary:hover .sector-change { color: var(--text); }
 
 /* phones: the nameplate, a theme switch kept to an icon, and Menu all fit on one line */
 @media (max-width: 639px) {

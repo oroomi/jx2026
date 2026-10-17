@@ -113,7 +113,8 @@ def test_nav_has_radar_entry(client):
     t = client.get("/").text
     assert 'href="/method"' in t
     assert 'href="/radar"' in t
-    assert "<select" in t and 'name="thesis"' in t
+    assert "thesis-select" not in t and "<select" not in t           # no header switcher (D33): the sector is a filter group on the home list ...
+    assert 'aria-label="Sector"' in t and f'href="/?thesis={HEALTH_ID}"' in t   # ... and plain links when there is no list to filter yet
 
 
 def test_missing_db_gives_empty_state(tmp_path, monkeypatch):

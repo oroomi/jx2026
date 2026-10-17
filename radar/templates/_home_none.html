@@ -1,0 +1,4 @@
+{# GET /home/list when the sector has no list yet (no store, or the list is still being built): the section keeps its address and says so. #}
+<div id="hc-list" class="hc-list" data-thesis="{{ thesis.id }}" hx-target="#hc-list" hx-swap="outerHTML">
+  <p class="hc-empty" role="status">{% if H and H.warming %}The grouped view of this sector is still being prepared. Try again in a minute.{% else %}No list is available for this sector yet.{% endif %}</p>
+</div>

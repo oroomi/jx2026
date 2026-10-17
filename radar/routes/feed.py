@@ -7,14 +7,13 @@ from urllib.parse import quote
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 
-from radar import labels
+from radar import home_config, labels
 from radar import intake as intake_mod, store, thesis as thesis_mod
 from radar.routes.home import _has_route, templates
 
 router = APIRouter()
 
 ROW_LIMIT = 500
-COUNTRY_NAMES = {"FI": "Finland", "SE": "Sweden", "NO": "Norway", "DK": "Denmark", "EE": "Estonia", "IS": "Iceland"}
 _CONF_ORDER = {"high": 0, "medium": 1, "low": 2}
 _BASIS = {"industry_code": "industry code", "line_of_business": "registered line of business",
           "own_text": "the source text", "corroborated_keyword": "company name plus a second source"}
@@ -86,6 +85,6 @@ def search(request: Request, q: str = ""):
     ctx["q"] = q.strip()
     ctx["matches"] = hits
     ctx["searching"] = True
-    ctx["countries"] = ", ".join(COUNTRY_NAMES.get(c, c) for c in th["geography"].get("countries", [])) or "the active sector's countries"
+    ctx["countries"] = ", ".join(home_config.country_name(c) for c in th["geography"].get("countries", [])) or "the active sector's countries"
     ctx["other_sectors"] = [(tid, thesis_mod.load(path)) for tid, path in thesis_mod.available().items() if tid != th["id"]]
     return templates.TemplateResponse(request, "feed.html", ctx)

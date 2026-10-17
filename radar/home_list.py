@@ -23,13 +23,11 @@ import os
 import threading
 from datetime import date, timedelta
 
-from radar import matching, memo, store
+from radar import home_config, matching, memo, store
 
 TOP_VERDICTS = ("INVEST", "DUE DILIGENCE", "ACCELERATOR")
 VERDICT_ORDER = ("INVEST", "DUE DILIGENCE", "ACCELERATOR", "PARTNER INTRODUCTION", "GRANT SUPPORT", "WATCHLIST")
 FIT_ORDER = ("High", "Medium", "Low")
-COUNTRY_NAMES = {"FI": "Finland", "SE": "Sweden", "NO": "Norway", "DK": "Denmark", "EE": "Estonia", "IS": "Iceland",
-                 "DE": "Germany", "PL": "Poland", "LV": "Latvia", "LT": "Lithuania", "ES": "Spain", "BG": "Bulgaria", "CH": "Switzerland"}
 
 log = logging.getLogger(__name__)
 WAIT_SECONDS = 3.0  # the longest a request waits for a list that is still being built
@@ -168,7 +166,7 @@ def criteria(m: dict, ctx: dict, nxt: dict, thesis: dict, today: date) -> tuple[
         "country": [c.get("country") or NONE],
         "sector": [cat.capitalize() if cat else NONE],
         "age": [_age_band(c.get("founded"), today)],
-        "src": sorted({store.source_family(s["adapter"]) for s in ctx["sigs"] if s.get("adapter")}),
+        "source": sorted({store.source_family(s["adapter"]) for s in ctx["sigs"] if s.get("adapter")}),
         "deadline": [str(DEADLINE_DAYS)] if due else [],
         "member": [c["group_tag"]] if c.get("group_tag") in ("cohort", "portfolio") else [],
     }
@@ -224,15 +222,15 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
     by_date = sorted(rows, key=lambda r: (r["latest"] or "", r["name"]), reverse=True)
     rows.sort(key=strength)
     fit = [r for r in rows if r["verdict"] in TOP_VERDICTS or r["fit"] == "High"]
-    groups = [("all", "All startups", rows),
-              ("fit", "Top fits", fit),
-              ("ready", "Investor-ready", [r for r in rows if r["investment"] == "High"]),
-              ("new", "New this quarter", [r for r in by_date if r["first"] and r["first"] >= start])]
+    groups = [("all", home_config.group_label("all"), rows),
+              ("fit", home_config.group_label("fit"), fit),
+              ("ready", home_config.group_label("ready"), [r for r in rows if r["investment"] == "High"]),
+              ("new", home_config.group_label("new"), [r for r in by_date if r["first"] and r["first"] >= start])]
     countries = {}
     for r in rows:
         if r["country"]:
             countries.setdefault(r["country"], []).append(r)
-    country_groups = [(f"cc-{cc}", COUNTRY_NAMES.get(cc, cc), rs) for cc, rs in sorted(countries.items(), key=lambda x: (-len(x[1]), x[0]))]
+    country_groups = [(f"cc-{cc}", home_config.country_name(cc), rs) for cc, rs in sorted(countries.items(), key=lambda x: (-len(x[1]), x[0]))]
     new = [r for r in rows if r["first"] and r["first"] >= start]
     return {
         "rows": rows,
@@ -300,6 +298,20 @@ def for_template(thesis: dict, wait=_DEFAULT_WAIT) -> dict | None:
     if hit is not None:
         return hit
     return {"warming": True, "rows": []} if busy else None  # not cached and not building: the build failed, the page shows the plain feed
+
+
+def peek(thesis: dict) -> dict | None:
+    """The cached list for this thesis if there is one, else None. Never builds and never waits (the sector links use it to see which
+    filters another sector offers)."""
+    conn = store.open_db(thesis=thesis)
+    if conn is None:
+        return None
+    try:
+        key = _cache_key(conn, thesis)
+    finally:
+        conn.close()
+    with _lock:
+        return _cache.get(key)
 
 
 def warm(thesis: dict) -> None:

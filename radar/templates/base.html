@@ -28,16 +28,6 @@
     {% set cur = current_thesis(request) %}
     {% include "_nav_menu.html" %}
   </div>
-  <div class="wrap thesis-bar">
-    <details class="sector"><summary><span class="thesis-now">Sector: <strong>{{ cur.title }}</strong> <span class="sep">/</span> Countries: <strong>{{ country_info(cur).codes | join(", ") }}</strong></span> <span class="sector-change">Change sector or region</span></summary>
-    <form class="thesis-switch" action="{{ request.url.path }}" method="get">
-      <label for="thesis-select">Sector and region</label>
-      <select id="thesis-select" name="thesis">
-        {% for tid, title in thesis_options() %}<option value="{{ tid }}" {% if tid == cur.id %}selected{% endif %}>{{ title }}</option>{% endfor %}
-      </select>
-      <button type="submit">Show this selection</button>
-    </form></details>
-  </div>
 </header>
 <main class="wrap">
 {% block content %}{% endblock %}

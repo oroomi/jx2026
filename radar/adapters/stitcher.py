@@ -810,7 +810,7 @@ def page_view(conn: sqlite3.Connection, company_key: str, thesis: dict | None = 
     """The latest stitcher run for one company, as the company page shows it: the step counts, what was dropped and why,
     and each event that passed both checks. None when the company has no run (or the store has no stitch_log).
     Every text an LLM wrote or chose (queries, quotes, reasons) goes through radar.fit.redact_person_names first."""
-    from radar import fit, names, store, thesis as thesis_mod
+    from radar import fit, names, store, thesis as thesis_mod, words
     try:
         r = conn.execute("SELECT run_id FROM stitch_log WHERE company_key=? AND run_id<>'print-prompt' ORDER BY run_id DESC LIMIT 1",
                          (company_key,)).fetchone()
@@ -841,7 +841,7 @@ def page_view(conn: sqlite3.Connection, company_key: str, thesis: dict | None = 
             "date": stored_date(x["date"], prec), "date_label": _PREC_LABEL[prec](x["date"]), "date_precision": prec,
             "type_label": (f"{(x['suggested_type'] or 'unlabelled').replace('_', ' ')} (not a radar signal type)" if unmapped
                            else labels.signal_label(x["signal_type"])),
-            "quote": " ".join((x["quote"] or "").split()[:MAX_QUOTE_WORDS]) or None,
+            "quote": None if words.MARKER.search(x["quote"] or "") else " ".join((x["quote"] or "").split()[:MAX_QUOTE_WORDS]) or None,   # a quote with a gap is not a quote (D36)
             "source_url": x["source_url"], "host": (urlparse(x["source_url"]).hostname or "").removeprefix("www."),
             "public_since": x["public_since"], "archive_url": x["archive_url"], "confidence": x["confidence"],
             "signal": "counted as a signal" if out in ("emitted", "duplicate") else "kept in the log only" if out == "not_emitted" else None,
@@ -849,13 +849,17 @@ def page_view(conn: sqlite3.Connection, company_key: str, thesis: dict | None = 
     events.sort(key=lambda e: (e["date"], e["source_url"]))
     drops = []
     for x in by("verify", "dropped", "refuted"):
-        drops.append({"pass": "second check" if x["outcome"] == "refuted" else "first check", "why": red(_reason_text(x["reason"])),
+        drops.append({"pass": "second check" if x["outcome"] == "refuted" else "first check", "why": fit.drop_redacted_clauses(red(_reason_text(x["reason"]))),
                       "source_url": x["source_url"], "host": (urlparse(x["source_url"] or "").hostname or "").removeprefix("www.")})
+    # A search query with a redaction marker keeps its place in the count but loses the marked OR-term, or is not listed (D36).
+    shown_q = {k: [q for q in (words.drop_marked_terms(x["query"]) for x in by("search", o)) if q] for k, o in (("queries", "query"), ("llm_queries", "llm_query"))}
+    n_run = len(by("search", "query")) + len(by("search", "llm_query"))
+    n_shown = len(shown_q["queries"]) + len(shown_q["llm_queries"])
     fetched = {x["source_url"] for x in by("verify", "kept", "dropped")
                if not (x["outcome"] == "dropped" and (x["reason"] or "").split(":")[0] in ("source_not_allowed", "date_in_future"))}
     return {
         "run_id": run_id, "run_date": run_id[:10],
-        "queries": [x["query"] for x in by("search", "query")], "llm_queries": [x["query"] for x in by("search", "llm_query")],
+        "queries": shown_q["queries"], "llm_queries": shown_q["llm_queries"], "queries_run": n_run, "queries_hidden": n_run - n_shown,
         "read_failed": bool(by("read", "read_failed")),
         "proposed": len(by("read", "proposed")), "rejected": len(by("read", "rejected")), "pages_read": len(fetched),
         "kept": len(by("verify", "kept")), "dropped": len(by("verify", "dropped")),

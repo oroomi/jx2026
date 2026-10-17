@@ -18,7 +18,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from radar import db, fit as fit_mod, frameworks, matching, store, thesis as thesis_mod
+from radar import db, fit as fit_mod, frameworks, matching, store, thesis as thesis_mod, words
 
 ROOT = Path(__file__).resolve().parent.parent
 BRIEFS = ROOT / "data" / "fetched" / "briefs"
@@ -372,7 +372,7 @@ def brief_for(company_key: str, thesis: dict) -> dict | None:
     slots = []
     for key, label in SLOTS:
         v = data.get(key)
-        slots.append({"key": key, "label": label, "text": v["text"] if v else None,
+        slots.append({"key": key, "label": label, "text": words.rule_words(v["text"], thesis) if v else None,   # a rule id is said in the rule's words (D36)
                       "cites": [{"n": i, "url": u} for i, u in enumerate(v["cites"], 1)] if v else []})
     return {"written": row[0], "slots": slots}
 
@@ -392,7 +392,7 @@ def one_liners(thesis: dict) -> dict[str, str]:
     for k, js in rows:
         v = json.loads(js).get("what_it_does")
         if v:
-            out[k] = v["text"]
+            out[k] = words.rule_words(v["text"], thesis)
     return out
 
 

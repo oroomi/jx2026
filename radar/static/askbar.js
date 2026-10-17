@@ -276,7 +276,7 @@
       card.appendChild(ul);
     }
     var row = el("p", "ask-links");
-    if (a.url) row.appendChild(link(a.url, a.label || "Open", "ask-go"));
+    if (a.url && !(a.intent === "filter" && a.count === 0)) row.appendChild(link(a.url, a.label || "Open", "ask-go"));   /* no link to an empty list */
     sourceLinks(a).forEach(function (n) { row.appendChild(n); });
     var listen = null;
     if (demo && (synth || (a.segments || []).length)) {
@@ -433,7 +433,10 @@
     function colors() {
       var cs = getComputedStyle(document.documentElement);
       var acc = rgb(cs.getPropertyValue("--accent")), txt = rgb(cs.getPropertyValue("--text")), bg = rgb(cs.getPropertyValue("--bg"));
-      col = { acc: acc, hi: mix(acc, txt, 0.55), lo: mix(acc, bg, 0.5), txt: txt, dark: (0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2]) < 128 };
+      var dark = (0.299 * bg[0] + 0.587 * bg[1] + 0.114 * bg[2]) < 128;
+      /* dark page: a light core toward the text colour; light page: a light core toward the paper, a deeper rim toward the ink */
+      col = { acc: acc, hi: dark ? mix(acc, txt, 0.5) : mix(acc, bg, 0.62), lo: dark ? mix(acc, bg, 0.5) : mix(acc, txt, 0.28),
+              spec: dark ? txt : [255, 255, 255], dark: dark };
     }
     function resize() {
       var r = cv.getBoundingClientRect();
@@ -480,15 +483,15 @@
         var ang = spin + i * 2.094, off = core * (0.16 + 0.3 * e);
         var bx = c + Math.cos(ang) * off, by = c + Math.sin(ang * 1.1 + i) * off * 0.9, br = core * (0.95 - i * 0.06);
         var bg2 = cx2.createRadialGradient(bx, by, 0, bx, by, br);
-        bg2.addColorStop(0, rgba(tints[i], (col.dark ? 0.34 : 0.5) + 0.14 * e)); bg2.addColorStop(1, rgba(tints[i], 0));
+        bg2.addColorStop(0, rgba(tints[i], (col.dark ? 0.26 : 0.45) + 0.14 * e)); bg2.addColorStop(1, rgba(tints[i], 0));
         cx2.fillStyle = bg2; cx2.fillRect(0, 0, W, W);
       }
       cx2.globalCompositeOperation = "source-over";
       var hl = cx2.createRadialGradient(c - core * 0.32, c - core * 0.4, 0, c - core * 0.32, c - core * 0.4, core * 0.62);
-      hl.addColorStop(0, rgba(col.txt, 0.3)); hl.addColorStop(1, rgba(col.txt, 0));
+      hl.addColorStop(0, rgba(col.spec, 0.34)); hl.addColorStop(1, rgba(col.spec, 0));
       cx2.fillStyle = hl; cx2.fillRect(0, 0, W, W);
       cx2.restore();
-      cx2.beginPath(); cx2.arc(c, c, core, 0, 6.2832); cx2.strokeStyle = rgba(col.txt, 0.2); cx2.lineWidth = 1.5 * dpr; cx2.stroke();
+      cx2.beginPath(); cx2.arc(c, c, core, 0, 6.2832); cx2.strokeStyle = rgba(col.spec, 0.22); cx2.lineWidth = 1.5 * dpr; cx2.stroke();
       /* thinking: an arc travels round the orb (a steady dashed ring under reduced motion) */
       if (state === "thinking") {
         cx2.beginPath();
@@ -579,7 +582,7 @@
     sayWords = words(elSay, a.say);
     elLinks.textContent = ""; elLinks.hidden = true;
     (a.items || []).forEach(function (it) { elLinks.appendChild(link(it.url, it.label)); });
-    if (a.url) elLinks.appendChild(link(a.url, a.label || "Open", "ask-go"));
+    if (a.url && !(a.intent === "filter" && a.count === 0)) elLinks.appendChild(link(a.url, a.label || "Open", "ask-go"));
     sourceLinks(a).forEach(function (n) { elLinks.appendChild(n); });
     var spoken = reduced();   /* reduced motion: the whole answer at once, then the voice */
     if (spoken) { reveal(sayWords, sayWords.length); elLinks.hidden = false; }
@@ -639,6 +642,6 @@
   window.addEventListener("pagehide", function () { closeVoice(); Speech.stop(); });
 
   /* a handle for tests and screenshots */
-  window.AskBar = { ask: ask, openVoice: openVoice, closeVoice: closeVoice, state: function () { return state; }, setTranscript: function (t, final) {
+  window.AskBar = { ask: ask, heard: heard, openVoice: openVoice, closeVoice: closeVoice, state: function () { return state; }, setTranscript: function (t, final) {
     elLine.textContent = t; elLine.classList.toggle("is-final", !!final); } };
 })();

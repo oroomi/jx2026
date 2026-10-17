@@ -23,6 +23,7 @@
       <a href="/radar" {% if active == "radar" %}aria-current="page"{% endif %}>{{ cur.cohort_label or "Cohort radar" }}</a>
       <a href="/backtest" {% if active == "backtest" %}aria-current="page"{% endif %}>Earliness test</a>
       <a href="/method" {% if active == "method" %}aria-current="page"{% endif %}>Rules</a>
+      <a href="/data" {% if active == "data" %}aria-current="page"{% endif %}>Data</a>
     </nav>
     <details class="sector"><summary>Change sector or region</summary>
     <form class="thesis-switch" action="{{ request.url.path }}" method="get">

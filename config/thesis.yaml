@@ -144,3 +144,6 @@ memo:
       - {id: e, when: {technology: High, business: [Low, Medium]}, decision: PARTNER INTRODUCTION, action: "Technology High, business Low or Medium."}
       - {id: f, when: {impact: Medium, business: Medium, investment: Medium, fit: Medium}, decision: WATCHLIST, action: "All four Medium."}
       - {id: g, when: {impact: Low, fit: Low}, decision: REJECT / LOW FIT, action: "Impact and thesis fit both Low."}
+
+# Sources the /data page's Refresh button re-reads (names from radar/refresh.py STEPS): the fast live ones only.
+refresh_adapters: [prh_notices, prh_recent]

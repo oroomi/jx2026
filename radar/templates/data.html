@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Data | Ocean Opportunity Radar{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/data.css?v={{ asset_v }}">{% endblock %}
+{% block content %}
+<h1>The data behind the pages</h1>
+<p class="plain">Read-only view of the radar database for {{ thesis.title }}: what each source holds, and every company and record with its link. Legal names shaped like a private person's name are left out. No AI is used to build it.</p>
+
+{% if no_db %}
+<section class="empty" aria-label="Empty state"><p class="answer">No data is loaded for {{ thesis.title }} in this build.</p></section>
+{% else %}
+<p class="totals">{{ totals.companies }} companies and {{ totals.signals }} dated records in total{% if totals.hidden %}; {{ totals.hidden }} person-shaped names hidden{% endif %}.</p>
+
+<h2>Sources</h2>
+<div class="srcwrap"><table class="srctable">
+  <thead><tr><th scope="col">Source</th><th scope="col">Rows</th><th scope="col">Companies</th><th scope="col">Newest event</th><th scope="col">Last run</th></tr></thead>
+  <tbody>
+  {% for s in sources %}
+  <tr><th scope="row"><a href="/data?view=signals&amp;source={{ s.adapter }}">{{ s.label }}</a></th><td>{{ s.rows }}</td><td>{{ s.companies }}</td>
+      <td>{{ s.newest or "no data" }}</td><td>{{ s.last_run or "no data" }}</td></tr>
+  {% else %}
+  <tr><td colspan="5">No rows stored yet.</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+
+<h2 id="refresh">Refresh sources</h2>
+<p>Re-reads {% for n in refresh.steps_configured %}<code>{{ n }}</code>{% if not loop.last %} and {% endif %}{% else %}no sources (none are set in the sector file){% endfor %} from the public registers. It works on a copy of the database and swaps it in only when the copy checks out, so the pages never see a half-finished run. One run at a time, at least {{ refresh.cooldown_minutes }} minutes apart.</p>
+{% if msg %}<p class="answer" role="status">{{ msg }}</p>{% endif %}
+{% if not refresh.enabled %}<p class="answer" role="status">{{ refresh.disabled_message }}</p>
+{% elif refresh.state.running %}<p class="answer">A refresh is running now. Reload this page in a minute.</p>
+{% elif refresh.next_at %}<p class="answer">Next refresh possible at {{ refresh.next_at }} UTC.</p>{% endif %}
+<form method="post" action="/data/refresh">
+  <button type="submit" {% if not refresh.enabled or not refresh.state.can_start or not refresh.steps_configured %}disabled{% endif %}>Refresh sources</button>
+</form>
+{% if refresh.run %}
+<h3>Last refresh</h3>
+<p>Started {{ refresh.run.started_at[:16].replace("T", " ") }} UTC{% if refresh.run.finished_at %}, finished {{ refresh.run.finished_at[:16].replace("T", " ") }} UTC{% endif %}.
+  {% if refresh.run.swapped %}The refreshed copy replaced the database.{% else %}The database was left as it was.{% endif %}
+  {% if refresh.run.error %}<strong>{{ refresh.run.error }}</strong>{% endif %}</p>
+<div class="srcwrap"><table class="srctable">
+  <thead><tr><th scope="col">Step</th><th scope="col">Result</th><th scope="col">New rows</th><th scope="col">Skipped</th><th scope="col">Seconds</th><th scope="col">Error</th></tr></thead>
+  <tbody>
+  {% for s in refresh.run.steps %}
+  <tr><th scope="row">{{ s.step }}</th><td>{{ s.status }}</td><td>{{ s.counts.get("signals", "no data") }}</td><td>{{ s.counts.get("skipped", "no data") }}</td><td>{{ s.seconds }}</td><td>{{ s.error or "none" }}</td></tr>
+  {% else %}
+  <tr><td colspan="6">No step ran.</td></tr>
+  {% endfor %}
+  </tbody>
+</table></div>
+<p><strong>+{{ refresh.run.new_count }} new companies since the last refresh</strong>{% if refresh.run.new_companies %}:</p>
+<ul class="newco">{% for c in refresh.run.new_companies %}<li><a href="/c/{{ c.company_key }}">{{ c.name }}</a></li>{% endfor %}</ul>
+{% else %}.</p>{% endif %}
+{% else %}<p class="meta">No refresh has been run on this server yet.</p>{% endif %}
+
+<h2>Browse</h2>
+<nav class="views" aria-label="Table">
+  {% for v in ("companies", "signals") %}<a href="{{ view_links[v] }}" {% if view == v %}aria-current="page"{% endif %}>{{ "Companies" if v == "companies" else "Dated records" }}</a>{% endfor %}
+</nav>
+<form class="filters" method="get" action="/data">
+  <input type="hidden" name="view" value="{{ view }}">
+  <label>Source <select name="source"><option value="">all</option>{% for s in sources %}<option value="{{ s.adapter }}" {% if s.adapter == source %}selected{% endif %}>{{ s.label }}</option>{% endfor %}</select></label>
+  {% if view == "signals" %}<label>Kind <select name="type"><option value="">all</option>{% for t in types %}<option value="{{ t }}" {% if t == typ %}selected{% endif %}>{{ t.replace("_", " ") }}</option>{% endfor %}</select></label>{% endif %}
+  <button type="submit">Filter</button>
+</form>
+<p class="meta">{{ tbl.total }} rows, page {{ page }} of {{ tbl.pages }}.</p>
+<div class="srcwrap"><table class="srctable">
+{% if view == "signals" %}
+  <thead><tr><th scope="col">Company</th><th scope="col">Kind</th><th scope="col">Date</th><th scope="col">How sure</th><th scope="col">Source</th></tr></thead>
+  <tbody>
+  {% for r in tbl.rows %}
+  <tr><th scope="row"><a href="/c/{{ r.company_key }}">{{ r.name }}</a></th><td>{{ r.signal_type.replace("_", " ") }}</td><td>{{ r.date }}</td><td>{{ r.confidence }}</td>
+      <td><a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.adapter }}</a></td></tr>
+  {% else %}<tr><td colspan="5">No rows match.</td></tr>{% endfor %}
+  </tbody>
+{% else %}
+  <thead><tr><th scope="col">Company</th><th scope="col">Country</th><th scope="col">Group</th><th scope="col">Founded</th><th scope="col">Industry</th><th scope="col">Records</th><th scope="col">Source</th></tr></thead>
+  <tbody>
+  {% for r in tbl.rows %}
+  <tr><th scope="row"><a href="/c/{{ r.company_key }}">{{ r.name }}</a></th><td>{{ r.country or "no data" }}</td><td>{{ r.group_tag }}</td><td>{{ r.founded or "not in public records" }}</td>
+      <td>{% if r.industry_code %}{{ r.industry_code }} {{ r.industry_desc or "" }}{% else %}not in public records{% endif %}</td><td>{{ r.signals }}</td>
+      <td><a href="{{ r.source_url }}" target="_blank" rel="noopener">open</a></td></tr>
+  {% else %}<tr><td colspan="7">No rows match.</td></tr>{% endfor %}
+  </tbody>
+{% endif %}
+</table></div>
+<p class="pager">{% if pager.prev %}<a href="{{ pager.prev }}">Previous</a>{% endif %} {% if pager.next %}<a href="{{ pager.next }}">Next</a>{% endif %}</p>
+{% endif %}
+{% endblock %}

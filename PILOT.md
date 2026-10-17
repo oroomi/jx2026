@@ -4,16 +4,16 @@
 decisions, and a second backtest on your 2026 intake shows whether it finds companies before you do. Then you decide go or no-go.
 
 **Starting point (17 Oct 2026).** Live at <https://jx.hankintaviikko.fi>, with register depth for Finland only. 7 of the 19 Nordic
-Blue 2026 cohort companies have a Finnish business ID. From live records the radar would have shown 0 of 19 before January 2026,
-yet all 7 Finnish ones already had dated public records in our store before then. The gap is
-coverage (12 of the 19 are outside the Finnish register) and the sector rule (the 7 Finnish ones are registered under codes the
+Blue 2026 cohort companies have a Finnish business ID. From live records the radar would have shown 1 of 19 before January 2026, and that one is tuned
+(Arctic Fry's industry code was added to the sector list on 17 Oct after we saw the miss; before that it was 0 of 19), yet all 7 Finnish ones already had dated public records in our store before then. The gap is
+coverage (12 of the 19 are outside the Finnish register) and the sector rule (6 of the 7 Finnish ones are registered under codes the
 sector list does not hold), as measured in [EVAL.md](EVAL.md).
 The wide intake, which takes startup-shaped companies in before any sector test, held 4 of those 7 before January 2026 (Kilocode,
 Sireness, Arctic Fry and Emission-Eye), and the claim is smaller than that sounds: Kilocode's intake date is a 2003 VAT registration,
 so it is not an early find; Kilocode and Arctic Fry are in only because we added their code families after seeing them (in-sample);
 Sireness enters on a declared-research record rather than a public one; and Emission-Eye, on a public start-up notice, ranks 132 of
 1,176 among the 2025 registrations in its code family. The other 3 Finnish ones are registered outside the intake's code families.
-Since then two things were added that nobody but you can check. The home list shows each company's criteria (impact, TRL, BRL, IRL, fit, verdict) with an Ocean Impact Assessment whose nine rungs are our own evidence ladder, because the Ocean Impact Navigator publishes areas and no levels; of the 58 companies on the home list, 3 reach a rung, 26 read "not yet evidenced", 2 show only a Navigator category band and 27 read "no public record". And `/match` ranks 191 counterparts against the startups with reasons in words and no score; its weights are a hypothesis with no ground truth, and 17 of the 19 cohort companies and all 9 portfolio companies have at least one counterpart that passes its filters.
+Since then two things were added that nobody but you can check. The home list shows each company's criteria (impact, TRL, BRL, IRL, fit, verdict) with an Ocean Impact Assessment whose nine rungs are our own evidence ladder, because the Ocean Impact Navigator publishes areas and no levels; of the 59 companies on the home list, 3 reach a rung, 27 read "not yet evidenced" and 29 read "no public record". And `/match` ranks 191 counterparts against the startups with reasons in words and no score; its weights are a hypothesis with no ground truth, and 17 of the 19 cohort companies and all 9 portfolio companies have at least one counterpart that passes its filters.
 
 ## What you get in 8 weeks
 
@@ -35,7 +35,7 @@ Since then two things were added that nobody but you can check. The home list sh
 - **One owner** on your side for 1 hour a week, and a 30-minute review at the end of weeks 2, 4, 6 and 8.
 - **Optional, weeks 5-6:** an export of your deal notes, in any format.
 - **Go/no-go criteria, agreed in week 1.** Our proposal: the share of your 2026 intake that live public records show before your
-  entry date, against today's 0 of 19, and how often the memo agrees with your verdict on the 20.
+  entry date, against today's 1 of 19 (0 of 19 before the one tuned code), and how often the memo agrees with your verdict on the 20.
 
 ## What stays public-only
 

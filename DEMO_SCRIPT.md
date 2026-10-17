@@ -10,6 +10,7 @@ Two companies carry the demo, both real and both on the live site:
 - **Viva Jets Oy**, business ID 2962040-6, Redstone Blue portfolio: <https://jx.hankintaviikko.fi/c/2962040-6>. Industry code
   30120 (building of pleasure and sporting boats) is on the sector list; share issues registered from 2022 to 2026 and Business
   Finland funding in 2019, 2021 and 2024 are on the page with their links.
+- **Aava (voice briefing) is hidden on the public site.** The demo URL is `/c/2962040-6?demo=1` (the flag is remembered on that device; `?demo=0` turns it off).
 
 ---
 

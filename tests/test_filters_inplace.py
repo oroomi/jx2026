@@ -404,7 +404,7 @@ def ranked(H):
         orgs = home_orgs.organisations(th)
         if not any(o["id"] == "apelago" for o in orgs):
             pytest.skip("the matchmaker does not know the sponsor in this checkout")
-        res = matchmaker.match_org("apelago", th)         # D62, D63: the tab prints the matchmaker's own ranking, all of it, not the part on the home list
+        res = matchmaker.match_org("apelago", th)         # D70: the tab prints the matchmaker's own ranking, all of it, not the part on the home list
         yield {"orgs": orgs, "order": [s["key"] for s in res["startups"]], "rows": {s["key"]: s for s in res["startups"]}}
     finally:
         mp.undo()

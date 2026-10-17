@@ -1,7 +1,7 @@
 """The Top matching tab of the home list: the investors and accelerators the matchmaker knows (the picker), and, for one of them, the
 startups the matchmaker's organisation view ranks (`radar.matchmaker.match_org`), each with its top reasons in words. Nothing here scores
 or ranks: it asks the matchmaker, keeps its order, its count (`matching.show_startups`) and its reason sentences, so the tab and the Match
-page never disagree (D62, D63; it replaces the intersection with the home list that D35 described). The other filters of the rail apply on
+page never disagree (D70; it replaces the intersection with the home list that D35 described). The other filters of the rail apply on
 top, to the rows that carry those facts.
 
 The matchmaker's organisation view takes about 1.5 s per organisation, so a ranking is built once per organisation and store version, in a

@@ -1,4 +1,4 @@
-"""Judge round 3, matching (D62 to D64): an investor's early pipeline, one ranking behind the Match page and the home Top matching tab,
+"""Judge round 3, matching (D70): an investor's early pipeline, one ranking behind the Match page and the home Top matching tab,
 and an Ask bar that answers "top startups". Data: the committed snapshot store and the declared lists."""
 import html as htmllib
 import re
@@ -82,6 +82,27 @@ def test_the_startup_side_for_the_accelerator_is_unchanged(env):
     assert "pipeline" not in res or not res["pipeline"]
     comp = matchmaker.match_company("2962040-6", th, conn=conn, today=TODAY, limit=10)
     assert comp["counterparts"] and {r["kind"] for r in comp["counterparts"]} <= set(matchtext.config(th)["path_kinds"][comp["company"]["verdict"]]) | set(matchtext.config(th)["always_kinds"])
+
+
+def test_an_investor_that_ranks_nobody_says_why_in_words(env):
+    th, conn = env
+    rows = [o for o in matchmaker.org_list(th, conn=conn) if o["kind"] == "investor"][:12]
+    assert rows
+    for o in rows:
+        res = matchmaker.match_org(o["id"], th, conn=conn, today=TODAY)
+        if res["startups"]:
+            continue
+        why = res["org"]["empty_reason"] or res["org"]["closed_note"]
+        assert why and "'..." not in why and not re.search(r"\b[A-Z]{2}\b", why), (o["name"], why)      # a reason, with no placeholder and no country code
+
+
+def test_the_early_pipeline_is_read_deeper_than_the_default(env):
+    th, conn = env
+    pc = matchmaker.pipeline_config(matchtext.config(th), "investor")
+    assert int(pc["candidates"]) > int(matchtext.config(th).get("candidates", 300))
+    res = matchmaker.match_org("redstone-blue", th, conn=conn, today=TODAY)
+    assert res["candidates_profiled"] <= int(pc["candidates"])
+    assert res["candidates_profiled"] > int(matchtext.config(th).get("candidates", 300)) or res["unprofiled"] == 0      # every candidate is checked, or the deeper depth was used
 
 
 def test_the_rule_text_names_the_early_pipeline(env):

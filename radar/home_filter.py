@@ -301,7 +301,7 @@ def chips(sel: dict[str, list[str]], extra: dict[str, str], names: dict[str, str
 
 def top_matching(H: dict, groups: list[tuple], match: dict | None) -> list[tuple]:
     """The groups with the Top matching tab (`fit`) made for the organisation in view. Its rows are the matchmaker's ranking for that
-    organisation (radar.home_orgs), all of them, in its order and with its reasons in `why` (D62, D63). A startup that is also on the home
+    organisation (radar.home_orgs), all of them, in its order and with its reasons in `why` (D70). A startup that is also on the home
     list keeps that row's facts, so the rail's filters narrow the ranking to the startups that carry them; the others have no facts for
     the rail and drop out only when a filter is chosen. Without an organisation or a ranking the tab is the plain list under its plain label."""
     rank = (match or {}).get("rank")

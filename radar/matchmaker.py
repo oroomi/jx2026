@@ -522,6 +522,7 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
         closed = _open(org, t)
         cand = []
         removed: Counter = Counter()
+        depth = int(cfg.get("candidates", 300))
         tiers = {g: i for i, g in enumerate(cfg.get("tier_order") or [])}
         if not closed:
             for key, base in idx.items():
@@ -529,16 +530,17 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
                     continue
                 ev = evaluate(dict(base), org, cfg, idx, reg["df"], t, full=False)
                 if ev["excluded"]:
-                    removed[re.sub(r"'[^']*'", "'...'", re.sub(r"\b[A-Z]{2}\b", "the startup's country", ev["excluded"]))] += 1
+                    removed[_removal_key(ev["excluded"])] += 1
                     continue
                 cand.append((ev["_w"], ev["met"], ev["_s"], tiers.get(base["group_tag"], 9), base["name"].casefold(), key))
             cand.sort(key=lambda c: (-c[0], -c[1], -c[2], c[3], c[4]))
-            if pc:        # D62: an investor is shown the early pipeline (every verdict path the thesis lists), those that are ready first
+            if pc:        # D70: an investor is shown the early pipeline (every verdict path the thesis lists), those that are ready first
                 kinds_ok = lambda dec: dec in set(pc["verdicts"]) or org["kind"] in set(cfg.get("always_kinds") or [])
             else:
                 kinds_ok = lambda dec: org["kind"] in set(cfg["path_kinds"].get(dec) or []) | set(cfg.get("always_kinds") or [])
             full_rows = []
-            for _w, _m, _s, _t, _n, key in cand[: int(cfg.get("candidates", 300))]:
+            depth = int((pc or {}).get("candidates") or cfg.get("candidates", 300))     # an early pipeline is a small share of the candidates: read deeper so none is left unchecked
+            for _w, _m, _s, _t, _n, key in cand[:depth]:
                 sp = startup(conn, thesis, cfg, key, t)
                 if sp is None or not kinds_ok(sp["decision"]):
                     continue
@@ -564,18 +566,24 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
                            "basis": sorted({m["basis"] for m in org["members"].values()}),
                            "lookalikes_from": org.get("via_parent")}
         return {"org": row, "as_of": t.isoformat(), "rule": RULE, "weights": cfg["weights"],
-                "candidates_profiled": min(len(cand), int(cfg.get("candidates", 300))) if not closed else 0,
-                "unprofiled": max(0, len(cand) - int(cfg.get("candidates", 300))),
+                "candidates_profiled": min(len(cand), depth) if not closed else 0,
+                "unprofiled": max(0, len(cand) - depth) if not closed else 0,
                 "listed": len(out_rows), "startups": shown, "connected": connected, "pipeline": pipeline, "limits": LIMITS}
     finally:
         if own:
             conn.close()
 
 
+def _removal_key(text: str) -> str:
+    """A filter's removal note without the startup-specific words (its country code, the counterpart's quoted geography), so equal removals count together."""
+    text = re.sub(r"^declared geography '[^']*' does not include [A-Z]{2}$", "its declared geography does not include the startup's country", text)
+    return re.sub(r"\b[A-Z]{2}\b", "the startup's country", re.sub(r"'[^']*'", "", text)).replace("  ", " ")
+
+
 def _empty_reason(org: dict, cfg: dict, removed: Counter, total: int, passed_topic: int, pc: dict | None) -> str:
     """Why an open counterpart ranks nobody, in words and from the counts (never a bare 'no match')."""
     if passed_topic:
-        what = "the paths " + plain_list([v.lower() for v in pc["verdicts"]]) if pc else "the verdict paths this kind meets"
+        what = "the " + plain_list([v.lower() for v in pc["verdicts"]], "or") + " path" if pc else "a verdict path this kind meets"
         return f"{passed_topic} of the {total} startups pass its topic and geography filters, and none of them is on {what}."
     if not org["has_declared"] and not org["lookalikes"]:
         return "it declares no sector text and no portfolio in our records, so there is nothing to match a startup on."

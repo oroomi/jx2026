@@ -91,11 +91,14 @@ def _window(thesis, today):
 
 def rule_text(thesis: dict) -> str:
     days = thesis["geography"]["feed_window_days"]
+    fams = [str(f).strip() for f in thesis.get("code_alone_weak") or [] if str(f).strip()]
+    broad = (f"A broad consultancy or research code (industry code families {', '.join(fams)}) is a hint only: it needs a sector word "
+             f"in the registered line of business, the source text or a backed legal name as well, otherwise the company is a weak match. ") if fams else ""
     return (f"Companies from outside the declared cohort and portfolio whose earliest public signal in the last {days} days "
             f"is shown, newest first, once each. A company is listed as a match only when we can say why: its industry code "
             f"or registered line of business fits the thesis, a contract or project text states the match, or a thesis word in "
             f"its legal name is backed by a record from a different source family (a PRH notice never backs a PRH register entry). "
-            f"Listed companies (Oyj) are left out. Name-only matches are kept in a closed Weak matches list.")
+            f"{broad}Listed companies (Oyj) are left out. Name-only matches are kept in a closed Weak matches list.")
 
 
 # Source families for corroboration: these adapters all read the one PRH/YTJ registry, so a second record from any of them
@@ -197,6 +200,17 @@ def _own_text_hit(sig, thesis: dict, texts: dict | None = None) -> str | None:
     return hits[0] if hits else None
 
 
+def code_alone_family(code: str | None, thesis: dict) -> str | None:
+    """The `code_alone_weak` family (a code prefix from the sector file) this industry code belongs to, or None. A dot is ignored,
+    so the NACE spelling 71.12 and the stored 7112x are the same family."""
+    c = (code or "").replace(".", "").strip()
+    for fam in thesis.get("code_alone_weak") or []:
+        f = str(fam).replace(".", "").strip()
+        if f and c.startswith(f):
+            return f
+    return None
+
+
 def explain(row: dict, others: list, thesis: dict, texts: dict | None = None) -> dict:
     """reasons (ids, strongest first), strength and the one-line why for one feed row. Built only from stored values."""
     from radar import fit
@@ -228,6 +242,17 @@ def explain(row: dict, others: list, thesis: dict, texts: dict | None = None) ->
         parts["corroborated_keyword"] = (f"the legal name has '{name_hits[0]}' and a {src} record from "
                                          f"{date_label(second)} supports it")
     reasons.sort(key=_WHY_ORDER.index)
+    # A broad consultancy or research code (thesis `code_alone_weak`) is a hint, never enough for the main list: the row also needs
+    # a sector word from the line of business, the source's own text or a corroborated name word. Without it the row stays weak.
+    family = code_alone_family(code, thesis) if "industry_code" in reasons else None
+    if family and not set(reasons) - {"industry_code"}:
+        masked = family + "x" * max(len(code.replace(".", "")) - len(family), 0)
+        lob = f"'{desc}' ({code})" if desc else f"code {code}"
+        why = f"Weak: industry code {masked} alone; a consultancy code needs a sector word. The registered line of business is {lob}."
+        return {"reasons": reasons, "strength": "weak", "why": why}
+    if family:  # the code is on the list, but something stronger backs it: lead with that, keep the code as a further reason
+        reasons.remove("industry_code")
+        reasons.append("industry_code")
     if reasons:
         lead = parts[reasons[0]]
         more = len(reasons) - 1
@@ -383,6 +408,8 @@ def feed_counts(conn, thesis, *, today=None) -> dict:
         by_conf[r["confidence"]] = by_conf.get(r["confidence"], 0) + 1
     by_reason = {r: 0 for r in REASON_IDS}
     for r in rows:
+        if r["strength"] != "strong":
+            continue  # a weak row can carry the code reason it was not admitted on (code_alone_weak): only the main list is counted
         for rid in r["reasons"]:
             by_reason[rid] += 1
     main = sum(1 for r in rows if r["strength"] == "strong")

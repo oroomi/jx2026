@@ -14,3 +14,6 @@ data/fetched/*
 *.sqlite-journal
 *.sqlite-wal
 *.sqlite-shm
+
+# combined database output (binary, rebuilt by python3 -m radar.combined)
+data/combined/

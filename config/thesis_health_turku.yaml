@@ -15,6 +15,12 @@ industry_codes:
   - {code: "26600", note: "Irradiation, electromedical equipment"}
   - {code: "32500", note: "Medical and dental instruments"}
   - {code: "72110", note: "R&D in biotechnology"}
+# Broad consultancy and research families (code prefixes; a dot is ignored, so NACE 72.19 is 721). A code from one of these is a hint
+# that the company could be in the sector, never evidence on its own: it admits a company to the main list only together with a sector
+# word from the registered line of business, the source's own text, or a legal-name word corroborated by a different source family.
+# Alone it leaves the row in the weak list (radar/store.py explain). 702 (management consultancy) is not on the list above today; it is
+# named so that adding it later can never put a consultancy in the main list on its code alone.
+code_alone_weak: ["702", "721"]
 # Human health practice (TOL 86: clinics, physiotherapy, medical specialists) is care delivery, not health technology:
 # companies with a code starting with these prefixes are left out of the feed and the intake tier (judge review 2, item 9).
 feed_exclude_code_prefixes: ["86"]

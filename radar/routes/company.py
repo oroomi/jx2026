@@ -10,6 +10,7 @@ import sqlite3
 from markupsafe import Markup, escape
 
 from radar import blueinvest, fit as fit_mod, frameworks, lifeline, matching, store
+from radar.adapters import stitcher
 from radar.routes.home import _has_route, templates
 
 
@@ -138,6 +139,7 @@ def company_page(request: Request, company_key: str):
         eco = ecosystem(conn, company_key, fw)
         nxt = matching.who_comes_next(company_key, thesis, 5, conn=conn)
         step = matching.next_step(company_key, thesis, conn=conn)
+        stitch = stitcher.page_view(conn, company_key)
     finally:
         conn.close()
     reasons = fit_mod.fit(c, sigs, thesis)
@@ -148,7 +150,8 @@ def company_page(request: Request, company_key: str):
                  cohort_n=n, radar_exists=_has_route(request)("/radar"),
                  fw=fw, connections=frameworks.connections(rule_sigs),
                  nxt=nxt, step=step, step_rule=matching.NEXT_RULES[step["rule"] - 1], step_rules=matching.NEXT_RULES, rank_rule=matching.RANK_RULE, eco=eco,
-                 type_labels=store.TYPE_LABELS, lifeline=lifeline.build(c, sigs), speed=speed, min_sample=lifeline.MIN_SAMPLE)
+                 type_labels=store.TYPE_LABELS, lifeline=lifeline.build(c, sigs), speed=speed, min_sample=lifeline.MIN_SAMPLE,
+                 stitch=stitch)
 
 
 @router.get("/company-search")

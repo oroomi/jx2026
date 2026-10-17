@@ -13,6 +13,12 @@
   <li>Found later: <strong>{{ res.later }}</strong></li>
   <li>No public signal: <strong>{{ res.none }}</strong></li>
 </ul>
+{% if res.stitcher and res.stitcher.runs %}
+<div class="bt-stitch" id="stitcher-early">
+  <p>Counted apart, never added to the groups above: <strong>{{ res.stitcher.companies }}</strong> of {{ res.total }} cohort companies have an event found by the AI stitcher and checked by code whose page the Internet Archive captured before the company's reference date ({{ res.stitcher.runs }} of {{ res.total }} have a stitcher run).</p>
+  {% if res.stitcher.rows %}<ul>{% for r in res.stitcher.rows %}<li><a href="/c/{{ r.company_key }}#stitch">{{ r.name }}</a>: {{ type_labels.get(r.event.signal_type, (r.event.suggested_type or r.event.signal_type).replace("_", " ")) }} {{ r.event.date }}, page public since <a href="{{ r.event.archive_url }}" target="_blank" rel="noopener nofollow">{{ r.event.public_since }}</a> (<a href="{{ r.event.source_url }}" target="_blank" rel="noopener nofollow">source</a>)</li>{% endfor %}</ul>{% endif %}
+</div>
+{% endif %}
 <section aria-labelledby="rule-h">
   <h2 id="rule-h">The rule</h2>
   <ol class="rulebox bt-rule">{% for l in rule %}<li>{{ l }}</li>

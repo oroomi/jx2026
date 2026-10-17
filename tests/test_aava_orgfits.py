@@ -285,3 +285,24 @@ def test_the_chat_without_the_model_answers_who_should_meet_with_the_same_list(t
     finally:
         conn.close()
     assert f"[{first['name']}](/c/{first['key']})" in done["text"] and "(/match?org=apelago" in done["text"]
+
+
+# ---- D83 x D77 (cand/j4): Aava's tools say what the match pages say about a company that is not a startup -----------------------------------
+def test_explain_match_and_get_org_matches_keep_the_startup_cut(th):
+    ctx = ctx_for(th)
+    conn = ctx.conn()
+    page = matchmaker.match_org("apelago", th, conn=conn)
+    assert page["not_startups"] > 0
+    d = json.loads(aava_tools.run_tool(ctx, "get_org_matches", {"org": "A'Pelago"})[0])
+    assert d["not_offered"].startswith(f"{page['not_startups']:,} companies on the radar are not startups")
+    cfg = matchmaker.matchtext.config(th)
+    idx = matchmaker._index(conn, th, cfg, date.today())
+    counterparts = matchmaker_orgs.counterpart_index(th)
+    reg = matchmaker_orgs.registry(conn, th)
+    org = reg["by_id"]["apelago"]
+    old = next(k for k, b in idx.items() if k not in org["members"] and memo.not_startup(b, th, date.today(), counterparts)
+               and not matchmaker.evaluate(dict(b), org, cfg, idx, reg["df"], date.today(), full=False)["excluded"])   # it would pass the filters
+    assert old not in {s["key"] for s in page["startups"]}
+    x = json.loads(aava_tools.run_tool(ctx, "explain_match", {"company_key": old, "org_id": "apelago"})[0])
+    assert x["listed_as_a_counterpart"] is False and x["excluded_because"].startswith("not a startup on the thesis' rule (")
+    ctx.close()

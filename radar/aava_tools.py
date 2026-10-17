@@ -544,6 +544,8 @@ def explain_match(ctx: ToolContext, a: dict) -> dict:
     row = matchmaker._org_row(org, cfg)
     closed = matchmaker._open(org, today)       # match_company leaves a closed call out before it weighs a reason (D76)
     excluded = matching.closed_words(row["deadline_text"] or closed) if closed else ev["excluded"]
+    if not excluded and sp.get("not_startup") and org["kind"] in matchmaker.startup_kinds(cfg):     # D83: the match pages offer startups only
+        excluded = f"not a startup on the thesis' rule ({sp['not_startup']}), so no {row['kind_label'].lower()} is offered to it"
     return {"company_key": key, "org_id": oid, "organisation": {"name": org["name"], "kind": row["kind_label"], "declared_focus": row["focus"], "demand": row["demand"],
                                                               "website": row["url"], "deadline": row["deadline"] or row["deadline_text"] or "none stated", "geography": row["geography"]},
             "listed_as_a_counterpart": not excluded, "excluded_because": excluded, "reasons_met": f"{ev['met']} of {ev['of']}",
@@ -646,6 +648,10 @@ def get_org_matches(ctx: ToolContext, a: dict) -> dict:
                                  "note": "its declared cohort or portfolio in our records: not ranked, it already knows them"}}
     if pipe.get("note"):
         out["pipeline_note"] = pipe["note"]
+    if res.get("not_startups"):     # D83: the page's line on the companies an investor or accelerator is not offered
+        out["not_offered"] = (f"{res['not_startups']:,} companies on the radar are not startups on the thesis' rule (founded more than "
+                              f"{(ctx.th.get('geography') or {}).get('stage_max_company_age_years')} years ago, or listed as a counterpart organisation) "
+                              f"and are not offered to {o['name']}")
     if o.get("closed_note"):
         out["closed"] = matching.closed_words(o["closed_note"])
     if not out_rows and o.get("empty_reason"):

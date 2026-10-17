@@ -19,7 +19,7 @@
 {% set covered = checks | selectattr(1) | list %}
 {% set watch = checks | rejectattr(1) | map(attribute=0) | list %}
 <article class="co-c">
-  <header class="cc-head">
+  <header class="cc-head" id="aava-who">
     <span class="cc-mark" aria-hidden="true">{% set w = (c.name | replace(" Oyj", "") | replace(" Oy", "") | replace(" Ab", "") | trim).split() %}{{ ((w[0][:1] if w else "") ~ (w[1][:1] if w | length > 1 else (w[0][1:2] if w else ""))) | upper }}</span>
     <div><p class="cc-tick">{{ c.y_tunnus or c.company_key }} · {{ c.group_tag }}</p><h1>{{ c.name }}</h1></div>
   </header>
@@ -103,7 +103,7 @@
   <a href="#q4">04 What should happen next</a>
 </nav>
 <div class="co-main">
-<header class="co-head" id="aava-who">
+<header class="co-head">
   <p class="co-group">{{ c.group_tag }}</p>
   <h1>{{ c.name }}</h1>
   {% if connections %}

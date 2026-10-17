@@ -22,7 +22,7 @@ CLOSED_WORDS = ("closed", "no open call", "no call open", "will not reopen", "no
 GRANT_TYPES = ("bf_funding", "eu_project", "public_funding")
 EARLY_STAGES = ("idea", "pre_seed", "seed")
 INACTIVE = ("defunct",)
-RANK_RULE = ("Rank = the dataset's match score (highest first), then the nearest open deadline from programmes_grants.csv, then name. "
+RANK_RULE = ("Rank = the dataset's match score (highest first), then the nearest open deadline from the declared programmes list, then name. "
              "Open programmes and public buyers have no dataset score and follow the scored rows. A closed programme, a past deadline, "
              "a TRL outside the programme's stated window or a company older than the programme's age limit is left out. "
              "The last slot of the funding list is kept for the soonest open programme.")
@@ -101,9 +101,9 @@ def company_context(conn, company_key: str) -> dict | None:
     if data is None:
         return None
     c, sigs = data["company"], data["signals"]
-    fw = frameworks.assess(c, [x for x in sigs if x["adapter"] != "ecosystem"])  # the dataset never sets a rule level
-    trl, trl_src = fw["trl"]["level"], "register rule"
     profile = blueinvest.profile_for(conn, company_key)
+    fw = frameworks.page_levels(c, sigs, profile)  # the levels the company page prints; the dataset never sets a rule level
+    trl, trl_src = fw["trl"]["level"], "register rule"
     if profile and profile.get("trl") is not None:
         trl, trl_src = profile["trl"], "BlueInvest profile"
     if trl is None:

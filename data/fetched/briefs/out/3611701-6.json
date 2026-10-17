@@ -1,0 +1,39 @@
+{
+ "company_key": "3611701-6",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Sea Building Oy is a company registered on 2026-03-25 under the industry code 41000, construction of buildings.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3611701-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3611701-6"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The name contains a sea word but the registered industry is building construction and the record shows no ocean use; the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3611701-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3611701-6"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3611701-6"
+   ]
+  },
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3611701-6"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3611701-6"
+   ]
+  }
+ }
+}

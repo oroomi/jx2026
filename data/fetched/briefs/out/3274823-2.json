@@ -1,0 +1,45 @@
+{
+ "company_key": "3274823-2",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Valkama Watercrafts Oy is a portfolio company registered on 2022-03-16 under the industry code 30120, building of pleasure and sporting boats.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3274823-2",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3274823-2"
+   ]
+  },
+  "thesis_fit": {
+   "text": "It is a declared portfolio company, and the memo reads thesis fit as High.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3274823-2"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 4 and investment readiness is level 3; ocean impact reads Low.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Motion Ventures as an investor, Business Turku as a programme or funding source and Finnish Defence Forces - Navy as a partner.",
+   "cites": [
+    "https://carbon-pulse.com/379390/",
+    "https://businessturku.fi/en/blue-economy-and-maritime/",
+    "https://puolustusvoimat.fi"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact Low, business readiness Medium, investment readiness Low, thesis fit High), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3274823-2"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: ocean impact is Low on the stored evidence; investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3274823-2"
+   ]
+  }
+ }
+}

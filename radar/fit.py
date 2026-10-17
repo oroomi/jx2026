@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import re
 
+from radar import labels
 from radar import store
 
 RULE_LINE = ("Reasons come from the thesis file and the database only: an industry code on the thesis list is low confidence, "
@@ -67,6 +68,53 @@ def looks_like_person(name: str, thesis: dict) -> bool:
     return not any(g.casefold() in biz for g in given) and not matched_keywords(" ".join(given), thesis)
 
 
+# Capitalised words that are never part of a private person's name in our texts: months, weekdays, places and sentence words.
+GENERIC_CAPS = {"january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november",
+                "december", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday", "finland", "finnish",
+                "europe", "european", "nordic", "baltic", "helsinki", "turku", "espoo", "tampere", "the", "this", "that", "and",
+                "for", "with", "from", "news", "press", "release", "business", "blue", "ocean", "sea", "union", "commission",
+                "programme", "program", "project", "university", "city", "port", "ministry", "science", "park", "institute", "centre",
+                "center", "foundation", "fund", "accelerator", "incubator", "award", "prize", "expo", "summit", "week", "forum",
+                "association", "challenge", "innovation", "research", "council", "agency"}
+REDACTED = "[name redacted]"
+_TOKEN = re.compile(r"\S+")
+_EDGE = "\"'()[]{},.;:!?“”‘’«»"
+
+
+def redact_person_names(text: str | None, company_name: str | None, thesis: dict, also_allowed: tuple[str, ...] = ()) -> str:
+    """Replace every run of two or more consecutive capitalised name-shaped words (the looks_like_person word shape) that are not
+    part of the company's legal name, a business word of the thesis (non_person_words, keywords, company suffixes) or a generic
+    word with "[name redacted]". Over-redaction is the accepted cost: a page never prints a private person's name."""
+    text = text or ""
+    own = {w.casefold().strip(_EDGE) for n in (company_name or "", *also_allowed) for w in n.split()}
+    biz = {str(w).casefold() for w in thesis.get("non_person_words") or []} | set(PERSON_SUFFIXES) | GENERIC_CAPS
+
+    def is_name(core: str) -> bool:
+        f = core.casefold()
+        return bool(_NAME_WORD.fullmatch(core)) and f not in own and f not in biz and not matched_keywords(core, thesis)
+
+    toks = []
+    for m in _TOKEN.finditer(text):
+        raw = m.group(0)
+        core = raw.strip(_EDGE)
+        lead = raw.find(core) if core else 0
+        toks.append({"start": m.start() + lead, "end": m.start() + lead + len(core), "name": bool(core) and is_name(core),
+                     "lead": lead > 0, "trail": bool(core) and lead + len(core) < len(raw), "gap_ok": True})
+    for a, b in zip(toks, toks[1:]):
+        b["gap_ok"] = text[a["end"]:b["start"]].strip() == "" and not a["trail"] and not b["lead"]
+    spans, run = [], []
+    for t in toks + [{"name": False, "gap_ok": False}]:
+        if t["name"] and run and t["gap_ok"]:
+            run.append(t)
+            continue
+        if len(run) >= 2:
+            spans.append((run[0]["start"], run[-1]["end"]))
+        run = [t] if t["name"] else []
+    for a, b in reversed(spans):
+        text = text[:a] + REDACTED + text[b:]
+    return text
+
+
 def _company_evidence(company: dict) -> dict:
     return store.evidence({"source_url": company.get("source_url"), "fetched_at": company.get("fetched_at"),
                            "date": company.get("founded") or (company.get("fetched_at") or "")[:10],
@@ -92,7 +140,7 @@ def fit(company: dict, signals: list[dict], thesis: dict) -> list[dict]:
     feed_types = set(thesis.get("feed_signal_types") or [])
     for s in signals:
         if s.get("signal_type") in feed_types:
-            label = s.get("type_label") or store.TYPE_LABELS.get(s["signal_type"], s["signal_type"])
+            label = s.get("type_label") or labels.signal_label(s["signal_type"])
             text = f"{label} on {s.get('date_label') or s.get('date')}" + (f": {s['detail']}" if s.get("detail") else ".")
             reasons.append({"kind": "signal", "confidence": s.get("confidence"), "text": text,
                             "evidence": s.get("evidence") or store.evidence(s)})

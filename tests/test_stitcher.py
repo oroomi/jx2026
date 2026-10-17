@@ -468,3 +468,46 @@ def test_an_unmapped_label_is_never_an_early_find(conn):
                                   capture=lambda u: ("2025-03-06", "https://web.archive.org/x"), refetch=pages.get, today="2026-10-16")
     assert res["confirmed"] == 1 and res["not_emitted"] == 1
     assert earliness.backtest(conn, thesis.load())["stitcher"]["companies"] == 0
+
+
+
+def test_evidence_words_come_from_configuration():
+    from radar import thesis
+    th = thesis.load()
+    assert "aquacultur" in stitcher.evidence_words(" consulting services for aquaculture companies ", th)
+    assert stitcher.evidence_words(" consulting services for accounting firms ", th) == []
+    c = dict(FIT_CO, name="Meriva Oy", company_key="9100003-3", y_tunnus="9100003-3")
+    page = "Meriva Oy provides consulting services for aquaculture companies, investors, and authorities."
+    r = stitcher.check_fit(c, {"thesis_evidence": "yes", "quote": page, "source_url": "https://meriva.example/"}, th,
+                           fetch=lambda u: page, capture=lambda u: (None, None))
+    assert r["thesis_evidence"] == "yes" and r["thesis_word"] == "aquacultur"  # 'meri' in the name never counts
+
+
+
+def test_long_dashes_become_hyphens_and_still_match():
+    q = stitcher.redact_people("the serum mist \u2014 one of seven new products", "Fixture Oy")
+    assert q == "the serum mist - one of seven new products"
+    assert stitcher._quote_span(q, " " + stitcher.fold("the serum mist \u2014 one of seven new products") + " ") is not None
+
+
+def test_intake_fit_rechecks_from_the_checked_record_when_no_raw_answer(tmp_path):
+    """The raw answer copies were removed from the repo; a re-check reads the answer kept inside the checked record."""
+    from radar import thesis
+    tsv = tmp_path / "top.tsv"
+    tsv.write_text("9100001-1\tFixture Harbour Oy\n", encoding="utf-8")
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "9100001-1.json").write_text(json.dumps({"company_key": "9100001-1", "thesis_evidence": "yes", "llm_answer": "yes",
+                                                    "quote": "Fixture Harbour Oy builds electric work boats for port operators.",
+                                                    "source_url": "https://fixture-harbour.example/"}))
+    assert stitcher.saved_fit_answer("9100001-1", tmp_path / "missing", out)["thesis_evidence"] == "yes"
+    counts = stitcher.intake_fit(tsv, None, out, thesis.load(), fetch=lambda u: FIT_PAGES[u], capture=lambda u: (None, None),
+                                 company=lambda k, n: dict(FIT_CO, company_key=k, name=n, y_tunnus=k))
+    assert counts == {"yes": 1, "no": 0, "unclear": 0}
+
+
+def test_intake_fit_records_have_one_copy_in_the_repo():
+    from pathlib import Path
+    d = Path(__file__).resolve().parent.parent / "data" / "fetched" / "stitcher" / "intake_fit"
+    if d.is_dir():
+        assert not (d / "proposals").exists()

@@ -1,0 +1,291 @@
+{
+ "company_key": "3197621-7",
+ "name": "Sub Marine Store Oy",
+ "business_id": "3197621-7",
+ "founded": "2021-03-15",
+ "country": "FI",
+ "group": "cohort",
+ "register_status": "active",
+ "industry": {
+  "code": "46900",
+  "description": "Non-specialised wholesale trade"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-02-09",
+   "date_label": "2026-02-09",
+   "source_url": "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (accelerator_or_programme_entry). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "bf_funding",
+   "type_label": "Business Finland funding",
+   "date": "2026-01-01",
+   "date_label": "2026 (year only)",
+   "source_url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+   "source_label": "Business Finland export",
+   "confidence": "high",
+   "adapter": "businessfinland",
+   "title": null,
+   "note": null,
+   "amount_eur": 99450.0
+  },
+  {
+   "ref": "S3",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2023-01-01",
+   "date_label": "2023 (year only)",
+   "source_url": "https://www.substore.fi/pages/about",
+   "source_label": "declared research",
+   "confidence": "low",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2021-03-15",
+   "date_label": "2021-03-15",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3197621-7",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2021-03-15",
+   "date_label": "2021-03-15",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7",
+   "source_label": "PRH/YTJ register",
+   "confidence": "high",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": 4,
+   "rule": "Business Finland or EU project funding: a funded development project",
+   "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 4,
+   "rule": "first grant: Business Finland funding decision or EU project participation",
+   "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": 3,
+   "rule": "public non-dilutive funding (Business Finland decision or EU project)",
+   "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Legal name contains thesis keyword: marin, marine.",
+   "confidence": "medium",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Medium / Low / Medium",
+  "note": "more public evidence needed: Ocean impact",
+  "why": [
+   {
+    "text": "Investment readiness Low (level 2): 2 of the 10 investment dimensions have public evidence",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   },
+   {
+    "text": "Thesis fit: declared cohort company",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7"
+   },
+   {
+    "text": "Why now: BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) closes 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Investment readiness is Low on the stored evidence",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7"
+   }
+  ]
+ },
+ "next": {
+  "investors": [
+   {
+    "name": "Kongsberg (Kongsberg Maritime / Kongsberg Digital)",
+    "kind": "investor corporate",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.5",
+    "url": "https://www.kongsberg.com"
+   },
+   {
+    "name": "Ilmarinen",
+    "kind": "investor vc",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.0",
+    "url": "https://www.ilmarinen.fi"
+   },
+   {
+    "name": "Varma",
+    "kind": "investor vc",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.0",
+    "url": "https://www.varma.fi"
+   },
+   {
+    "name": "Farvatn Venture",
+    "kind": "investor angel",
+    "reason": "caps ['C4']; kw []; stage 1.0; impact 0/5",
+    "url": "https://ecosystem.fi/?p=1261"
+   },
+   {
+    "name": "Aboa Advest",
+    "kind": "investor angel",
+    "reason": "caps ['C4']; kw []; stage 0.5",
+    "url": "https://pulse2.com/redstone-reaches-first-close-of-e25-million-blue-fund-to-back-ocean-technology-startups/"
+   }
+  ],
+  "funding": [
+   {
+    "name": "EIC Accelerator (European Innovation Council)",
+    "kind": "public funder",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.5; impact 0/5",
+    "url": "https://eic.ec.europa.eu"
+   },
+   {
+    "name": "Interreg Central Baltic Programme 2021-2027",
+    "kind": "public funder",
+    "reason": "caps ['C4']; kw []; stage 0.5; impact 0/5",
+    "url": "https://centralbaltic.eu"
+   },
+   {
+    "name": "Nordic Innovation (NOCA - Nordic Ocean Cluster Accelerator)",
+    "kind": "public funder",
+    "reason": "caps ['C4']; kw []; stage 0.5; impact 0/5",
+    "url": "https://www.nordicinnovation.org/programs/nordic-ocean-cluster-accelerator-noca"
+   },
+   {
+    "name": "Research Council of Finland (Academy of Finland)",
+    "kind": "public funder",
+    "reason": "caps ['C4']; kw []; stage 0.5; impact 0/5",
+    "url": "https://www.aka.fi"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "partners": [
+   {
+    "name": "Finnish Meteorological Institute (FMI) - Ice Service",
+    "kind": "research org",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.5",
+    "url": "https://en.ilmatieteenlaitos.fi"
+   },
+   {
+    "name": "Sabik Oy (SPX Aids to Navigation Oy)",
+    "kind": "corporate",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.5",
+    "url": "https://www.sabik.com"
+   },
+   {
+    "name": "Arctia Oy (Arctia Icebreaking Oy / Arctia Meritaito Oy)",
+    "kind": "shipowner operator",
+    "reason": "caps ['C9']; kw []; stage 0.5",
+    "url": "https://www.arctia.fi"
+   },
+   {
+    "name": "Finnish Defence Forces - Navy (Merivoimat) / Squadron 2020",
+    "kind": "corporate",
+    "reason": "caps ['C9']; kw []; stage 0.5",
+    "url": "https://puolustusvoimat.fi"
+   },
+   {
+    "name": "Finnish Environment Institute (Syke)",
+    "kind": "research org",
+    "reason": "caps ['C4']; kw []; stage 0.5",
+    "url": "https://www.syke.fi"
+   }
+  ]
+ },
+ "counts": {
+  "signals": 5,
+  "by_type": {
+   "ecosystem_event": 2,
+   "bf_funding": 1,
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 5,
+  "next_funding": 5,
+  "next_partners": 5
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7",
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://centralbaltic.eu",
+  "https://ecosystem.fi/?p=1261",
+  "https://eic.ec.europa.eu",
+  "https://en.ilmatieteenlaitos.fi",
+  "https://pulse2.com/redstone-reaches-first-close-of-e25-million-blue-fund-to-back-ocean-technology-startups/",
+  "https://puolustusvoimat.fi",
+  "https://tietopalvelu.ytj.fi/yritys/3197621-7",
+  "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+  "https://www.aka.fi",
+  "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+  "https://www.arctia.fi",
+  "https://www.ilmarinen.fi",
+  "https://www.kongsberg.com",
+  "https://www.nordicinnovation.org/programs/nordic-ocean-cluster-accelerator-noca",
+  "https://www.sabik.com",
+  "https://www.substore.fi/pages/about",
+  "https://www.syke.fi",
+  "https://www.varma.fi"
+ ]
+}

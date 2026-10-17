@@ -12,47 +12,12 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from radar import db as db_mod
+from radar import labels
 from radar import thesis as thesis_mod
 
-# Adapter NAME -> human source name. Anything else falls back to the url host, never a guess.
-SOURCE_LABELS = {
-    "prh": "PRH/YTJ register",
-    "hilma": "Hilma notice",
-    "businessfinland": "Business Finland export",
-    "cordis": "CORDIS",
-    "blueinvest": "BlueInvest pipeline",
-    "declared": "declared list",
-    "tax_registers": "PRH/YTJ tax registers",
-    "openalex": "OpenAlex",
-    "webarchive": "Internet Archive",
-    "ecosystem": "declared research",
-}
-TYPE_LABELS = {
-    "register_entry": "New register entry",
-    "bf_funding": "Business Finland funding",
-    "eu_project": "EU project",
-    "blueinvest": "BlueInvest pipeline",
-    "patent": "Patent filing",
-    "public_contract": "Public contract",
-    "job_ad": "Open job ad",
-    "site_customer": "Customer on own site",
-    "first_sales": "First sales",
-    "first_hire": "First hire",
-    "sales_ended": "Sales ended",
-    "employer_ended": "Employer register ended",
-    "research_output": "Research output",
-    "website_first_seen": "Website first seen",
-    "website_milestone": "Website milestone",
-    "pilot_named": "First customer or pilot named",
-    "certification": "Certification or type approval",
-    "programme_entry": "Accelerator or programme entry",
-    "exhibitor": "Exhibitor or demo",
-    "award": "Award or pitch win",
-    "funding_round": "Funding round",
-    "product_launch": "Product launch",
-    "public_funding": "Grant or public funding",
-    "ecosystem_event": "Other dated event",
-}
+# Labels live in radar/labels.py, the one label table; these names stay for the call sites that read them.
+SOURCE_LABELS = labels.SOURCE_LABELS
+TYPE_LABELS = labels.SIGNAL_LABELS
 # Wording follows the docstring of radar/emit.py.
 CONFIDENCE_RULES = {
     "high": "the source names the company or its business id directly and states the date.",
@@ -129,7 +94,38 @@ def rule_text(thesis: dict) -> str:
     return (f"Companies from outside the declared cohort and portfolio whose earliest public signal in the last {days} days "
             f"is shown, newest first, once each. A company is listed as a match only when we can say why: its industry code "
             f"or registered line of business fits the thesis, a contract or project text states the match, or a thesis word in "
-            f"its legal name is backed by a second source. Name-only matches are kept in a closed Weak matches list.")
+            f"its legal name is backed by a record from a different source family (a PRH notice never backs a PRH register entry). "
+            f"Listed companies (Oyj) are left out. Name-only matches are kept in a closed Weak matches list.")
+
+
+# Source families for corroboration: these adapters all read the one PRH/YTJ registry, so a second record from any of them
+# is the same source again, never independent support for a name word.
+REGISTRY_FAMILY = "prh"
+SOURCE_FAMILIES = {"prh": REGISTRY_FAMILY, "prh_notices": REGISTRY_FAMILY, "prh_intake": REGISTRY_FAMILY, "prh_recent": REGISTRY_FAMILY,
+                   "tax_registers": REGISTRY_FAMILY}
+
+
+def source_family(adapter: str | None) -> str:
+    return SOURCE_FAMILIES.get(adapter or "", adapter or "")
+
+
+CORROBORATION_RULE = ("A name word counts only when the second record comes from a different source family than the row's own: "
+                      "PRH register entries, PRH notices and PRH tax registers are one family (the same registry), so a PRH record never "
+                      "corroborates another PRH record; otherwise the row is a weak match.")
+
+# Legal forms of listed companies: never an early-stage discovery, so left out of the feed (counted in the footer).
+LISTED_FORM_WORDS = ("oyj", "abp")
+
+
+def is_listed_company(name: str | None) -> bool:
+    words = re.findall(r"[a-zåäö]+", (name or "").casefold())
+    return any(w in LISTED_FORM_WORDS for w in words[-2:])
+
+
+def excluded_code(code: str | None, thesis: dict) -> bool:
+    """True when the industry code starts with a prefix the sector file excludes from the feed (feed_exclude_code_prefixes)."""
+    c = (code or "").strip()
+    return bool(c) and any(c.startswith(str(p)) for p in thesis.get("feed_exclude_code_prefixes") or [])
 
 
 REASON_IDS = ("industry_code", "line_of_business", "own_text", "corroborated_keyword")
@@ -137,7 +133,7 @@ REASON_MEANING = {
     "industry_code": "the PRH industry code is on the thesis list (exact match).",
     "line_of_business": "a thesis word starts a word in the registered line-of-business text.",
     "own_text": "the source's own text (Hilma notice title, CORDIS project title and objective, BlueInvest profile text) contains a thesis word. Our own annotations are never read.",
-    "corroborated_keyword": "a thesis word is in the legal name and a second, independent source also has a record of the company.",
+    "corroborated_keyword": "a thesis word is in the legal name and a record from a different source family also has the company (PRH register entries, PRH notices and PRH tax registers are one registry, so they never corroborate each other).",
 }
 _WHY_ORDER = ("industry_code", "line_of_business", "own_text", "corroborated_keyword")
 # Signal types whose SOURCE text is stored: Hilma notice title (inside detail), CORDIS title and objective (signal_text),
@@ -222,12 +218,13 @@ def explain(row: dict, others: list, thesis: dict, texts: dict | None = None) ->
         hit = _own_text_hit(sig, thesis, texts)
         if hit:
             reasons.append("own_text")
-            parts["own_text"] = f"the {TYPE_LABELS.get(sig['signal_type'], sig['signal_type']).lower()} text contains '{hit}'"
+            parts["own_text"] = f"the {labels.signal_label(sig['signal_type']).lower()} text contains '{hit}'"
             break
-    second = next((o for o in others if o["adapter"] != row["adapter"]), None)
+    row_family = source_family(row["adapter"])
+    second = next((o for o in others if source_family(o["adapter"]) != row_family), None)
     if name_hits and second is not None:
         reasons.append("corroborated_keyword")
-        src = SOURCE_LABELS.get(second["adapter"], second["adapter"])
+        src = labels.source_label(second["adapter"])
         parts["corroborated_keyword"] = (f"the legal name has '{name_hits[0]}' and a {src} record from "
                                          f"{date_label(second)} supports it")
     reasons.sort(key=_WHY_ORDER.index)
@@ -277,10 +274,7 @@ def evidence(row) -> dict:
     p, dlabel = _date_fields(r.get("date"), r.get("date_precision", "day"))
     adapter = r.get("adapter")
     url = r.get("source_url") or r.get("url")
-    label = SOURCE_LABELS.get(adapter)
-    if label is None:
-        host = urlparse(url or "").netloc
-        label = host or "unknown source"
+    label = labels.source_label(adapter, url)
     conf = r.get("confidence")
     return {
         "label": label,
@@ -353,6 +347,8 @@ def _feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500
     for key, rs in per.items():
         if is_partner_org(rs[0]["name"]):
             continue
+        if is_listed_company(rs[0]["name"]) or excluded_code(rs[0]["industry_code"], thesis):
+            continue  # counted in feed_counts as listed / excluded code family
         if fit.looks_like_person(rs[0]["name"], thesis) and all(o["signal_type"] == "register_entry" for o in others[key]):
             hidden += 1
             continue
@@ -364,7 +360,7 @@ def _feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500
             f"SELECT COUNT(*) FROM signals WHERE company_key=? AND signal_type IN ({q}) AND date < ?",
             [key, *all_types, start.isoformat()]).fetchone()[0]
         d = dict(best)
-        d["type_label"] = TYPE_LABELS.get(d["signal_type"], d["signal_type"])
+        d["type_label"] = labels.signal_label(d["signal_type"])
         d["earlier_count"] = earlier
         d["signal_count"] = len(rs)
         d["evidence"] = evidence(d)
@@ -404,11 +400,25 @@ def feed_counts(conn, thesis, *, today=None) -> dict:
             [*types, start.isoformat(), end.isoformat()]).fetchone()[0]
         future = conn.execute(
             f"SELECT COUNT(*) FROM signals WHERE signal_type IN ({q}) AND date > ?", [*types, end.isoformat()]).fetchone()[0]
+    listed, excluded_codes = _left_out(conn, thesis, today)
     last = conn.execute("SELECT MAX(fetched_at) FROM signals").fetchone()[0]
     return {"window_start": start.isoformat(), "window_end": end.isoformat(), "window_days": days,
             "companies": len(rows), "hidden_personal": hidden, "main": main, "weak": len(rows) - main, "by_reason": by_reason,
             "year_only_not_entry": year_only, "by_type": by_type, "by_confidence": by_conf,
-            "excluded_declared": excluded, "future_dated": future, "last_fetched": last}
+            "excluded_declared": excluded, "future_dated": future, "last_fetched": last,
+            "excluded_listed": listed, "excluded_codes": excluded_codes,
+            "excluded_code_prefixes": [str(p) for p in thesis.get("feed_exclude_code_prefixes") or []]}
+
+
+def _left_out(conn, thesis, today) -> tuple[int, int]:
+    """(listed companies, companies in an excluded code family) that had an in-window feed signal and were left out."""
+    seen: dict[str, tuple[str, str | None]] = {}
+    for r in _in_window_rows(conn, thesis, today, _feed_types(thesis), "feed"):
+        if not is_year_only(r):
+            seen[r["company_key"]] = (r["name"], r["industry_code"])
+    listed = sum(1 for n, _ in seen.values() if is_listed_company(n) and not is_partner_org(n))
+    codes = sum(1 for n, c in seen.values() if not is_listed_company(n) and excluded_code(c, thesis) and not is_partner_org(n))
+    return listed, codes
 
 
 def _fold(s: str) -> str:
@@ -478,7 +488,7 @@ def company(conn, key) -> dict | None:
     sigs = []
     for s in conn.execute("SELECT * FROM signals WHERE company_key = ? ORDER BY date DESC, id DESC", (key,)):
         d = dict(s)
-        d["type_label"] = TYPE_LABELS.get(d["signal_type"], d["signal_type"])
+        d["type_label"] = labels.signal_label(d["signal_type"])
         d["evidence"] = evidence(d)
         sigs.append(d)
     with_precision(conn, sigs)

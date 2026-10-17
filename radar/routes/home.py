@@ -34,6 +34,14 @@ def asset_version() -> str:
 
 templates.env.globals["asset_v"] = asset_version()
 
+from radar import labels as _labels  # noqa: E402
+
+templates.env.filters["signal_label"] = _labels.signal_label
+templates.env.filters["source_label"] = _labels.source_label
+templates.env.filters["plain"] = _labels.plain
+templates.env.filters["origin_label"] = _labels.origin_label
+templates.env.filters["plain_text"] = _labels.plain_text
+
 
 def feed_rows(conn, th: dict) -> list[dict]:
     """First feed-type signal per company, inside the window, newest first."""

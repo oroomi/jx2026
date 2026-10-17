@@ -56,13 +56,13 @@ Each endpoint with one example (`BASE=http://127.0.0.1:8130` on the server, or t
 
 ```
 curl -s "$BASE/api"                                         # endpoint list and thesis ids
-curl -s "$BASE/api/companies?q=kelluu"                      # search by name, key or Y-tunnus (no q: all, by name, limit/offset)
-curl -s "$BASE/api/company/2902007-2"                       # facts, signals with sources, readiness levels, who comes next, next step
+curl -s "$BASE/api/companies?q=viva"                        # search by name, key or Y-tunnus (no q: all, by name, limit/offset)
+curl -s "$BASE/api/company/2962040-6"                       # facts, signals with sources, readiness levels, who comes next, next step
 curl -s "$BASE/api/feed?thesis=redstone_apelago_blue&window=30"   # feed rows with strength, reasons and the why line
 curl -s "$BASE/api/backtest?thesis=redstone_apelago_blue"   # earliness backtest per cohort company
 ```
 
-On the 16 Oct snapshot (`RADAR_DATA_DIR=data/snapshot`, measured locally): `/api/company/2902007-2` 9 ms,
+On the 16 Oct snapshot (`RADAR_DATA_DIR=data/snapshot`, measured locally): `/api/company/2962040-6` 8 ms,
 `/api/backtest` 8 ms, `/api/companies?q=oy` 14 ms, `/api/feed` 270 to 330 ms. `tests/test_api.py` holds each under 500 ms.
 
 ## (c) MATCHING: rules that turn rows into answers
@@ -111,16 +111,16 @@ python3 -m radar.build --adapters prh,hilma
 python3 -m radar.adapters.cordis
 python3 -m radar.build --thesis config/thesis_health_turku.yaml
 python3 -m radar.store feed                       # the feed rule and counts as text
-python3 -m radar.store company 2902007-2          # one company as text
+python3 -m radar.store company 2962040-6          # one company as text
 
 # MATCHING: pure functions over a store
 python3 -m radar.earliness                         # backtest as text
-python3 -c "from radar import matching, thesis; import json; print(json.dumps(matching.who_comes_next('2902007-2', thesis.load()), indent=2, ensure_ascii=False))"
-python3 -c "from radar import matching, thesis; print(matching.next_step('2902007-2', thesis.load()))"
+python3 -c "from radar import matching, thesis; import json; print(json.dumps(matching.who_comes_next('2962040-6', thesis.load()), indent=2, ensure_ascii=False))"
+python3 -c "from radar import matching, thesis; print(matching.next_step('2962040-6', thesis.load()))"
 
 # API and WEB: the same app (spare port for a local check; production is 8130)
 python3 -m uvicorn app:app --host 127.0.0.1 --port 8164
-curl -s http://127.0.0.1:8164/api/company/2902007-2
+curl -s http://127.0.0.1:8164/api/company/2962040-6
 
 # Database browser: start command in deploy/datasette/README.md (port 8170)
 

@@ -16,7 +16,7 @@
 {% if res.stitcher and res.stitcher.runs %}
 <div class="bt-stitch" id="stitcher-early">
   <p>Counted apart, never added to the groups above: <strong>{{ res.stitcher.companies }}</strong> of {{ res.total }} cohort companies have an event found by the AI stitcher and checked by code whose page the Internet Archive captured before the company's reference date ({{ res.stitcher.runs }} of {{ res.total }} have a stitcher run).</p>
-  {% if res.stitcher.rows %}<ul>{% for r in res.stitcher.rows %}<li><a href="/c/{{ r.company_key }}#stitch">{{ r.name }}</a>: {{ type_labels.get(r.event.signal_type, (r.event.suggested_type or r.event.signal_type).replace("_", " ")) }} {{ r.event.date }}, page public since <a href="{{ r.event.archive_url }}" target="_blank" rel="noopener nofollow">{{ r.event.public_since }}</a> (<a href="{{ r.event.source_url }}" target="_blank" rel="noopener nofollow">source</a>)</li>{% endfor %}</ul>{% endif %}
+  {% if res.stitcher.rows %}<ul>{% for r in res.stitcher.rows %}<li><a href="/c/{{ r.company_key }}#stitch">{{ r.name }}</a>: {{ (r.event.signal_type if r.event.signal_type in type_labels else (r.event.suggested_type or r.event.signal_type)) | signal_label }} {{ r.event.date }}, page public since <a href="{{ r.event.archive_url }}" target="_blank" rel="noopener nofollow">{{ r.event.public_since }}</a> (<a href="{{ r.event.source_url }}" target="_blank" rel="noopener nofollow">source</a>)</li>{% endfor %}</ul>{% endif %}
 </div>
 {% endif %}
 
@@ -37,7 +37,7 @@
       <td><time datetime="{{ w.intake_date }}">{{ w.signal.date_label or w.intake_date }}</time>, {{ w.signal.label | lower }}
         (<a href="{{ w.signal.source_url }}" target="_blank" rel="noopener">{{ w.signal.source_label }}</a>)
         <div class="muted">{% if w.before_entry %}before cohort entry {{ r.reference_date }}{% else %}after cohort entry {{ r.reference_date }}{% endif %}</div></td>
-      <td>{% if w.rank and w.size %}rank {{ w.rank }} of {{ w.size }} new {{ w.year }} companies in code family {{ w.family }}{% else %}<span class="hatch">rank not computed: no same-year intake pool stored</span>{% endif %}</td>
+      <td>{% if w.rank and w.size %}rank {{ w.rank }} of {{ w.size }} new {{ w.year }} companies in code family {{ w.family }}{% else %}<span class="hatch">rank not computed: {{ w.pool_note or "no same-year intake pool stored" }}</span>{% endif %}</td>
       {% else %}
       <td><span class="hatch">not in intake</span> <span class="muted">{{ w.reason }}</span></td>
       <td><span class="muted">none</span></td>
@@ -129,7 +129,7 @@
 <section aria-labelledby="lim-h">
   <h2 id="lim-h">Limits</h2>
   <p>The reference date is a programme start month, not a company's entry date; individual pipeline entry dates are not public. A register entry shows that a company exists, not that anyone was interested in it. {{ res.none }} of {{ res.total }} companies have no counted signal in the sources we connected, which says nothing about whether they were findable elsewhere.</p>
-  <p>Not connected, no signals stored: {% if not_connected %}{% for t in not_connected %}{{ type_labels.get(t, t) | lower }}{{ ", " if not loop.last }}{% endfor %}{% else %}none of the feed signal types is empty{% endif %}; connector slots, not connected: {{ slots | join(", ") }}. BlueInvest pipeline profiles carry no listing date, so they are noted and never counted.</p>
+  <p>Not connected, no signals stored: {% if not_connected %}{% for t in not_connected %}{{ t | signal_label | lower }}{{ ", " if not loop.last }}{% endfor %}{% else %}none of the feed signal types is empty{% endif %}; connector slots, not connected: {{ slots | join(", ") }}. BlueInvest pipeline profiles carry no listing date, so they are noted and never counted.</p>
 </section>
 {% endif %}
 {% endblock %}

@@ -97,7 +97,7 @@ def test_thesis_reference_key_wins(res):
 
 def test_rule_text_has_every_clause(res):
     t = earliness.rule_text(res[2])
-    for clause in ("group_tag cohort", "2026-01-01", "programme start month", "feed signal types", "no more than 5 years", "not counted",
+    for clause in ("declared cohort group", "2026-01-01", "programme start month", "feed signal types", "no more than 5 years", "not counted",
                    "outside the thesis rule", "declared research", "medium or high", "four groups",
                    "1 January", "year only", "30.44", "rounded down", "N months before", "N months after", "strictly before",
                    "later or same", "No public signal", "add up to the cohort size", "BlueInvest", "never moves", "Confidence", "never proof"):

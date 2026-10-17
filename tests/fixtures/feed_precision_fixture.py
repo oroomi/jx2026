@@ -1,5 +1,5 @@
 """Test-only builder: labelled SYNTHETIC rows for the feed precision rule. Never loaded by the app.
-Thesis words used: code 30110 and the words 'sea', 'water' (default thesis); code 86900 and 'health' (health thesis)."""
+Thesis words used: code 30110 and the words 'sea', 'water' (default thesis); code 32500 and 'health' (health thesis)."""
 from __future__ import annotations
 
 from datetime import date, timedelta

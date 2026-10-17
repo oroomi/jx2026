@@ -44,7 +44,8 @@ import csv
 
 import httpx
 
-from radar import emit
+from radar import labels
+from radar import emit, frameworks
 from radar.adapters._fetch import CACHE_ROOT, UA, Blocked, cached_get
 from radar.adapters.openalex import core_name, fold
 from radar.adapters.webarchive import CDX, archive_url, domain_of
@@ -355,6 +356,9 @@ def read(conn: sqlite3.Connection, run_id: str, company: dict, queries: list[str
     return out
 
 
+_DASHES = str.maketrans({"\u2014": "-", "\u2013": "-"})  # long dashes become hyphens: folding ignores punctuation, so quotes still match
+
+
 def redact_people(text: str, company_name: str) -> str:
     """Replace person-shaped runs of capitalised words ("Firstname Lastname") with [name]. A run survives only if one of
     its words is part of the company name or a known non-person word. Over-redaction is the accepted cost."""
@@ -365,7 +369,7 @@ def redact_people(text: str, company_name: str) -> str:
         keep = any(w in own or w in _NOT_PERSON for w in words) or any(_hits(ws, " " + " ".join(words) + " ")
                                                                        for ws in TYPE_WORDS.values())
         return m.group(0) if keep else "[name]"
-    return _PERSON_RUN.sub(sub, text or "")
+    return _PERSON_RUN.sub(sub, (text or "").translate(_DASHES))
 
 
 # ---------------------------------------------------------------- step 3: verify (plain code decides)
@@ -776,10 +780,11 @@ def _reason_text(reason: str | None) -> str:
     return REASON_TEXT.get(code, code.replace("_", " ") or "no reason logged")
 
 
-def page_view(conn: sqlite3.Connection, company_key: str) -> dict | None:
+def page_view(conn: sqlite3.Connection, company_key: str, thesis: dict | None = None) -> dict | None:
     """The latest stitcher run for one company, as the company page shows it: the step counts, what was dropped and why,
-    and each event that passed both checks. None when the company has no run (or the store has no stitch_log)."""
-    from radar import store
+    and each event that passed both checks. None when the company has no run (or the store has no stitch_log).
+    Every text an LLM wrote or chose (queries, quotes, reasons) goes through radar.fit.redact_person_names first."""
+    from radar import fit, store, thesis as thesis_mod
     try:
         r = conn.execute("SELECT run_id FROM stitch_log WHERE company_key=? AND run_id<>'print-prompt' ORDER BY run_id DESC LIMIT 1",
                          (company_key,)).fetchone()
@@ -788,7 +793,14 @@ def page_view(conn: sqlite3.Connection, company_key: str) -> dict | None:
     if r is None:
         return None
     run_id = r[0]
+    th = thesis or thesis_mod.load()
+    co = conn.execute("SELECT name FROM companies WHERE company_key=?", (company_key,)).fetchone()
+    legal = co[0] if co else ""
+    red = lambda t: fit.redact_person_names(t, legal, th) if t else t  # noqa: E731
     rows = [dict(x) for x in conn.execute("SELECT * FROM stitch_log WHERE run_id=? AND company_key=? ORDER BY id", (run_id, company_key))]
+    for x in rows:
+        for f in ("query", "quote", "reason"):
+            x[f] = red(x.get(f))
     by = lambda step, *outcomes: [x for x in rows if x["step"] == step and x["outcome"] in outcomes]  # noqa: E731
     rechecked = bool(by("verify", "confirmed", "refuted"))
     final = by("verify", "confirmed") if rechecked else by("verify", "kept")
@@ -801,7 +813,7 @@ def page_view(conn: sqlite3.Connection, company_key: str) -> dict | None:
         events.append({
             "date": stored_date(x["date"], prec), "date_label": _PREC_LABEL[prec](x["date"]), "date_precision": prec,
             "type_label": (f"{(x['suggested_type'] or 'unlabelled').replace('_', ' ')} (not a radar signal type)" if unmapped
-                           else store.TYPE_LABELS.get(x["signal_type"], x["signal_type"])),
+                           else labels.signal_label(x["signal_type"])),
             "quote": " ".join((x["quote"] or "").split()[:MAX_QUOTE_WORDS]) or None,
             "source_url": x["source_url"], "host": (urlparse(x["source_url"]).hostname or "").removeprefix("www."),
             "public_since": x["public_since"], "archive_url": x["archive_url"], "confidence": x["confidence"],
@@ -810,7 +822,7 @@ def page_view(conn: sqlite3.Connection, company_key: str) -> dict | None:
     events.sort(key=lambda e: (e["date"], e["source_url"]))
     drops = []
     for x in by("verify", "dropped", "refuted"):
-        drops.append({"pass": "second check" if x["outcome"] == "refuted" else "first check", "why": _reason_text(x["reason"]),
+        drops.append({"pass": "second check" if x["outcome"] == "refuted" else "first check", "why": red(_reason_text(x["reason"])),
                       "source_url": x["source_url"], "host": (urlparse(x["source_url"] or "").hostname or "").removeprefix("www.")})
     fetched = {x["source_url"] for x in by("verify", "kept", "dropped")
                if not (x["outcome"] == "dropped" and (x["reason"] or "").split(":")[0] in ("source_not_allowed", "date_in_future"))}
@@ -1000,6 +1012,16 @@ Rules, all mandatory:
 """
 
 
+def evidence_words(folded_text: str, thesis: dict) -> list[str]:
+    """Thesis words in a text, from configuration only: the thesis name keywords (radar.fit rule), its Hilma keywords and
+    the impact-category words of config/frameworks.yaml (word starts, so 'aquacultur' finds aquaculture)."""
+    from radar import fit
+    hits = fit.matched_keywords(folded_text, thesis)
+    stems = [*(thesis.get("hilma_keywords") or []), *(w for ws in frameworks.CATEGORIES.values() for w in ws)]
+    hits += [w for w in stems if re.search(rf"(?<![a-z0-9]){re.escape(fold(w))}", folded_text)]
+    return list(dict.fromkeys(hits))
+
+
 def check_fit(company: dict, answer: dict, thesis: dict, *, fetch=None, capture=first_capture) -> dict:
     """Code decides the label. A 'yes' stands only when the re-fetched page names the company, holds the quote word for
     word and the quote holds a thesis word; a 'no' only when the page names the company and holds the quote. Anything that
@@ -1033,7 +1055,7 @@ def check_fit(company: dict, answer: dict, thesis: dict, *, fetch=None, capture=
         for form in {fold(n), core_name(n)}:
             if form:
                 rest = rest.replace(f" {form} ", " ")
-    words = fit.matched_keywords(rest, thesis)
+    words = evidence_words(rest, thesis)
     if said == "yes" and not words:
         return dict(out, checked="llm said yes; the quote holds no thesis word, so it is not evidence")
     since, arch = capture(url) if said == "yes" else (None, None)
@@ -1043,10 +1065,30 @@ def check_fit(company: dict, answer: dict, thesis: dict, *, fetch=None, capture=
                         + (f"; thesis word '{words[0]}' in the quote" if words else ""))
 
 
-def intake_fit(tsv: str | Path, proposals: str | Path, out_dir: str | Path, thesis: dict, *, fetch=None, capture=first_capture,
+def saved_fit_answer(key: str, proposals: str | Path | None, out_dir: str | Path) -> dict:
+    """The LLM's saved answer for one intake company. A raw answer file <proposals>/<key>.json wins; otherwise the answer is
+    read back from the checked record <out_dir>/<key>.json (llm_answer, quote, source_url), which is the one copy kept in the
+    repo. {} when neither exists or the file does not parse."""
+    raw = Path(proposals) / f"{key}.json" if proposals else None
+    try:
+        if raw is not None and raw.exists():
+            return _extract_json(raw.read_text(encoding="utf-8"))
+        rec_f = Path(out_dir) / f"{key}.json"
+        if not rec_f.exists():
+            return {}
+        rec = json.loads(rec_f.read_text(encoding="utf-8"))
+    except ValueError:
+        return {}
+    if not rec.get("llm_answer"):
+        return {}
+    return {"company_key": key, "thesis_evidence": rec["llm_answer"], "quote": rec.get("quote") or "", "source_url": rec.get("source_url") or ""}
+
+
+def intake_fit(tsv: str | Path, proposals: str | Path | None, out_dir: str | Path, thesis: dict, *, fetch=None, capture=first_capture,
                company=intake_company) -> dict:
-    """Read the intake list (company_key TAB name), check each saved LLM answer <proposals>/<key>.json, write the checked
-    record to <out_dir>/<key>.json. Returns the counts. A missing answer is 'unclear'."""
+    """Read the intake list (company_key TAB name), check each saved LLM answer, write the checked record to <out_dir>/<key>.json.
+    The answer is <proposals>/<key>.json when that file exists, else the answer kept inside the checked record itself
+    (saved_fit_answer). Returns the counts. A missing answer is 'unclear'."""
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
     counts = {a: 0 for a in FIT_ANSWERS}
@@ -1055,11 +1097,7 @@ def intake_fit(tsv: str | Path, proposals: str | Path, out_dir: str | Path, thes
             continue
         key, _, name = line.partition("\t")
         c = company(key.strip(), name.strip())
-        f = Path(proposals) / f"{key.strip()}.json"
-        try:
-            ans = _extract_json(f.read_text(encoding="utf-8")) if f.exists() else {}
-        except ValueError:
-            ans = {}
+        ans = saved_fit_answer(key.strip(), proposals, out)
         rec = check_fit(c, ans, thesis, fetch=fetch, capture=capture) if ans else \
             {"company_key": c["company_key"], "name": c["name"], "thesis_evidence": "unclear", "quote": None, "source_url": None,
              "public_since": None, "archive_url": None, "thesis_word": None, "llm_answer": None, "checked": "no saved LLM answer"}
@@ -1101,7 +1139,7 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"===== {key}\n{build_fit_prompt(c, fit_queries(c, th), th)}")
             return 0
         out = a.out or str(ROOT / "data" / "fetched" / "stitcher" / "intake_fit")
-        counts = intake_fit(a.intake_fit, a.proposals or str(Path(out) / "proposals"), out, th)
+        counts = intake_fit(a.intake_fit, a.proposals, out, th)  # no --proposals: the answers kept in the checked records
         print("RESULT " + json.dumps({"intake_fit": counts, "out": out}, ensure_ascii=False))
         return 0
     conn = db.connect(_resolve_db(a.db, th))

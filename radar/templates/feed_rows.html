@@ -4,7 +4,7 @@
     <a class="co" href="/c/{{ r.company_key }}">{{ r.name }}</a>{% if multi %} <span class="cc" title="Country of the company, from the source record">{{ r.country or "no data" }}</span>{% endif %}
     <p class="meta">{{ r.type_label }} <span class="sep">/</span> <time datetime="{{ r.date[:4] if r.date_precision == "year" else r.date }}">{{ r.date_label or r.date }}</time>{% if r.earlier_count %} <span class="sep">/</span> {{ r.earlier_count }} earlier signal{{ "s" if r.earlier_count != 1 }}{% endif %}</p>
     <p class="why{% if r.strength == 'weak' %} why-weak{% endif %}">{{ r.why }}</p>
-    {% if r.detail and r.signal_type != 'register_entry' %}<p class="detail">{{ r.detail }}</p>{% endif %}
+    {% if r.detail and r.signal_type != 'register_entry' %}<p class="detail">{{ r.detail | plain_text }}</p>{% endif %}
     <div class="proof">
       {{ chip(r.evidence) }}
       {% if r.amount_eur is not none %}<a class="amt" href="{{ r.evidence.url }}" target="_blank" rel="noopener">{{ "{:,.0f}".format(r.amount_eur).replace(",", " ") }} EUR <span class="amt-src">per {{ r.evidence.label }}</span></a>{% endif %}
@@ -18,7 +18,7 @@
     <a class="co" href="/c/{{ r.company_key }}">{{ r.name }}</a>
     <p class="meta">{{ r.signal.label }} <span class="sep">/</span> <time datetime="{{ r.signal.date }}">{{ r.signal.date_label or r.signal.date }}</time> <span class="sep">/</span> {{ r.n }} startup signal{{ "s" if r.n != 1 }}</p>
     <p class="why why-weak">{{ r.why }} <span class="hatch">Thesis fit: no public evidence yet</span></p>
-    {% if r.signal.detail %}<p class="detail">{{ r.signal.detail }}</p>{% endif %}
+    {% if r.signal.detail %}<p class="detail">{{ r.signal.detail | plain_text }}</p>{% endif %}
     <div class="proof">
       {{ chip(r.evidence) }}
       <span class="conf conf-{{ r.signal.confidence }}">How sure: {{ r.signal.confidence }}</span>
@@ -86,7 +86,8 @@
   Main matches by reason: industry code {{ counts.by_reason.industry_code }}, line of business {{ counts.by_reason.line_of_business }}, own text {{ counts.by_reason.own_text }}, corroborated name {{ counts.by_reason.corroborated_keyword }}. Year-only Business Finland records not used as entry dates: {{ counts.year_only_not_entry }}.
   By confidence: high {{ counts.by_confidence.high }}, medium {{ counts.by_confidence.medium }}, low {{ counts.by_confidence.low }}.
   Declared cohort and portfolio companies are excluded ({{ counts.excluded_declared }}).
-  <span class="n-hidden">{{ counts.hidden_personal }}</span> companies hidden: personal-name holding companies.</p>
+  <span class="n-hidden">{{ counts.hidden_personal }}</span> companies hidden: personal-name holding companies.
+  Left out: <span class="n-listed">{{ counts.excluded_listed }}</span> listed compan{{ "y" if counts.excluded_listed == 1 else "ies" }} (Oyj){% if counts.excluded_code_prefixes %} and <span class="n-codes">{{ counts.excluded_codes }}</span> in industry code families the sector file excludes ({{ counts.excluded_code_prefixes | join(", ") }}){% endif %}.</p>
   {% else %}
   <p>Rule: {{ rule }}</p>
   {% endif %}

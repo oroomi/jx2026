@@ -1,0 +1,344 @@
+{
+ "company_key": "3516783-9",
+ "name": "Finnish Sauna Shop Oy",
+ "business_id": "3516783-9",
+ "founded": "2025-03-08",
+ "country": "FI",
+ "group": "cohort",
+ "register_status": "active",
+ "industry": {
+  "code": "47279",
+  "description": "Retail sale of other food n.e.c."
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3516783-9",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-02-09",
+   "date_label": "2026-02-09",
+   "source_url": "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (accelerator_or_programme_entry). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "product_launch",
+   "type_label": "Product launch",
+   "date": "2025-11-13",
+   "date_label": "2025-11-13",
+   "source_url": "https://www.sauna-ing.com/fi/blogs/uutisia/origin-by-ocean-from-ocean-challenge-to-skincare-innovation",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Product launch. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "product_launch",
+   "type_label": "Product launch",
+   "date": "2025-10-31",
+   "date_label": "2025-10-31",
+   "source_url": "https://www.b2match.com/e/wsf2025matchmaking/participations/533281",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Product launch. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "pilot_named",
+   "type_label": "First customer or pilot named",
+   "date": "2025-10-28",
+   "date_label": "2025-10-28",
+   "source_url": "https://saunafromfinland.com/?p=20093",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "First customer or pilot named. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "product_launch",
+   "type_label": "Product launch",
+   "date": "2025-10-16",
+   "date_label": "2025-10-16",
+   "source_url": "https://www.messukeskus.com/?p=59796",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Product launch. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S6",
+   "type": "exhibitor",
+   "type_label": "Exhibitor or demo",
+   "date": "2025-06-04",
+   "date_label": "2025-06-04",
+   "source_url": "https://www.b2match.com/e/wsf2025matchmaking/participations/533281",
+   "source_label": "declared research",
+   "confidence": "low",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Exhibitor or demo. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S7",
+   "type": "startup_notice",
+   "type_label": "startup_notice",
+   "date": "2025-03-14",
+   "date_label": "2025-03-14",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3516783-9",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2025-03-14 (PRH). Register entries: Start-up notification. Record number: 2025/123498.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S8",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2025-03-14",
+   "date_label": "2025-03-14",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3516783-9",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2025-03-14 (PRH). Register entries: Board of directors (HAL). Record number: 2025/123498.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S9",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2025-03-08",
+   "date_label": "2025-03-08",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3516783-9",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S10",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2025-03-08",
+   "date_label": "2025-03-08",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3516783-9",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S11",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2025-03-08",
+   "date_label": "2025-03-08",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3516783-9",
+   "source_label": "PRH/YTJ register",
+   "confidence": "high",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3516783-9"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Product launch on 2025-11-13: Product launch. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://www.sauna-ing.com/fi/blogs/uutisia/origin-by-ocean-from-ocean-challenge-to-skincare-innovation"
+  },
+  {
+   "text": "Product launch on 2025-10-16: Product launch. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://www.messukeskus.com/?p=59796"
+  },
+  {
+   "text": "startup_notice on 2025-03-14: Start-up notification registered 2025-03-14 (PRH). Register entries: Start-up notification. Record number: 2025/123498.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3516783-9"
+  },
+  {
+   "text": "Product launch on 2025-10-31: Product launch. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium; month only, stored as the last day of the month]",
+   "confidence": "medium",
+   "url": "https://www.b2match.com/e/wsf2025matchmaking/participations/533281"
+  },
+  {
+   "text": "First customer or pilot named on 2025-10-28: First customer or pilot named. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://saunafromfinland.com/?p=20093"
+  },
+  {
+   "text": "Exhibitor or demo on 2025-06-04: Exhibitor or demo. Open the source link for the details [declared research (16 Oct 2026); dataset confidence low]",
+   "confidence": "low",
+   "url": "https://www.b2match.com/e/wsf2025matchmaking/participations/533281"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / Medium",
+  "note": "more public evidence needed: Ocean impact, Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Thesis fit: declared cohort company",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3516783-9"
+   },
+   {
+    "text": "Why now: EIC Accelerator 2026 (cut-off 4 Nov 2026) closes 2026-11-04",
+    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3516783-9"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3516783-9"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [
+   {
+    "name": "EIC Accelerator 2026 (cut-off 4 Nov 2026)",
+    "kind": "grant",
+    "reason": "Open: SMEs scaling up; short proposal then full proposal; deadline: 2026-11-04; amount: grant below 2500000 (lump sum) plus equity 1000000 to 10000000. TRL window 6 to 8; company TRL not in public records",
+    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   },
+   {
+    "name": "Helsinki Blue Economy Studio by A'Pelago 2027",
+    "kind": "accelerator",
+    "reason": "Open: pre-seed, seed or early-stage with an MVP; deadline: 2026-11-30; amount: equity-free",
+    "url": "https://www.apelago.fi/helsinki-blue-economy-studio/"
+   },
+   {
+    "name": "A'Pelago Lab2Impact 2027",
+    "kind": "accelerator",
+    "reason": "Open: researchers and research-based innovations (incubator); deadline: TBA",
+    "url": "https://www.apelago.fi/laboff/"
+   },
+   {
+    "name": "A'Pelago Nordic Ocean Accelerator Programme (NOCA) 2027",
+    "kind": "accelerator",
+    "reason": "Open: ocean economy startups and SMEs; deadline: applications open; deadline not stated",
+    "url": "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/"
+   }
+  ],
+  "partners": []
+ },
+ "counts": {
+  "signals": 11,
+  "by_type": {
+   "ecosystem_event": 1,
+   "product_launch": 3,
+   "pilot_named": 1,
+   "exhibitor": 1,
+   "startup_notice": 1,
+   "board_change": 1,
+   "first_hire": 1,
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 5,
+  "next_partners": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3516783-9",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3516783-9",
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json",
+  "https://saunafromfinland.com/?p=20093",
+  "https://tietopalvelu.ytj.fi/yritys/3516783-9",
+  "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/",
+  "https://www.apelago.fi/helsinki-blue-economy-studio/",
+  "https://www.apelago.fi/laboff/",
+  "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+  "https://www.b2match.com/e/wsf2025matchmaking/participations/533281",
+  "https://www.messukeskus.com/?p=59796",
+  "https://www.sauna-ing.com/fi/blogs/uutisia/origin-by-ocean-from-ocean-challenge-to-skincare-innovation"
+ ]
+}

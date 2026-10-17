@@ -15,6 +15,7 @@ import sqlite3
 import statistics
 from datetime import date
 
+from radar import labels
 from radar import fit as fit_mod, store, thesis as thesis_mod
 
 PROFILE_TABLE = "intake_profile"
@@ -38,12 +39,43 @@ def form_ok(form_code: str | None, cfg: dict) -> bool:
     return str(form_code or "") in cfg["company_forms"]
 
 
-def eligible(form_code: str | None, code: str | None, cfg: dict) -> tuple[bool, str | None]:
+# The legal-form word a registered Finnish or Swedish legal name ends with -> (PRH company form code, plain words). PRH requires the
+# form in the registered name, so a name ending in Oy is a limited company even before the wide-intake pass has read its record.
+NAME_FORMS = {"oy": ("16", "limited company (Oy)"), "ab": ("16", "limited company (Ab)"), "osakeyhtiö": ("16", "limited company (Oy)"),
+              "oyj": ("17", "public limited company (Oyj)"), "abp": ("17", "public limited company (Abp)"),
+              "osuuskunta": ("14", "cooperative"), "osk": ("14", "cooperative"), "andelslag": ("14", "cooperative"),
+              "ky": ("13", "limited partnership (Ky)"), "ay": ("5", "partnership (Ay)"), "tmi": (None, "sole trader (Tmi)")}
+FORM_WORDS = {"16": "limited company", "17": "public limited company", "14": "cooperative", "13": "limited partnership", "5": "partnership",
+              "10": "mutual real estate company", "2": "housing company", "19": "branch of a foreign company"}
+
+
+def form_from_name(name: str | None) -> tuple[str | None, str | None]:
+    """(form code, plain words) read from the legal-form word at the end of a legal name; (None, None) when there is none."""
+    words = [w.strip(".,()").casefold() for w in (name or "").split()]
+    for w in reversed(words[-2:]):
+        if w in NAME_FORMS:
+            return NAME_FORMS[w]
+    return None, None
+
+
+def form_of(prof: dict | None, name: str | None) -> tuple[str | None, str | None, str | None]:
+    """(form code, plain words, where it came from): the register's form from the intake profile, else the legal name's form word."""
+    if prof and prof.get("form_code"):
+        code = str(prof["form_code"])
+        return code, FORM_WORDS.get(code) or (prof.get("form_desc") or "").lower() or None, "register"
+    code, words = form_from_name(name)
+    if words:
+        return code, words, "legal name"
+    return None, None, None
+
+
+def eligible(form_code: str | None, code: str | None, cfg: dict, form_words: str | None = None) -> tuple[bool, str | None]:
     """(ok, reason when not). The reason is a plain sentence that names the stored value that failed."""
-    if form_code is None or form_code == "":
-        return False, "legal form not in public records"
+    if not form_code:
+        return False, (f"legal form {form_words} is not a limited company or cooperative" if form_words
+                       else "legal form not in public records")
     if not form_ok(form_code, cfg):
-        return False, f"legal form {form_code} is not a limited company or cooperative"
+        return False, f"legal form {form_words or FORM_WORDS.get(str(form_code)) or form_code} is not a limited company or cooperative"
     if not (code or "").strip():
         return False, "industry code not in public records"
     if not code_ok(code, cfg):
@@ -83,7 +115,7 @@ def _signals(conn, key: str) -> list[dict]:
         "SELECT id AS signal_id, signal_type, date, source_url, confidence, adapter, detail, fetched_at FROM signals WHERE company_key=? ORDER BY date, id", (key,))]
     store.with_precision(conn, rows)
     for r in rows:
-        r["label"] = store.TYPE_LABELS.get(r["signal_type"], r["signal_type"])
+        r["label"] = labels.signal_label(r["signal_type"])
         r["source_label"] = store.evidence(r)["label"]
     return rows
 
@@ -106,11 +138,15 @@ def company_view(conn, th: dict, company: dict, sigs: list[dict]) -> dict:
     """What the company page needs: whether thesis evidence exists, and the startup signals that brought the company in."""
     ex = thesis_evidence(conn, th, company, [dict(s, signal_id=s.get("signal_id", s.get("id"))) for s in sigs])
     cfg = settings(th)
-    out = {"evidence": ex["strength"] == "strong", "why": ex["why"], "intake": False, "signals": [], "intake_date": None, "reason": None}
+    declared = company.get("group_tag") if company.get("group_tag") in ("cohort", "portfolio") and company.get("source_url") else None
+    out = {"evidence": ex["strength"] == "strong", "why": ex["why"], "intake": False, "signals": [], "intake_date": None, "reason": None,
+           "declared": declared, "form": None, "form_source": None}
     if cfg is None:
         return out
     prof = profile(conn, company["company_key"])
-    ok, reason = eligible(prof["form_code"] if prof else None, company.get("industry_code"), cfg)
+    form, words, src = form_of(prof, company.get("name"))
+    out.update(form=words, form_source=src)
+    ok, reason = eligible(form, company.get("industry_code"), cfg, words)
     out["reason"] = reason
     if ok:
         d, ss = entered([dict(s, signal_id=s.get("signal_id", s.get("id"))) for s in sigs], cfg)
@@ -149,12 +185,19 @@ def cohort_row(conn, th: dict, c, ref: str, first_evidence: str | None) -> dict:
            "size": None, "year": None, "family": None, "first_evidence": first_evidence, "before_entry": False, "pool_note": None}
     if cfg is None:
         return out
+    keys = c.keys() if hasattr(c, "keys") else c
+    yt = c["y_tunnus"] if "y_tunnus" in keys else None
     prof = profile(conn, c["company_key"])
-    if prof is None:
+    if prof is None and not yt:
         return {**out, "state": "not_in_register", "reason": "not checked against the Finnish register (no business id)"}
-    ok, why = eligible(prof["form_code"], c["industry_code"], cfg)
+    form, words, src = form_of(prof, c["name"])
+    if form is None and words is None:
+        return {**out, "state": "not_checked", "reason": f"business id {yt}; the wide-intake register pass has not stored its legal form yet"}
+    ok, why = eligible(form, c["industry_code"], cfg, words)
     if not ok:
         return {**out, "state": "ineligible", "reason": why}
+    if src == "legal name":
+        out["pool_note"] = f"legal form {words} read from the legal name; the wide-intake register pass has not stored this company yet"
     sigs = _signals(conn, c["company_key"])
     d, ss = entered(sigs, cfg)
     if d is None:
@@ -168,7 +211,8 @@ def cohort_row(conn, th: dict, c, ref: str, first_evidence: str | None) -> dict:
         pos = next((i for i, x in enumerate(p) if x["company_key"] == c["company_key"]), None)
         out["rank"] = pos + 1 if pos is not None else None
         out["n_signals"] = p[pos]["n"] if pos is not None else None
-        out["pool_note"] = f"{len(p)} new {year} companies in code family {fam} had entered intake by {ref}"
+        out["pool_note"] = f"{len(p)} new {year} companies in code family {fam} had entered intake by {ref}" + \
+            (f"; {out['pool_note']}" if out.get("pool_note") else "")
     return out
 
 
@@ -230,6 +274,8 @@ def tier(conn, th: dict, *, today=None, exclude: set[str] | None = None, limit: 
             continue
         if fit_mod.looks_like_person(r["name"], th) or store.is_partner_org(r["name"]):
             continue
+        if store.is_listed_company(r["name"]) or store.excluded_code(r["industry_code"], th):
+            continue
         if thesis_evidence(conn, th, dict(r), _signals(conn, key))["strength"] == "strong":
             continue
         out.append({"company_key": key, "name": r["name"], "industry_code": r["industry_code"], "industry_desc": r["industry_desc"],
@@ -239,7 +285,7 @@ def tier(conn, th: dict, *, today=None, exclude: set[str] | None = None, limit: 
     flat = [s for o in out for s in o["signals"]]
     store.with_precision(conn, flat)
     for s in flat:
-        s["label"] = store.TYPE_LABELS.get(s["signal_type"], s["signal_type"])
+        s["label"] = labels.signal_label(s["signal_type"])
         s["source_label"] = store.evidence(s)["label"]
     for o in out:
         first = o["signals"][cfg["min_signals"] - 1]
@@ -262,7 +308,7 @@ def rule_text(th: dict) -> str | None:
     if cfg is None:
         return None
     forms = " or ".join(f.split(" (")[0].lower() for f in cfg["company_forms"].values())
-    types = ", ".join((store.TYPE_LABELS.get(t) or t.replace("_", " ")).lower() for t in cfg["startup_signals"])
+    types = ", ".join(labels.signal_label(t).lower() for t in cfg["startup_signals"])
     n = cfg["min_signals"]
     return (f"A company is taken in when it is a {forms}, its industry code starts with {', '.join(cfg['code_prefixes'])} (or is a code on the sector list), "
             f"and public records show at least {n} startup signal{'s' if n != 1 else ''} beyond its register entry ({types}). "

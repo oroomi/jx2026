@@ -6,7 +6,7 @@
   <h1>Find a startup</h1>
   <form action="/company-search" method="get" class="search" role="search">
     <label for="q">Startup name or business id (Y-tunnus)</label>
-    <input id="q" name="q" type="search" placeholder="Type a startup name, for example Kelluu" value="{{ q }}" autocomplete="off"> <button type="submit">Find this startup</button>
+    <input id="q" name="q" type="search" placeholder="Type a startup name, for example Viva Jets" value="{{ q }}" autocomplete="off"> <button type="submit">Find this startup</button>
   </form>
   {% if not db_ok %}<p>no signals yet. Run python3 -m radar.build</p>
   {% elif q and not hits %}<p class="plain">No public record found for this name yet. Try the registered company name (ending in Oy).</p><p class="meta">Searched for {{ q }}: no company matching it in this radar.</p>{% endif %}

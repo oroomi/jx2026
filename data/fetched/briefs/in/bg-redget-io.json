@@ -1,0 +1,164 @@
+{
+ "company_key": "bg-redget-io",
+ "name": "RedGet.io",
+ "business_id": null,
+ "founded": null,
+ "country": "BG",
+ "group": "cohort",
+ "register_status": null,
+ "industry": {
+  "code": null,
+  "description": null
+ },
+ "company_url": "https://redget.io/",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-02-09",
+   "date_label": "2026-02-09",
+   "source_url": "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (accelerator_or_programme_entry). Open the source link for the details",
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": 4,
+   "rule": "stated by the BlueInvest profile",
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / unknown / unknown / Medium",
+  "note": "more public evidence needed: Ocean impact, Business readiness, Investment readiness",
+  "why": [
+   {
+    "text": "Technology readiness Medium (level 4): the BlueInvest profile states TRL 4",
+    "url": "https://blueinvest-community.converve.io/pipeline_front.html?action=detail&params%5Bevent_id%5D=1&params%5Bshow%5D=comp&params%5Bq%5D=&params%5Bother_id%5D=1505"
+   },
+   {
+    "text": "Thesis fit: declared cohort company",
+    "url": "https://redget.io/"
+   },
+   {
+    "text": "Why now: BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) closes 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "No public evidence for business readiness",
+    "url": null
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Business readiness, Investment readiness",
+    "url": "https://redget.io/"
+   },
+   {
+    "text": "Introduce them to BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) before 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   },
+   {
+    "name": "Helsinki Blue Economy Studio by A'Pelago 2027",
+    "kind": "accelerator",
+    "reason": "Open: pre-seed, seed or early-stage with an MVP; deadline: 2026-11-30; amount: equity-free",
+    "url": "https://www.apelago.fi/helsinki-blue-economy-studio/"
+   },
+   {
+    "name": "A'Pelago Lab2Impact 2027",
+    "kind": "accelerator",
+    "reason": "Open: researchers and research-based innovations (incubator); deadline: TBA",
+    "url": "https://www.apelago.fi/laboff/"
+   },
+   {
+    "name": "A'Pelago Nordic Ocean Accelerator Programme (NOCA) 2027",
+    "kind": "accelerator",
+    "reason": "Open: ocean economy startups and SMEs; deadline: applications open; deadline not stated",
+    "url": "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/"
+   },
+   {
+    "name": "A'Pelago Northern Blue 2027",
+    "kind": "accelerator",
+    "reason": "Open: growth and scale-up companies; deadline: applications open; deadline not stated; amount: equity-free (no money given)",
+    "url": "https://www.apelago.fi/apelago-northern-blue/"
+   }
+  ],
+  "partners": []
+ },
+ "counts": {
+  "signals": 1,
+  "by_type": {
+   "ecosystem_event": 1
+  },
+  "next_investors": 0,
+  "next_funding": 5,
+  "next_partners": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://blueinvest-community.converve.io/pipeline_front.html?action=detail&params%5Bevent_id%5D=1&params%5Bshow%5D=comp&params%5Bq%5D=&params%5Bother_id%5D=1505",
+  "https://redget.io/",
+  "https://www.apelago.fi/apelago-northern-blue/",
+  "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/",
+  "https://www.apelago.fi/helsinki-blue-economy-studio/",
+  "https://www.apelago.fi/laboff/",
+  "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/"
+ ]
+}

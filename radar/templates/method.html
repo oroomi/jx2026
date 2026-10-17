@@ -25,6 +25,8 @@
 {% endfor %}</dl>
 {% if counts %}<p>Now: {{ counts.main }} companies in the main list, {{ counts.weak }} weak matches, {{ counts.year_only_not_entry }} year-only Business Finland records not used as entry dates. A company can have more than one reason.</p>
 {% else %}<p><span class="hatch">no data</span> No database for this thesis yet.</p>{% endif %}
+<p id="corroboration">Corroboration rule: {{ corroboration_rule }}</p>
+<p id="left-out">Listed companies (legal form Oyj or Abp) are left out of the feed: a company on the stock exchange is not an early signal.{% if thesis.feed_exclude_code_prefixes %} The sector file also leaves out companies whose industry code starts with {{ thesis.feed_exclude_code_prefixes | join(", ") }}.{% endif %}{% if counts %} Now left out: {{ counts.excluded_listed }} listed, {{ counts.excluded_codes }} by industry code.{% endif %}</p>
 <p>Matching rule: {{ match_rule }} Own text is read only from {{ own_text_sources }}; Business Finland, patent and job records have no stored source text, so they never give an own-text reason. A thesis word in the legal name alone never admits a company to the main list. A legal name shaped like a private person's name followed by Holding, Invest, Capital, Consulting or Tmi is hidden from both lists unless the company has a non-register signal; the feed footer prints how many.</p>
 <p>Limit: industry codes are coarse; a code on the list is a hint, not proof of a {{ thesis.sector_label or 'matching' }} business.</p>
 {% if intake_rule %}<h2 id="intake">Wide intake</h2>
@@ -87,6 +89,10 @@ On company pages a defunct company gets no leads, and defunct targets are never 
 {% for m in rows %}<tr><th scope="row">{{ abbr }} {{ m.level }}</th><td>{{ m.rule }}</td></tr>{% endfor %}
 </tbody></table>
 {% endfor %}
+{% if thesis.memo and thesis.memo.decisions %}<h2 id="memo-rules">Fund memo decision</h2>
+<p>{{ thesis.memo.decisions.source }} The four cells are read from the levels the company page prints in question 02 (TRL, BRL, Investment Readiness, the Navigator category) and the thesis-fit reasons in question 01; a level with no public evidence is unknown and never Low.</p>
+{% if thesis.memo.decisions.fallback_text %}<p id="memo-fallback">{{ thesis.memo.decisions.fallback_text }}</p>{% endif %}
+{% endif %}
 <h2>Connector slots</h2>
 <ul>{% for c in connectors %}<li>{{ c }}: connector slot: not connected, no data shown</li>{% endfor %}</ul>
 {% endblock %}

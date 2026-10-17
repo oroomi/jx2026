@@ -81,12 +81,12 @@ def test_counts_and_footer_equal_rendered_rows(tmp_path, monkeypatch):
 def test_health_swap_main_feed_non_empty(tmp_path, monkeypatch):
     monkeypatch.delenv("RADAR_DB", raising=False)
     fx.build(tmp_path / f"radar_{DEFAULT_ID}.sqlite")
-    fx.build(tmp_path / f"radar_{HEALTH_ID}.sqlite", words=("health", "bio"), code="86900", hilma_kw="terveys")
+    fx.build(tmp_path / f"radar_{HEALTH_ID}.sqlite", words=("health", "bio"), code="32500", hilma_kw="terveys")
     monkeypatch.setenv("RADAR_DATA_DIR", str(tmp_path))
     import app
     t = TestClient(app.app).get(f"/?thesis={HEALTH_ID}").text
     head = t.partition('<details class="weak"')[0]
-    assert head.count('class="feed-row') >= 1 and "industry code 86900" in t.lower()
+    assert head.count('class="feed-row') >= 1 and "industry code 32500" in t.lower()
 
 
 # ---- jx20b: circular own-text, whole-word keywords, name-only rule, personal names, BlueInvest TRL ----------------------

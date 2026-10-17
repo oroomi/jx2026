@@ -54,11 +54,7 @@ def register_rows(c: dict) -> list[dict]:
     return rows
 
 
-def blueinvest_trl(profile: dict) -> dict:
-    """The TRL a BlueInvest profile states, in the shape frameworks._level returns, with its profile page as the evidence chip."""
-    ev = {"label": "BlueInvest pipeline", "event_date": None, "date_precision": "day", "date_label": "no date stated",
-          "fetched_at": profile.get("fetched_at"), "url": profile.get("url"), "confidence": None, "confidence_rule": None}
-    return {"level": profile["trl"], "evidence": [{"evidence": ev}], "because": f"the BlueInvest profile states TRL {profile['trl']}"}
+blueinvest_trl = frameworks.profile_trl  # kept for callers of the old name
 
 
 def readiness_rows(thesis: dict, signals: list[dict]) -> list[dict]:
@@ -134,13 +130,11 @@ def company_page(request: Request, company_key: str):
         speed = lifeline.speed(conn, company_key, c.get("founded"))
         wide = intake_mod.company_view(conn, thesis, c, sigs)
         rule_sigs = [x for x in sigs if x["adapter"] != "ecosystem"]  # declared research is shown beside a level, never inside the rule
-        fw = frameworks.assess(c, rule_sigs)
-        if profile and profile.get("trl") is not None:
-            fw["trl"] = blueinvest_trl(profile)
+        fw = frameworks.page_levels(c, sigs, profile)  # the same levels the memo bands read
         eco = ecosystem(conn, company_key, fw)
         nxt = matching.who_comes_next(company_key, thesis, 5, conn=conn)
         step = matching.next_step(company_key, thesis, conn=conn)
-        stitch = stitcher.page_view(conn, company_key)
+        stitch = stitcher.page_view(conn, company_key, thesis)
     finally:
         conn.close()
     reasons = fit_mod.fit(c, sigs, thesis)

@@ -8,7 +8,7 @@ from urllib.parse import urlencode
 from fastapi import APIRouter, Request
 from fastapi.responses import PlainTextResponse, RedirectResponse
 
-from radar import fit, refresh, store
+from radar import fit, labels, refresh, store
 from radar.routes.home import _has_route, templates
 
 router = APIRouter()
@@ -35,7 +35,7 @@ def source_rows(conn, today: str) -> list[dict]:
                   MAX(CASE WHEN date <= ? THEN date END) AS newest, MAX(fetched_at) AS last_run
            FROM signals WHERE company_key NOT IN (SELECT company_key FROM hidden_co)
            GROUP BY adapter ORDER BY n DESC, adapter""", (today,)).fetchall()
-    return [{"adapter": r["adapter"], "label": store.SOURCE_LABELS.get(r["adapter"], r["adapter"]), "rows": r["n"], "companies": r["cos"],
+    return [{"adapter": r["adapter"], "label": labels.source_label(r["adapter"]), "rows": r["n"], "companies": r["cos"],
              "newest": r["newest"], "last_run": (r["last_run"] or "")[:16].replace("T", " ") or None} for r in rows]
 
 

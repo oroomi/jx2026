@@ -1,0 +1,39 @@
+{
+ "company_key": "3309419-7",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "eSuunta Oy is a company registered on 2022-09-03 under the industry code 71121, engineering design and technical consultancy incidental to urban planning.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3309419-7",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3309419-7"
+   ]
+  },
+  "thesis_fit": {
+   "text": "Industry code 71121 (Engineering design and technical consultancy incidental to urban planning, PRH) is on the thesis list; the memo reads thesis fit as High.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3309419-7",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3309419-7"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 7 and business readiness is level 6, while investment readiness has no level on those rules.",
+   "cites": [
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189"
+   ]
+  },
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo points to a partner introduction under rule e, but what triggers it is a tender notice from Hämeenlinnan kaupunki, so the fund should first open the notice to see whether it is an award.",
+   "cites": [
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/18042/enotice/53189"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; investment readiness is Low on the stored evidence.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3309419-7"
+   ]
+  }
+ }
+}

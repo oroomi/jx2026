@@ -9,6 +9,7 @@ import sqlite3
 from datetime import date
 from pathlib import Path
 
+from radar import labels
 from radar import blueinvest, intake as intake_mod, store, thesis as thesis_mod
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -39,15 +40,15 @@ def reference_label(ref: str) -> str:
 def rule_lines(th: dict) -> list[str]:
     ref, _ = reference(th)
     cut = _age_cut_years(th)
-    types = ", ".join(th.get("feed_signal_types") or [])
+    types = ", ".join(labels.signal_label(t).lower() for t in th.get("feed_signal_types") or [])
     return [
-        f"Population: companies in the cohort group (group_tag cohort). The number comes from the database.",
+        f"Population: companies in the declared cohort group. The number comes from the database.",
         f"Reference date: {ref} ({reference_label(ref)}, the programme start month, declared by the team). Individual pipeline entry dates are not public; "
-        "a per-company entry date from data/declared/cohort_entry_dates.csv replaces the reference for that company and is labelled with its source.",
+        "a per-company entry date from the declared cohort entry dates list replaces the reference for that company and is labelled with its source.",
         f"A live public signal is a stored signal of the company whose type is one of the thesis feed signal types ({types}), with its stored date, "
         "and it counts only if the radar's own feed rule would have shown that company: the same test the feed uses (radar/store.py explain), "
         "applied to the company's registered facts and to the signals dated no later than that signal. That means the industry code is on the thesis list, "
-        "or a thesis word is in the registered line of business, or a thesis word is in the source's own text, or a thesis word in the legal name is backed by a second, independent source. "
+        "or a thesis word is in the registered line of business, or a thesis word is in the source's own text, or a thesis word in the legal name is backed by a record from a different source family (PRH register entries, notices and tax registers are one family). "
         "A signal that fails the test is listed in muted text as outside the thesis rule and is not counted.",
         f"A register entry also counts only if the company was registered no more than {cut} years before the reference date: the radar flags new registrations, "
         f"so the registration of an older company is not a discovery signal.",
@@ -108,7 +109,7 @@ def _signals(conn, key: str) -> list[dict]:
 
 def _other(s: dict, counted: bool, reason: str | None) -> dict:
     return {"date": s["date"], "date_label": s["date_label"], "year_only": s["date_precision"] == "year", "type": s["signal_type"],
-            "label": store.TYPE_LABELS.get(s["signal_type"], s["signal_type"]), "source_url": s["source_url"],
+            "label": labels.signal_label(s["signal_type"]), "source_url": s["source_url"],
             "confidence": s["confidence"], "source_label": store.evidence(s)["label"], "adapter": s["adapter"], "counted": counted, "reason": reason}
 
 
@@ -148,7 +149,7 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
     types = set(th.get("feed_signal_types") or [])
     group = (th.get("backtest") or {}).get("cohort_group") or "cohort"
     entries = _entry_dates(entry_dates_path)
-    cohort = conn.execute("SELECT company_key, name, country, industry_code, industry_desc, founded FROM companies WHERE group_tag=? ORDER BY name", (group,)).fetchall()
+    cohort = conn.execute("SELECT company_key, name, y_tunnus, country, industry_code, industry_desc, founded FROM companies WHERE group_tag=? ORDER BY name", (group,)).fetchall()
     rows = []
     for c in cohort:
         key = c["company_key"]
@@ -167,7 +168,7 @@ def backtest(conn: sqlite3.Connection, th: dict, *, entry_dates_path=ENTRY_DATES
         counted, others = [], []
         for s in sigs:
             d = f"{s['date'][:4]}-01-01" if s["date_precision"] == "year" else s["date"]
-            label = store.TYPE_LABELS.get(s["signal_type"], s["signal_type"])
+            label = labels.signal_label(s["signal_type"])
             if s.get("adapter") == STITCHER:
                 others.append(_other(s, False, STITCHER_NOT_COUNTED))
                 continue

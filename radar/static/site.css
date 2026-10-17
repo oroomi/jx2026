@@ -119,3 +119,9 @@
 /* the tab bar is a <nav>, and app.css makes every nav a flex row; let its list take the full width so labels never clip */
 .c-tabbar ul { flex: 1 1 auto; width: 100%; }
 .foot-link { min-width: 44px; justify-content: center; }
+
+/* phones: the sector line is one line (cut with an ellipsis; the full title is in the selector it opens), then the change link */
+@media (max-width: 639px) {
+  :root[data-skin="editorial"] .thesis-now { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  :root[data-skin="editorial"] .sector-change { margin-left: 0; }
+}

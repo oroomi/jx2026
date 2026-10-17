@@ -44,7 +44,7 @@ def test_year_only_counted_once_and_labelled(env):
 def test_header_count_equals_rows_and_portfolio_block(env):
     c, _, _ = env
     html = c.get("/radar").text
-    assert "7 cohort companies, 5 with at least one dated public event." in html
+    assert "7 cohort companies, 5 with at least one dated public event of the seven kinds this page ranks" in html
     coh = re.search(r'data-group="cohort".*?</section>', html, re.S).group(0)
     pf = re.search(r'data-group="portfolio".*?</section>', html, re.S).group(0)
     assert coh.count('class="rd-row') == 7 and pf.count('class="rd-row') == 2

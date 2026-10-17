@@ -18,7 +18,7 @@ ENDPOINTS = [
     {"path": "/api/feed?thesis=&window=&type=", "what": "the early-signal feed rows with their reason; window = days (default from the thesis)"},
     {"path": "/api/backtest?thesis=", "what": "the earliness backtest per cohort company"},
     {"path": "/api/match/company/{company_key}?thesis=&limit=", "what": "matchmaking: the counterparts that are the next steps for a startup, each with its reasons in words"},
-    {"path": "/api/match/org/{org_id}?thesis=&limit=", "what": "matchmaking: the startups that fit one counterpart (declared members first), each with its reasons"},
+    {"path": "/api/match/org/{org_id}?thesis=&limit=", "what": "matchmaking: the startups that fit one counterpart, ranked and not yet connected, each with its reasons; `connected` lists the companies in its declared cohort or portfolio, unranked"},
     {"path": "/api/match/orgs?thesis=", "what": "every counterpart with its kind, declared focus, deadline and revealed cohort size"},
 ]
 

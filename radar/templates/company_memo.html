@@ -6,10 +6,10 @@
   <div class="memo-head"><h2 id="memo-h">Memo for the fund</h2><a class="memo-print no-print" href="#memo" onclick="window.print();return false">Print memo</a></div>
   {% set r = m.recommendation %}
   <p class="memo-decision"><span class="memo-label">Recommendation</span> <strong class="memo-verdict">{{ r.decision }}</strong></p>
-  <p class="plain">because: {% if r.matched %}{{ r.matched }} ({% endif %}{% for x in r.because_labels %}{{ x.label }} <strong>{{ x.band }}</strong>{% if not loop.last %} / {% endif %}{% endfor %}{% if r.matched %}){% endif %}{% if r.team_label %}; the team's name for it: {{ r.team_label }}{% endif %}</p>
+  <p class="plain">because: {% if r.matched %}{{ r.matched | rule_words(thesis) }} ({% endif %}{% for x in r.because_labels %}{{ x.label }} <strong>{{ x.band }}</strong>{% if not loop.last %} / {% endif %}{% endfor %}{% if r.matched %}){% endif %}{% if r.team_label %}; the team's name for it: {{ r.team_label }}{% endif %}</p>
   {% if r.dimensions %}<p class="plain memo-dims">{{ r.dimensions.text }}.</p>{% endif %}
   {% if r.table_action %}<p class="plain">{{ r.table_action }}</p>{% endif %}
-  {% if r.note %}<p class="plain">{{ r.note[0]|upper }}{{ r.note[1:] }}</p>{% endif %}
+  {% if r.note %}{% set note = r.note | rule_words(thesis) %}<p class="plain">{{ note[0]|upper }}{{ note[1:] }}</p>{% endif %}
 
   <h3>Why</h3>
   {% if m.why %}<ul class="memo-list">{% for w in m.why %}<li>{{ w.text }} <a class="ev-chip" href="{{ w.url }}" target="_blank" rel="noopener"><span class="ev-src">source</span></a></li>{% endfor %}</ul>

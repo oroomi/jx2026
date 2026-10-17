@@ -76,7 +76,7 @@
   <thead><tr><th scope="col">Company</th><th scope="col">Country</th><th scope="col">Group</th><th scope="col">Founded</th><th scope="col">Industry</th><th scope="col">Records</th><th scope="col">Source</th></tr></thead>
   <tbody>
   {% for r in tbl.rows %}
-  <tr><th scope="row"><a href="/c/{{ r.company_key }}">{{ r.name }}</a></th><td>{{ r.country or "no data" }}</td><td>{{ r.group_tag }}</td><td>{{ r.founded or "not in public records" }}</td>
+  <tr><th scope="row"><a href="/c/{{ r.company_key }}">{{ r.name }}</a></th><td>{{ r.country or "no data" }}</td><td>{{ r.group_tag | group_label }}</td><td>{{ r.founded or "not in public records" }}</td>
       <td>{% if r.industry_code %}{{ r.industry_code }} {{ r.industry_desc or "" }}{% else %}not in public records{% endif %}</td><td>{{ r.signals }}</td>
       <td><a href="{{ r.source_url }}" target="_blank" rel="noopener">open</a></td></tr>
   {% else %}<tr><td colspan="7">No rows match.</td></tr>{% endfor %}

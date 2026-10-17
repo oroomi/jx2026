@@ -64,6 +64,20 @@ SOURCE_LABELS = {
 }
 
 
+# A company's group tag (companies.group_tag) in words. The tag is a table key; a page prints the label (D36).
+GROUP_LABELS = {
+    "cohort": "cohort company",
+    "portfolio": "portfolio company",
+    "feed": "found in the early-signal feed",
+    "intake": "new startup, no thesis evidence yet",
+    "ecosystem": "from the ecosystem dataset",
+}
+
+
+def group_label(tag: str | None) -> str:
+    return GROUP_LABELS.get(tag or "") or plain(tag)
+
+
 # Where a who-comes-next row came from (matching.py `origin`), in words.
 ORIGIN_LABELS = {"programmes_grants.csv": "declared programmes list", "ecosystem dataset": "ecosystem dataset"}
 
@@ -98,5 +112,7 @@ _TYPE_CODE = re.compile(r"\s*\((?:register )?type \d+_\d+\)", re.I)
 
 def plain_text(text: str | None) -> str:
     """A stored detail line with any snake_case id our adapters wrote (for example a dataset event type) turned into words, and a
-    register type code in brackets ("(type 6_80)") dropped. Parts of a link are left alone."""
-    return _SNAKE.sub(lambda m: m.group(1).replace("_", " "), _TYPE_CODE.sub("", text or ""))
+    register type code in brackets ("(type 6_80)") dropped. A quoted passage that holds a redaction marker is replaced by a short note (D36).
+    Parts of a link are left alone."""
+    from radar import words  # imported here: radar.words reaches radar.fit, which imports this module
+    return _SNAKE.sub(lambda m: m.group(1).replace("_", " "), _TYPE_CODE.sub("", words.drop_marked_quotes(text)))

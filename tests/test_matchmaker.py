@@ -68,23 +68,26 @@ def test_reason_text_has_no_bare_numbers_and_no_score(env, key):
     assert seen
 
 
-def test_org_view_lists_declared_cohort_first(env):
-    """Revealed matching sanity: A'Pelago's declared cohort (cohort_portfolio_companies.csv, group cohort) is at the top of its own view."""
+def test_org_view_keeps_declared_cohort_apart_from_the_ranking(env):
+    """D38: A'Pelago's declared cohort (cohort_portfolio_companies.csv, group cohort) is its `connected` list, never in the ranking."""
     th, conn = env
     res = matchmaker.match_org("apelago", th, conn=conn, today=TODAY, limit=40)
     cohort = {r[0] for r in conn.execute("SELECT company_key FROM companies WHERE group_tag='cohort'")}
-    rows = res["startups"]
-    head = [r for r in rows[: len(cohort)]]
-    assert cohort <= {r["key"] for r in head}, "every declared cohort company is in the first rows"
-    assert all(r["member"] for r in head), "members come before any non-member"
-    assert all(r["components"][0]["id"] == "member" and "Declared member" in r["components"][0]["reason"] for r in head)
+    conn_keys = {r["key"] for r in res["connected"]}
+    assert cohort <= conn_keys, "every declared cohort company is on the connected list"
+    assert all(r["member"] for r in res["connected"])
+    assert all(r["components"][0]["id"] == "member" and "Declared member" in r["components"][0]["reason"] for r in res["connected"])
+    ranked = res["startups"]
+    assert ranked and not (conn_keys & {r["key"] for r in ranked}), "a connected company is not ranked"
+    assert not any(r["member"] for r in ranked) and [r["rank"] for r in ranked] == list(range(1, len(ranked) + 1))
+    assert {k for k in res["connected"][0]} == {k for k in ranked[0]}, "the same row shape on both lists"
     assert res["org"]["revealed"]["members_in_records"] >= len(cohort)
 
 
 def test_declared_portfolio_is_in_redstone_view_and_connected_in_company_view(env):
     th, conn = env
     org = matchmaker.match_org("redstone-blue", th, conn=conn, today=TODAY, limit=40)
-    assert VIVA in {r["key"] for r in org["startups"] if r["member"]}
+    assert VIVA in {r["key"] for r in org["connected"]} and VIVA not in {r["key"] for r in org["startups"]}
     comp = matchmaker.match_company(VIVA, th, conn=conn, today=TODAY, limit=50)
     assert "redstone-blue" in {c["id"] for c in comp["connected"]}
     assert "redstone-blue" not in {r["id"] for r in comp["counterparts"]}, "an organisation that already selected the startup is not a next step"
@@ -199,7 +202,9 @@ def client(monkeypatch):
 def test_match_page_renders_in_both_views(client):
     r = client.get("/match")
     assert r.status_code == 200 and "Match startups and counterparts" in r.text and "Choose a counterpart" in r.text
-    assert "Declared member" in client.get("/match?org=apelago").text
+    assert "Declared member" not in client.get("/match?org=apelago").text, "the connected companies are on their own tab"
+    t = client.get("/match?org=apelago&tab=connected").text
+    assert "Declared member" in t and "Already connected" in t
     r = client.get(f"/match?company={VIVA}")
     assert r.status_code == 200 and "Next steps" in r.text and "Viva Jets" in r.text and "Why this match" in r.text
     assert client.get("/match?view=company").status_code == 200
@@ -220,7 +225,7 @@ def test_api_company_org_orgs_and_errors(client):
     assert j["company"]["key"] == VIVA and j["counterparts"] and j["weights"] and j["rule"]
     assert j["counterparts"][0]["rank"] == 1 and j["counterparts"][0]["components"]
     o = client.get("/api/match/org/apelago").json()
-    assert o["org"]["id"] == "apelago" and o["startups"][0]["member"] is True
+    assert o["org"]["id"] == "apelago" and o["connected"] and all(r["member"] for r in o["connected"]) and not any(r["member"] for r in o["startups"])
     assert client.get("/api/match/orgs").json()["count"] > 100
     assert client.get("/api/match/org/no-such-org").status_code == 404
     assert client.get("/api/match/company/no-such-key").status_code == 404

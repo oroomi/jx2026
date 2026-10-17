@@ -202,22 +202,32 @@ def _focus(o: dict, thesis: dict, names: tuple[str, ...]) -> str:
     """One line of what the organisation says it wants, person names redacted (the words of listed organisation names are not names),
     or '' when it says nothing. A sentence or clause that holds a redaction marker is dropped (D31); when that leaves nothing,
     `o["focus_dropped"]` is set and the caller shows the organisation type only."""
-    text = next((p.strip() for p in o["parts"] if p and len(p.strip()) > 12), "")
-    segs = [x for x in re.split(r"(?<=[.;])\s+", text) if not re.search(r"\.csv\b|\b(?:we|our)\b", x, re.I)]   # the list's own working notes are not the organisation's words
-    text = " ".join(segs).replace("_", " ")
+    cfg = matchtext.config(thesis) or {}
+    cand = [p.strip() for p in o["parts"] if p and len(p.strip()) > 12]
+    first = cand[0] if cand else ""
+    # the list's own working notes are not the organisation's words (D37): the first part that still says something after they are dropped
+    text = next((t for t in (matchtext.organisation_words(p, cfg) for p in cand) if len(t.strip()) > 12), "").replace("_", " ")
     text = fit_mod.redact_person_names(text, o["name"], thesis, also_allowed=names)
     text = re.sub(r"\s+", " ", text).strip(" ;,.")
     kept = fit_mod.drop_redacted_clauses(text).strip(" ;,.")
-    o["focus_dropped"] = bool(text) and not kept
+    o["focus_dropped"] = bool(first) and not kept
     text = kept
     if len(text) > 150:
         text = text[:150].rsplit(" ", 1)[0].rstrip(" ;,.") + "..."
     return text
 
 
+CAP_EVIDENCE = "a capability listed in the declared ecosystem research"
+
+
+def capability_evidence(cfg: dict, gid: str) -> str:
+    """A capability code of the declared dataset as words: the sector group it maps to, never the bare id (D36, D24)."""
+    return f"{CAP_EVIDENCE} ({cfg['groups'][gid]['label']})"
+
+
 def _profile_text(o: dict, cfg: dict) -> None:
     """Tokenise the declared text into stems and keyword groups (the dataset's capability codes count as group evidence)."""
-    text = " ; ".join(p for p in o["parts"] + o["need"] if p)
+    text = " ; ".join(t for t in (matchtext.organisation_words(p, cfg) for p in o["parts"] + o["need"]) if t)
     o["text"] = text
     o["stems_all"] = matchtext.stems(text, cfg)
     hits = matchtext.group_hits(text, cfg)
@@ -226,7 +236,7 @@ def _profile_text(o: dict, cfg: dict) -> None:
     for c in o["caps"]:
         gid = cap_group.get(c)
         if gid:
-            o["groups"].setdefault(gid, []).append(f"dataset capability tag {c}")
+            o["groups"].setdefault(gid, []).append(capability_evidence(cfg, gid))
     trig = matchtext.trigger_stems(hits, cfg)
     o["stems_free"] = {s: w for s, w in o["stems_all"].items() if s not in trig}
     o["has_declared"] = bool(o["stems_all"] or o["groups"])

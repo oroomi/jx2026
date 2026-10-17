@@ -22,8 +22,9 @@ CLOSED_WORDS = ("closed", "no open call", "no call open", "will not reopen", "no
 GRANT_TYPES = ("bf_funding", "eu_project", "public_funding")
 EARLY_STAGES = ("idea", "pre_seed", "seed")
 INACTIVE = ("defunct",)
-RANK_RULE = ("Rank = the dataset's match score (highest first), then the nearest open deadline from the declared programmes list, then name. "
-             "Open programmes and public buyers have no dataset score and follow the scored rows. A closed programme, a past deadline, "
+RATES_FIT = "the declared ecosystem research rates the fit"
+RANK_RULE = ("Rank = how the declared ecosystem research rates the fit (best first; the rating itself is not printed), then the nearest open deadline from the declared programmes list, then name. "
+             "Open programmes and public buyers carry no such rating and follow the rated rows. A closed programme, a past deadline, "
              "a TRL outside the programme's stated window or a company older than the programme's age limit is left out. "
              "The last slot of the funding list is kept for the soonest open programme. "
              "The five groups (investors, public funding, buyers, project partners, research institutes) rank the closest evidence "
@@ -140,10 +141,9 @@ def plain_why(why: str | None, score: float | None = None) -> str:
         v = float(m.group(1))
         parts.append("stage fits" if v >= 1 else "stage overlap partial" if v > 0 else "stage does not overlap")
     m = re.search(r"impact (\d+)/(\d+)", w)
-    if m:
-        parts.append(f"dataset impact rating {m.group(1)} of {m.group(2)}")
-    if score is not None:
-        parts.append(f"dataset match {round(score)} of 100")
+    rated = (["the fit"] if score is not None else []) + (["its impact"] if m else [])
+    if rated:  # the dataset's own numbers are not printed: the page says no score, so it says only that the research rates it (D36)
+        parts.append("the declared ecosystem research rates " + " and ".join(rated))
     if not codes and not kws and not m and score is None and w.strip():
         return _sentence(_plain(w))
     return _sentence(*parts)
@@ -642,7 +642,7 @@ def _public_funding(conn, eco, prof: dict | None, ctx: dict, topic: list[str], t
                 stated = plain_list(_stage_words(x.strip()) for x in re.split(r"[;,]", e["inv_stages"]) if x.strip())
                 bits.append(f"its stated stages, {stated}, do not include the company's {_stage_words(prof['stage'])} stage")
             if e["id"] in scores:
-                bits.append(f"dataset match {round(scores[e['id']])} of 100")
+                bits.append(RATES_FIT)
             bits.append("according to the declared ecosystem dataset")
             out.append(_grow(e["name"], "public funder", _sentence(*bits),
                              _eco_url(eco, e["id"], e["website"]), e["last_verified"], "ecosystem dataset", confidence=e["confidence"],
@@ -857,7 +857,7 @@ def next_step(company_key: str, thesis: dict, *, conn: sqlite3.Connection | None
             top = lists["investors"][0]
             return {"sentence": f"Meet now: judge a raise, and introduce them to {top['name']}", "rule": 3, "source_url": top["source_url"],
                     "because": f"TRL {trl} ({ctx['trl_src']}) with investment level {irl} is a readiness gap; the top investor in the list"
-                               + (f", dataset match {round(top['score'])} of 100" if top.get("score") is not None else "") + f": {top['reason']}"}
+                               + f": {top['reason']}"}
         if ctx["c"]["group_tag"] in ("cohort", "portfolio"):
             dated = [s for s in sigs if s["date"] <= t.isoformat()]
             last = max(dated, key=lambda s: s["date"], default=None)

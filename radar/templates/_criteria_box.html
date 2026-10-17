@@ -5,13 +5,14 @@
 {% set K = r.criteria %}
 {% if K %}
 {% set rank = {"Low": 1, "Medium": 2, "High": 3} %}
+{% set GAP_TEXT = "Not yet evidenced" %}{# the same words as radar.home_list.GAP; a test keeps them equal #}
 <span class="hc-crit" role="group" aria-label="Judging criteria for {{ r.name }}">
   {% for key, label in (("impact", "Impact"), ("trl", "TRL"), ("brl", "BRL"), ("irl", "IRL"), ("fit", "Fit")) %}
   {% set c = K[key] %}
   {% if c.level is not none %}{% set lv, of = c.level, 9 %}{% elif c.band %}{% set lv, of = rank[c.band], 3 %}{% else %}{% set lv, of = 0, 3 %}{% endif %}
   <span class="cr cr-{{ key }}{{ '' if c.text else ' cr-empty' }}" title="{{ c.title }}">
     <span class="cr-l">{{ label }}</span>
-    {% if c.text %}<span class="cr-v">{{ c.text }}</span>{% else %}<span class="cr-v cr-none" aria-hidden="true">-</span><span class="cr-sr">no public record</span>{% endif %}
+    {% if c.text %}<span class="cr-v">{% if c.text == GAP_TEXT %}<span class="cr-full">{{ c.text }}</span><span class="cr-short" aria-hidden="true">Gap</span>{% else %}{{ c.text }}{% endif %}{% if key == "impact" and c.level is none and c.band and r.ocean and not r.ocean.area %}<span class="cr-basis">by category</span>{% endif %}</span>{% else %}<span class="cr-v cr-none" aria-hidden="true">-</span><span class="cr-sr">no public record</span>{% endif %}
     <i class="cr-bar" style="--lv: {{ lv }}; --of: {{ of }}" aria-hidden="true"></i>
   </span>
   {% endfor %}

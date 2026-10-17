@@ -109,6 +109,8 @@ def method(request: Request):
         names = sorted({n for n, _ in build.discover()})
         src = sources(conn, names)
         counts = store.feed_counts(conn, th) if conn is not None else None
+        # The home page lists the main matches AND the declared cohort and portfolio companies; /method names both parts (D41).
+        declared_n = conn.execute("SELECT COUNT(*) FROM companies WHERE group_tag IN ('cohort','portfolio')").fetchone()[0] if conn is not None else 0
         eco = matching.dataset_summary(conn) if conn is not None else None
     finally:
         if conn is not None:
@@ -119,7 +121,7 @@ def method(request: Request):
     return templates.TemplateResponse(request, "method.html", {
         "thesis": th, "confidence_rules": store.CONFIDENCE_RULES, "kinds": kinds, "feed_rule": store.rule_text(th), "corroboration_rule": store.CORROBORATION_RULE, "match_rule": fit.MATCH_RULE, "own_text_sources": ", ".join(store.OWN_TEXT_SOURCES),
         "window_days": geo["feed_window_days"], "age_cut": geo.get("stage_max_company_age_years"),
-        "counts": counts, "eco": eco, "partners": store.partner_orgs(), "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
+        "counts": counts, "declared_n": declared_n, "eco": eco, "partners": store.partner_orgs(), "reasons": [(r, store.REASON_MEANING[r]) for r in store.REASON_IDS],
         "declared": declared, "sources": src, "no_db": conn is None, "connectors": CONNECTOR_SLOTS, "fw": frameworks.assess({}, []),
         "intake_rule": intake_mod.rule_text(th), "intake_note": intake_mod.tuning_note(th),
         "active": "method", "has_route": _has_route(request)})

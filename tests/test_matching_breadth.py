@@ -99,8 +99,9 @@ def test_no_reason_carries_raw_tokens(nxt, monkeypatch):
 def test_plain_why_reads_the_dataset_reason_string():
     s = matching.plain_why("caps ['C10', 'C3']; kw []; stage 1.0", 67.5)
     assert s.startswith("Shares Maritime decarbonisation and energy and Coastal tourism, boating and marine services with the company")
-    assert "C3" not in s and "C10" not in s and "stage fits" in s and "dataset match 68 of 100" in s  # labels, never the bare codes (D24)
+    assert "C3" not in s and "C10" not in s and "stage fits" in s and "the declared ecosystem research rates the fit" in s  # labels, never the bare codes (D24); no number (D36)
+    assert "68" not in s and "dataset match" not in s
     assert "kw" not in s and "[" not in s and "shared keywords" not in s  # no empty keyword clause
     s = matching.plain_why("caps ['C5']; kw ['fish side-streams']; stage 0.5; impact 2/5")
-    assert "shared keywords fish side-streams" in s and "stage overlap partial" in s and "impact rating 2 of 5" in s
+    assert "shared keywords fish side-streams" in s and "stage overlap partial" in s and "the declared ecosystem research rates its impact" in s and "2 of 5" not in s
     assert matching._plain("the company's stage (seed) \"x\" [y]") == "the company's stage, seed, x, y"

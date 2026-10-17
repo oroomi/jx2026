@@ -25,13 +25,13 @@
   .level:nth-child(2n) { border-right: 0; }
   .level:nth-last-child(-n+2) { border-bottom: 0; }
   @media (min-width: 900px) { .levels { grid-template-columns: repeat(4, minmax(0,1fr)); } .level { border-bottom: 0; } .level:nth-child(2n) { border-right: 1px solid var(--hairline); } .level:last-child { border-right: 0; } }
-  .level-label { font-size: var(--fs-12); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+  .level-label { font-size: var(--fs-12); display: flex; justify-content: space-between; color: var(--muted); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
   .level-num { font: 400 var(--fs-48)/1 var(--font-serif); font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.02em; }
   .level-num small { font-size: var(--fs-18); color: var(--muted); margin-left: 4px; }
   .ladder { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
   .ladder i { height: 6px; border-radius: 2px; background: var(--hairline-strong); }
   .ladder i.on { background: var(--accent); }
-  .level-fw { font-size: var(--fs-12); color: var(--muted); }
+  .level-fw { font-size: var(--fs-12); color: var(--muted); margin-top: auto; padding-top: var(--s-2); }
   .level-fw a { color: var(--muted); }
   .level-rule { font-size: var(--fs-14); color: var(--text-2); line-height: 1.4; }
   .level.none .level-num { font-size: var(--fs-22); font-family: var(--font-sans); color: var(--muted); }
@@ -142,7 +142,7 @@
     <figure class="figure card">
       <p class="fig-head" id="life-head"></p>
       <p class="fig-sub" id="life-sub"></p>
-      <svg id="life" role="img" aria-labelledby="life-head" width="100%" viewBox="0 0 1100 260"></svg>
+      <svg id="life" role="img" aria-labelledby="life-head" width="100%"></svg>
       <p class="fig-src" id="life-src"></p>
     </figure>
   </section>
@@ -222,7 +222,7 @@
       + '<span class="level-num">'+(has ? r.level + '<small>/ 9</small>' : 'No public evidence')+'</span>'
       + ladder
       + '<span class="level-rule">'+esc(has ? r.because : 'Nothing on record places this company on the framework.')+'</span>'
-      + '<span class="level-fw"><a href="'+esc(r.framework_url)+'" rel="noopener">'+esc(r.framework)+'</a></span>'
+      + '<span class="level-fw"><a href="'+esc(r.framework_url)+'" rel="noopener" title="'+esc(r.framework)+'">'+esc(r.framework.replace(/\s*\(([^)]*)\).*$/, ' · $1').replace(/,? read from.*$/, '').replace(/ 1-9$/, ''))+'</a></span>'
       + '</div>';
   }).join('');
 
@@ -233,36 +233,53 @@
   var money = S.filter(function(s){ return s.amount_eur; });
   var total = money.reduce(function(a,s){ return a + s.amount_eur; }, 0);
   $('life-head').textContent = eurM(total) + ' of public funding on record across ' + money.length + ' decisions since ' + money[0].date.slice(0,4) + '.';
-  $('life-sub').textContent = 'Each bar is one funding record (Business Finland grant or loan, EU project). Height is the amount. Years without a decision date sit at the start of the year.';
-  var svg = $('life'), W = 1100, H = 260, L = 16, Rr = 16, T = 54, B = 40;
-  var y0 = +S[0].date.slice(0,4), y1 = +D.signals[0].date.slice(0,4) + 1;
-  function X(s){ var p = s.split('-'); var t = (+p[0]) + ((+p[1]-1) + (+p[2]-1)/31)/12; return L + (t - y0) / (y1 - y0) * (W - L - Rr); }
+  $('life-sub').textContent = 'Each bar is one funding record: a Business Finland grant or loan, or an EU project. Business Finland rows carry a year only.';
+  var svg = $('life'), narrow = svg.getBoundingClientRect().width < 640, o = '';
   var mx = Math.max.apply(null, money.map(function(s){ return s.amount_eur; }));
-  function Y(v){ return (H - B) - v / mx * (H - T - B); }
-  var o = '';
-  for (var yr = y0; yr <= y1; yr++) {
-    var xx = X(yr + '-01-01');
-    o += '<line x1="'+xx+'" x2="'+xx+'" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--hairline)" />';
-    if (yr < y1) o += '<text x="'+(xx+4)+'" y="'+(H-B+20)+'" font-size="12" fill="var(--muted)">'+yr+'</text>';
-  }
-  o += '<line x1="'+L+'" x2="'+(W-Rr)+'" y1="'+(H-B)+'" y2="'+(H-B)+'" stroke="var(--hairline-strong)"/>';
   var top = money.reduce(function(a,s){ return s.amount_eur > a.amount_eur ? s : a; });
-  money.forEach(function(s){
-    var x = X(s.date) + 10, bw = 40, isTop = s === top, isEU = s.signal_type === 'eu_project';
-    o += '<rect x="'+x+'" y="'+Y(s.amount_eur)+'" width="'+bw+'" height="'+((H-B)-Y(s.amount_eur))+'" rx="3" fill="'+(isEU ? 'var(--mark)' : 'var(--accent)')+'" opacity="'+(isTop ? 1 : .78)+'"/>';
-    var lab = (s.amount_eur/1000).toFixed(0) + 'k';
-    o += '<text x="'+(x+bw/2)+'" y="'+(Y(s.amount_eur)-8)+'" text-anchor="middle" font-size="12" fill="var(--text)" font-weight="600">'+lab+'</text>';
-    var kind = isEU ? 'EU project' : (/loan/.test(s.detail) ? 'BF loan' : 'BF grant');
-    o += '<text x="'+(x+bw/2)+'" y="'+(Y(s.amount_eur)-22)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+kind+'</text>';
-  });
-  S.filter(function(s){ return s.signal_type === 'register_entry'; }).forEach(function(s){
-    var x = X(s.date);
-    o += '<circle cx="'+x+'" cy="'+(H-B)+'" r="5" fill="var(--bg)" stroke="var(--text)" stroke-width="1.5"/>';
-    o += '<text x="'+(x+10)+'" y="'+(H-B-10)+'" font-size="11" fill="var(--muted)">Registered '+day(s.date)+'</text>';
-  });
-  var tx = X(top.date) + 30;
-  o += '<line x1="'+(tx+26)+'" x2="'+(tx+70)+'" y1="'+(Y(top.amount_eur)+12)+'" y2="'+(Y(top.amount_eur)+12)+'" stroke="var(--text-2)"/>';
-  o += '<text x="'+(tx+76)+'" y="'+(Y(top.amount_eur)+16)+'" font-size="13" fill="var(--text)">Largest single decision: '+eur(top.amount_eur)+', '+top.date.slice(0,4)+'</text>';
+  function kindOf(s){ return s.signal_type === 'eu_project' ? 'EU project' : (/loan/.test(s.detail) ? 'BF loan' : 'BF grant'); }
+  if (narrow) {
+    // Phone: one horizontal bar per decision, newest at the bottom, labels in the row.
+    var W = 340, rowH = 46, T = 6, H = T + money.length * rowH + 30, lab = 64, bwMax = W - lab - 64;
+    svg.setAttribute('viewBox', '0 0 '+W+' '+H);
+    money.forEach(function(s, i){
+      var y = T + i * rowH, len = Math.max(3, s.amount_eur / mx * bwMax), isTop = s === top, isEU = s.signal_type === 'eu_project';
+      o += '<text x="0" y="'+(y+15)+'" font-size="13" fill="var(--text)" font-weight="600">'+(s.date_precision === 'year' ? s.date.slice(0,4) : M[+s.date.slice(5,7)-1]+' '+s.date.slice(0,4))+'</text>';
+      o += '<text x="0" y="'+(y+31)+'" font-size="11" fill="var(--muted)">'+kindOf(s)+'</text>';
+      o += '<rect x="'+lab+'" y="'+(y+6)+'" width="'+len+'" height="22" rx="3" fill="'+(isEU ? 'var(--mark)' : 'var(--accent)')+'" opacity="'+(isTop ? 1 : .78)+'"/>';
+      o += '<text x="'+(lab+len+6)+'" y="'+(y+21)+'" font-size="12" fill="var(--text)" font-weight="600">'+(s.amount_eur/1000).toFixed(0)+'k</text>';
+    });
+    var reg = S.filter(function(s){ return s.signal_type === 'register_entry'; })[0];
+    if (reg) o += '<text x="0" y="'+(H-8)+'" font-size="11" fill="var(--muted)">○ Registered in the trade register '+day(reg.date)+'</text>';
+  } else {
+    var W = 1100, H = 260, L = 8, Rr = 8, T = 64, B = 52, bw = 40;
+    svg.setAttribute('viewBox', '0 0 '+W+' '+H);
+    var y0 = +S[0].date.slice(0,4), y1 = +D.signals[0].date.slice(0,4) + 1;
+    function X(s){ var p = s.split('-'); var t = (+p[0]) + ((+p[1]-1) + (+p[2]-1)/31)/12; return L + (t - y0) / (y1 - y0) * (W - L - Rr); }
+    function Y(v){ return (H - B) - v / mx * (H - T - B); }
+    for (var yr = y0; yr <= y1; yr++) {
+      var xx = X(yr + '-01-01');
+      o += '<line x1="'+xx+'" x2="'+xx+'" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--hairline)" />';
+      if (yr < y1) o += '<text x="'+(xx+4)+'" y="'+(H-B+20)+'" font-size="12" fill="var(--muted)">'+yr+'</text>';
+    }
+    o += '<line x1="'+L+'" x2="'+(W-Rr)+'" y1="'+(H-B)+'" y2="'+(H-B)+'" stroke="var(--hairline-strong)"/>';
+    money.forEach(function(s){
+      var isTop = s === top, isEU = s.signal_type === 'eu_project';
+      var x = s.date_precision === 'year' ? X(s.date) + 10 : X(s.date) - bw - 14;
+      o += '<rect x="'+x+'" y="'+Y(s.amount_eur)+'" width="'+bw+'" height="'+((H-B)-Y(s.amount_eur))+'" rx="3" fill="'+(isEU ? 'var(--mark)' : 'var(--accent)')+'" opacity="'+(isTop ? 1 : .78)+'"/>';
+      o += '<text x="'+(x+bw/2)+'" y="'+(Y(s.amount_eur)-8)+'" text-anchor="middle" font-size="12" fill="var(--text)" font-weight="600">'+(s.amount_eur/1000).toFixed(0)+'k</text>';
+      o += '<text x="'+(x+bw/2)+'" y="'+(Y(s.amount_eur)-22)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+kindOf(s)+'</text>';
+    });
+    S.filter(function(s){ return s.signal_type === 'register_entry'; }).forEach(function(s){
+      var x = X(s.date);
+      o += '<circle cx="'+x+'" cy="'+(H-B)+'" r="5" fill="var(--bg)" stroke="var(--text)" stroke-width="1.5"/>';
+      o += '<text x="'+x+'" y="'+(H-B+38)+'" font-size="11" fill="var(--muted)">○ Registered '+day(s.date)+'</text>';
+    });
+    var tx = X(top.date) + 10 + bw, ty = Y(top.amount_eur) + 20;
+    o += '<line x1="'+(tx+4)+'" x2="'+(tx+28)+'" y1="'+ty+'" y2="'+ty+'" stroke="var(--text-2)"/>';
+    o += '<text x="'+(tx+34)+'" y="'+(ty-4)+'" font-size="13" fill="var(--text)">Largest single decision</text>';
+    o += '<text x="'+(tx+34)+'" y="'+(ty+13)+'" font-size="13" fill="var(--muted)">'+eur(top.amount_eur)+', '+top.date.slice(0,4)+'</text>';
+  }
   svg.innerHTML = o;
   $('life-src').innerHTML = 'Source: <a href="'+esc(money[0].source_url)+'" rel="noopener">Business Finland funding export</a>, <a href="'+esc((S.filter(function(s){return s.signal_type==='eu_project';})[0]||{}).source_url)+'" rel="noopener">CORDIS</a>, <a href="'+esc(co.source_url)+'" rel="noopener">PRH/YTJ</a>. Business Finland rows carry a year, not a decision date.';
 

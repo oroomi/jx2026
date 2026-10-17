@@ -7,11 +7,13 @@
 <link rel="stylesheet" href="tokens.css">
 <script>try{var t=localStorage.getItem('radar-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
 <style>
-  .hero { padding: var(--s-8) 0 var(--s-7); }
+  .hero { padding: var(--s-7) 0 var(--s-6); }
   .hero-grid { display: grid; gap: var(--s-7); }
-  .hero-num { display: flex; align-items: flex-start; gap: var(--s-5); }
+  .hero-num { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: start; gap: var(--s-5); margin: 0; font-weight: 400; }
+  .hero-num .h1 { display: block; max-width: 18ch; padding-top: .35em; }
+  @media (max-width: 600px) { .hero-num { grid-template-columns: 1fr; gap: var(--s-2); } .hero-num .h1 { padding-top: 0; } }
   .hero-num .big-num { color: var(--accent); }
-  .hero-sentence { margin-top: var(--s-2); }
+  
   .hero-meta { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); margin-top: var(--s-5); }
   .stat { display: flex; flex-direction: column; gap: 2px; padding-left: var(--s-3); border-left: 1px solid var(--hairline-strong); }
   .stat b { font: 400 var(--fs-32)/1 var(--font-serif); font-variant-numeric: tabular-nums; }
@@ -24,21 +26,24 @@
   .index-head p { margin: 0; }
   .rows { list-style: none; margin: 0; padding: 0; }
   .row {
-    display: grid; gap: var(--s-2) var(--s-5); padding: var(--s-5) var(--s-3); margin: 0 calc(-1 * var(--s-3));
+    display: grid; gap: var(--s-2) var(--s-5); padding: var(--s-4) var(--s-3); margin: 0 calc(-1 * var(--s-3));
     border-bottom: 1px solid var(--hairline); border-radius: var(--radius-sm); text-decoration: none; color: inherit;
     grid-template-columns: 1fr;
   }
   .row:hover { background: var(--bg-raised); }
   .row-date { font-size: var(--fs-12); color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
-  .row-name { font: 400 var(--fs-22)/1.25 var(--font-serif); letter-spacing: -.01em; }
+  .row-name { font: 400 var(--fs-22)/1.2 var(--font-serif); letter-spacing: -.01em; }
   .row a.row-name { text-decoration: none; }
   .row a.row-name:hover { color: var(--accent); }
-  .row-why { color: var(--text-2); font-size: var(--fs-14); margin-top: 4px; max-width: 70ch; }
+  .row-why { color: var(--text-2); font-size: var(--fs-14); margin-top: 2px; max-width: 70ch; display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  @media (max-width: 899px) { .row-why { -webkit-line-clamp: 2; } }
+  .row .pill { height: 22px; font-weight: 500; }
   .row-side { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
   .strip { display: block; }
   @media (min-width: 900px) {
-    .row { grid-template-columns: 96px minmax(0, 1fr) 300px; align-items: start; }
-    .row-side { flex-direction: column; align-items: flex-end; text-align: right; }
+    .row { grid-template-columns: 96px minmax(0, 1fr) auto auto; align-items: center; }
+    .row-date { align-self: center; }
+    .row-side { justify-content: flex-end; }
   }
   details.weak { margin-top: var(--s-6); border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--bg-raised); }
   details.weak summary { cursor: pointer; padding: var(--s-4) var(--s-5); font-size: var(--fs-14); color: var(--text-2); list-style: none; display: flex; justify-content: space-between; gap: var(--s-4); }
@@ -73,10 +78,7 @@
     <p class="kicker" id="window"></p>
     <div class="hero-grid" style="margin-top: var(--s-5)">
       <div>
-        <div class="hero-num">
-          <span class="big-num" id="n-main"></span>
-        </div>
-        <h1 class="display hero-sentence">blue-economy companies surfaced in the last 90 days, each with a stated reason.</h1>
+        <h1 class="hero-num"><span class="big-num" id="n-main"></span><span class="h1 hero-sentence">blue-economy companies surfaced in the last 90 days, each with a stated reason.</span></h1>
         <div class="hero-meta">
           <div class="stat"><b id="n-all"></b><span>matched the thesis in the window</span></div>
           <div class="stat"><b id="n-weak"></b><span>name-only matches held back below</span></div>
@@ -86,7 +88,7 @@
       <figure class="figure card fig-card">
         <p class="fig-head" id="chart-head"></p>
         <p class="fig-sub">New companies per week. Teal: a stated reason. Grey: name-only match.</p>
-        <svg id="weeks" class="strip" role="img" aria-labelledby="chart-head" width="100%" viewBox="0 0 440 190"></svg>
+        <svg id="weeks" class="strip" role="img" aria-labelledby="chart-head" width="100%" viewBox="0 0 440 200"></svg>
         <p class="fig-src">Source: PRH/YTJ trade register, Hilma, CORDIS, as stored in the radar snapshot of 16 Oct 2026. <a href="#rule">Feed rule</a>.</p>
       </figure>
     </div>
@@ -97,6 +99,7 @@
       <p class="kicker">The index</p>
       <h2 class="h2" style="margin-top:8px">Newest first, one row per company</h2>
     </div>
+    <p class="small muted">Strip: the 90-day window, each tick one dated signal. Pill: the next step from the decision table.</p>
   </div>
   <div class="tabs" role="tablist" id="tabs"></div>
   <ol class="rows" id="rows"></ol>
@@ -135,7 +138,7 @@
   $('n-contract').textContent = C.by_type.public_contract;
 
   // Weekly chart: stacked bars, direct labels, one annotation.
-  var W = D.weeks, svg = $('weeks'), w = 440, h = 190, pl = 4, pr = 4, pt = 34, pb = 26;
+  var W = D.weeks, svg = $('weeks'), w = 440, h = 200, pl = 4, pr = 4, pt = 44, pb = 26;
   var max = Math.max.apply(null, W.map(function(x){ return x.main + x.weak; }));
   var bw = (w - pl - pr) / W.length, y = function(v){ return (h - pb) - v / max * (h - pt - pb); };
   var before = 0, cut = '2026-08-30';
@@ -152,8 +155,9 @@
   // annotate the tallest week
   var peak = 0; W.forEach(function(x, i){ if (x.main + x.weak > W[peak].main + W[peak].weak) peak = i; });
   var px = pl + peak * bw + bw / 2, py = y(W[peak].main + W[peak].weak);
-  out += '<line x1="'+px+'" x2="'+px+'" y1="'+(py-4)+'" y2="'+(pt-14)+'" stroke="var(--text-2)" stroke-width="1"/>';
-  out += '<text x="'+(px+6)+'" y="'+(pt-16)+'" font-size="12" fill="var(--text)">Week of '+fmtShort(W[peak].start)+': '+W[peak].weak+' name-only, '+W[peak].main+' with a reason</text>';
+  out += '<line x1="'+px+'" x2="'+px+'" y1="'+(py-4)+'" y2="'+(pt-24)+'" stroke="var(--text-2)" stroke-width="1"/>';
+  out += '<text x="'+(px-6)+'" y="'+(pt-20)+'" text-anchor="end" font-size="12" fill="var(--text)">Week of '+fmtShort(W[peak].start)+':</text>';
+  out += '<text x="'+(px-6)+'" y="'+(pt-6)+'" text-anchor="end" font-size="12" fill="var(--muted)">'+W[peak].weak+' name-only, '+W[peak].main+' with a reason</text>';
   svg.innerHTML = out;
 
   // Pill from the decision table (next_step rule), never invented.
@@ -183,10 +187,10 @@
           + '<div><a class="row-name" href="company.html">'+esc(r.name)+'</a>'
           + '<div class="row-why">'+esc(why)+'</div></div>'
           + '<div class="row-side">'
-          +   '<span class="pill '+p[1]+'" title="Next step, decision table rule '+r.rule+'">'+p[0]+'</span>'
           +   '<a class="chip chip-src" href="'+esc(r.src)+'" rel="noopener">'+esc(r.type_label)+' · '+esc(r.src_label)+'</a>'
           +   strip(r)
-          + '</div></li>';
+          + '</div>'
+          + '<div class="row-side"><span class="pill '+p[1]+'" title="Next step, decision table rule '+r.rule+'">'+p[0]+'</span></div></li>';
       });
     $('rows').innerHTML = html;
   }

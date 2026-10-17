@@ -252,7 +252,7 @@ def match_answer(q: str, org: dict, cfg: dict, has_match: bool, thesis_id: str |
         say = f"{org['name']} is {cfg.get('org_default') or 'an organisation in the declared lists'}."
     url = f"/match?{urlencode({'org': org.get('id') or org['name'], **({'thesis': thesis_id} if thesis_id else {})})}"
     if has_match:
-        say += " Here is who it should meet, ranked."
+        say += " The match view lists the startups that fit it and the companies it is already connected to."
     return answer("match", q, say, url=url if has_match else None, action="open" if has_match else "none", label="Open the match view",
                   org={"name": org["name"], "type": org["type"], "id": org.get("id")})
 

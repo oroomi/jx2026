@@ -463,8 +463,9 @@ def _company_head(sp: dict, cfg: dict, primary: set[str]) -> dict:
 
 
 def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = None, today=None, limit: int = 25) -> dict | None:
-    """The startups that fit one counterpart. Its declared cohort or portfolio companies come first; the others are ranked by the same
-    components after a cheap first pass over every company and a full profile of the best `candidates`."""
+    """The startups that fit one counterpart. `connected` holds the companies it is already connected to (its declared cohort or portfolio
+    in our records) with the reason they are connected; `startups` ranks only the others, by the same components, after a cheap first pass
+    over every company and a full profile of the best `candidates`. Both lists carry rows of the same shape (D38)."""
     cfg = matchtext.config(thesis)
     if cfg is None:
         return None
@@ -478,7 +479,7 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
         if org is None:
             return None
         idx = _index(conn, thesis, cfg, t)
-        out_rows = []
+        connected = []
         for key, m in org["members"].items():
             if key not in idx:
                 continue
@@ -489,8 +490,13 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
             comps = [{"id": "member", "label": LABELS["member"], "met": True, "weight": 0, "chip": "In its declared cohort or portfolio",
                       "reason": f"Declared member: {m['basis']}" + (f", dated {m['since']}" if m["since"] else "") + ".",
                       "note": None, "links": [{"text": "declared list", "url": m["url"] if (m["url"] or "").startswith("http") else sp["url"]}]}] + [c for c in ev["components"] if c["met"]]
-            out_rows.append(_startup_row(sp, comps, True, ev))
-        out_rows.sort(key=lambda r: (-r["met"], r["name"].casefold()))
+            connected.append(_startup_row(sp, comps, True, ev))
+        connected.sort(key=lambda r: (-r["met"], r["name"].casefold()))
+        for r in connected:          # the same keys as a ranked row; a connection has no rank
+            r["rank"] = None
+            for k in ("_w", "_s", "tier"):
+                r.pop(k, None)
+        out_rows = []
         closed = _open(org, t)
         cand = []
         tiers = {g: i for i, g in enumerate(cfg.get("tier_order") or [])}
@@ -528,7 +534,7 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
         return {"org": row, "as_of": t.isoformat(), "rule": RULE, "weights": cfg["weights"],
                 "candidates_profiled": min(len(cand), int(cfg.get("candidates", 300))) if not closed else 0,
                 "unprofiled": max(0, len(cand) - int(cfg.get("candidates", 300))),
-                "listed": len(out_rows), "startups": shown, "limits": LIMITS}
+                "listed": len(out_rows), "startups": shown, "connected": connected, "limits": LIMITS}
     finally:
         if own:
             conn.close()

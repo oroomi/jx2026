@@ -91,7 +91,7 @@ def _page(request: Request, **ctx):
 
 
 @router.get("/match")
-def match_page(request: Request, view: str = "org", org: str = "", company: str = "", q: str = "", kind: str = ""):
+def match_page(request: Request, view: str = "org", org: str = "", company: str = "", q: str = "", kind: str = "", tab: str = ""):
     th, conn = store.context(request)
     cfg = matchtext.config(th)
     if conn is None or cfg is None:
@@ -104,7 +104,8 @@ def match_page(request: Request, view: str = "org", org: str = "", company: str 
         kinds = [k for k in kinds if k["n"]]
         shown = [o for o in orgs if not kind or o["kind"] == kind]
         ctx = dict(view=view, thesis=th, orgs=shown, org_total=len(orgs), kinds=kinds, kind=kind, q=q, message=None, rule=matchmaker.RULE,
-                   weights=cfg["weights"], labels=matchmaker.LABELS, result=None, selected=None, companies=[], components=matchmaker.COMPONENTS)
+                   weights=cfg["weights"], labels=matchmaker.LABELS, result=None, selected=None, companies=[], components=matchmaker.COMPONENTS,
+                   tab="connected" if tab == "connected" else "fit")
         if view == "org":
             sel = org or max(orgs, key=lambda o: (o["members_in_records"], o["kind"] == "accelerator"))["id"]
             res = matchmaker.match_org(sel, th, conn=conn, limit=25)

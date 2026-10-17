@@ -62,9 +62,27 @@
     <div><dt>Deadline</dt><dd>{{ o.deadline or o.deadline_text or "none stated" }}</dd></div>
     <div><dt>Declared cohort or portfolio</dt><dd>{{ o.declared_companies }} companies, {{ o.members_in_records }} in our records{% if o.revealed.lookalikes_from %}; lookalikes are read from {{ o.revealed.lookalikes_from }}{% endif %}</dd></div>
   </dl>
-  {% if o.closed_note %}<p class="mt-note">{{ o.closed_note | capitalize }}. Only its declared members are listed.</p>{% endif %}
-  {% if result.startups %}
-  <h3 class="mt-sub">Startups that fit ({{ result.listed }} checked in full pass the filters{% if result.startups | length < result.listed %}, the top {{ result.startups | length }} shown{% endif %}{% if result.unprofiled %}; {{ result.unprofiled }} more passed the first pass and were not checked in full{% endif %})</h3>
+  {% if o.closed_note %}<p class="mt-note">{{ o.closed_note | capitalize }}. It takes no new startups, so nothing is ranked; the companies it is already connected to are on the other tab.</p>{% endif %}
+  {% set kq = ("&amp;kind=" ~ kind) if kind else "" %}
+  <div class="mt-toggle mt-tabs" role="group" aria-label="Which startups">
+    <a href="/match?org={{ o.id }}{{ kq }}#results" {% if tab != "connected" %}aria-current="true"{% endif %}>Best fits <span>{{ result.startups | length }}</span></a>
+    <a href="/match?org={{ o.id }}&amp;tab=connected{{ kq }}#results" {% if tab == "connected" %}aria-current="true"{% endif %}>Already connected <span>{{ result.connected | length }}</span></a>
+  </div>
+  {% if tab == "connected" %}
+  {% if result.connected %}
+  <h3 class="mt-sub">Already connected ({{ result.connected | length }} of its {{ o.declared_companies }} declared companies are in our records; not ranked, it already knows them)</h3>
+  <ul class="mt-results">
+  {% for s in result.connected %}
+    <li class="mt-res">
+      <p class="mt-res-h"><a class="mt-res-n" href="{{ s.url }}">{{ s.name }}</a> <span class="mt-meta">{{ s.country or "country not in records" }}{% if s.verdict %} · {{ s.verdict | lower }}{% endif %}</span></p>
+      {{ chips(s.components) }}
+      {{ why(s.components) }}
+    </li>
+  {% endfor %}
+  </ul>
+  {% else %}<p class="mt-note">None of its declared companies is in our records.</p>{% endif %}
+  {% elif result.startups %}
+  <h3 class="mt-sub">Startups that fit, not yet connected ({{ result.listed }} checked in full pass the filters{% if result.startups | length < result.listed %}, the top {{ result.startups | length }} shown{% endif %}{% if result.unprofiled %}; {{ result.unprofiled }} more passed the first pass and were not checked in full{% endif %})</h3>
   <ol class="mt-results">
   {% for s in result.startups %}
     <li class="mt-res">
@@ -74,7 +92,7 @@
     </li>
   {% endfor %}
   </ol>
-  {% else %}<p class="mt-note">No startup passes the filters with a reason for this counterpart.</p>{% endif %}
+  {% else %}<p class="mt-note">No startup passes the filters with a reason for this counterpart{% if result.connected %}; the companies it is already connected to are on the other tab{% endif %}.</p>{% endif %}
 {% elif view == "company" and result %}
   {% set k = result.company %}
   <p class="mt-kind">{{ k.verdict | lower }} path · {{ k.country or "country not in records" }}{% if k.age_band %} · {{ k.age_band }} old{% endif %}</p>

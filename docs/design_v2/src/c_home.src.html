@@ -1,12 +1,12 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Ocean Opportunity Radar</title>
 <link rel="stylesheet" href="tokens.css">
 <link rel="stylesheet" href="c.css">
-<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<script>try{var t=localStorage.getItem('theme');if(t)document.documentElement.dataset.theme=t;var a=(location.search.match(/accent=([abc])/)||[])[1];if(a)document.documentElement.dataset.accent=a;}catch(e){}</script>
 </head>
 <body class="c">
 <div class="shell">
@@ -16,29 +16,23 @@
       <button class="c-icon" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
     </header>
 
-    <nav class="seg" role="tablist" id="tabs" aria-label="Country"></nav>
+    <section class="headline" id="hero"></section>
 
-    <section class="hero-c" id="hero"></section>
+    <nav class="pills" role="tablist" id="groups" aria-label="Group"></nav>
+    <nav class="quiet-switch" id="countries" aria-label="Country"></nav>
 
-    <label class="c-search"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input type="search" id="q" placeholder="Company or Business ID" aria-label="Search company or Business ID"></label>
-
-    <div class="list-head"><span>Startups</span><label class="c-sort">Sort <select id="sort"><option value="newest">Newest signal</option><option value="name">Name</option></select></label></div>
     <ol class="rows-c" id="rows"></ol>
-
-    <details class="disc"><summary>Weak matches <span id="n-weak"></span></summary><p class="small muted">Name-only matches with no second source. Closed by default.</p></details>
-    <details class="disc"><summary>New startups, no thesis evidence yet <span id="n-intake"></span></summary><p class="small muted" id="intake-note"></p></details>
+    <p class="page-note" id="note"></p>
   </main>
-
   <aside class="col-side" aria-label="Lists">
     <h2 class="side-h">Lists</h2>
     <div class="lists" id="lists"></div>
-    <p class="small muted side-note" id="fetched"></p>
   </aside>
 </div>
 
 <nav class="tabbar" aria-label="Main">
   <a href="c_home.html" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1.2" class="f"/></svg>Radar</a>
-  <a href="#q" id="tab-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>Search</a>
+  <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L20 20"/></svg>Search</a>
   <a href="#lists"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 6h14M5 12h14M5 18h9"/></svg>Lists</a>
   <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Backtest</a>
   <a href="#"><svg viewBox="0 0 24 24" aria-hidden="true"><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></svg>Data</a>
@@ -48,64 +42,66 @@
 <script>
 (function(){
   var D = JSON.parse(document.getElementById('data').textContent);
-  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function $(id){ return document.getElementById(id); }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function dt(s){ var p = s.split('-'); return Date.UTC(+p[0], +(p[1]||1)-1, +(p[2]||1)); }
-  function ago(s, today){ var d = Math.round((dt(today) - dt(s)) / 864e5); return d <= 0 ? 'today' : d < 45 ? d + ' d ago' : d < 548 ? Math.round(d/30.4) + ' mo ago' : Math.round(d/365) + ' y ago'; }
-  function day(s){ return (+s.slice(8,10))+' '+M[+s.slice(5,7)-1]+' '+s.slice(0,4); }
+  function addDays(s, n){ var d = new Date(dt(s) + n * 864e5); return d.toISOString().slice(0, 10); }
   var VERDICT = {'WATCHLIST':['Watchlist','v-grey'], 'PARTNER INTRODUCTION':['Partner intro','v-teal'], 'ACCELERATOR':['Accelerator','v-teal'],
                  'INVEST':['Invest','v-green'], 'DUE DILIGENCE':['Due diligence','v-green'], 'REJECT':['Reject','v-red']};
-  function pill(v){ var p = VERDICT[v] || [v ? v.charAt(0) + v.slice(1).toLowerCase() : 'No verdict', 'v-grey']; return '<span class="vpill '+p[1]+'">'+esc(p[0])+'</span>'; }
-  function initials(n){ var w = n.replace(/\b(Oy|Ab|AB|Oyj|Ltd)\b/g, '').trim().split(/\s+/); return ((w[0]||'')[0] + ((w[1]||'')[0] || (w[0]||'')[1] || '')).toUpperCase(); }
+  function pill(v){ if (!v) return ''; var p = VERDICT[v] || [v.charAt(0) + v.slice(1).toLowerCase(), 'v-grey']; return '<span class="vpill '+p[1]+'">'+esc(p[0])+'</span>'; }
+  function initials(n){ var w = n.replace(/\b(Oy|Ab|AB|Oyj|Ltd|Ky)\b/g, '').replace(/[^\wÀ-ž\s-]/g, '').trim().split(/\s+/); return ((w[0]||'')[0] + ((w[1]||'')[0] || (w[0]||'')[1] || '')).toUpperCase(); }
+  function short(s){ return (s || '').replace(/\s*\(.*$/, '').replace(/ n\.e\.c\.$/, ''); }
   function spark(dates, today){
-    // Cumulative count of dated public signals over the last 12 months; flat line when nothing moved.
-    var W = 64, H = 24, t1 = dt(today), t0 = t1 - 365 * 864e5, before = dates.filter(function(d){ return dt(d) < t0; }).length;
-    var inWin = dates.filter(function(d){ var x = dt(d); return x >= t0 && x <= t1; }), total = before + inWin.length || 1;
-    var y = function(n){ return H - 3 - (n / total) * (H - 6); }, x = function(t){ return 1 + (t - t0) / (t1 - t0) * (W - 2); };
-    var n = before, d = 'M1 ' + y(n).toFixed(1);
-    inWin.forEach(function(s){ var X = x(dt(s)).toFixed(1); d += ' H' + X + ' V' + y(++n).toFixed(1); });
-    d += ' H' + (W - 1);
-    var last = inWin.length ? '<circle cx="'+x(dt(inWin[inWin.length-1])).toFixed(1)+'" cy="'+y(n).toFixed(1)+'" r="2.2" class="sp-dot"/>' : '';
-    return '<svg class="spark" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" aria-hidden="true"><path d="'+d+'" class="sp-line'+(inWin.length ? '' : ' flat')+'"/>'+last+'</svg>';
+    // Running count of dated public records over the last 3 years; the newest record is the dot.
+    var W = 72, H = 28, t1 = dt(today), t0 = t1 - 3 * 365 * 864e5;
+    var before = dates.filter(function(d){ return dt(d) < t0; }).length, inWin = dates.filter(function(d){ var x = dt(d); return x >= t0 && x <= t1; });
+    var total = before + inWin.length || 1, y = function(n){ return H - 4 - (n / total) * (H - 8); }, x = function(t){ return 2 + (t - t0) / (t1 - t0) * (W - 4); };
+    var n = before, d = 'M2 ' + y(n).toFixed(1);
+    inWin.forEach(function(s){ d += ' H' + x(dt(s)).toFixed(1) + ' V' + y(++n).toFixed(1); });
+    d += ' H' + (W - 2);
+    var dot = inWin.length ? '<circle cx="'+x(dt(inWin[inWin.length-1])).toFixed(1)+'" cy="'+y(n).toFixed(1)+'" r="2.4" class="sp-dot"/>' : '';
+    return '<svg class="spark" viewBox="0 0 '+W+' '+H+'" aria-hidden="true"><path d="'+d+'" class="sp-line'+(inWin.length ? '' : ' flat')+'"/>'+dot+'</svg>';
   }
-  var cur = 0;
+  var cur = 0, grp = 'all';
+  function groups(T){
+    var ws = T.window_start, inv = T.rows.filter(function(r){ return r.verdict === 'INVEST' || r.verdict === 'DUE DILIGENCE'; });
+    if (inv.length < 5) inv = inv.concat(T.rows.filter(function(r){ return r.business === 'High' && inv.indexOf(r) < 0; }));
+    return [
+      ['all', 'All startups', T.rows],
+      ['fit', 'Top fits', T.rows.filter(function(r){ return r.fit === 'High'; })],
+      ['ready', 'Investor-ready', inv],
+      ['new', 'New this quarter', T.rows.filter(function(r){ return r.first && r.first >= ws; })]
+    ].filter(function(g){ return g[2].length; });
+  }
   function render(){
     var T = D.tabs[cur];
-    if (!T.available) {
-      $('hero').innerHTML = '<p class="hero-label">On the radar</p><p class="hero-num">no data</p><p class="small muted">The '+esc(T.label)+' store is not in this snapshot. It opens from the same tab once its data is loaded.</p>';
-      $('rows').innerHTML = ''; $('n-weak').textContent = ''; $('n-intake').textContent = ''; return;
-    }
-    var newN = T.rows.filter(function(r){ return r.date >= T.window_start; }).length;
-    $('hero').innerHTML = '<p class="hero-label">On the radar · '+esc(T.label)+'</p><p class="hero-num">'+T.rows.length+'</p>'
-      + '<p class="hero-sub"><span class="chg">+'+newN+' this quarter</span> <span class="muted">startups found with a stated reason, '+esc(day(T.window_start))+' to '+esc(day(T.window_end))+'</span></p>';
-    var q = ($('q').value || '').toLowerCase(), by = $('sort').value;
-    var rows = T.rows.filter(function(r){ return !q || r.name.toLowerCase().indexOf(q) > -1 || r.key.indexOf(q) > -1; })
-      .sort(by === 'name' ? function(a, b){ return a.name.localeCompare(b.name); } : function(a, b){ return a.date < b.date ? 1 : a.date > b.date ? -1 : a.name.localeCompare(b.name); });
+    $('countries').innerHTML = D.tabs.filter(function(t){ return t.available; }).map(function(t){ var i = D.tabs.indexOf(t); return '<button data-i="'+i+'" aria-pressed="'+(i===cur)+'">'+esc(t.label)+'</button>'; }).join('');
+    var G = groups(T), g = G.filter(function(x){ return x[0] === grp; })[0] || G[0];
+    var ws = T.window_start, month = addDays(T.window_end, -30);
+    var newQ = T.rows.filter(function(r){ return r.first && r.first >= ws; }), newM = newQ.filter(function(r){ return r.first >= month; });
+    $('hero').innerHTML = '<p class="hl-kicker">In the past 90 days</p><p class="hl-main"><span>'+newQ.length+' companies surfaced</span>'
+      + (newM.length ? ' <span class="up">▲ '+newM.length+' this month</span>' : '')+'</p>';
+    $('groups').innerHTML = G.map(function(x){ return '<button role="tab" data-g="'+x[0]+'" aria-selected="'+(x === g)+'">'+esc(x[1])+'</button>'; }).join('');
+    var rows = g[2].slice().sort(function(a, b){ return (a.date || '') < (b.date || '') ? 1 : (a.date || '') > (b.date || '') ? -1 : a.name.localeCompare(b.name); });
     $('rows').innerHTML = rows.map(function(r){
-      var isNew = r.date >= T.window_start;
+      var second = [short(r.sector)].filter(Boolean).join(' · ');
       return '<li><a class="row-c" href="c_company.html">'
         + '<span class="mark" aria-hidden="true">'+esc(initials(r.name))+'</span>'
-        + '<span class="who"><span class="nm">'+esc(r.name)+'</span><span class="sub">'+(r.line ? esc(r.line.text.replace(/ \(industry code \d+\)\.$/, '')) : 'no description on record')+'</span></span>'
-        + spark(r.dates, T.window_end)
-        + '<span class="rt">'+pill(r.verdict)+'<span class="ago">'+(isNew ? '<b class="new">New</b> · ' : '')+esc(ago(r.date, T.window_end))+'</span></span>'
+        + '<span class="who"><span class="nm">'+esc(r.name)+'</span>'+(second ? '<span class="sub">'+esc(second)+'</span>' : '')+'</span>'
+        + '<span class="rt">'+(r.dates.length ? spark(r.dates, T.window_end) : '')+pill(r.verdict)+'</span>'
         + '</a></li>';
-    }).join('') || '<li class="empty-c">No startup matches that search.</li>';
-    $('n-weak').textContent = T.weak;
-    $('n-intake').textContent = T.intake == null ? '' : T.intake;
-    $('intake-note').textContent = T.intake ? 'Registered recently in an ocean industry family, but no second source yet.' : 'None in this snapshot.';
-    $('fetched').textContent = 'Data as stored ' + T.fetched.slice(0, 10) + '. Every number traces to a stored record.';
+    }).join('');
+    var hidden = ['Investor-ready'].filter(function(n){ return !G.some(function(x){ return x[1] === n; }); });
+    $('note').textContent = 'Sorted by newest public record. ' + (hidden.length ? hidden.join(', ') + ' appears once a company qualifies. ' : '') + 'Data as stored ' + T.fetched.slice(0, 10) + '.';
   }
-  $('tabs').innerHTML = D.tabs.map(function(t, i){ return '<button role="tab" aria-selected="'+(i===0)+'" data-i="'+i+'">'+esc(t.label)+'</button>'; }).join('');
-  $('tabs').addEventListener('click', function(e){ var b = e.target.closest('button'); if (!b) return; cur = +b.dataset.i; [].forEach.call(this.children, function(x){ x.setAttribute('aria-selected', x === b); }); render(); });
-  $('q').addEventListener('input', render); $('sort').addEventListener('change', render);
-  $('tab-search').addEventListener('click', function(e){ e.preventDefault(); $('q').focus(); });
+  $('groups').addEventListener('click', function(e){ var b = e.target.closest('button'); if (!b) return; grp = b.dataset.g; render(); });
+  $('countries').addEventListener('click', function(e){ var b = e.target.closest('button'); if (!b) return; cur = +b.dataset.i; render(); });
   var L = D.lists, T0 = D.tabs[0];
   $('lists').innerHTML = [['Nordic Blue', L.cohort, 'cohort companies'], ['Redstone portfolio', L.portfolio, 'portfolio companies'],
-     ['New this quarter', T0.rows ? T0.rows.length : 0, 'found with a stated reason'], ['No thesis evidence yet', T0.intake || 0, 'new startups, waiting for a second source']]
-    .map(function(l){ return '<a class="list-card" href="#"><span class="lc-n">'+l[1]+'</span><span class="lc-t">'+esc(l[0])+'</span><span class="lc-s">'+esc(l[2])+'</span></a>'; }).join('');
+     ['New this quarter', T0.rows.filter(function(r){ return r.first && r.first >= T0.window_start; }).length, 'first public record in 90 days']]
+    .map(function(l){ return '<a class="list-card" href="#"><span class="lc-t">'+esc(l[0])+'</span><span class="lc-n">'+l[1]+'</span><span class="lc-s">'+esc(l[2])+'</span></a>'; }).join('');
   render();
-  $('theme').addEventListener('click', function(){ var r = document.documentElement, c = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'), n = c === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('theme', n); } catch (e) {} });
+  $('theme').addEventListener('click', function(){ var r = document.documentElement, n = r.dataset.theme === 'light' ? 'dark' : 'light'; r.dataset.theme = n; try { localStorage.setItem('theme', n); } catch (e) {} });
 })();
 </script>
 </body>

@@ -373,7 +373,8 @@ def _memo_now(memo: dict | None, thesis: dict | None) -> dict | None:
     tech = ((memo.get("levels") or {}).get("technology") or {}).get("band")
     bands[(labels.get("technology") or "technology readiness").casefold()] = str(tech or "unknown").casefold()
     first = (rec.get("because_labels") or [{}])[0].get("label")
-    return {"decision": rec.get("decision"), "fallback": rec.get("kind") == "fallback", "bands": bands, "impact": (first or "").casefold()}
+    return {"decision": rec.get("decision"), "fallback": rec.get("kind") == "fallback", "bands": bands, "impact": (first or "").casefold(),
+            "closed": matching.closed_calls(thesis, store._today(None)) if thesis else []}
 
 
 def _verdict_named(sentence: str) -> str | None:
@@ -387,12 +388,16 @@ def _verdict_named(sentence: str) -> str | None:
 def stale_reason(sentence: str, slot: str, now: dict | None) -> str | None:
     """Why a stored sentence no longer matches the memo (None when it does): a different verdict, a different band for a dimension,
     'no evidence' for a dimension that now has a band, 'implied by the sector' when the verdict no longer rests on the fallback, or a
-    rule id that cannot be taken out cleanly."""
+    rule id that cannot be taken out cleanly, or a who-to-meet sentence naming a programme whose call is now closed (D76)."""
     if _RULE_ID_LEFT.search(sentence):
         return "names a rule id"
     if now is None:
         return None
     low = sentence.casefold()
+    if slot == "who_to_meet":
+        hit = next((n for n in now.get("closed") or [] if re.search(r"(?<!\w)" + re.escape(n.casefold()) + r"(?!\w)", low)), None)
+        if hit:
+            return f"names {hit}, whose call is closed"
     if slot == "what_the_fund_should_do" or "memo" in low:
         named = _verdict_named(sentence)
         if named and now["decision"] and named != now["decision"]:

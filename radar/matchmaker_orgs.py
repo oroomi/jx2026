@@ -162,6 +162,11 @@ def _read(cfg: dict, thesis: dict) -> list[dict]:
         _merge_field(o, "age_limit", matching.age_limit(r.get("stage_window")))
         o["deadline"] = o["deadline"] or matching.parse_deadline(r.get("next_deadline"))
         _merge_field(o, "url", _http(r.get("source_url"), r.get("url")))
+        # D76: the dataset's row of the same programme ('Interreg Central Baltic Programme 2021-2027') takes this declared call status, so a
+        # call the declared list says is closed is closed under both names
+        twins = [b for b in base.values() if b is not o and not b["programme"] and matching.same_programme(r["name"], b["full_name"])]
+        if len(twins) == 1 and twins[0]["deadline"] is None:
+            twins[0]["deadline"] = matching.parse_deadline(r.get("next_deadline"))
 
     for g in m.get("grants_next_dates") or []:
         gk = fold(re.split(r"\s*[(:]", g["name"], maxsplit=1)[0].replace("cut-off", ""))

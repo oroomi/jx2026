@@ -328,13 +328,8 @@ def _geography(sp: dict, org: dict, cfg: dict) -> tuple[bool, dict]:
 
 
 def _open(org: dict, today: date) -> str | None:
-    dl = org["deadline"]
-    if not dl.get("open"):
-        txt = dl.get("text") or "not accepting applications"
-        return txt if txt.casefold().startswith("closed") else "closed: " + txt
-    if dl.get("date") and dl["date"] < today.isoformat():
-        return f"the deadline {dl['date']} has passed"
-    return None
+    """Why the counterpart takes no startup today (a closed call, a past deadline), or None: the one rule of matching.call_closed (D76)."""
+    return matching.call_closed(org["deadline"], today)
 
 
 def evaluate(sp: dict, org: dict, cfg: dict, idx: dict, df, today: date, full: bool = True) -> dict:

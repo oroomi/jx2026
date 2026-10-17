@@ -3,7 +3,8 @@ page, [Viva Jets Oy](/c/2962040-6). This module checks the answer against what t
 
   - a link to /c/<key> stays only when <key> was returned by a tool this turn and its label is that company's name (or a short form of it);
     otherwise the link is removed, the label stays as plain text, and the name is flagged in the log;
-  - a link to anything else stays only when its address appeared in a tool result this turn (a source the records gave), never one the model made up;
+  - a link to anything else stays only when its address appeared in a tool result this turn (a source the records gave, or a page of this site such
+    as the /match?org=<id> address get_org_matches returns), never one the model made up;
   - a company name from this turn's tool results written without a link becomes a link;
   - a company-shaped name (words ending in Oy, Oyj, Ab, Ltd, AS, GmbH ...) that no tool returned and the person did not type is left as text,
     flagged in the log, and listed as `unverified` so the page can say so.
@@ -57,6 +58,8 @@ def check_link(label: str, target: str, seen: dict[str, str], urls: set[str]) ->
         return label, None, label
     if re.match(r"https?://", t, re.I):
         return (f"[{label}]({t})", None, None) if t.rstrip(".,;") in urls else (label, None, None)
+    if t.startswith("/") and not t.startswith("//") and t in urls:
+        return f"[{label}]({t})", None, None   # a page of this site a tool returned (get_org_matches' match page, D77)
     return label, None, None   # javascript:, data:, relative pages the model made up
 
 

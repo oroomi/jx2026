@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent
 LISTS = ("investors", "funding", "partners")
 INVESTOR_TYPES = ("investor_vc", "investor_angel", "investor_corporate")
 FUNDING_TYPES = ("public_funder", "accelerator_incubator")
-CLOSED_WORDS = ("closed", "no open call", "no call open", "will not reopen", "not read")
+CLOSED_WORDS = ("closed", "no open call", "no call open", "will not reopen", "not read", "not announced")   # D76: "not announced (last held ...)" is no open call
 GRANT_TYPES = ("bf_funding", "eu_project", "public_funding")
 EARLY_STAGES = ("idea", "pre_seed", "seed")
 INACTIVE = ("defunct",)
@@ -185,6 +185,50 @@ def parse_deadline(cell: str | None) -> dict:
     return {"open": True, "date": None, "text": t}
 
 
+WATCH_NEXT_CALL = "watch for the next call"
+
+
+def call_closed(dl: dict | None, today: date) -> str | None:
+    """D76: why a programme takes no application today, or None when it is open. `dl` is its declared deadline (parse_deadline): a cell that
+    says the call is closed or names no open call, or a deadline before today. One rule for the who-comes-next lists, the matchmaker and Aava."""
+    dl = dl or {}
+    if not dl.get("open", True):
+        txt = dl.get("text") or "not accepting applications"
+        return txt if txt.casefold().startswith("closed") else "closed: " + txt
+    if dl.get("date") and dl["date"] < today.isoformat():
+        return f"the deadline {dl['date']} has passed"
+    return None
+
+
+def closed_words(reason: str) -> str:
+    """The only way a closed programme is described (D76): no open call on record, so watch for the next call."""
+    return f"no open call on record ({_plain(re.sub(r'^closed:\s*', '', reason or ''))}): {WATCH_NEXT_CALL}"
+
+
+def _name_words(name: str | None) -> list[str]:
+    return [w for w in (fold(x) for x in re.split(r"[\s(),:;/–-]+", name or "")) if w]
+
+
+def same_programme(declared: str | None, name: str | None) -> bool:
+    """D76: True when `name` (a row of the ecosystem dataset or a counterpart list) is the declared programme `declared`: the same folded name,
+    or the declared name's words followed by more words ('Interreg Central Baltic' and 'Interreg Central Baltic Programme 2021-2027'). A
+    declared name longer than the other is one programme of that funder ('Business Finland Sprint Grant' of 'Business Finland'): not the same call."""
+    a, b = fold(declared or ""), fold(name or "")
+    if not a or not b:
+        return False
+    if a == b:
+        return True
+    wa, wb = _name_words(declared), _name_words(name)
+    return len(wa) >= 2 and len(wb) > len(wa) and wb[:len(wa)] == wa
+
+
+def declared_call(name: str, rows: list[dict]) -> dict | None:
+    """The one programmes_grants.csv row that is the programme `name` (same_programme), or None when no row is, or several are."""
+    hits = [r for r in rows if same_programme(r.get("name"), name)]
+    hits = [r for r in hits if fold(r["name"]) == fold(name)] or hits
+    return hits[0] if len(hits) == 1 else None
+
+
 def trl_window(cell: str | None) -> tuple[int, int] | None:
     m = re.search(r"TRL\s*(\d)\s*-\s*(\d)", cell or "")
     if m:
@@ -291,7 +335,7 @@ def _programmes(thesis: dict, ctx: dict, today: date) -> list[dict]:
     ctx = dict(ctx, year=today.year)
     for r in _programme_rows(thesis):
         dl = parse_deadline(r.get("next_deadline"))
-        if not dl["open"] or (dl["date"] and dl["date"] < today.isoformat()):
+        if call_closed(dl, today):
             continue
         url = (r.get("source_url") or r.get("url") or "").strip()
         if not url.startswith("http"):
@@ -306,10 +350,24 @@ def _programmes(thesis: dict, ctx: dict, today: date) -> list[dict]:
     return out
 
 
+def closed_calls(thesis: dict, today: date) -> list[str]:
+    """The declared programmes whose call is closed today, by their name before any bracket and only names of two words or more: what a
+    stored sentence may no longer name as someone to meet (D76; radar.briefs drops such a sentence)."""
+    out = []
+    for r in _programme_rows(thesis):
+        if call_closed(parse_deadline(r.get("next_deadline")), today):
+            n = re.split(r"\s*\(", r.get("name") or "", maxsplit=1)[0].strip()
+            if len(_name_words(n)) >= 2:
+                out.append(n)
+    return out
+
+
 def _declared_programme(name: str, rows: list[dict]) -> dict | None:
-    """The programmes_grants.csv row an ecosystem funding row names (same name, or the csv name starts with it)."""
+    """The programmes_grants.csv row an ecosystem funding row names (same name, or the csv name starts with it), else the one row whose name
+    the dataset's name extends (D76: 'Interreg Central Baltic Programme 2021-2027' is the declared 'Interreg Central Baltic')."""
     f = fold(name)
-    return next((r for r in rows if fold(r["name"]) == f), None) or next((r for r in rows if f and fold(r["name"]).startswith(f)), None)
+    return (next((r for r in rows if fold(r["name"]) == f), None) or next((r for r in rows if f and fold(r["name"]).startswith(f)), None)
+            or declared_call(name, rows))
 
 
 def _investor_facts(thesis: dict) -> dict[str, dict]:
@@ -399,9 +457,8 @@ def _assemble(conn, thesis: dict, company_key: str, ctx: dict, t: date) -> dict:
         elif r["target_type"] in FUNDING_TYPES:
             decl = _declared_programme(r["name"], prog_rows)
             if decl is not None:  # the declared programme's own window, deadline and stage apply to this row too
-                dl = parse_deadline(decl.get("next_deadline"))
-                if not dl["open"] or (dl["date"] and dl["date"] < t.isoformat()):
-                    continue
+                if call_closed(parse_deadline(decl.get("next_deadline")), t):
+                    continue  # D76: a closed call is never a next step
                 ok, notes = _eligibility(decl, ectx)
                 if not ok:
                     continue
@@ -581,7 +638,8 @@ def _programme(detail: str | None) -> str:
 
 
 
-def _public_funding(conn, eco, prof: dict | None, ctx: dict, topic: list[str], t: date) -> list[dict]:
+def _public_funding(conn, eco, prof: dict | None, ctx: dict, topic: list[str], t: date, programmes: list[dict] | None = None) -> list[dict]:
+    """`programmes` are the declared programme rows: a dataset funder whose declared call is closed is said so and ranked last (D76)."""
     out, c = [], ctx["c"]
     own: dict[str, list] = {}
     for s in ctx["sigs"]:
@@ -644,9 +702,13 @@ def _public_funding(conn, eco, prof: dict | None, ctx: dict, topic: list[str], t
             if e["id"] in scores:
                 bits.append(RATES_FIT)
             bits.append("according to the declared ecosystem dataset")
+            decl = declared_call(e["name"], programmes or [])
+            closed = call_closed(parse_deadline(decl.get("next_deadline")), t) if decl else None
+            if closed:
+                bits.append(closed_words(decl.get("next_deadline") or closed))
             out.append(_grow(e["name"], "public funder", _sentence(*bits),
                              _eco_url(eco, e["id"], e["website"]), e["last_verified"], "ecosystem dataset", confidence=e["confidence"],
-                             key=(3, {"fits": 0, "unknown": 1}.get(fit_stage, 2), -len(shared), -scores.get(e["id"], 0), e["name"].casefold())))
+                             key=(4 if closed else 3, {"fits": 0, "unknown": 1}.get(fit_stage, 2), -len(shared), -scores.get(e["id"], 0), e["name"].casefold())))
     return out
 
 
@@ -773,7 +835,7 @@ def wider_groups(conn, thesis: dict, ctx: dict, t: date, limit: int = 5) -> dict
         topic = _topic_words(ctx, thesis, prof)
         return {
             "investors_extra": _finish(_dataset_investors(eco, prof, ctx) if eco is not None else [], 10**6),
-            "public_funding": _finish(_public_funding(conn, eco, prof, ctx, topic, t), limit),
+            "public_funding": _finish(_public_funding(conn, eco, prof, ctx, topic, t, _programme_rows(thesis)), limit),
             "buyers": _finish(_buyers(conn, ctx, thesis, topic, t), limit),
             "project_partners": _finish(_project_partners(conn, ctx, thesis, topic), limit),
             "research_institutes": _finish(_research_institutes(eco, prof), limit),

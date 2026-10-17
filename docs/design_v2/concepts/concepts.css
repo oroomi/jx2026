@@ -1,0 +1,28 @@
+/* Concept boards (jx, direction study). Two self-contained boards share this file.
+   Fonts are the ones already vendored in the repo; nothing is fetched from a CDN. */
+@font-face{font-family:"Newsreader";src:url("../../../radar/static/fonts/newsreader-latin-400-normal.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap}
+@font-face{font-family:"Newsreader";src:url("../../../radar/static/fonts/newsreader-latin-400-italic.woff2") format("woff2");font-weight:400;font-style:italic;font-display:swap}
+@font-face{font-family:"Newsreader";src:url("../../../radar/static/fonts/newsreader-latin-600-normal.woff2") format("woff2");font-weight:600;font-style:normal;font-display:swap}
+@font-face{font-family:"IBM Plex Sans";src:url("../../../radar/static/fonts/ibm-plex-sans-latin-400-normal.woff2") format("woff2");font-weight:400;font-display:swap}
+@font-face{font-family:"IBM Plex Sans";src:url("../../../radar/static/fonts/ibm-plex-sans-latin-500-normal.woff2") format("woff2");font-weight:500;font-display:swap}
+@font-face{font-family:"IBM Plex Sans";src:url("../../../radar/static/fonts/ibm-plex-sans-latin-600-normal.woff2") format("woff2");font-weight:600;font-display:swap}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--board);color:var(--ink);
+  font:400 15px/1.55 "IBM Plex Sans",system-ui,-apple-system,sans-serif;font-variant-numeric:tabular-nums}
+
+/* ---- board chrome (outside the design, so it never flatters it) ---- */
+.board{padding:40px 40px 64px;max-width:2480px;margin:0 auto}
+.board-head{border-bottom:1px solid var(--board-rule);padding-bottom:20px;margin-bottom:28px}
+.board-title{font:600 28px/1.15 "Newsreader",Georgia,serif;margin:0 0 6px;letter-spacing:-.01em}
+.board-sub{color:var(--board-dim);margin:0;max-width:92ch;font-size:13.5px}
+.board-sub b{color:var(--ink);font-weight:600}
+.board-sec{margin:34px 0 0}
+.board-sec h2{font:600 13px/1 "IBM Plex Sans",sans-serif;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--board-dim);margin:0 0 14px}
+.pair{display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap}
+.cap{color:var(--board-dim);font-size:12px;margin:8px 0 0}
+
+/* a frame is a real viewport scaled down; the design inside is at true pixel size */
+.frame{position:relative;overflow:hidden;border:1px solid var(--board-rule);border-radius:10px;background:#000}
+.frame > .vp{transform-origin:top left}

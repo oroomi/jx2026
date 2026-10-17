@@ -183,7 +183,7 @@ def test_page_with_filters_shows_the_subset_and_can_be_cleared(client, H):
     assert "Clear all" in r.text and f'>{len(expected)} of {len(H["rows"])} startups</p>' in r.text
     assert 'aria-checked="true"' in r.text
     # a group, a filter and the headline number: the headline counts the whole window, the list shrinks
-    g = client.get("/?group=fit&verdict=ACCELERATOR")
+    g = client.get("/?group=fit&for=any&verdict=ACCELERATOR")        # for=any: the plain Top matching list (the sponsor's ranking is tested in test_filters_inplace)
     fit_keys = {r["company_key"] for r in H["rows"] if r["verdict"] in home_list.TOP_VERDICTS or r["fit"] == "High"}
     assert set(keys_in(g.text)) == {k for k in fit_keys if next(x for x in H["rows"] if x["company_key"] == k)["verdict"] == "ACCELERATOR"}
 

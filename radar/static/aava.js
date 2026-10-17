@@ -8,6 +8,10 @@
   var reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var synth = "speechSynthesis" in window ? window.speechSynthesis : null;
   var segs = [], idx = 0, run = 0, timer = null, guard = null, paused = false, current = null, lastIntent = "brief";
+  /* The scripts for every question are embedded in the page: a tap plays them at once, so speech starts inside the tap
+     (mobile browsers refuse speech that starts after a network wait). */
+  var groups = {};
+  try { groups = JSON.parse(($("aava-data") || {}).textContent || "{}") || {}; } catch (e) { groups = {}; }
 
   function pickVoice() {
     var vs = synth ? synth.getVoices() : [];
@@ -15,8 +19,13 @@
     return en.filter(function (v) { return /^en[-_](GB|US)/i.test(v.lang); })[0] || en[0] || null;
   }
 
+  function canSpeak() {
+    /* voices load late on some browsers: an empty list still speaks with the browser's English default */
+    return !!synth && (pickVoice() !== null || synth.getVoices().length === 0);
+  }
+
   function setMode() {
-    $("aava-mode").textContent = pickVoice() ? "Voice and captions" : "Captions only (no English voice on this device)";
+    $("aava-mode").textContent = canSpeak() ? "Voice and captions" : "Captions only (no English voice on this device)";
   }
   if (synth && synth.addEventListener) synth.addEventListener("voiceschanged", setMode);
 
@@ -108,11 +117,15 @@
     var words = s.text.length;
     var ms = Math.max(2200, words * 60);
     var voice = pickVoice();
-    if (synth && voice) {
+    if (canSpeak()) {
       var u = new SpeechSynthesisUtterance(s.text);
-      u.voice = voice; u.lang = voice.lang; u.rate = 0.95;
-      u.onend = function () { next(token); };
-      u.onerror = function () { next(token); };
+      if (voice) { u.voice = voice; u.lang = voice.lang; } else { u.lang = "en-GB"; }
+      u.rate = 0.95;
+      var t0 = Date.now();
+      /* a device that cannot really speak ends or fails at once: then the caption stays up for its reading time instead */
+      var after = function () { timer = setTimeout(function () { next(token); }, Math.max(0, ms - (Date.now() - t0))); };
+      u.onend = function () { if (Date.now() - t0 < ms * 0.25) after(); else next(token); };
+      u.onerror = after;
       synth.speak(u);
       guard = setTimeout(function () { next(token); }, ms * 2 + 4000); /* some browsers never fire onend */
     } else {
@@ -123,27 +136,29 @@
   function halt() {
     run += 1; paused = false;
     clearTimeout(timer); clearTimeout(guard);
-    if (synth) synth.cancel();
+    if (synth && (synth.speaking || synth.pending)) synth.cancel(); /* a cancel right before speak can swallow it in Chrome */
+  }
+
+  function begin(list) {
+    segs = list || []; idx = 0;
+    if (!segs.length) { $("aava-caption").textContent = "No public record to read."; return; }
+    $("aava-pause").disabled = false; $("aava-stop").disabled = false;
+    $("aava-sheet").classList.add("playing");
+    setMode();
+    play(run);
   }
 
   function start(intent) {
     halt();
     lastIntent = intent;
+    if (groups[intent]) { begin(groups[intent]); return; } /* same tick as the tap: speech is allowed to start */
     $("aava-caption").textContent = "Loading the records.";
     var url = root.dataset.script + (root.dataset.kind === "company" ? "?intent=" + encodeURIComponent(intent) : "") ;
     var thesis = new URLSearchParams(location.search).get("thesis");
     if (thesis) url += (url.indexOf("?") < 0 ? "?" : "&") + "thesis=" + encodeURIComponent(thesis);
     fetch(url, { headers: { Accept: "application/json" } })
       .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(function (data) {
-        segs = data.segments || []; idx = 0;
-        if (!segs.length) { $("aava-caption").textContent = "No public record to read."; return; }
-        $("aava-pause").disabled = false; $("aava-stop").disabled = false;
-        $("aava-sheet").classList.add("playing");
-        setMode();
-        var token = run;
-        play(token);
-      })
+      .then(function (data) { begin(data.segments); })
       .catch(function () { $("aava-caption").textContent = "Aava could not load the records. Try again."; });
   }
 

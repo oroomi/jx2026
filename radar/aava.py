@@ -9,7 +9,7 @@ import re
 from datetime import date
 
 ACTIONS = ("highlight", "scroll", "count_up", "draw_timeline", "fill_level", "none")
-INTENTS = ("brief", "next", "talk")
+INTENTS = ("brief", "next", "talk", "why", "meet", "missing")
 MONTHS = ("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December")
 MAX_SIGNALS_SPOKEN = 8
 MAX_DETAIL = 220
@@ -128,24 +128,145 @@ def readiness(fw: dict) -> list[dict]:
     return out
 
 
-def next_investors() -> dict:
-    return seg("Question three, who comes next. No public record yet: the matching rules are not scored on this page.", "q3", "highlight")
+LISTS = (("investors", "investor"), ("funding", "programme or funder"), ("partners", "partner or buyer"))
+MAX_PER_LIST = 2
 
 
-def next_step() -> dict:
-    return seg("Question four, what should happen next. No public record yet: the next-step rules are not scored on this page.", "q4", "highlight")
+_ECO_REASON = re.compile(r"caps \[([^\]]*)\];\s*kw \[([^\]]*)\];\s*stage ([\d.]+)(?:;\s*impact ([\d.]+))?")
 
 
-def company_script(c: dict, signals: list[dict], fw: dict, reasons: list[dict], entered_via: str, intent: str = "brief") -> dict:
-    """The ordered segments for one company. intent brief = everything; next = question four; talk = question three."""
+def _spoken_eco(m: re.Match) -> str:
+    """The ecosystem dataset's terse reason ("caps ['C10']; kw []; stage 1.0") in words, keeping its own codes and numbers."""
+    caps = [c.strip(" '\"") for c in m.group(1).split(",") if c.strip(" '\"")]
+    kws = [k.strip(" '\"") for k in m.group(2).split(",") if k.strip(" '\"")]
+    bits = []
+    if caps:
+        bits.append("shared capability codes " + " and ".join(caps))
+    if kws:
+        bits.append("shared keywords " + ", ".join(kws))
+    bits.append(f"stage fit {m.group(3)}")
+    if m.group(4):
+        bits.append(f"impact score {m.group(4)}")
+    return "; ".join(bits)
+
+
+def _reason(text: str | None) -> str:
+    return _ECO_REASON.sub(_spoken_eco, _short(text or "")).rstrip(".") if text else ""
+
+
+def _row_sentence(r: dict, kind: str) -> str:
+    """One who-comes-next row as the page prints it: name, kind, the row's own reason, its deadline when the page shows one."""
+    text = f"{r['name']}, {(r.get('kind') or kind).strip()}."
+    if r.get("reason"):
+        text += f" Reason on the page: {_reason(r['reason'])}."
+    if r.get("deadline"):
+        text += f" Deadline {say_date(r['deadline']) or r['deadline']}."
+    return text
+
+
+def next_investors(nxt: dict | None = None) -> list[dict]:
+    """Question three from radar.matching.who_comes_next: the top rows of each list, in the page's order, each with its source."""
+    if not nxt or not any(nxt.get(k) for k, _ in LISTS):
+        return [seg("Question three, who comes next. No public record of an investor, programme or partner match for this company yet.",
+                    "q3", "highlight")]
+    counts = [f"{len(nxt[k])} {one if len(nxt[k]) == 1 else one + 's'}" for k, one in (("investors", "investor"), ("funding", "programme"),
+                                                                                    ("partners", "partner")) if nxt.get(k)]
+    out = [seg(f"Question three, who comes next, from the records on this page: {', '.join(counts)} listed, in priority order.", "q3", "scroll")]
+    for k, kind in LISTS:
+        for r in (nxt.get(k) or [])[:MAX_PER_LIST]:
+            out.append(seg(_row_sentence(r, kind), "q3", "highlight", r.get("source_url")))
+    return out
+
+
+def next_step(step: dict | None = None, memo: dict | None = None) -> list[dict]:
+    """Question four from radar.matching.next_step, then the fund memo's verdict and its actions (radar.memo)."""
+    if not step:
+        return [seg("Question four, what should happen next. No public record of a next step for this company yet.", "q4", "highlight")]
+    out = [seg(f"Question four, what should happen next. {clean(step['sentence'])}. Because {clean(step.get('because') or '').rstrip('.')}.",
+               "q4", "highlight", step.get("source_url"))]
+    if memo:
+        out += verdict(memo, short=True)
+    return out
+
+
+def _because(rec: dict) -> str:
+    parts = ", ".join(f"{x['label']} {x['band']}" for x in rec.get("because_labels") or [])
+    return (f"{rec['matched']}: " if rec.get("matched") else "") + parts
+
+
+def verdict(memo: dict | None, short: bool = False) -> list[dict]:
+    """Why this verdict: the memo's decision, the matched rule and the four bands, then its linked reasons and actions."""
+    if not memo:
+        return [seg("No memo for this company in this radar.", "memo", "highlight")]
+    rec = memo["recommendation"]
+    first = next((w.get("url") for w in memo.get("why") or [] if w.get("url")), None)
+    out = [seg(f"The memo for the fund, from the records on this page, recommends {rec['decision']}. Because {_because(rec)}.",
+               "memo", "highlight", first)]
+    if rec.get("note"):
+        out.append(seg(rec["note"], "memo", "highlight"))
+    if not short:
+        for w in (memo.get("why") or [])[:4]:
+            out.append(seg(f"{_reason(w['text'])}.", "memo", "highlight", w.get("url")))
+    for a in (memo.get("actions") or [])[:2 if short else 3]:
+        out.append(seg(f"Action for the fund: {_reason(a['text'])}.", "memo", "highlight", a.get("url")))
+    return out
+
+
+def meet(nxt: dict | None, memo: dict | None) -> list[dict]:
+    """Who should we meet: the memo's actions that name someone, then the top rows of question three."""
+    out = []
+    for a in (memo or {}).get("actions") or []:
+        if a.get("url"):
+            out.append(seg(f"The memo says: {_reason(a['text'])}.", "memo", "highlight", a["url"]))
+    out += next_investors(nxt)
+    return out
+
+
+def missing(memo: dict | None, fw: dict) -> list[dict]:
+    """What's missing: the memo's evidence gaps and the readiness rows with no public record, as the page prints them."""
+    out = []
+    rec = (memo or {}).get("recommendation") or {}
+    if rec.get("needs"):
+        out.append(seg(f"The memo needs more public evidence for: {', '.join(rec['needs'])}.", "memo", "highlight"))
+    for k in (memo or {}).get("risks") or []:
+        out.append(seg(f"{_reason(k['text'])}.", "memo", "highlight", k.get("url")))
+    dims = [d["name"] for d in fw.get("dimensions") or [] if not d.get("evidence")]
+    if dims:
+        out.append(seg(f"Investment dimensions with no public record on this page: {', '.join(dims)}.", "q2", "highlight"))
+    if rec.get("dimensions"):
+        out.append(seg(f"{rec['dimensions']['text']}.", "memo", "highlight", rec["dimensions"].get("url")))
+    if not out:
+        out = [seg("The memo lists no evidence gap against the levels this sector reads.", "memo", "highlight")]
+    return out
+
+
+QUESTIONS = (("why", "Why this verdict?"), ("meet", "Who should we meet?"), ("missing", "What's missing?"))
+
+
+def company_script(c: dict, signals: list[dict], fw: dict, reasons: list[dict], entered_via: str, intent: str = "brief", *,
+                   nxt: dict | None = None, step: dict | None = None, memo: dict | None = None) -> dict:
+    """The ordered segments for one company. brief = everything; next = question four; talk = question three; why = the memo's
+    verdict; meet = who to meet; missing = the evidence gaps. No model, no network: every segment is built from the same rows the
+    page renders (radar.matching.who_comes_next, radar.matching.next_step, radar.memo.build)."""
     if intent == "next":
-        segs = [next_step()]
+        segs = next_step(step, memo)
     elif intent == "talk":
-        segs = [next_investors()]
+        segs = next_investors(nxt)
+    elif intent == "why":
+        segs = verdict(memo)
+    elif intent == "meet":
+        segs = meet(nxt, memo)
+    elif intent == "missing":
+        segs = missing(memo, fw)
     else:
-        segs = [who(c), *surfaced(signals), fit_segment(reasons, entered_via), *readiness(fw), next_investors(), next_step(),
+        segs = [who(c), *surfaced(signals), fit_segment(reasons, entered_via), *readiness(fw), *next_investors(nxt), *next_step(step, memo),
                 seg("That is everything on this page. Every fact comes from the linked records.", "aava-who", "none")]
     return {"kind": "company", "title": f"Ask Aava about {c['name']}", "intent": intent, "segments": segs}
+
+
+def company_groups(c: dict, signals: list[dict], fw: dict, reasons: list[dict], entered_via: str, *, nxt=None, step=None, memo=None) -> dict:
+    """Every intent's segments at once, embedded in the page so a tap plays them with no request (speech starts inside the tap)."""
+    return {i: company_script(c, signals, fw, reasons, entered_via, i, nxt=nxt, step=step, memo=memo)["segments"] for i in INTENTS}
 
 
 def feed_script(rows: list[dict], limit: int = 5) -> dict:

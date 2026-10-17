@@ -1,12 +1,58 @@
-"""GET /aava/script/{company_key}?intent=brief|next|talk and GET /aava/feed: the narration scripts. Data only through radar.store."""
+"""GET /aava/script/{company_key}?intent=brief|next|talk|why|meet|missing and GET /aava/feed: the narration scripts. Data only through
+radar.store. The same scripts are embedded in the page (template globals aava_company_json, aava_feed_json), so a tap plays them
+with no request: mobile browsers only let speech start inside the tap itself."""
 from __future__ import annotations
 
-from fastapi import APIRouter, HTTPException, Request
+import json
 
-from radar import aava, blueinvest, fit as fit_mod, frameworks, store
-from radar.routes.company import blueinvest_trl
+from fastapi import APIRouter, HTTPException, Request
+from markupsafe import Markup
+
+from radar import aava, blueinvest, fit as fit_mod, frameworks, matching, memo as memo_mod, store
+from radar.routes.home import templates
 
 router = APIRouter()
+
+
+def _inputs(conn, th: dict, company_key: str) -> dict | None:
+    """Everything a company script reads, from the functions the company page itself uses: the page's levels
+    (frameworks.page_levels), question 03 (matching.who_comes_next), question 04 (matching.next_step) and the memo (memo.build)."""
+    data = store.company(conn, company_key)
+    if data is None:
+        return None
+    c, sigs = data["company"], data["signals"]
+    fw = frameworks.page_levels(c, sigs, blueinvest.profile_for(conn, company_key))
+    entered = ", ".join(sorted({s["evidence"]["label"] for s in sigs}) or [store.evidence(c)["label"]])
+    return {"c": c, "signals": sigs, "fw": fw, "reasons": fit_mod.fit(c, sigs, th), "entered_via": entered,
+            "nxt": matching.who_comes_next(company_key, th, 5, conn=conn), "step": matching.next_step(company_key, th, conn=conn),
+            "memo": memo_mod.build(conn, th, company_key)}
+
+
+def _json(obj) -> Markup:
+    """JSON safe inside <script type="application/json">."""
+    return Markup(json.dumps(obj, ensure_ascii=False).replace("</", "<\\/"))
+
+
+def company_json(company_key: str, thesis: dict) -> Markup:
+    conn = store.open_db(thesis=thesis)
+    if conn is None:
+        return _json({})
+    try:
+        x = _inputs(conn, thesis, company_key)
+    finally:
+        conn.close()
+    if x is None:
+        return _json({})
+    return _json(aava.company_groups(x["c"], x["signals"], x["fw"], x["reasons"], x["entered_via"], nxt=x["nxt"], step=x["step"], memo=x["memo"]))
+
+
+def feed_json(rows: list[dict]) -> Markup:
+    return _json({"brief": aava.feed_script([r for r in rows if r.get("strength") == "strong"])["segments"]})
+
+
+templates.env.globals["aava_company_json"] = company_json
+templates.env.globals["aava_feed_json"] = feed_json
+templates.env.globals["aava_questions"] = aava.QUESTIONS
 
 
 @router.get("/aava/feed")
@@ -29,15 +75,9 @@ def company_script(request: Request, company_key: str, intent: str = "brief"):
     if conn is None:
         raise HTTPException(503, store.NO_DB_MESSAGE)
     try:
-        data = store.company(conn, company_key)
-        profile = blueinvest.profile_for(conn, company_key) if data else None
+        x = _inputs(conn, th, company_key)
     finally:
         conn.close()
-    if data is None:
+    if x is None:
         raise HTTPException(404, f"no company with key {company_key} in this radar")
-    c, sigs = data["company"], data["signals"]
-    fw = frameworks.assess(c, sigs)
-    if profile and profile.get("trl") is not None:
-        fw["trl"] = blueinvest_trl(profile)
-    entered = ", ".join(sorted({s["evidence"]["label"] for s in sigs}) or [store.evidence(c)["label"]])
-    return aava.company_script(c, sigs, fw, fit_mod.fit(c, sigs, th), entered, intent)
+    return aava.company_script(x["c"], x["signals"], x["fw"], x["reasons"], x["entered_via"], intent, nxt=x["nxt"], step=x["step"], memo=x["memo"])

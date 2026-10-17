@@ -61,7 +61,7 @@ def test_order_of_a_rich_company(client):
     # oldest first: the register entry (2025-06-13) is read before the EU project (2026-03-01)
     texts = [s["text"] for s in segs if s["target"].startswith("aava-sig-")]
     assert "13 June 2025" in texts[0] and "1 March 2026" in texts[-1]
-    assert segs[-1]["action"] == "none" and segs[-2]["target"] == "q4"
+    assert segs[-1]["action"] == "none" and segs[-2]["target"] in ("q4", "memo")  # question four ends with the memo's verdict
     assert any(s["action"] == "draw_timeline" and len(s["points"]) == 4 for s in segs)
 
 
@@ -115,8 +115,11 @@ def test_source_urls_are_links(client):
 
 
 def test_intents_and_errors(client):
-    assert [s["target"] for s in script(client, RICH, "next")["segments"]] == ["q4"]
-    assert [s["target"] for s in script(client, RICH, "talk")["segments"]] == ["q3"]
+    nxt = [s["target"] for s in script(client, RICH, "next")["segments"]]
+    assert nxt[0] == "q4" and set(nxt) <= {"q4", "memo"}  # question four, then the memo's verdict and actions
+    assert {s["target"] for s in script(client, RICH, "talk")["segments"]} == {"q3"}
+    for intent in ("why", "meet", "missing"):
+        assert script(client, RICH, intent)["segments"]
     assert client.get(f"/aava/script/{RICH}", params={"intent": "x"}).status_code == 400
     assert client.get("/aava/script/nope-1").status_code == 404
 

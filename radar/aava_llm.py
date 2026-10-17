@@ -40,10 +40,11 @@ CONFIG_PATH = ROOT / "config" / "aava_llm.yaml"
 PROMPT_PATH = ROOT / "config" / "aava_prompt.md"
 EXIT_BLOCKED = 3
 # Text the model writes in a turn that also calls data tools is an interim note ("let me check ..."): it is held back and never shown. Only the text of the
-# turn that ends the loop (no data tool in it) is the answer; suggest_followups may sit beside it. The two notes below are the only messages the code adds.
-LAST_ROUND_NOTE = ("This is your last round. Do not call a data tool again: write the answer now from what the tools returned, then call suggest_followups in the same turn.")
+# turn that ends the loop (no data tool in it) is the answer. Its closing `Follow-ups: a? | b? | c?` line becomes the page's buttons (aava_tools.split_followups).
+# The two notes below are the only messages the code adds.
+LAST_ROUND_NOTE = ("This is your last round. Do not call a data tool again: write the answer now from what the tools returned, ending with the Follow-ups line.")
 ANSWER_NOW = ("Write your answer now, in this turn, from the tool results you already have: 2 to 4 sentences that name the companies with one concrete fact each, then why, "
-              "then one next step. Do not call a tool.")
+              "then one next step, then the Follow-ups line. Do not call a tool.")
 TOOL_LABELS = {"search_startups": "searching the list", "get_startup": "reading the company record", "explain_match": "checking the match",
                "list_organisations": "looking up organisations", "get_current_view": "looking at your screen", "apply_filters": "setting the filters"}
 _NO_THINKING: set[str] = set()      # models whose API rejected the thinking parameters (this process): later calls skip them
@@ -114,10 +115,17 @@ def api_key_present() -> bool:
 
 def available() -> bool:
     """True when a key is in the environment and the SDK is installed. A boolean only: the key is never returned, logged or echoed."""
+    return not kill_switch_on() and can_call()
+
+
+def kill_switch_on() -> bool:
+    """Kill switch without a restart: the file data/AAVA_LLM_OFF (in RADAR_DATA_DIR) turns the reasoning Aava off; the deterministic Aava answers."""
+    return (Path(os.environ.get("RADAR_DATA_DIR") or Path(__file__).resolve().parent.parent / "data") / "AAVA_LLM_OFF").exists()
+
+
+def can_call() -> bool:
+    """A key is in the environment and the SDK is installed (the kill switch is not looked at)."""
     if not api_key_present():
-        return False
-    # kill switch without a restart: the file data/AAVA_LLM_OFF (in RADAR_DATA_DIR) turns the reasoning Aava off; the deterministic Aava answers
-    if (Path(os.environ.get("RADAR_DATA_DIR") or Path(__file__).resolve().parent.parent / "data") / "AAVA_LLM_OFF").exists():
         return False
     try:
         import anthropic  # noqa: F401
@@ -226,6 +234,7 @@ class Turn:
         self.steps = 0
         self.answer = ""
         self.interim: list[str] = []        # text written in turns that also called data tools: kept for the log and the selftest, never shown
+        self.trace: list[dict] = []         # one entry per model call: seconds, stop reason, tools, characters of text, tokens (the selftest prints it)
         self.result: dict | None = None
         self.ms = 0
 
@@ -328,6 +337,9 @@ class Turn:
                 content = list(getattr(final, "content", []) or [])
                 text = "".join(getattr(b, "text", "") for b in content if getattr(b, "type", "") == "text").strip()
                 stop = getattr(final, "stop_reason", None)
+                u = getattr(final, "usage", None)
+                self.trace.append({"step": self.steps, "end_s": round(time.monotonic() - t0, 1), "stop": stop, "text_chars": len(text), "forced": force_answer,
+                                   "tools": [getattr(b, "name", "") for b in content if getattr(b, "type", "") == "tool_use"], "out_tokens": int(getattr(u, "output_tokens", 0) or 0)})
                 if stop == "tool_use":
                     uses = [b for b in content if getattr(b, "type", "") == "tool_use"]
                     if not uses:    # a tool_use stop with no tool call in it: nothing to answer, nothing to send back
@@ -391,6 +403,14 @@ class Turn:
             self._log(err["data"]["kind"])
             yield err
             return
+        answer, asked = aava_tools.split_followups(answer, s.limits)       # the Follow-ups line is buttons, never text
+        if asked:
+            ctx.followups = asked
+        if not answer.strip():
+            err = self._error("empty", "Aava did not write an answer.")
+            self._log("empty")
+            yield err
+            return
         guard = aava_entities.StreamGuard(ctx.seen, ctx.urls)    # the same link rules as the final check, applied to what is sent
         safe = guard.feed(answer) + guard.flush()
         if safe:
@@ -445,13 +465,15 @@ def _selftest(question: str, dry: bool, thesis_id: str | None) -> int:
     if dry:
         print(f"DRY RUN: no API call was made. System prompt {len(system_prompt())} characters, tool schemas {len(json.dumps(kw['tools']))} characters.")
         return 0
-    if not available():
+    if not can_call():
         print("BLOCKED: ANTHROPIC_API_KEY is not set in the environment (or the anthropic package is missing), so no turn was run. Put the key in the service's "
               "EnvironmentFile (unit hack-jx2026) and export it in this shell to run the selftest.", file=sys.stderr)
         return EXIT_BLOCKED
+    if kill_switch_on():
+        print("note: the kill switch file data/AAVA_LLM_OFF exists, so the site is serving the deterministic Aava; the selftest calls the model directly and does not touch the file.")
     warm_s = aava_tools.warm(th)      # the live server warms these caches at startup; the clock below does not include them
     print(f"warm-up (done at server start in production): {warm_s:.1f}s")
-    turn = Turn(msgs, th, s=s)
+    turn = Turn(msgs, th, client=make_client(s), s=s)
     first_status = first_text = None
     t0 = time.monotonic()
     for ev in turn.events():
@@ -469,6 +491,9 @@ def _selftest(question: str, dry: bool, thesis_id: str | None) -> int:
         print(f"\n--- interim notes the model wrote between tool calls (dropped, never shown): {len(turn.interim)} ---")
         for n in turn.interim:
             print("  " + n[:200])
+    print("\n--- model calls ---")
+    for t in turn.trace:
+        print(f"step {t['step']}: ended at {t['end_s']}s  stop={t['stop']}  text {t['text_chars']} chars  out {t['out_tokens']} tokens  tools {t['tools']}{'  (forced answer)' if t['forced'] else ''}")
     print("\n--- tool calls ---")
     for c in turn.ctx.calls:
         print(f"{c['name']:<20} {c['ms']:>6} ms  ok={c['ok']}  {c.get('args', '')}")

@@ -610,12 +610,40 @@ def apply_filters(ctx: ToolContext, a: dict) -> dict:
     return out
 
 
+def clean_followups(qs, limits: dict) -> list[str]:
+    cap, n = int(limits.get("followup_chars", 90)), int(limits.get("followups_max", 3))
+    out = []
+    for q in qs if isinstance(qs, list) else []:
+        t = " ".join(str(q).split()).strip(" -*_\u2022\"'")[:cap].strip()
+        if isinstance(q, str) and t and t not in out:
+            out.append(t)
+    return out[:n]
+
+
+_FOLLOWUP_HEAD = re.compile(r"^[\s>*_#-]*follow[- ]?ups?(?:\s+questions?)?[\s*_]*:[\s*_]*(.*)$", re.IGNORECASE)
+
+
+def split_followups(text: str, limits: dict | None = None) -> tuple[str, list[str]]:
+    """(answer without its follow-up line, the questions). The model ends its answer with `Follow-ups: a? | b? | c?` (or the same as a short bullet list under
+    that heading); the page shows them as buttons, not as text. Only a heading in the last five lines counts. Nothing found: (text unchanged, [])."""
+    lines = (text or "").rstrip().split("\n")
+    for i in range(len(lines) - 1, max(-1, len(lines) - 6), -1):
+        m = _FOLLOWUP_HEAD.match(lines[i])
+        if not m:
+            continue
+        items = [x for x in re.split(r"\s*\|\s*", m.group(1)) if x.strip()]
+        items += [re.sub(r"^[\s>*_\d.)\u2022-]+", "", ln) for ln in lines[i + 1:] if ln.strip()]
+        qs = clean_followups(items, limits or {})
+        if not qs:
+            return text, []
+        return "\n".join(lines[:i]).rstrip(), qs
+    return text, []
+
+
 def suggest_followups(ctx: ToolContext, a: dict) -> dict:
-    qs = a.get("questions") if isinstance(a.get("questions"), list) else []
-    cap, n = int(ctx.limits.get("followup_chars", 90)), int(ctx.limits.get("followups_max", 3))
-    clean = [" ".join(q.split())[:cap] for q in qs if isinstance(q, str) and q.strip()][:n]
-    ctx.followups = clean
-    return {"ok": True, "shown_to_the_person": len(clean)}
+    """Not in the schema any more (the model closes its answer with a `Follow-ups:` line, see split_followups); kept so a model that still calls it is served."""
+    ctx.followups = clean_followups(a.get("questions"), ctx.limits)
+    return {"ok": True, "shown_to_the_person": len(ctx.followups)}
 
 
 # ---- the schema Claude sees ---------------------------------------------------------------------------------------------------------
@@ -694,9 +722,6 @@ def tools_for(th: dict | None) -> list[dict]:
                                                            "group": {"type": "string", "description": "Optional group tab: all, fit (Top fits), ready (Investor-ready) or new (New this quarter). Countries are the country filter."},
                                                            "top_matching_for": {"type": "string", "description": "Optional org_id of an investor or accelerator (from list_organisations): the page shows its Top matching tab, the list ranked for that organisation."}},
                           "required": ["filters"]}},
-        {"name": "suggest_followups",
-         "description": "Show the person 2 or 3 short follow-up questions as buttons. Call it once, in the same turn as your answer and after you have written it (the answer text comes first, never a turn with only this call).",
-         "input_schema": {"type": "object", "properties": {"questions": {"type": "array", "items": {"type": "string"}, "minItems": 2, "maxItems": 3}}, "required": ["questions"]}},
     ]
 
 

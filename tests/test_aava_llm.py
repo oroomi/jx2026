@@ -99,7 +99,7 @@ def test_request_shape_for_the_default_model(th):
     assert kw["max_tokens"] == 1200 + 2048                                                         # thinking counts toward max_tokens
     assert "temperature" not in kw and "tool_choice" not in kw
     assert kw["system"][0]["cache_control"] == {"type": "ephemeral"} and "Aava" in kw["system"][0]["text"] and "cache_control" not in kw["system"][1]
-    assert [x["name"] for x in kw["tools"]] == ["search_startups", "get_startup", "explain_match", "list_organisations", "get_current_view", "apply_filters", "suggest_followups"]
+    assert [x["name"] for x in kw["tools"]] == ["search_startups", "get_startup", "explain_match", "list_organisations", "get_current_view", "apply_filters"]
 
 
 def test_a_budget_model_gets_budget_tokens_and_zero_budget_means_none(th, monkeypatch):
@@ -446,7 +446,8 @@ def test_input_hygiene():
 
 def test_the_system_prompt_states_the_rules_the_owner_set():
     p = aava_llm.system_prompt()
-    for phrase in ("not a FAQ bot", "Never invent", "Missing information is not a low score", "Companies and organisations only", "what to do next", "suggest_followups"):
+    for phrase in ("not a FAQ bot", "Never invent", "Missing information is not a low score", "Companies and organisations only", "what to do next", "Follow-ups:", "at most 110 words",
+                   "Write nothing between tool calls", 'subsector ["aquaculture_fisheries"]', "one concrete fact", "not yet evidenced"):
         assert phrase in p
 
 
@@ -597,3 +598,20 @@ def test_followups_beside_an_interim_note_and_a_data_tool_do_not_end_the_turn(th
     ])
     evs = run(t)
     assert evs[-1]["data"]["text"] == "Done looking." and len(client.messages.calls) == 2 and t.interim == ["Checking."]
+
+
+def test_the_followups_line_at_the_end_of_the_answer_becomes_buttons_and_is_not_shown(th):
+    body = f"I would open [Viva Jets Oy](/c/{VIVA}) first: it is a portfolio company with an ACCELERATOR verdict."
+    t, _ = turn_for(th, "Where do I start?", [call(tools=[("search_startups", {"limit": 3})]), call(text=body + "\n\nFollow-ups: Who funds it? | What is missing? | Show the others | A fourth one?")])
+    evs = run(t)
+    streamed = "".join(e["data"]["text"] for e in evs if e["event"] == "delta")
+    assert streamed == body == evs[-1]["data"]["text"] and "Follow-ups" not in json.dumps(evs[-1])
+    assert [e for e in evs if e["event"] == "followups"][0]["data"]["questions"] == ["Who funds it?", "What is missing?", "Show the others"]    # three at most
+    assert evs[-1]["data"]["steps"] == 2
+    # the same as a heading with bullets, and an answer that has none
+    assert aava_tools.split_followups("A.\n\n**Follow-ups:**\n- One?\n- Two?") == ("A.", ["One?", "Two?"])
+    assert aava_tools.split_followups("Text that says follow-ups: in the middle.\nMore text.") == ("Text that says follow-ups: in the middle.\nMore text.", [])
+    long_q = "x" * 200
+    assert aava_tools.split_followups(f"A.\nFollow-ups: {long_q} | Fine?")[1][0] == "x" * 90
+    t, _ = turn_for(th, "hi", [call(text="Just an answer.")])
+    assert not [e for e in run(t) if e["event"] == "followups"]

@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kelluu Oy · Dossier · Ocean Opportunity Radar</title>
+<link rel="stylesheet" href="tokens.css">
+<script>try{var t=localStorage.getItem('radar-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+  .crumbs { display: flex; gap: 8px; align-items: center; font-size: var(--fs-14); color: var(--muted); padding-top: var(--s-6); }
+  .crumbs a { color: var(--muted); text-decoration: none; } .crumbs a:hover { color: var(--text); }
+  .dossier-head { padding: var(--s-5) 0 var(--s-6); border-bottom: 1px solid var(--hairline); }
+  .name-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-4); }
+  .facts { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: var(--s-4) var(--s-5); margin: var(--s-5) 0 0; }
+  .facts dt { font-size: var(--fs-12); color: var(--muted); letter-spacing: .02em; }
+  .facts dd { margin: 4px 0 0; font-size: var(--fs-14); font-variant-numeric: tabular-nums; }
+  @media (min-width: 900px) { .facts { grid-template-columns: repeat(5, auto); justify-content: start; gap: var(--s-5) var(--s-7); } }
+
+  .verdict { padding: var(--s-7) 0 var(--s-6); display: grid; gap: var(--s-3); }
+  .verdict .h2 { max-width: 30ch; }
+  .verdict .because { color: var(--text-2); font-size: var(--fs-16); max-width: 70ch; }
+
+  .levels { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); border: 1px solid var(--hairline); border-radius: var(--radius); overflow: hidden; background: var(--surface); box-shadow: var(--shadow); }
+  .level { padding: var(--s-5); border-right: 1px solid var(--hairline); border-bottom: 1px solid var(--hairline); display: flex; flex-direction: column; gap: var(--s-2); min-width: 0; }
+  .level:nth-child(2n) { border-right: 0; }
+  .level:nth-last-child(-n+2) { border-bottom: 0; }
+  @media (min-width: 900px) { .levels { grid-template-columns: repeat(4, minmax(0,1fr)); } .level { border-bottom: 0; } .level:nth-child(2n) { border-right: 1px solid var(--hairline); } .level:last-child { border-right: 0; } }
+  .level-label { font-size: var(--fs-12); color: var(--muted); letter-spacing: .06em; text-transform: uppercase; font-weight: 600; }
+  .level-num { font: 400 var(--fs-48)/1 var(--font-serif); font-variant-numeric: lining-nums tabular-nums; letter-spacing: -.02em; }
+  .level-num small { font-size: var(--fs-18); color: var(--muted); margin-left: 4px; }
+  .ladder { display: grid; grid-template-columns: repeat(9, 1fr); gap: 3px; }
+  .ladder i { height: 6px; border-radius: 2px; background: var(--hairline-strong); }
+  .ladder i.on { background: var(--accent); }
+  .level-fw { font-size: var(--fs-12); color: var(--muted); }
+  .level-fw a { color: var(--muted); }
+  .level-rule { font-size: var(--fs-14); color: var(--text-2); line-height: 1.4; }
+  .level.none .level-num { font-size: var(--fs-22); font-family: var(--font-sans); color: var(--muted); }
+  .hatch-bar { height: 6px; border-radius: 2px; background: var(--hatch); border: 1px dashed var(--hairline-strong); }
+
+  .ai { margin: var(--s-7) 0 0; padding: var(--s-5); border-radius: var(--radius); border: 1px solid var(--hairline); background:
+        radial-gradient(120% 140% at 0% 0%, var(--accent-glow), transparent 55%), var(--surface); box-shadow: var(--shadow); }
+  .ai-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-3); }
+  .ai-tag { display: inline-flex; align-items: center; gap: 8px; font-size: var(--fs-12); color: var(--text-2); }
+  .ai-tag svg { color: var(--accent); }
+  .ai-empty { display: flex; gap: var(--s-4); align-items: flex-start; margin-top: var(--s-4); padding: var(--s-4); border: 1px dashed var(--hairline-strong); border-radius: var(--radius-sm); background: var(--hatch); }
+  .ai-empty p { margin: 0; }
+  .ai-empty b { font: 400 var(--fs-22)/1.2 var(--font-serif); display: block; margin-bottom: 4px; }
+
+  .life { margin-top: var(--s-8); }
+  .life .card { padding: var(--s-5); }
+
+  .q { display: grid; gap: var(--s-4) var(--s-7); padding: var(--s-7) 0; border-top: 1px solid var(--hairline); }
+  .q:first-of-type { margin-top: var(--s-8); }
+  @media (min-width: 1000px) { .q { grid-template-columns: 300px minmax(0,1fr); } .q-side { position: sticky; top: 80px; align-self: start; } }
+  .q-num { font: 400 var(--fs-48)/1 var(--font-serif); color: var(--accent); font-variant-numeric: lining-nums; }
+  .q-title { margin-top: var(--s-2); }
+  .q-rule { font-size: var(--fs-14); color: var(--muted); margin-top: var(--s-3); line-height: 1.5; }
+
+  .ev { list-style: none; margin: 0; padding: 0; }
+  .ev li { display: grid; grid-template-columns: 92px minmax(0,1fr); gap: var(--s-4); padding: var(--s-4) 0; border-bottom: 1px solid var(--hairline); }
+  .ev li:first-child { padding-top: 0; }
+  .ev .when { font-size: var(--fs-14); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .ev .what { font-size: var(--fs-16); }
+  .ev .what .amt { font-variant-numeric: tabular-nums; font-weight: 600; }
+  .ev .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .conf { font-size: var(--fs-12); color: var(--muted); }
+  .conf::before { content: "●"; color: var(--accent); margin-right: 4px; font-size: 9px; vertical-align: 1px; }
+
+  .ladders { display: grid; gap: var(--s-5); }
+  .lad h4 { margin: 0 0 var(--s-2); font: 600 var(--fs-16)/1.3 var(--font-sans); display: flex; justify-content: space-between; gap: var(--s-3); }
+  .lad h4 span { color: var(--muted); font-weight: 400; font-size: var(--fs-14); }
+  .steps { list-style: none; margin: 0; padding: 0; border-left: 1px solid var(--hairline-strong); }
+  .steps li { position: relative; padding: 6px 0 6px var(--s-4); font-size: var(--fs-14); color: var(--muted); }
+  .steps li b { font-variant-numeric: tabular-nums; color: var(--text-2); font-weight: 600; margin-right: 8px; }
+  .steps li.at { color: var(--text); }
+  .steps li.at::before { content: ""; position: absolute; left: -4px; top: 12px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+  .steps li.at b { color: var(--accent); }
+
+  .next-list { list-style: none; margin: 0; padding: 0; counter-reset: n; }
+  .next-list li { display: grid; grid-template-columns: 40px minmax(0,1fr); gap: var(--s-3); padding: var(--s-4) 0; border-bottom: 1px solid var(--hairline); }
+  .next-list li::before { counter-increment: n; content: counter(n, decimal-leading-zero); font: 400 var(--fs-22)/1 var(--font-serif); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .next-list .nm { font-weight: 600; }
+  .next-list .rs { color: var(--text-2); font-size: var(--fs-14); margin-top: 2px; }
+  .next-list .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .sub { font: 600 var(--fs-12)/1 var(--font-sans); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: var(--s-6) 0 var(--s-2); }
+  .sub:first-child { margin-top: 0; }
+  .empty-row { padding: var(--s-3) var(--s-4); border: 1px dashed var(--hairline-strong); border-radius: var(--radius-sm); background: var(--hatch); color: var(--muted); font-size: var(--fs-14); }
+
+  .rules { list-style: none; margin: var(--s-4) 0 0; padding: 0; }
+  .rules li { padding: 10px var(--s-3); border-radius: var(--radius-sm); font-size: var(--fs-14); color: var(--muted); }
+  .rules li.hit { color: var(--text); background: var(--surface); border: 1px solid var(--hairline-strong); }
+  .slots { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--s-3); }
+  .slot { font-size: var(--fs-12); color: var(--muted); border: 1px dashed var(--hairline-strong); border-radius: 999px; padding: 4px 10px; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="home.html"><i class="brand-mark" aria-hidden="true"></i><span>Ocean Opportunity Radar</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="home.html">Early signals</a>
+      <a href="company.html" aria-current="page">Dossier</a>
+      <a href="#" aria-disabled="true">Cohort radar</a>
+      <a href="#" aria-disabled="true">Method</a>
+    </nav>
+    <label class="cmd"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input type="search" placeholder="Search company or Business ID" aria-label="Search company or Business ID"><span class="kbd">/</span></label>
+    <button class="theme-btn" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="home.html">Early signals</a><span>/</span><span id="crumb-group"></span></nav>
+
+  <section class="dossier-head rise">
+    <div class="name-row">
+      <h1 class="display" id="name"></h1>
+      <span class="pill" id="pill"></span>
+    </div>
+    <dl class="facts" id="facts"></dl>
+  </section>
+
+  <section class="verdict rise">
+    <p class="kicker">Next step, from the decision table</p>
+    <p class="h2" id="verdict"></p>
+    <p class="because" id="because"></p>
+  </section>
+
+  <section class="levels rise" id="levels" aria-label="Readiness levels"></section>
+
+  <section class="ai rise" aria-labelledby="ai-h">
+    <div class="ai-head">
+      <h2 class="h3" id="ai-h">What the public record says</h2>
+      <span class="ai-tag"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1l1.6 4.4L14 7l-4.4 1.6L8 13l-1.6-4.4L2 7l4.4-1.6z" fill="currentColor"/></svg>AI summary, each sentence checked against its linked source</span>
+    </div>
+    <div class="ai-empty">
+      <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true" style="flex:none;color:var(--muted)"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v5M10 13.5v.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+      <p><b>No summary yet</b><span class="muted small" id="ai-note"></span></p>
+    </div>
+  </section>
+
+  <section class="life">
+    <figure class="figure card">
+      <p class="fig-head" id="life-head"></p>
+      <p class="fig-sub" id="life-sub"></p>
+      <svg id="life" role="img" aria-labelledby="life-head" width="100%" viewBox="0 0 1100 260"></svg>
+      <p class="fig-src" id="life-src"></p>
+    </figure>
+  </section>
+
+  <section class="q" id="q1">
+    <div class="q-side"><div class="q-num">01</div><h2 class="h2 q-title">Who is most promising?</h2><p class="q-rule" id="fit-rule"></p></div>
+    <div><ol class="ev" id="fit"></ol></div>
+  </section>
+
+  <section class="q" id="q2">
+    <div class="q-side"><div class="q-num">02</div><h2 class="h2 q-title">How ready are they?</h2><p class="q-rule">Each level is the highest rule its evidence satisfies. A framework with no evidence stays empty and hatched.</p></div>
+    <div class="ladders" id="ladders"></div>
+  </section>
+
+  <section class="q" id="q3">
+    <div class="q-side"><div class="q-num">03</div><h2 class="h2 q-title">Who comes next?</h2><p class="q-rule" id="rank-rule"></p></div>
+    <div id="next"></div>
+  </section>
+
+  <section class="q" id="q4">
+    <div class="q-side"><div class="q-num">04</div><h2 class="h2 q-title">What should happen next?</h2><p class="q-rule">One sentence from a fixed decision table. The first rule that holds wins.</p></div>
+    <div>
+      <p class="h2" id="ns-sentence" style="font-size: var(--fs-22)"></p>
+      <ol class="rules" id="ns-rules"></ol>
+      <p class="sub" style="margin-top: var(--s-6)">Not connected</p>
+      <div class="slots" id="slots"></div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Ocean Opportunity Radar · JunctionX Turku 2026 · design v2 prototype</span>
+    <span id="fetched"></span>
+  </div>
+</footer>
+
+<script id="data" type="application/json">{"thesis":{"id":"redstone_apelago_blue","title":"Blue economy, Finland and Nordics (Redstone Blue x A'Pelago)"},"company":{"company_key":"2902007-2","name":"Kelluu Oy","y_tunnus":"2902007-2","country":"FI","founded":"2018-03-09","industry_code":"30310","industry_desc":"Manufacture of civilian air and spacecraft and related machinery","website":"https://kelluu.com/","group_tag":"portfolio","register_status":"active","source_url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2","fetched_at":"2026-10-16T20:51:38Z","links":{"api":"/api/company/2902007-2","page":"/c/2902007-2"}},"counts":{"signals":7,"by_type":{"bf_funding":5,"eu_project":1,"register_entry":1},"first_signal":"2018-01-01","last_signal":"2026-01-01"},"signals":[{"id":2148,"signal_type":"bf_funding","type_label":"Business Finland funding","date":"2026-01-01","date_label":"2026 (year only)","date_precision":"year","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Business Finland funding granted in 2026 (year only; the export has no decision date): grant EUR 501 369. Row from the manual dashboard export, no per-row link.","amount_eur":501369.0,"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","adapter":"businessfinland","fetched_at":"2026-10-16T21:03:56Z"},{"id":2147,"signal_type":"bf_funding","type_label":"Business Finland funding","date":"2025-01-01","date_label":"2025 (year only)","date_precision":"year","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Business Finland funding granted in 2025 (year only; the export has no decision date): grant EUR 749 000. Row from the manual dashboard export, no per-row link.","amount_eur":749000.0,"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","adapter":"businessfinland","fetched_at":"2026-10-16T21:03:56Z"},{"id":935,"signal_type":"eu_project","type_label":"EU project","date":"2024-09-01","date_label":"2024-09-01","date_precision":"day","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Matched by VAT number FI29020072 to Y-tunnus 2902007-2. SingleTree: Optimizing multifunctional forest-based value chains with single tree information and application of digital technologies (Horizon Europe, HORIZON-JU-RIA), role participant, EC contribution EUR 301,500, project start 2024-09-01, end 2028-08-31","amount_eur":301500.0,"source_url":"https://cordis.europa.eu/project/id/101157488","source_label":"CORDIS","adapter":"cordis","fetched_at":"2026-10-16T20:51:37Z"},{"id":2146,"signal_type":"bf_funding","type_label":"Business Finland funding","date":"2022-01-01","date_label":"2022 (year only)","date_precision":"year","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Business Finland funding granted in 2022 (year only; the export has no decision date): grant EUR 884 740. Row from the manual dashboard export, no per-row link.","amount_eur":884740.0,"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","adapter":"businessfinland","fetched_at":"2026-10-16T21:03:56Z"},{"id":2145,"signal_type":"bf_funding","type_label":"Business Finland funding","date":"2019-01-01","date_label":"2019 (year only)","date_precision":"year","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Business Finland funding granted in 2019 (year only; the export has no decision date): loan EUR 707 200. Row from the manual dashboard export, no per-row link.","amount_eur":707200.0,"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","adapter":"businessfinland","fetched_at":"2026-10-16T21:03:56Z"},{"id":303,"signal_type":"register_entry","type_label":"New register entry","date":"2018-03-09","date_label":"2018-03-09","date_precision":"day","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Registered in PRH/YTJ on 2018-03-09 (Y-tunnus 2902007-2).","amount_eur":null,"source_url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2","source_label":"PRH/YTJ register","adapter":"prh","fetched_at":"2026-10-16T17:34:23Z"},{"id":2144,"signal_type":"bf_funding","type_label":"Business Finland funding","date":"2018-01-01","date_label":"2018 (year only)","date_precision":"year","confidence":"high","confidence_rule":"the source names the company or its business id directly and states the date.","detail":"Business Finland funding granted in 2018 (year only; the export has no decision date): grant EUR 50 000. Row from the manual dashboard export, no per-row link.","amount_eur":50000.0,"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","adapter":"businessfinland","fetched_at":"2026-10-16T21:03:56Z"}],"fit":{"rule":"Reasons come from the thesis file and the database only: an industry code on the thesis list is low confidence, a thesis keyword matching a whole word of the legal name (or the start of a longer word, for thesis words of 5 or more characters) is medium, and each feed signal keeps the confidence its adapter gave it. There is no score and no ranking.","reasons":[{"kind":"signal","confidence":"high","text":"Business Finland funding on 2026 (year only): Business Finland funding granted in 2026 (year only; the export has no decision date): grant EUR 501 369. Row from the manual dashboard export, no per-row link.","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"kind":"signal","confidence":"high","text":"Business Finland funding on 2025 (year only): Business Finland funding granted in 2025 (year only; the export has no decision date): grant EUR 749 000. Row from the manual dashboard export, no per-row link.","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"kind":"signal","confidence":"high","text":"EU project on 2024-09-01: Matched by VAT number FI29020072 to Y-tunnus 2902007-2. SingleTree: Optimizing multifunctional forest-based value chains with single tree information and application of digital technologies (Horizon Europe, HORIZON-JU-RIA), role participant, EC contribution EUR 301,500, project start 2024-09-01, end 2028-08-31","source_url":"https://cordis.europa.eu/project/id/101157488"},{"kind":"signal","confidence":"high","text":"Business Finland funding on 2022 (year only): Business Finland funding granted in 2022 (year only; the export has no decision date): grant EUR 884 740. Row from the manual dashboard export, no per-row link.","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"kind":"signal","confidence":"high","text":"Business Finland funding on 2019 (year only): Business Finland funding granted in 2019 (year only; the export has no decision date): loan EUR 707 200. Row from the manual dashboard export, no per-row link.","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"},{"kind":"signal","confidence":"high","text":"New register entry on 2018-03-09: Registered in PRH/YTJ on 2018-03-09 (Y-tunnus 2902007-2).","source_url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"},{"kind":"signal","confidence":"high","text":"Business Finland funding on 2018 (year only): Business Finland funding granted in 2018 (year only; the export has no decision date): grant EUR 50 000. Row from the manual dashboard export, no per-row link.","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"}]},"readiness":{"technology":{"framework":"Technology Readiness Level (Aalto TRL) 1-9","framework_url":"https://www.aalto.fi/en/services/technology-readiness-level-trl","level":4,"because":"Business Finland or EU project funding: a funded development project","evidence":[{"signal_id":2148,"date":"2026 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2147,"date":"2025 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2146,"date":"2022 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2145,"date":"2019 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2144,"date":"2018 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":935,"date":"2024-09-01","source_url":"https://cordis.europa.eu/project/id/101157488","source_label":"CORDIS"}],"rules":[{"level":3,"rule":"patent filing: a protected concept"},{"level":4,"rule":"Business Finland or EU project funding: a funded development project"},{"level":5,"rule":"listed in the BlueInvest pipeline: screened for investment"},{"level":7,"rule":"public contract awarded: a buyer purchased in an operational setting"}]},"business":{"framework":"Business Readiness Level (KTH BRL) 1-9","framework_url":"https://kthinnovationreadinesslevel.com/wp-content/uploads/sites/9/2018/10/Business-readiness-Level.pdf","level":4,"because":"first grant: Business Finland funding decision or EU project participation","evidence":[{"signal_id":2148,"date":"2026 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2147,"date":"2025 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2146,"date":"2022 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2145,"date":"2019 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2144,"date":"2018 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":935,"date":"2024-09-01","source_url":"https://cordis.europa.eu/project/id/101157488","source_label":"CORDIS"}],"rules":[{"level":2,"rule":"register entry exists (PRH/YTJ)"},{"level":3,"rule":"VAT registered: no VAT source in this radar, never assumed"},{"level":4,"rule":"first grant: Business Finland funding decision or EU project participation"},{"level":6,"rule":"first public contract or named customer on own site"},{"level":7,"rule":"repeat contracts: two or more public contracts"}]},"investment":{"framework":"Investment Readiness 1-9, read from the ten Investment Potential dimensions","framework_url":null,"level":4,"because":"two or more funding records","evidence":[{"signal_id":2148,"date":"2026 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2147,"date":"2025 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2146,"date":"2022 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2145,"date":"2019 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":2144,"date":"2018 (year only)","source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export"},{"signal_id":935,"date":"2024-09-01","source_url":"https://cordis.europa.eu/project/id/101157488","source_label":"CORDIS"}],"rules":[{"level":3,"rule":"public non-dilutive funding (Business Finland decision or EU project)"},{"level":4,"rule":"two or more funding records"},{"level":5,"rule":"listed in the BlueInvest investor pipeline"}]},"ocean_impact":{"framework":"Ocean Impact Readiness (Ocean Impact Navigator)","framework_url":"https://www.1000oceanstartups.org/navigator","category":null,"keyword":null,"source_url":null,"because":"no public evidence"},"declared_dataset":null,"investment_dimensions":[{"name":"Market","evidence_count":0,"note":"public buyers in the category","evidence":[]},{"name":"Product","evidence_count":0,"note":null,"evidence":[]},{"name":"Team","evidence_count":0,"note":null,"evidence":[]},{"name":"Business Model","evidence_count":0,"note":null,"evidence":[]},{"name":"Competition","evidence_count":0,"note":null,"evidence":[]},{"name":"Marketing & Distribution","evidence_count":0,"note":null,"evidence":[]},{"name":"Financials","evidence_count":5,"note":"grants and contracts","evidence":[{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2026 (year only)"},{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2025 (year only)"},{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2022 (year only)"}]},{"name":"Tech","evidence_count":6,"note":"TRL evidence classes","evidence":[{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2026 (year only)"},{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2025 (year only)"},{"source_url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","source_label":"Business Finland export","date":"2022 (year only)"}]},{"name":"Deal Dynamics","evidence_count":0,"note":"register capital events: none recorded in this radar","evidence":[]},{"name":"Impact","evidence_count":0,"note":"Navigator category match","evidence":[]}]},"connections":[{"date":"2018-01-01","text":"Received a Business Finland funding decision in 2018 (year only), and 4 more of the same type","source":"Business Finland","url":"https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html","type":"bf_funding"},{"date":"2018-03-09","text":"registered in the trade register in March 2018","source":"PRH","url":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2","type":"register_entry"},{"date":"2024-09-01","text":"joined an EU project (project start) in September 2024","source":"CORDIS","url":"https://cordis.europa.eu/project/id/101157488","type":"eu_project"}],"who_comes_next":{"investors":[],"funding":[{"name":"BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)","kind":"accelerator","reason":"Open: pitch event; deadline: 2026-11-12","score":null,"source_url":"https://blueinvest-community.converve.io/all_events.html","confidence":null,"deadline":"2026-11-12","deadline_text":"2026-11-12","origin":"programmes_grants.csv","facts":null,"rank":1},{"name":"Helsinki Blue Economy Studio by A'Pelago 2027","kind":"accelerator","reason":"Open: pre-seed, seed or early-stage with an MVP; deadline: 2026-11-30; amount: equity-free","score":null,"source_url":"https://www.apelago.fi/helsinki-blue-economy-studio/","confidence":null,"deadline":"2026-11-30","deadline_text":"2026-11-30","origin":"programmes_grants.csv","facts":null,"rank":2},{"name":"A'Pelago Lab2Impact 2027","kind":"accelerator","reason":"Open: researchers and research-based innovations (incubator); deadline: TBA","score":null,"source_url":"https://www.apelago.fi/laboff/","confidence":null,"deadline":null,"deadline_text":"TBA","origin":"programmes_grants.csv","facts":null,"rank":3},{"name":"A'Pelago Nordic Ocean Accelerator Programme (NOCA) 2027","kind":"accelerator","reason":"Open: ocean economy startups and SMEs; deadline: applications open; deadline not stated","score":null,"source_url":"https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/","confidence":null,"deadline":null,"deadline_text":"applications open; deadline not stated","origin":"programmes_grants.csv","facts":null,"rank":4},{"name":"A'Pelago Northern Blue 2027","kind":"accelerator","reason":"Open: growth and scale-up companies; deadline: applications open; deadline not stated; amount: equity-free (no money given)","score":null,"source_url":"https://www.apelago.fi/apelago-northern-blue/","confidence":null,"deadline":null,"deadline_text":"applications open; deadline not stated","origin":"programmes_grants.csv","facts":null,"rank":5}],"partners":[],"rank_rule":"Rank = the dataset's match score (highest first), then the nearest open deadline from programmes_grants.csv, then name. Open programmes and public buyers have no dataset score and follow the scored rows. A closed programme, a past deadline, a TRL outside the programme's stated window or a company older than the programme's age limit is left out. The last slot of the funding list is kept for the soonest open programme."},"next_step":{"sentence":"Not enough public evidence for a next step yet","rule":5,"source_url":null,"because":"none of rules 1 to 4 is satisfied by the records stored for this company","rule_text":"5. Otherwise: not enough public evidence for a next step yet.","rules":["1. No grant on record, TRL 4 to 6 and an open programme in the funding list: apply to that programme before its deadline.","2. A public buyer in the company's category awarded a contract in the last 12 months: contact that buyer.","3. Readiness gap (TRL 7 or more and investment level 3 or less): raise, starting with the top investor in the list.","4. Cohort or portfolio company with no dated public event in 12 months: check in.","5. Otherwise: not enough public evidence for a next step yet."]},"connector_slots":{"status":"not connected","names":["LinkedIn","Dealroom","Crunchbase","PitchBook","Tracxn"]}}</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent), co = D.company;
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function day(s){ var p = s.split('-'); return +p[2] + ' ' + M[+p[1]-1] + ' ' + p[0]; }
+  function when(s){ return s.date_precision === 'year' ? s.date.slice(0,4) : (s.date_precision === 'month' ? M[+s.date.slice(5,7)-1] + ' ' + s.date.slice(0,4) : day(s.date)); }
+  function eur(n){ return 'EUR ' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ' '); }
+  function eurM(n){ return 'EUR ' + (n/1e6).toFixed(2) + ' million'; }
+  var none = '<span class="chip chip-none">not in public records</span>';
+
+  // Header
+  $('crumb-group').textContent = co.group_tag === 'portfolio' ? 'Portfolio company' : (co.group_tag === 'cohort' ? 'Cohort company' : 'Feed company');
+  $('name').textContent = co.name;
+  var PILL = {1:['Apply now','pill-ok'],2:['Contact buyer','pill-ok'],3:['Raise','pill-info'],4:['Check in','pill-warn'],5:['Thin evidence','pill-none']};
+  var p = PILL[D.next_step.rule] || PILL[5]; $('pill').className = 'pill ' + p[1]; $('pill').textContent = p[0];
+  $('pill').title = 'Decision table rule ' + D.next_step.rule;
+  var facts = [
+    ['Business ID', '<a href="'+esc(co.source_url)+'" rel="noopener">'+esc(co.y_tunnus)+'</a>'],
+    ['Home town', none],
+    ['Founded', co.founded ? esc(day(co.founded)) : none],
+    ['Industry', esc(co.industry_code) + ' · ' + esc(co.industry_desc)],
+    ['Website', co.website ? '<a href="'+esc(co.website)+'" rel="noopener">'+esc(co.website.replace(/^https?:\/\//,'').replace(/\/$/,''))+'</a>' : none]
+  ];
+  $('facts').innerHTML = facts.map(function(f){ return '<div><dt>'+f[0]+'</dt><dd>'+f[1]+'</dd></div>'; }).join('');
+
+  // Verdict
+  $('verdict').textContent = D.next_step.sentence + '.';
+  $('because').textContent = 'Because ' + D.next_step.because + '.';
+
+  // Four levels
+  var R = D.readiness, order = [['technology','Technology'],['business','Business'],['investment','Investment'],['ocean_impact','Ocean impact']];
+  $('levels').innerHTML = order.map(function(o){
+    var r = R[o[0]], has = r.level != null;
+    var ladder = has ? '<div class="ladder" aria-hidden="true">' + Array.apply(null, Array(9)).map(function(_, i){ return '<i class="'+(i < r.level ? 'on' : '')+'"></i>'; }).join('') + '</div>' : '<div class="hatch-bar" aria-hidden="true"></div>';
+    return '<div class="level'+(has?'':' none')+'">'
+      + '<span class="level-label">'+o[1]+'</span>'
+      + '<span class="level-num">'+(has ? r.level + '<small>/ 9</small>' : 'No public evidence')+'</span>'
+      + ladder
+      + '<span class="level-rule">'+esc(has ? r.because : 'Nothing on record places this company on the framework.')+'</span>'
+      + '<span class="level-fw"><a href="'+esc(r.framework_url)+'" rel="noopener">'+esc(r.framework)+'</a></span>'
+      + '</div>';
+  }).join('');
+
+  $('ai-note').textContent = 'The summary is written only from the sources listed on this page, and every sentence links to the record it rests on. Until it has been generated and checked, this space stays empty.';
+
+  // Life-line: public funding by year, direct labels, one annotation.
+  var S = D.signals.slice().sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+  var money = S.filter(function(s){ return s.amount_eur; });
+  var total = money.reduce(function(a,s){ return a + s.amount_eur; }, 0);
+  $('life-head').textContent = eurM(total) + ' of public funding on record across ' + money.length + ' decisions since ' + money[0].date.slice(0,4) + '.';
+  $('life-sub').textContent = 'Each bar is one funding record (Business Finland grant or loan, EU project). Height is the amount. Years without a decision date sit at the start of the year.';
+  var svg = $('life'), W = 1100, H = 260, L = 16, Rr = 16, T = 54, B = 40;
+  var y0 = +S[0].date.slice(0,4), y1 = +D.signals[0].date.slice(0,4) + 1;
+  function X(s){ var p = s.split('-'); var t = (+p[0]) + ((+p[1]-1) + (+p[2]-1)/31)/12; return L + (t - y0) / (y1 - y0) * (W - L - Rr); }
+  var mx = Math.max.apply(null, money.map(function(s){ return s.amount_eur; }));
+  function Y(v){ return (H - B) - v / mx * (H - T - B); }
+  var o = '';
+  for (var yr = y0; yr <= y1; yr++) {
+    var xx = X(yr + '-01-01');
+    o += '<line x1="'+xx+'" x2="'+xx+'" y1="'+T+'" y2="'+(H-B)+'" stroke="var(--hairline)" />';
+    if (yr < y1) o += '<text x="'+(xx+4)+'" y="'+(H-B+20)+'" font-size="12" fill="var(--muted)">'+yr+'</text>';
+  }
+  o += '<line x1="'+L+'" x2="'+(W-Rr)+'" y1="'+(H-B)+'" y2="'+(H-B)+'" stroke="var(--hairline-strong)"/>';
+  var top = money.reduce(function(a,s){ return s.amount_eur > a.amount_eur ? s : a; });
+  money.forEach(function(s){
+    var x = X(s.date) + 10, bw = 40, isTop = s === top, isEU = s.signal_type === 'eu_project';
+    o += '<rect x="'+x+'" y="'+Y(s.amount_eur)+'" width="'+bw+'" height="'+((H-B)-Y(s.amount_eur))+'" rx="3" fill="'+(isEU ? 'var(--mark)' : 'var(--accent)')+'" opacity="'+(isTop ? 1 : .78)+'"/>';
+    var lab = (s.amount_eur/1000).toFixed(0) + 'k';
+    o += '<text x="'+(x+bw/2)+'" y="'+(Y(s.amount_eur)-8)+'" text-anchor="middle" font-size="12" fill="var(--text)" font-weight="600">'+lab+'</text>';
+    var kind = isEU ? 'EU project' : (/loan/.test(s.detail) ? 'BF loan' : 'BF grant');
+    o += '<text x="'+(x+bw/2)+'" y="'+(Y(s.amount_eur)-22)+'" text-anchor="middle" font-size="11" fill="var(--muted)">'+kind+'</text>';
+  });
+  S.filter(function(s){ return s.signal_type === 'register_entry'; }).forEach(function(s){
+    var x = X(s.date);
+    o += '<circle cx="'+x+'" cy="'+(H-B)+'" r="5" fill="var(--bg)" stroke="var(--text)" stroke-width="1.5"/>';
+    o += '<text x="'+(x+10)+'" y="'+(H-B-10)+'" font-size="11" fill="var(--muted)">Registered '+day(s.date)+'</text>';
+  });
+  var tx = X(top.date) + 30;
+  o += '<line x1="'+(tx+26)+'" x2="'+(tx+70)+'" y1="'+(Y(top.amount_eur)+12)+'" y2="'+(Y(top.amount_eur)+12)+'" stroke="var(--text-2)"/>';
+  o += '<text x="'+(tx+76)+'" y="'+(Y(top.amount_eur)+16)+'" font-size="13" fill="var(--text)">Largest single decision: '+eur(top.amount_eur)+', '+top.date.slice(0,4)+'</text>';
+  svg.innerHTML = o;
+  $('life-src').innerHTML = 'Source: <a href="'+esc(money[0].source_url)+'" rel="noopener">Business Finland funding export</a>, <a href="'+esc((S.filter(function(s){return s.signal_type==='eu_project';})[0]||{}).source_url)+'" rel="noopener">CORDIS</a>, <a href="'+esc(co.source_url)+'" rel="noopener">PRH/YTJ</a>. Business Finland rows carry a year, not a decision date.';
+
+  // 01 fit
+  $('fit-rule').textContent = D.fit.rule;
+  $('fit').innerHTML = D.signals.map(function(s){
+    var amt = s.amount_eur ? ' <span class="amt">'+eur(s.amount_eur)+'</span>' : '';
+    var title = s.signal_type === 'eu_project' ? 'EU project: ' + esc((s.detail.split('. ')[1] || '').split(':')[0]) : esc(s.type_label);
+    return '<li><span class="when">'+esc(when(s))+'</span><div><div class="what">'+title+amt+'</div>'
+      + '<div class="meta"><a class="chip chip-src" href="'+esc(s.source_url)+'" rel="noopener">'+esc(s.source_label)+'</a><span class="conf">'+esc(s.confidence)+' confidence</span></div></div></li>';
+  }).join('');
+
+  // 02 ladders
+  $('ladders').innerHTML = order.map(function(o){
+    var r = R[o[0]];
+    if (r.level == null) return '<div class="lad"><h4>'+o[1]+' <span>'+esc(r.framework)+'</span></h4><div class="empty-row">No public evidence for this framework.</div></div>';
+    return '<div class="lad"><h4>'+o[1]+' <span>'+esc(r.framework)+'</span></h4><ol class="steps">'
+      + r.rules.map(function(x){ return '<li class="'+(x.level === r.level ? 'at' : '')+'"><b>'+x.level+'</b>'+esc(x.rule)+'</li>'; }).join('')
+      + '</ol><div class="meta" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">'
+      + r.evidence.slice(0,6).map(function(e){ return '<a class="chip chip-src" href="'+esc(e.source_url)+'" rel="noopener">'+esc(e.source_label)+' · '+esc(e.date.replace(' (year only)',''))+'</a>'; }).join('')
+      + '</div></div>';
+  }).join('');
+
+  // 03 who comes next
+  var N = D.who_comes_next;
+  $('rank-rule').textContent = N.rank_rule;
+  function list(items, emptyText){
+    if (!items.length) return '<div class="empty-row">'+emptyText+'</div>';
+    return '<ol class="next-list">' + items.map(function(x){
+      return '<li><div><div class="nm">'+esc(x.name)+'</div><div class="rs">'+esc(x.reason)+'</div>'
+        + '<div class="meta">'+(x.deadline ? '<span class="chip">Deadline '+esc(day(x.deadline))+'</span>' : '')+'<a class="chip chip-src" href="'+esc(x.source_url)+'" rel="noopener">'+esc(x.source_url.replace(/^https?:\/\//,'').split('/')[0])+'</a></div></div></li>';
+    }).join('') + '</ol>';
+  }
+  $('next').innerHTML = '<p class="sub">Funding and programmes</p>' + list(N.funding, 'No open programme fits on record.')
+    + '<p class="sub">Investors</p>' + list(N.investors, 'No investor in the declared dataset matches this company.')
+    + '<p class="sub">Buyers and partners</p>' + list(N.partners, 'No public buyer or partner on record.');
+
+  // 04 next step
+  $('ns-sentence').textContent = D.next_step.sentence + '.';
+  $('ns-rules').innerHTML = D.next_step.rules.map(function(r, i){ return '<li class="'+(i+1 === D.next_step.rule ? 'hit' : '')+'">'+esc(r)+'</li>'; }).join('');
+  $('slots').innerHTML = D.connector_slots.names.map(function(n){ return '<span class="slot">'+esc(n)+': connector slot, not connected</span>'; }).join('');
+  $('fetched').textContent = 'Register record fetched ' + co.fetched_at.slice(0,10) + '. Every number traces to a stored record.';
+
+  $('theme').addEventListener('click', function(){
+    var root = document.documentElement, cur = root.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    var next = cur === 'light' ? 'dark' : 'light'; root.dataset.theme = next;
+    try { localStorage.setItem('radar-theme', next); } catch (e) {}
+  });
+})();
+</script>
+</body>
+</html>

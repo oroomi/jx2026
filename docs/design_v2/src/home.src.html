@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ocean Opportunity Radar · Early signals</title>
+<link rel="stylesheet" href="tokens.css">
+<script>try{var t=localStorage.getItem('radar-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+  .hero { padding: var(--s-8) 0 var(--s-7); }
+  .hero-grid { display: grid; gap: var(--s-7); }
+  .hero-num { display: flex; align-items: flex-start; gap: var(--s-5); }
+  .hero-num .big-num { color: var(--accent); }
+  .hero-sentence { margin-top: var(--s-2); }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); margin-top: var(--s-5); }
+  .stat { display: flex; flex-direction: column; gap: 2px; padding-left: var(--s-3); border-left: 1px solid var(--hairline-strong); }
+  .stat b { font: 400 var(--fs-32)/1 var(--font-serif); font-variant-numeric: tabular-nums; }
+  .stat span { font-size: var(--fs-12); color: var(--muted); max-width: 18ch; line-height: 1.35; }
+  .fig-card { padding: var(--s-5); }
+  @media (min-width: 1000px) {
+    .hero-grid { grid-template-columns: 7fr 5fr; align-items: end; }
+  }
+  .index-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-4); margin: var(--s-8) 0 var(--s-2); flex-wrap: wrap; }
+  .index-head p { margin: 0; }
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .row {
+    display: grid; gap: var(--s-2) var(--s-5); padding: var(--s-5) var(--s-3); margin: 0 calc(-1 * var(--s-3));
+    border-bottom: 1px solid var(--hairline); border-radius: var(--radius-sm); text-decoration: none; color: inherit;
+    grid-template-columns: 1fr;
+  }
+  .row:hover { background: var(--bg-raised); }
+  .row-date { font-size: var(--fs-12); color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+  .row-name { font: 400 var(--fs-22)/1.25 var(--font-serif); letter-spacing: -.01em; }
+  .row a.row-name { text-decoration: none; }
+  .row a.row-name:hover { color: var(--accent); }
+  .row-why { color: var(--text-2); font-size: var(--fs-14); margin-top: 4px; max-width: 70ch; }
+  .row-side { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+  .strip { display: block; }
+  @media (min-width: 900px) {
+    .row { grid-template-columns: 96px minmax(0, 1fr) 300px; align-items: start; }
+    .row-side { flex-direction: column; align-items: flex-end; text-align: right; }
+  }
+  details.weak { margin-top: var(--s-6); border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--bg-raised); }
+  details.weak summary { cursor: pointer; padding: var(--s-4) var(--s-5); font-size: var(--fs-14); color: var(--text-2); list-style: none; display: flex; justify-content: space-between; gap: var(--s-4); }
+  details.weak summary::-webkit-details-marker { display: none; }
+  details.weak summary::after { content: "Show"; color: var(--accent); }
+  details.weak[open] summary::after { content: "Hide"; }
+  .weak-list { columns: 1; column-gap: var(--s-6); padding: 0 var(--s-5) var(--s-5); margin: 0; list-style: none; font-size: var(--fs-14); }
+  .weak-list li { break-inside: avoid; display: flex; justify-content: space-between; gap: var(--s-3); padding: 6px 0; border-bottom: 1px solid var(--hairline); }
+  .weak-list li span { color: var(--muted); font-variant-numeric: tabular-nums; }
+  @media (min-width: 760px) { .weak-list { columns: 2; } }
+  @media (min-width: 1100px) { .weak-list { columns: 3; } }
+  .rule-note { margin-top: var(--s-6); font-size: var(--fs-14); color: var(--muted); max-width: 80ch; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="home.html"><i class="brand-mark" aria-hidden="true"></i><span>Ocean Opportunity Radar</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="home.html" aria-current="page">Early signals</a>
+      <a href="company.html">Dossier</a>
+      <a href="#" aria-disabled="true">Cohort radar</a>
+      <a href="#" aria-disabled="true">Method</a>
+    </nav>
+    <label class="cmd"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input type="search" placeholder="Search company or Business ID" aria-label="Search company or Business ID"><span class="kbd">/</span></label>
+    <button class="theme-btn" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero rise">
+    <p class="kicker" id="window"></p>
+    <div class="hero-grid" style="margin-top: var(--s-5)">
+      <div>
+        <div class="hero-num">
+          <span class="big-num" id="n-main"></span>
+        </div>
+        <h1 class="display hero-sentence">blue-economy companies surfaced in the last 90 days, each with a stated reason.</h1>
+        <div class="hero-meta">
+          <div class="stat"><b id="n-all"></b><span>matched the thesis in the window</span></div>
+          <div class="stat"><b id="n-weak"></b><span>name-only matches held back below</span></div>
+          <div class="stat"><b id="n-contract"></b><span>found through a public contract</span></div>
+        </div>
+      </div>
+      <figure class="figure card fig-card">
+        <p class="fig-head" id="chart-head"></p>
+        <p class="fig-sub">New companies per week. Teal: a stated reason. Grey: name-only match.</p>
+        <svg id="weeks" class="strip" role="img" aria-labelledby="chart-head" width="100%" viewBox="0 0 440 190"></svg>
+        <p class="fig-src">Source: PRH/YTJ trade register, Hilma, CORDIS, as stored in the radar snapshot of 16 Oct 2026. <a href="#rule">Feed rule</a>.</p>
+      </figure>
+    </div>
+  </section>
+
+  <div class="index-head">
+    <div>
+      <p class="kicker">The index</p>
+      <h2 class="h2" style="margin-top:8px">Newest first, one row per company</h2>
+    </div>
+  </div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <ol class="rows" id="rows"></ol>
+
+  <details class="weak">
+    <summary><span><b id="n-weak2"></b> name-only matches, closed by default because no second source backs them</span></summary>
+    <ul class="weak-list" id="weak"></ul>
+  </details>
+
+  <p class="rule-note" id="rule"></p>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Ocean Opportunity Radar · JunctionX Turku 2026 · design v2 prototype</span>
+    <span>Every number traces to a stored record. Companies only.</span>
+  </div>
+</footer>
+
+<script id="data" type="application/json">__DATA__</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent);
+  var C = D.counts;
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function d(s){ var p=s.split('-'); return new Date(Date.UTC(+p[0], +p[1]-1, +p[2])); }
+  function fmt(s){ var x=d(s); return x.getUTCDate()+' '+M[x.getUTCMonth()]+' '+x.getUTCFullYear(); }
+  function fmtShort(s){ var x=d(s); return x.getUTCDate()+' '+M[x.getUTCMonth()]; }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function $(id){ return document.getElementById(id); }
+
+  $('window').textContent = 'Early-signal feed · ' + fmt(C.window_start) + ' to ' + fmt(C.window_end);
+  $('n-main').textContent = C.main;
+  $('n-all').textContent = C.companies;
+  $('n-weak').textContent = C.weak; $('n-weak2').textContent = C.weak;
+  $('n-contract').textContent = C.by_type.public_contract;
+
+  // Weekly chart: stacked bars, direct labels, one annotation.
+  var W = D.weeks, svg = $('weeks'), w = 440, h = 190, pl = 4, pr = 4, pt = 34, pb = 26;
+  var max = Math.max.apply(null, W.map(function(x){ return x.main + x.weak; }));
+  var bw = (w - pl - pr) / W.length, y = function(v){ return (h - pb) - v / max * (h - pt - pb); };
+  var before = 0, cut = '2026-08-30';
+  W.forEach(function(x){ if (x.start < cut) before += x.main; });
+  $('chart-head').textContent = before + ' of the ' + C.main + ' arrived before the end of August.';
+  var out = '';
+  out += '<line x1="0" x2="'+w+'" y1="'+(h-pb)+'" y2="'+(h-pb)+'" stroke="var(--hairline-strong)"/>';
+  W.forEach(function(x, i){
+    var X = pl + i * bw + 3, bwi = bw - 6;
+    out += '<rect x="'+X+'" y="'+y(x.main)+'" width="'+bwi+'" height="'+((h-pb)-y(x.main))+'" rx="2" fill="var(--accent)"/>';
+    out += '<rect x="'+X+'" y="'+y(x.main + x.weak)+'" width="'+bwi+'" height="'+(y(x.main)-y(x.main+x.weak))+'" rx="2" fill="var(--mark-faint)"/>';
+    if (i % 3 === 0) out += '<text x="'+(X)+'" y="'+(h-8)+'" font-size="11" fill="var(--muted)">'+fmtShort(x.start)+'</text>';
+  });
+  // annotate the tallest week
+  var peak = 0; W.forEach(function(x, i){ if (x.main + x.weak > W[peak].main + W[peak].weak) peak = i; });
+  var px = pl + peak * bw + bw / 2, py = y(W[peak].main + W[peak].weak);
+  out += '<line x1="'+px+'" x2="'+px+'" y1="'+(py-4)+'" y2="'+(pt-14)+'" stroke="var(--text-2)" stroke-width="1"/>';
+  out += '<text x="'+(px+6)+'" y="'+(pt-16)+'" font-size="12" fill="var(--text)">Week of '+fmtShort(W[peak].start)+': '+W[peak].weak+' name-only, '+W[peak].main+' with a reason</text>';
+  svg.innerHTML = out;
+
+  // Pill from the decision table (next_step rule), never invented.
+  var PILL = {1:['Apply now','pill-ok'],2:['Contact buyer','pill-ok'],3:['Raise','pill-info'],4:['Check in','pill-warn'],5:['Thin evidence','pill-none']};
+  var KIND = {industry_code:'Industry code', line_of_business:'Line of business', own_text:'Source text', corroborated_keyword:'Two sources'};
+
+  function strip(r){
+    // 90-day window mark strip: each dated signal as a tick, the surfacing signal accented.
+    var s0 = d(C.window_start), s1 = d(C.window_end), span = s1 - s0, W2 = 120, H = 18;
+    var o = '<svg class="strip" width="'+W2+'" height="'+H+'" viewBox="0 0 '+W2+' '+H+'" aria-hidden="true"><line x1="0" x2="'+W2+'" y1="'+(H/2)+'" y2="'+(H/2)+'" stroke="var(--hairline-strong)"/>';
+    r.signals.forEach(function(s){
+      var t = d(s.date); if (t < s0 || t > s1) return;
+      var x = (t - s0) / span * (W2 - 4) + 2, on = s.date === r.date;
+      o += '<rect x="'+(x-1.5)+'" y="'+(on?2:5)+'" width="3" height="'+(on?14:8)+'" rx="1" fill="'+(on?'var(--accent)':'var(--mark)')+'"/>';
+    });
+    return o + '</svg>';
+  }
+
+  function render(filter){
+    var html = '';
+    D.main.filter(function(r){ return !filter || (filter === 'public_contract' ? r.type === 'public_contract' : r.kinds.indexOf(filter) > -1); })
+      .forEach(function(r, i){
+        var p = PILL[r.rule] || PILL[5];
+        var why = r.why.replace(/^Why:\s*/, '');
+        html += '<li class="row rise" style="animation-delay:'+Math.min(i*18,300)+'ms">'
+          + '<div class="row-date">'+esc(fmt(r.date))+'</div>'
+          + '<div><a class="row-name" href="company.html">'+esc(r.name)+'</a>'
+          + '<div class="row-why">'+esc(why)+'</div></div>'
+          + '<div class="row-side">'
+          +   '<span class="pill '+p[1]+'" title="Next step, decision table rule '+r.rule+'">'+p[0]+'</span>'
+          +   '<a class="chip chip-src" href="'+esc(r.src)+'" rel="noopener">'+esc(r.type_label)+' · '+esc(r.src_label)+'</a>'
+          +   strip(r)
+          + '</div></li>';
+      });
+    $('rows').innerHTML = html;
+  }
+
+  var tabs = [['', 'All', D.main.length]];
+  ['industry_code','line_of_business','own_text'].forEach(function(k){
+    var n = D.main.filter(function(r){ return r.kinds.indexOf(k) > -1; }).length; if (n) tabs.push([k, KIND[k], n]);
+  });
+  var nc = D.main.filter(function(r){ return r.type === 'public_contract'; }).length;
+  if (nc) tabs.push(['public_contract', 'Public contract', nc]);
+  $('tabs').innerHTML = tabs.map(function(t, i){
+    return '<button class="tab" role="tab" data-k="'+t[0]+'" aria-selected="'+(i===0)+'">'+t[1]+'<span class="n">'+t[2]+'</span></button>';
+  }).join('');
+  $('tabs').addEventListener('click', function(e){
+    var b = e.target.closest('.tab'); if (!b) return;
+    [].forEach.call(this.children, function(x){ x.setAttribute('aria-selected', x === b); });
+    render(b.dataset.k);
+  });
+  render('');
+
+  $('weak').innerHTML = D.weak.map(function(r){ return '<li>'+esc(r.name)+'<span>'+fmtShort(r.date)+'</span></li>'; }).join('');
+  $('rule').textContent = 'Feed rule: ' + D.rule;
+
+  $('theme').addEventListener('click', function(){
+    var root = document.documentElement, cur = root.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    var next = cur === 'light' ? 'dark' : 'light'; root.dataset.theme = next;
+    try { localStorage.setItem('radar-theme', next); } catch (e) {}
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); document.querySelector('.cmd input').focus(); } });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ocean Opportunity Radar · Early signals</title>
+<link rel="stylesheet" href="tokens.css">
+<script>try{var t=localStorage.getItem('radar-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<style>
+  .hero { padding: var(--s-8) 0 var(--s-7); }
+  .hero-grid { display: grid; gap: var(--s-7); }
+  .hero-num { display: flex; align-items: flex-start; gap: var(--s-5); }
+  .hero-num .big-num { color: var(--accent); }
+  .hero-sentence { margin-top: var(--s-2); }
+  .hero-meta { display: flex; flex-wrap: wrap; gap: var(--s-2) var(--s-5); margin-top: var(--s-5); }
+  .stat { display: flex; flex-direction: column; gap: 2px; padding-left: var(--s-3); border-left: 1px solid var(--hairline-strong); }
+  .stat b { font: 400 var(--fs-32)/1 var(--font-serif); font-variant-numeric: tabular-nums; }
+  .stat span { font-size: var(--fs-12); color: var(--muted); max-width: 18ch; line-height: 1.35; }
+  .fig-card { padding: var(--s-5); }
+  @media (min-width: 1000px) {
+    .hero-grid { grid-template-columns: 7fr 5fr; align-items: end; }
+  }
+  .index-head { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-4); margin: var(--s-8) 0 var(--s-2); flex-wrap: wrap; }
+  .index-head p { margin: 0; }
+  .rows { list-style: none; margin: 0; padding: 0; }
+  .row {
+    display: grid; gap: var(--s-2) var(--s-5); padding: var(--s-5) var(--s-3); margin: 0 calc(-1 * var(--s-3));
+    border-bottom: 1px solid var(--hairline); border-radius: var(--radius-sm); text-decoration: none; color: inherit;
+    grid-template-columns: 1fr;
+  }
+  .row:hover { background: var(--bg-raised); }
+  .row-date { font-size: var(--fs-12); color: var(--muted); font-variant-numeric: tabular-nums; letter-spacing: .02em; }
+  .row-name { font: 400 var(--fs-22)/1.25 var(--font-serif); letter-spacing: -.01em; }
+  .row a.row-name { text-decoration: none; }
+  .row a.row-name:hover { color: var(--accent); }
+  .row-why { color: var(--text-2); font-size: var(--fs-14); margin-top: 4px; max-width: 70ch; }
+  .row-side { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+  .strip { display: block; }
+  @media (min-width: 900px) {
+    .row { grid-template-columns: 96px minmax(0, 1fr) 300px; align-items: start; }
+    .row-side { flex-direction: column; align-items: flex-end; text-align: right; }
+  }
+  details.weak { margin-top: var(--s-6); border: 1px solid var(--hairline); border-radius: var(--radius); background: var(--bg-raised); }
+  details.weak summary { cursor: pointer; padding: var(--s-4) var(--s-5); font-size: var(--fs-14); color: var(--text-2); list-style: none; display: flex; justify-content: space-between; gap: var(--s-4); }
+  details.weak summary::-webkit-details-marker { display: none; }
+  details.weak summary::after { content: "Show"; color: var(--accent); }
+  details.weak[open] summary::after { content: "Hide"; }
+  .weak-list { columns: 1; column-gap: var(--s-6); padding: 0 var(--s-5) var(--s-5); margin: 0; list-style: none; font-size: var(--fs-14); }
+  .weak-list li { break-inside: avoid; display: flex; justify-content: space-between; gap: var(--s-3); padding: 6px 0; border-bottom: 1px solid var(--hairline); }
+  .weak-list li span { color: var(--muted); font-variant-numeric: tabular-nums; }
+  @media (min-width: 760px) { .weak-list { columns: 2; } }
+  @media (min-width: 1100px) { .weak-list { columns: 3; } }
+  .rule-note { margin-top: var(--s-6); font-size: var(--fs-14); color: var(--muted); max-width: 80ch; }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="home.html"><i class="brand-mark" aria-hidden="true"></i><span>Ocean Opportunity Radar</span></a>
+    <nav class="nav" aria-label="Main">
+      <a href="home.html" aria-current="page">Early signals</a>
+      <a href="company.html">Dossier</a>
+      <a href="#" aria-disabled="true">Cohort radar</a>
+      <a href="#" aria-disabled="true">Method</a>
+    </nav>
+    <label class="cmd"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><input type="search" placeholder="Search company or Business ID" aria-label="Search company or Business ID"><span class="kbd">/</span></label>
+    <button class="theme-btn" type="button" id="theme" aria-label="Switch light or dark theme"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 2a6 6 0 0 0 0 12z" fill="currentColor"/></svg></button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero rise">
+    <p class="kicker" id="window"></p>
+    <div class="hero-grid" style="margin-top: var(--s-5)">
+      <div>
+        <div class="hero-num">
+          <span class="big-num" id="n-main"></span>
+        </div>
+        <h1 class="display hero-sentence">blue-economy companies surfaced in the last 90 days, each with a stated reason.</h1>
+        <div class="hero-meta">
+          <div class="stat"><b id="n-all"></b><span>matched the thesis in the window</span></div>
+          <div class="stat"><b id="n-weak"></b><span>name-only matches held back below</span></div>
+          <div class="stat"><b id="n-contract"></b><span>found through a public contract</span></div>
+        </div>
+      </div>
+      <figure class="figure card fig-card">
+        <p class="fig-head" id="chart-head"></p>
+        <p class="fig-sub">New companies per week. Teal: a stated reason. Grey: name-only match.</p>
+        <svg id="weeks" class="strip" role="img" aria-labelledby="chart-head" width="100%" viewBox="0 0 440 190"></svg>
+        <p class="fig-src">Source: PRH/YTJ trade register, Hilma, CORDIS, as stored in the radar snapshot of 16 Oct 2026. <a href="#rule">Feed rule</a>.</p>
+      </figure>
+    </div>
+  </section>
+
+  <div class="index-head">
+    <div>
+      <p class="kicker">The index</p>
+      <h2 class="h2" style="margin-top:8px">Newest first, one row per company</h2>
+    </div>
+  </div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <ol class="rows" id="rows"></ol>
+
+  <details class="weak">
+    <summary><span><b id="n-weak2"></b> name-only matches, closed by default because no second source backs them</span></summary>
+    <ul class="weak-list" id="weak"></ul>
+  </details>
+
+  <p class="rule-note" id="rule"></p>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Ocean Opportunity Radar · JunctionX Turku 2026 · design v2 prototype</span>
+    <span>Every number traces to a stored record. Companies only.</span>
+  </div>
+</footer>
+
+<script id="data" type="application/json">{"counts":{"window_start":"2026-07-19","window_end":"2026-10-17","window_days":90,"companies":92,"hidden_personal":1,"main":26,"weak":66,"by_reason":{"industry_code":24,"line_of_business":4,"own_text":1,"corroborated_keyword":0},"year_only_not_entry":326,"by_type":{"register_entry":80,"bf_funding":0,"eu_project":11,"blueinvest":0,"patent":0,"public_contract":1,"job_ad":0,"first_sales":0,"first_hire":0,"pilot_named":0,"certification":0,"programme_entry":0,"exhibitor":0,"award":0,"funding_round":0,"product_launch":0,"public_funding":0,"startup_notice":0,"equity_event":0,"research_output":0,"website_milestone":0,"eu_grant":0},"by_confidence":{"high":1,"medium":58,"low":33},"excluded_declared":0,"future_dated":6,"last_fetched":"2026-10-16T21:03:56Z"},"rule":"Companies from outside the declared cohort and portfolio whose earliest public signal in the last 90 days is shown, newest first, once each. A company is listed as a match only when we can say why: its industry code or registered line of business fits the thesis, a contract or project text states the match, or a thesis word in its legal name is backed by a second source. Name-only matches are kept in a closed Weak matches list.","main":[{"key":"3661460-2","name":"Maatz rakennnus & kumppanit Oy","why":"Why: Industry code 39000 (Remediation activities and other waste management service activities, PRH) is on the thesis list.","date":"2026-10-09","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661460-2","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-10-09","t":"register_entry"}]},{"key":"3658264-7","name":"SU Engineering Oy","why":"Why: Industry code 71121 (Engineering design and technical consultancy incidental to urban planning, PRH) is on the thesis list.","date":"2026-09-27","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658264-7","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-09-27","t":"register_entry"}]},{"key":"3657918-1","name":"Kustservice i Finland Ab Oy","why":"Why: Industry code 50200 (Sea and coastal freight water transport, PRH) is on the thesis list; 1 more reason.","date":"2026-09-25","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657918-1","src_label":"PRH/YTJ register","kinds":["industry_code","line_of_business"],"rule":5,"signals":[{"date":"2026-09-25","t":"register_entry"}]},{"key":"3656103-7","name":"Hazero Oy","why":"Why: Industry code 39000 (Remediation activities and other waste management service activities, PRH) is on the thesis list.","date":"2026-09-17","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656103-7","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-09-17","t":"register_entry"}]},{"key":"3655639-3","name":"Pollari Works Oy","why":"Why: Industry code 33150 (Repair and maintenance of civilian ships and boats, PRH) is on the thesis list.","date":"2026-09-15","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655639-3","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-09-15","t":"register_entry"}]},{"key":"3654770-2","name":"Keski-Suomen Laiturirakentajat Oy","why":"Why: Industry code 30110 (Building of civilian ships and floating structures, PRH) is on the thesis list.","date":"2026-09-12","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654770-2","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-09-12","t":"register_entry"}]},{"key":"3650691-9","name":"Alanamman vesiosuuskunta","why":"Why: Industry code 36000 (Water collection, treatment and supply, PRH) is on the thesis list; 1 more reason.","date":"2026-08-25","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3650691-9","src_label":"PRH/YTJ register","kinds":["industry_code","line_of_business"],"rule":5,"signals":[{"date":"2026-08-25","t":"register_entry"}]},{"key":"3649936-8","name":"Boat Services Finland Oy","why":"Why: Industry code 33150 (Repair and maintenance of civilian ships and boats, PRH) is on the thesis list.","date":"2026-08-25","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-08-25","t":"register_entry"}]},{"key":"3649670-6","name":"MIRVIKA Oy","why":"Why: Industry code 30110 (Building of civilian ships and floating structures, PRH) is on the thesis list.","date":"2026-08-24","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649670-6","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-08-24","t":"register_entry"}]},{"key":"3649116-3","name":"JSL Konsultointi Oy","why":"Why: Industry code 71121 (Engineering design and technical consultancy incidental to urban planning, PRH) is on the thesis list.","date":"2026-08-22","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649116-3","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-08-22","t":"register_entry"}]},{"key":"3648578-3","name":"Paattikiiltoon Oy","why":"Why: Industry code 33150 (Repair and maintenance of civilian ships and boats, PRH) is on the thesis list.","date":"2026-08-20","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3648578-3","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-08-20","t":"register_entry"}]},{"key":"3648675-1","name":"VOLNOR OY","why":"Why: Industry code 30110 (Building of civilian ships and floating structures, PRH) is on the thesis list.","date":"2026-08-20","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3648675-1","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-08-20","t":"register_entry"}]},{"key":"3647844-4","name":"FerroNord Oy","why":"Why: Industry code 30110 (Building of civilian ships and floating structures, PRH) is on the thesis list.","date":"2026-08-18","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3647844-4","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-08-18","t":"register_entry"}]},{"key":"3646410-6","name":"Aggriv Oy","why":"Why: Industry code 30110 (Building of civilian ships and floating structures, PRH) is on the thesis list.","date":"2026-08-13","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646410-6","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-08-13","t":"register_entry"}]},{"key":"3645602-6","name":"Sahara Solutions Oy","why":"Why: Industry code 30110 (Building of civilian ships and floating structures, PRH) is on the thesis list.","date":"2026-08-10","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3645602-6","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-08-10","t":"register_entry"}]},{"key":"3644889-4","name":"Otter Marine Operations Oy","why":"Why: The registered line of business 'Other service activities incidental to water transportation' contains 'water'.","date":"2026-08-07","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4","src_label":"PRH/YTJ register","kinds":["line_of_business"],"rule":5,"signals":[{"date":"2026-08-07","t":"register_entry"}]},{"key":"3644849-9","name":"Styrbord service Oy","why":"Why: Industry code 33150 (Repair and maintenance of civilian ships and boats, PRH) is on the thesis list.","date":"2026-08-07","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644849-9","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-08-07","t":"register_entry"}]},{"key":"3644250-5","name":"Crw Boats Oy Ab","why":"Why: Industry code 30120 (Building of pleasure and sporting boats, PRH) is on the thesis list.","date":"2026-08-06","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644250-5","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-08-06","t":"register_entry"}]},{"key":"3642235-2","name":"Drainlogic Oy","why":"Why: Industry code 37000 (Sewerage, PRH) is on the thesis list.","date":"2026-07-29","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3642235-2","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-07-29","t":"register_entry"}]},{"key":"3641969-8","name":"MittaTopi Oy","why":"Why: Industry code 71121 (Engineering design and technical consultancy incidental to urban planning, PRH) is on the thesis list.","date":"2026-07-28","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641969-8","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-07-28","t":"register_entry"}]},{"key":"3641964-7","name":"BB Ships AB","why":"Why: Industry code 30110 (Building of civilian ships and floating structures, PRH) is on the thesis list.","date":"2026-07-28","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3641964-7","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-07-28","t":"register_entry"}]},{"key":"3640856-9","name":"Kåhlman Marine Oy","why":"Why: Industry code 33150 (Repair and maintenance of civilian ships and boats, PRH) is on the thesis list.","date":"2026-07-22","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640856-9","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-07-22","t":"register_entry"}]},{"key":"3640750-7","name":"TM-työt Oy","why":"Why: Industry code 37000 (Sewerage, PRH) is on the thesis list.","date":"2026-07-21","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640750-7","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-07-21","t":"register_entry"}]},{"key":"3640416-2","name":"New Shipbuilding Oy","why":"Why: Industry code 30110 (Building of civilian ships and floating structures, PRH) is on the thesis list.","date":"2026-07-20","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640416-2","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-07-20","t":"register_entry"}]},{"key":"3508136-5","name":"Suomen Vesistökunnostus Oy","why":"Why: The registered line of business 'Construction of water projects' contains 'water'; 1 more reason.","date":"2026-07-20","type":"public_contract","type_label":"Public contract","src":"https://www.hankintailmoitukset.fi/fi/public/procedure/33338/enotice/53675","src_label":"Hilma notice","kinds":["line_of_business","own_text"],"rule":5,"signals":[{"date":"2026-07-20","t":"public_contract"},{"date":"2025-02-03","t":"register_entry"}]},{"key":"3640248-2","name":"Barone sanitation Oy","why":"Why: Industry code 37000 (Sewerage, PRH) is on the thesis list.","date":"2026-07-19","type":"register_entry","type_label":"New register entry","src":"https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3640248-2","src_label":"PRH/YTJ register","kinds":["industry_code"],"rule":5,"signals":[{"date":"2026-07-19","t":"register_entry"}]}],"weeks":[{"start":"2026-07-19","main":5,"weak":3},{"start":"2026-07-26","main":3,"weak":5},{"start":"2026-08-02","main":3,"weak":4},{"start":"2026-08-09","main":2,"weak":3},{"start":"2026-08-16","main":4,"weak":7},{"start":"2026-08-23","main":3,"weak":5},{"start":"2026-08-30","main":0,"weak":15},{"start":"2026-09-06","main":1,"weak":5},{"start":"2026-09-13","main":2,"weak":2},{"start":"2026-09-20","main":1,"weak":4},{"start":"2026-09-27","main":1,"weak":7},{"start":"2026-10-04","main":1,"weak":6},{"start":"2026-10-11","main":0,"weak":0}],"weak":[{"name":"Meridian Vector Oy","date":"2026-10-10","key":"3661735-2"},{"name":"Grey Seal Ventures Oy","date":"2026-10-09","key":"3661594-7"},{"name":"Vuori Subsea Oy","date":"2026-10-09","key":"3661355-4"},{"name":"Meridies Group Oy","date":"2026-10-08","key":"3661120-9"},{"name":"Nostic Waters Oy","date":"2026-10-07","key":"3660794-7"},{"name":"Satamanranta Oy","date":"2026-10-05","key":"3660146-5"},{"name":"Marine Software Solutions Ab","date":"2026-10-02","key":"3659772-6"},{"name":"Skyfora Oy","date":"2026-10-01","key":"2966196-1"},{"name":"Elmery Oy","date":"2026-10-01","key":"3284697-5"},{"name":"AWAKE.AI Oy","date":"2026-10-01","key":"2945733-8"},{"name":"Satama Trading Oy","date":"2026-09-30","key":"3659133-2"},{"name":"300 Maritime Oy","date":"2026-09-27","key":"3658267-1"},{"name":"Black Ocean Media Oy","date":"2026-09-27","key":"3658320-1"},{"name":"Arctic Harbour Capital Oy","date":"2026-09-24","key":"3657656-2"},{"name":"WW-Marine Power Oy","date":"2026-09-23","key":"3657415-3"},{"name":"Rannikon Sähkö- ja Kylmäasennus Oy","date":"2026-09-21","key":"3656878-1"},{"name":"Psykoterapia ja psykiatripalvelut Satu Merivalo Oy","date":"2026-09-20","key":"3656639-9"},{"name":"Rannikko-Pohjanmaan Autohuolto Oy","date":"2026-09-16","key":"3655917-2"},{"name":"Rannikon Rakennus & Remontti Oy","date":"2026-09-15","key":"3655576-1"},{"name":"Merit Valentin Oy","date":"2026-09-12","key":"3654831-8"},{"name":"Runni Water Energy Oy","date":"2026-09-10","key":"3654269-6"},{"name":"Havukko Oy","date":"2026-09-08","key":"3653668-3"},{"name":"KalanPojat Oy","date":"2026-09-08","key":"3653698-2"},{"name":"Aalto Guard Oy","date":"2026-09-06","key":"3653087-1"},{"name":"Blue Balls Oy","date":"2026-09-04","key":"3652789-1"},{"name":"Rannikon Ilmastointi ja Kylmä OY","date":"2026-09-03","key":"3652593-3"},{"name":"Sillanpään Saaristo & Rannikkopalvelut Oy","date":"2026-09-03","key":"3652516-7"},{"name":"Meriva Oy","date":"2026-09-03","key":"3652359-1"},{"name":"Bluesisland Oy","date":"2026-09-02","key":"3651978-7"},{"name":"Oy Merinova Ab","date":"2026-09-01","key":"0778620-2"},{"name":"R3FINED International Oy Ltd.","date":"2026-09-01","key":"3558090-6"},{"name":"Intellisys Oy","date":"2026-09-01","key":"0791988-8"},{"name":"Tapio Palvelut Oy","date":"2026-09-01","key":"0498749-8"},{"name":"Cumucore Oy","date":"2026-09-01","key":"2661729-5"},{"name":"ICTFICIAL Oy","date":"2026-09-01","key":"3130368-8"},{"name":"Solar Foods Oyj","date":"2026-09-01","key":"2872116-8"},{"name":"Merico Partners oy","date":"2026-09-01","key":"3651799-2"},{"name":"Kelpaa kelpaa Oy","date":"2026-08-31","key":"3651325-4"},{"name":"Marin Consulting Oy","date":"2026-08-31","key":"3651289-2"},{"name":"KaPa Kala Oy","date":"2026-08-29","key":"3650988-8"},{"name":"Searching Henry Oy","date":"2026-08-27","key":"3650663-6"},{"name":"Blue Line Taxi Vaasa Oy","date":"2026-08-26","key":"3650376-9"},{"name":"OUTrading Marine Oy","date":"2026-08-25","key":"3649940-5"},{"name":"HaVatek Oy","date":"2026-08-23","key":"3649292-4"},{"name":"Havändan House Oy","date":"2026-08-20","key":"3648632-1"},{"name":"Meridi Oy","date":"2026-08-20","key":"3648644-4"},{"name":"Meriland Oy","date":"2026-08-20","key":"3648628-4"},{"name":"VM-Klinikat Kalasatama Oy","date":"2026-08-19","key":"3648442-2"},{"name":"Heino Marine Brokerage Oy","date":"2026-08-18","key":"3647748-4"},{"name":"Aurora Haven Oy","date":"2026-08-17","key":"3647579-6"},{"name":"Made by Aalto Oy","date":"2026-08-17","key":"3647687-9"},{"name":"Sea & Hillock Capital Oy","date":"2026-08-14","key":"3646913-4"},{"name":"Marinepro diving services oy","date":"2026-08-13","key":"3646543-2"},{"name":"JEP Executive Search Oy","date":"2026-08-10","key":"3645487-2"},{"name":"By Meri Oy","date":"2026-08-08","key":"3645077-5"},{"name":"Blueprint Technologies Oy","date":"2026-08-07","key":"3644842-1"},{"name":"Mericmar Oy","date":"2026-08-04","key":"3643734-3"},{"name":"Havukone yhtiöt Oy","date":"2026-08-03","key":"3643133-9"},{"name":"Green Disposal Oy, Ltd","date":"2026-08-01","key":"2783532-3"},{"name":"Venetek marine Oy","date":"2026-08-01","key":"3642827-9"},{"name":"Cold Water Club Oy","date":"2026-07-31","key":"3642605-4"},{"name":"Aalto Kirurgia Oy","date":"2026-07-28","key":"3641919-6"},{"name":"Blue Bay Oy","date":"2026-07-27","key":"3641742-2"},{"name":"Haven Invest Oy","date":"2026-07-23","key":"3640993-2"},{"name":"Pohjankurun Venevälitys Oy","date":"2026-07-23","key":"3641018-3"},{"name":"Blue Crow Publishing Oy","date":"2026-07-21","key":"3640606-1"}]}</script>
+<script>
+(function(){
+  var D = JSON.parse(document.getElementById('data').textContent);
+  var C = D.counts;
+  var M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function d(s){ var p=s.split('-'); return new Date(Date.UTC(+p[0], +p[1]-1, +p[2])); }
+  function fmt(s){ var x=d(s); return x.getUTCDate()+' '+M[x.getUTCMonth()]+' '+x.getUTCFullYear(); }
+  function fmtShort(s){ var x=d(s); return x.getUTCDate()+' '+M[x.getUTCMonth()]; }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function $(id){ return document.getElementById(id); }
+
+  $('window').textContent = 'Early-signal feed · ' + fmt(C.window_start) + ' to ' + fmt(C.window_end);
+  $('n-main').textContent = C.main;
+  $('n-all').textContent = C.companies;
+  $('n-weak').textContent = C.weak; $('n-weak2').textContent = C.weak;
+  $('n-contract').textContent = C.by_type.public_contract;
+
+  // Weekly chart: stacked bars, direct labels, one annotation.
+  var W = D.weeks, svg = $('weeks'), w = 440, h = 190, pl = 4, pr = 4, pt = 34, pb = 26;
+  var max = Math.max.apply(null, W.map(function(x){ return x.main + x.weak; }));
+  var bw = (w - pl - pr) / W.length, y = function(v){ return (h - pb) - v / max * (h - pt - pb); };
+  var before = 0, cut = '2026-08-30';
+  W.forEach(function(x){ if (x.start < cut) before += x.main; });
+  $('chart-head').textContent = before + ' of the ' + C.main + ' arrived before the end of August.';
+  var out = '';
+  out += '<line x1="0" x2="'+w+'" y1="'+(h-pb)+'" y2="'+(h-pb)+'" stroke="var(--hairline-strong)"/>';
+  W.forEach(function(x, i){
+    var X = pl + i * bw + 3, bwi = bw - 6;
+    out += '<rect x="'+X+'" y="'+y(x.main)+'" width="'+bwi+'" height="'+((h-pb)-y(x.main))+'" rx="2" fill="var(--accent)"/>';
+    out += '<rect x="'+X+'" y="'+y(x.main + x.weak)+'" width="'+bwi+'" height="'+(y(x.main)-y(x.main+x.weak))+'" rx="2" fill="var(--mark-faint)"/>';
+    if (i % 3 === 0) out += '<text x="'+(X)+'" y="'+(h-8)+'" font-size="11" fill="var(--muted)">'+fmtShort(x.start)+'</text>';
+  });
+  // annotate the tallest week
+  var peak = 0; W.forEach(function(x, i){ if (x.main + x.weak > W[peak].main + W[peak].weak) peak = i; });
+  var px = pl + peak * bw + bw / 2, py = y(W[peak].main + W[peak].weak);
+  out += '<line x1="'+px+'" x2="'+px+'" y1="'+(py-4)+'" y2="'+(pt-14)+'" stroke="var(--text-2)" stroke-width="1"/>';
+  out += '<text x="'+(px+6)+'" y="'+(pt-16)+'" font-size="12" fill="var(--text)">Week of '+fmtShort(W[peak].start)+': '+W[peak].weak+' name-only, '+W[peak].main+' with a reason</text>';
+  svg.innerHTML = out;
+
+  // Pill from the decision table (next_step rule), never invented.
+  var PILL = {1:['Apply now','pill-ok'],2:['Contact buyer','pill-ok'],3:['Raise','pill-info'],4:['Check in','pill-warn'],5:['Thin evidence','pill-none']};
+  var KIND = {industry_code:'Industry code', line_of_business:'Line of business', own_text:'Source text', corroborated_keyword:'Two sources'};
+
+  function strip(r){
+    // 90-day window mark strip: each dated signal as a tick, the surfacing signal accented.
+    var s0 = d(C.window_start), s1 = d(C.window_end), span = s1 - s0, W2 = 120, H = 18;
+    var o = '<svg class="strip" width="'+W2+'" height="'+H+'" viewBox="0 0 '+W2+' '+H+'" aria-hidden="true"><line x1="0" x2="'+W2+'" y1="'+(H/2)+'" y2="'+(H/2)+'" stroke="var(--hairline-strong)"/>';
+    r.signals.forEach(function(s){
+      var t = d(s.date); if (t < s0 || t > s1) return;
+      var x = (t - s0) / span * (W2 - 4) + 2, on = s.date === r.date;
+      o += '<rect x="'+(x-1.5)+'" y="'+(on?2:5)+'" width="3" height="'+(on?14:8)+'" rx="1" fill="'+(on?'var(--accent)':'var(--mark)')+'"/>';
+    });
+    return o + '</svg>';
+  }
+
+  function render(filter){
+    var html = '';
+    D.main.filter(function(r){ return !filter || (filter === 'public_contract' ? r.type === 'public_contract' : r.kinds.indexOf(filter) > -1); })
+      .forEach(function(r, i){
+        var p = PILL[r.rule] || PILL[5];
+        var why = r.why.replace(/^Why:\s*/, '');
+        html += '<li class="row rise" style="animation-delay:'+Math.min(i*18,300)+'ms">'
+          + '<div class="row-date">'+esc(fmt(r.date))+'</div>'
+          + '<div><a class="row-name" href="company.html">'+esc(r.name)+'</a>'
+          + '<div class="row-why">'+esc(why)+'</div></div>'
+          + '<div class="row-side">'
+          +   '<span class="pill '+p[1]+'" title="Next step, decision table rule '+r.rule+'">'+p[0]+'</span>'
+          +   '<a class="chip chip-src" href="'+esc(r.src)+'" rel="noopener">'+esc(r.type_label)+' · '+esc(r.src_label)+'</a>'
+          +   strip(r)
+          + '</div></li>';
+      });
+    $('rows').innerHTML = html;
+  }
+
+  var tabs = [['', 'All', D.main.length]];
+  ['industry_code','line_of_business','own_text'].forEach(function(k){
+    var n = D.main.filter(function(r){ return r.kinds.indexOf(k) > -1; }).length; if (n) tabs.push([k, KIND[k], n]);
+  });
+  var nc = D.main.filter(function(r){ return r.type === 'public_contract'; }).length;
+  if (nc) tabs.push(['public_contract', 'Public contract', nc]);
+  $('tabs').innerHTML = tabs.map(function(t, i){
+    return '<button class="tab" role="tab" data-k="'+t[0]+'" aria-selected="'+(i===0)+'">'+t[1]+'<span class="n">'+t[2]+'</span></button>';
+  }).join('');
+  $('tabs').addEventListener('click', function(e){
+    var b = e.target.closest('.tab'); if (!b) return;
+    [].forEach.call(this.children, function(x){ x.setAttribute('aria-selected', x === b); });
+    render(b.dataset.k);
+  });
+  render('');
+
+  $('weak').innerHTML = D.weak.map(function(r){ return '<li>'+esc(r.name)+'<span>'+fmtShort(r.date)+'</span></li>'; }).join('');
+  $('rule').textContent = 'Feed rule: ' + D.rule;
+
+  $('theme').addEventListener('click', function(){
+    var root = document.documentElement, cur = root.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+    var next = cur === 'light' ? 'dark' : 'light'; root.dataset.theme = next;
+    try { localStorage.setItem('radar-theme', next); } catch (e) {}
+  });
+  document.addEventListener('keydown', function(e){ if (e.key === '/' && document.activeElement.tagName !== 'INPUT') { e.preventDefault(); document.querySelector('.cmd input').focus(); } });
+})();
+</script>
+</body>
+</html>

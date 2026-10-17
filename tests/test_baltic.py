@@ -33,10 +33,10 @@ def test_thesis_geography_countries_is_the_fallback():
     assert thesis_mod.countries({"geography": {"countries": ["ee", "LV", "EE"]}}) == ["EE", "LV"]
 
 
-def test_default_thesis_is_finland_only_baltic_thesis_lists_eight():
+def test_default_thesis_is_finland_only_baltic_thesis_lists_nine():
     assert thesis_mod.countries(thesis_mod.load("config/thesis.yaml")) == ["FI"]
     b = thesis_mod.load("config/thesis_baltic_blue.yaml")
-    assert thesis_mod.countries(b) == ["FI", "SE", "EE", "LV", "LT", "DK", "DE", "PL"]
+    assert thesis_mod.countries(b) == ["FI", "SE", "EE", "LV", "LT", "DK", "NO", "DE", "PL"]
     depth = thesis_mod.country_depth(b)
     assert depth["FI"] == "registers+contracts+grants" and depth["EE"] == "register+grants" and depth["LV"] == "EU sources only"
     assert "baltic_blue" in thesis_mod.available()

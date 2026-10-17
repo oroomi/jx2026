@@ -7,7 +7,7 @@ owner_note: >
   (apelago.fi). Edit here, never in code.
 
 geography:
-  countries: [FI, SE, EE, LV, LT, DK, DE, PL]  # same list as the top-level `countries` key
+  countries: [FI, SE, EE, LV, LT, DK, "NO", DE, PL]  # same list as the top-level `countries` key
   feed_window_days: 90           # early-signal feed shows companies whose FIRST signal falls inside this window
   stage_max_company_age_years: 5 # "young company" cut for Hilma first-contract and register-entry signals
 
@@ -44,6 +44,8 @@ name_keywords:
   fi: [meri, merellinen, vesi, vesi-, aalto, satama, laiva, vene, kala, levä, rannik, itämeri, vedenalai]
   sv: [hav, havs, vatten, marin, skärgård, fisk, hamn]
   et: [mere, mereline, vesi, laev, sadam, kala, vetikas, veealune]
+  "no": [hav, sjø, marin, maritim, fiskeri, akvakultur, havn, skip, offshore]
+  da: [hav, marin, maritim, fiskeri, akvakultur, havn, skib]
   en: [ocean, marine, maritime, sea, subsea, underwater, aqua, aquatic, water, blue, offshore, vessel, harbour, port, coastal, algae, kelp, shipping]
 
 # Matching precision (radar/fit.py). A stop word never matches a thesis keyword, even as a word prefix.
@@ -82,10 +84,13 @@ backtest:
 
 # Countries (jx24). `countries` drives every EU-wide adapter (TED, CORDIS, EU grants, BlueInvest) and the feed country column.
 # `country_depth` is printed on /method and above the feed: it says where we hold national-register depth and where only EU sources reach.
-countries: [FI, SE, EE, LV, LT, DK, DE, PL]
+countries: [FI, SE, EE, LV, LT, DK, "NO", DE, PL]
 country_depth:
   FI: registers+contracts+grants
   EE: register+grants
+  "NO": register (Brønnøysund, search by industry code and name)
+  DK: register lookup by name or CVR number only (no date or code search without credentials)
+  SE: connector slot, not connected (Bolagsverket has no free API)
 
 # TED (EU contract award notices): CPV prefixes of marine, port, water and aquaculture work. A prefix matches every code that starts with it.
 # A country whose depth lists "contracts" (a national procurement archive, for example Hilma) is skipped by TED so no award is counted twice.
@@ -151,3 +156,17 @@ intake:
   tuning_note: "The families 582 (software publishing) and 03 (fishing and aquaculture) were added after the backtest showed the net missed two cohort companies, so results for those two are measured on the companies used to tune the net."   # printed on /method and /backtest; the two families were added after the backtest, so say so
   min_signals: 1
   startup_signals: [first_sales, first_hire, eu_project, eu_grant, research_output, bf_funding, startup_notice, equity_event, public_funding]
+
+# NACE Rev. 2 codes for the national registers of Norway and Denmark (Norwegian SN2007 uses the same four digits with a dot). A register
+# adapter matches a company when its code starts with one of these; a code match alone is LOW confidence, like the Finnish codes above.
+nace_codes:
+  - {code: "03.11", note: "Marine fishing"}
+  - {code: "03.21", note: "Marine aquaculture"}
+  - {code: "30.11", note: "Building of ships and floating structures"}
+  - {code: "30.12", note: "Building of pleasure and sporting boats"}
+  - {code: "50.10", note: "Sea and coastal passenger water transport"}
+  - {code: "50.20", note: "Sea and coastal freight water transport"}
+  - {code: "52.22", note: "Service activities incidental to water transportation"}
+  - {code: "71.12", note: "Engineering activities and related technical consultancy"}
+  - {code: "72.19", note: "Other research and experimental development on natural sciences and engineering (NACE Rev. 2)"}
+  - {code: "72.10", note: "Research and experimental development on natural sciences and engineering (NACE Rev. 2.1, which replaced 72.19; Norway codes new registrations 72.100)"}

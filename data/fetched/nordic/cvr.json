@@ -1,0 +1,76 @@
+{
+ "blocked": "cvrapi.dk answered QUOTA_EXCEEDED: Your quota has been exceeded. Reach out if you are certain this is a error. https://cvrapi.dk/contact",
+ "cohort": [
+  {
+   "by_number": "39525844",
+   "candidates": [],
+   "company_key": "dk-just-measure",
+   "group": "cohort",
+   "match": {
+    "city": "Aarhus N",
+    "code": "622000",
+    "code_desc": "Computerkonsulentbistand og forvaltning af computerfaciliteter",
+    "form": "Anpartsselskab",
+    "founded": "2018-04-20",
+    "id": "39525844",
+    "name": "Just-measure ApS",
+    "registered": "2018-04-20",
+    "status": "active",
+    "url": "https://datacvr.virk.dk/enhed/virksomhed/39525844",
+    "website": null
+   },
+   "name": "Just-measure",
+   "status": "found"
+  },
+  {
+   "blocked": "cvrapi.dk answered QUOTA_EXCEEDED: Your quota has been exceeded. Reach out if you are certain this is a error. https://cvrapi.dk/contact",
+   "candidates": [],
+   "company_key": "dk-klimate",
+   "group": "portfolio",
+   "match": null,
+   "name": "Klimate",
+   "status": "blocked"
+  },
+  {
+   "blocked": "cvrapi.dk answered QUOTA_EXCEEDED: Your quota has been exceeded. Reach out if you are certain this is a error. https://cvrapi.dk/contact",
+   "candidates": [],
+   "company_key": "dk-peatz",
+   "group": "cohort",
+   "match": null,
+   "name": "PEATZ",
+   "status": "blocked"
+  },
+  {
+   "blocked": "cvrapi.dk answered QUOTA_EXCEEDED: Your quota has been exceeded. Reach out if you are certain this is a error. https://cvrapi.dk/contact",
+   "candidates": [],
+   "company_key": "dk-race-for-oceans-technology",
+   "group": "cohort",
+   "match": null,
+   "name": "Race for Oceans Technology",
+   "status": "blocked"
+  },
+  {
+   "blocked": "cvrapi.dk answered QUOTA_EXCEEDED: Your quota has been exceeded. Reach out if you are certain this is a error. https://cvrapi.dk/contact",
+   "candidates": [],
+   "company_key": "dk-reefcircular",
+   "group": "cohort",
+   "match": null,
+   "name": "ReefCircular",
+   "status": "blocked"
+  },
+  {
+   "blocked": "cvrapi.dk answered QUOTA_EXCEEDED: Your quota has been exceeded. Reach out if you are certain this is a error. https://cvrapi.dk/contact",
+   "candidates": [],
+   "company_key": "dk-sensemakers",
+   "group": "cohort",
+   "match": null,
+   "name": "Sensemakers",
+   "status": "blocked"
+  }
+ ],
+ "fetched_at": "2026-10-17T02:42:11Z",
+ "live_window_blocked": "cvrapi.dk looks up one company by name or CVR number and has no search by registration date or industry code; the open Virk CVR index needs credentials we do not hold",
+ "live_window_run": false,
+ "register": "cvr",
+ "rows": []
+}

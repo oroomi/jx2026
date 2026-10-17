@@ -25,7 +25,7 @@ MATCH_RULE = ("A thesis word matches only as a whole word, or as the start of a 
 _WORD = re.compile(r"\w+", re.UNICODE)
 
 # Legal-name shapes that read as a private person (policy D-N7): 2 or 3 capitalised name words, then only company suffixes.
-PERSON_SUFFIXES = ("holding", "invest", "capital", "consulting", "oy", "ab", "ky", "tmi")
+PERSON_SUFFIXES = ("holding", "invest", "capital", "consulting", "oy", "ab", "ky", "tmi", "as", "asa", "aps")
 # A plain "Given Family Oy" is indistinguishable from "Blue Bay Oy", so at least one of these must be present.
 PERSON_MARKERS = ("holding", "invest", "capital", "consulting", "tmi", "ky")
 _NAME_WORD = re.compile(r"[A-ZÅÄÖ][a-zåäöé'-]+")

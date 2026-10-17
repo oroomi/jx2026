@@ -16,7 +16,7 @@ from datetime import date, timedelta
 
 import httpx
 
-from radar import emit, fit as fit_mod, intake, store, thesis as thesis_mod
+from radar import emit, fit as fit_mod, intake, store, thesis as thesis_mod, town as town_mod
 from radar.adapters import prh, tax_registers
 from radar.adapters._fetch import Blocked, cached_get
 
@@ -74,6 +74,7 @@ def _store(conn, p: dict, record: dict, stats: dict) -> None:
         emit.upsert_company(conn, company_key=key, name=p["name"], source_url=p["source_url"], y_tunnus=key, country="FI", founded=p["founded"],
                             industry_code=p["industry_code"], industry_desc=p["industry_desc"], website=p["website"], group_tag="intake",
                             register_status=p["register_status"])
+        town_mod.record_town(conn, key, record)
         stats["inserted"] += 1
         row = {"company_key": key, "y_tunnus": key, "founded": p["founded"]}
         stats["signals"] += emit.emit_signal(conn, company_key=key, signal_type="register_entry", date=p["founded"], source_url=p["source_url"],

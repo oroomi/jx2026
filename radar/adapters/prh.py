@@ -17,7 +17,7 @@ from urllib.parse import urlencode
 
 import httpx
 
-from radar import emit
+from radar import emit, town as town_mod
 
 NAME = "prh"
 API = "https://avoindata.prh.fi/opendata-ytj-api/v3/companies"
@@ -127,6 +127,7 @@ def _refresh(conn, thesis, stats) -> None:
                             y_tunnus=p["y_tunnus"], country="FI", founded=p["founded"], industry_code=p["industry_code"],
                             industry_desc=p["industry_desc"], website=p["website"], register_status=p["register_status"],
                             group_tag=r["group_tag"])
+        town_mod.record_town(conn, r["company_key"], hits[0])
         stats["companies"] += 1
         if p["register_status"] == "bankrupt" or not p["founded"]:
             continue  # a bankrupt company is not a new-company signal
@@ -185,6 +186,7 @@ def _consider(conn, c, codes, kws, start, stats) -> None:
     emit.upsert_company(conn, company_key=p["y_tunnus"], name=name, source_url=p["source_url"], y_tunnus=p["y_tunnus"],
                         country="FI", founded=p["founded"], industry_code=p["industry_code"], industry_desc=p["industry_desc"],
                         website=p["website"], group_tag="feed", register_status=p["register_status"])
+    town_mod.record_town(conn, p["y_tunnus"], c)
     emit.emit_signal(conn, company_key=p["y_tunnus"], signal_type="register_entry", date=p["founded"], source_url=p["source_url"],
                      confidence=conf, adapter=NAME, detail=f"Registered in PRH/YTJ on {p['founded']}; matched because {why}.")
     stats["discovered"] += 1

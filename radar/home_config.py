@@ -29,6 +29,12 @@ def facets() -> tuple[tuple, ...]:
     return tuple((f["param"], f.get("heading") or f["param"], f.get("section") or "more", bool(f.get("open")), f.get("source")) for f in load()["facets"])
 
 
+def parents() -> dict[str, str]:
+    """{param: the param of the group it is nested in}: a facet with `parent: thesis` is listed inside the Sector group, under the sector in view,
+    and is offered only while its parent group is on the rail (a sector's sub-sectors; a lone sector has none to reveal)."""
+    return {f["param"]: str(f["parent"]) for f in load()["facets"] if f.get("parent")}
+
+
 def sections() -> dict[str, str]:
     return dict(load().get("sections") or {})
 

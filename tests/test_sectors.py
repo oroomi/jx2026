@@ -339,3 +339,130 @@ def test_no_sector_word_lives_in_the_module():
     src = (ROOT / "radar/sectors.py").read_text(encoding="utf-8").casefold()
     for word in ("aquacultur", "seaweed", "harbour", "offshore", "hydrogen", "satama", "kalankasvat", "icebreaker"):
         assert word not in src, word
+
+
+# ---- 6. the filter: sub-sectors inside the Sector group, in place --------------------------------------------------------------------
+SNAP = ROOT / "data" / "snapshot"
+needs_snapshot = pytest.mark.skipif(not (SNAP / "radar_redstone_apelago_blue.sqlite").is_file(), reason="snapshot store not in this checkout")
+
+
+@pytest.fixture(scope="module")
+def world(tmp_path_factory):
+    """The committed snapshot, copied, and backfilled: the sub-sector tables are filled in the copy only."""
+    import shutil
+    d = tmp_path_factory.mktemp("snapshot")
+    for f in SNAP.glob("*.sqlite"):
+        shutil.copy(f, d / f.name)
+    mp = pytest.MonkeyPatch()
+    mp.setenv("RADAR_DATA_DIR", str(d))
+    mp.delenv("RADAR_DB", raising=False)
+    mp.delenv("RADAR_THESIS", raising=False)
+    mp.setenv("RADAR_NO_WARM", "1")
+    th = thesis.load()
+    c = db.connect(thesis.db_path(th))
+    summary = sectors.assign(c, th)
+    c.commit()
+    c.close()
+    try:
+        yield {"th": th, "H": home_list.for_template(th, wait=None), "summary": summary, "dir": d}
+    finally:
+        mp.undo()
+
+
+@pytest.fixture()
+def page(world, monkeypatch):
+    monkeypatch.setenv("RADAR_DATA_DIR", str(world["dir"]))
+    monkeypatch.setenv("RADAR_NO_WARM", "1")
+    import app
+    return TestClient(app.app)
+
+
+@needs_snapshot
+def test_snapshot_rows_carry_subsectors_and_the_facet(world):
+    rows = world["H"]["rows"]
+    known = {s["slug"] for s in world["th"]["taxonomy"]["sectors"]} | {"not_classified"}
+    assert rows and all(r["subsectors"] and {x["slug"] for x in r["subsectors"]} <= known for r in rows)
+    assert all(r["facets"]["subsector"] == [x["slug"] for x in r["subsectors"]] for r in rows)
+    assert all(len(r["subsectors"]) == 1 for r in rows if r["subsectors"][0]["slug"] == "not_classified")
+
+
+@needs_snapshot
+def test_the_filter_returns_the_expected_subset(world):
+    from radar import home_filter
+    rows = world["H"]["rows"]
+    count = {}
+    for r in rows:
+        for s in r["facets"]["subsector"]:
+            count[s] = count.get(s, 0) + 1
+    two = [s for s, _ in sorted(count.items(), key=lambda x: -x[1]) if s != "not_classified"][:2]
+    assert len(two) == 2
+    one = home_filter.apply(rows, {"subsector": [two[0]]})
+    assert {r["company_key"] for r in one} == {r["company_key"] for r in rows if two[0] in r["facets"]["subsector"]} and len(one) == count[two[0]]
+    both = home_filter.apply(rows, {"subsector": two})                                             # OR within the facet
+    assert {r["company_key"] for r in both} == {r["company_key"] for r in rows if set(two) & set(r["facets"]["subsector"])}
+    country = next(r["facets"]["country"][0] for r in one)
+    narrowed = home_filter.apply(rows, {"subsector": two, "country": [country]})                  # AND across facets
+    assert {r["company_key"] for r in narrowed} == {r["company_key"] for r in both if country in r["facets"]["country"]}
+    assert home_filter.apply(rows, {"subsector": ["no_such_sub_sector"]}) == []
+
+
+@needs_snapshot
+def test_the_rail_lists_the_subsectors_inside_the_sector_group_with_counts(world):
+    from radar import home_filter
+    rows = world["H"]["rows"]
+    sel = {"subsector": [next(s for s in rows[0]["facets"]["subsector"])]}
+    R = home_filter.rail(rows, sel, {}, [{"value": "redstone_apelago_blue", "label": "Blue economy", "on": True, "count": len(rows), "href": "/", "hx": "/home/list", "id": "f-thesis-x"},
+                                          {"value": "other", "label": "Other", "on": False, "count": None, "href": "/", "hx": "/home/list", "id": "f-thesis-y"}])
+    assert [f["param"] for f in R["facets"]][0] == "thesis" and "subsector" not in [f["param"] for f in R["facets"]]   # nested, not a group of its own
+    host = R["facets"][0]
+    (n,) = host["nested"]
+    assert n["param"] == "subsector" and n["sector"] == "Blue economy" and host["active"] == 1
+    on = [o for o in n["options"] if o["on"]]
+    assert [o["value"] for o in on] == sel["subsector"] and on[0]["label"] and on[0]["count"] > 0
+    assert all(o["label"] and not o["label"].islower() for o in n["options"])
+    for o in n["options"]:                                           # a count is how many rows would show if the option were on (the others as selected)
+        sel2 = {"subsector": [o["value"]]}
+        assert o["count"] == len(home_filter.apply(rows, sel2))
+    assert n["options"][-1]["value"] == "not_classified" or all(o["value"] != "not_classified" for o in n["options"])
+
+
+@needs_snapshot
+def test_the_page_swaps_in_place_and_the_address_stays_canonical(world, page):
+    rows = world["H"]["rows"]
+    slug = rows[0]["facets"]["subsector"][0]
+    full = page.get(f"/?subsector={slug}")
+    assert full.status_code == 200 and 'class="hr-sub"' in full.text and f'id="f-subsector-{slug.replace("_", "-")}"' in full.text
+    part = page.get(f"/home/list?subsector={slug}")
+    assert part.status_code == 200 and part.headers["HX-Replace-Url"] == f"/?subsector={slug}" and part.headers["Cache-Control"] == "no-store"
+    want = [r["company_key"] for r in rows if slug in r["facets"]["subsector"]]
+    import re
+    got = re.findall(r'class="hc-row" href="/c/([^"]+)"', part.text)
+    assert sorted(got) == sorted(want)
+    assert 'aria-checked="true"' in part.text and "Sub-sector: " in part.text                      # the chip names the sub-sector in words
+    chip = re.search(r'id="chip-subsector-[^"]+" href="([^"]+)"', part.text)
+    assert chip and "subsector=" not in chip.group(1)                                              # removing the chip drops the sub-sector from the URL
+    assert "data-params" in part.text and "subsector" in re.search(r'data-params="([^"]+)"', part.text).group(1).split(",")
+
+
+@needs_snapshot
+def test_a_selection_in_the_url_is_read_back_and_unknown_values_match_nothing(world, page):
+    t = page.get("/home/list?subsector=no_such_sub_sector").text
+    assert "No startup matches these filters" in t
+    two = [s for r in world["H"]["rows"] for s in r["facets"]["subsector"]][:2]
+    part = page.get("/home/list?" + "&".join(f"subsector={s}" for s in dict.fromkeys(two)))
+    assert part.status_code == 200 and part.headers["HX-Replace-Url"].startswith("/?subsector=")
+
+
+@needs_snapshot
+def test_a_sector_without_a_taxonomy_or_a_store_not_backfilled_offers_no_subsector(world, page, tmp_path, monkeypatch):
+    from radar import home_filter
+    assert "hr-sub" not in page.get("/home/list?thesis=health_tech_turku").text                    # health: empty taxonomy
+    plain = tmp_path / "plain"
+    plain.mkdir()
+    import shutil
+    shutil.copy(SNAP / "radar_redstone_apelago_blue.sqlite", plain / "radar_redstone_apelago_blue.sqlite")
+    monkeypatch.setenv("RADAR_DATA_DIR", str(plain))
+    H = home_list.build(db.connect(plain / "radar_redstone_apelago_blue.sqlite"), world["th"])
+    assert all(r["subsectors"] == [] and r["facets"]["subsector"] == [] for r in H["rows"])
+    R = home_filter.rail(H["rows"], {}, {})
+    assert "subsector" not in [f["param"] for f in R["facets"]]                                    # no value in any row: the facet hides

@@ -3,8 +3,8 @@ runs live with no API key. Everything is addressed to the fund, never to the com
 
 One decision per company, exactly one of DECISIONS. It comes from a decision table stored as data in the thesis file
 (`memo.decisions.rows`): four cells (impact, business, investment, thesis fit), each Low / Medium / High, first matching row wins,
-then pass 3, the fallback (`memo.decisions.fallback`): thesis fit High with no impact evidence reads impact as implied by the sector;
-no match is WATCHLIST. The Low / Medium / High cells come from exactly the levels question 02 of the company page prints
+then pass 3, the fallback (`memo.decisions.fallback`): thesis fit High with no impact evidence reads impact as implied by the sector,
+but only when the High fit rests on more than an industry code (`fallback.requires_any`, see SUPPORT_KEYS); no match is WATCHLIST. The Low / Medium / High cells come from exactly the levels question 02 of the company page prints
 (radar.frameworks.page_levels) through the bands in `memo.bands`.
 A level with no public evidence is "unknown", never Low: a row that names a band does not match it, so the company lands in
 WATCHLIST with "more public evidence needed: <level>". REJECT / LOW FIT needs evidence of low fit and low impact.
@@ -24,6 +24,8 @@ UNKNOWN = "unknown"
 MAX_ACTIONS = 3
 DEADLINE_DAYS = 120
 _ACCEL = ("accelerator", "incubator")
+# What can satisfy `fallback.requires_any` (names in the thesis file): the evidence behind a High fit that is more than the industry code.
+SUPPORT_KEYS = ("declared_member", "own_text", "corroborated_signal")
 
 
 def _cfg(thesis: dict) -> dict:
@@ -52,24 +54,25 @@ def _cell_matches(cell, value: str) -> bool:
     return value in cells  # "unknown" is never in a concrete list
 
 
-def decide(bands: dict[str, str], cfg: dict) -> tuple[dict | None, list[str]]:
-    """Pass 1: the first table row whose four cells all equal the bands. Pass 2: the first condition rule that holds. A cell that
-    needs a band never matches "unknown". Returns ({kind, id, ...row} or None, unknown dimensions)."""
+def decide(bands: dict[str, str], cfg: dict, support=frozenset()) -> tuple[dict | None, list[str]]:
+    """Pass 1: the first table row whose four cells all equal the bands. Pass 2: the first condition rule that holds. Pass 3: the
+    fallback, when `support` (what the High fit rests on beyond the industry code) passes its gate. A cell that needs a band never
+    matches "unknown". Returns ({kind, id, ...row} or None, unknown dimensions)."""
     for r in cfg["rows"]:
         if all(_cell_matches(r.get(d), bands[d]) for d in TABLE_DIMS):
             return {**r, "kind": "row", "text": f"row {r['id']}, " + "/".join(LETTER[bands[d]] for d in TABLE_DIMS)}, []
     for r in cfg["rules"]:
         if all(_cell_matches(v, bands.get(k, UNKNOWN)) for k, v in (r.get("when") or {}).items()):
             return {**r, "kind": "rule", "text": f"rule {r['id']}"}, []
-    fb = fallback(bands, cfg)
+    fb = fallback(bands, cfg, support)
     if fb is not None:
         return fb, []
     return None, [d for d in (*TABLE_DIMS, "technology") if bands.get(d) == UNKNOWN]
 
 
-def fallback(bands: dict[str, str], cfg: dict) -> dict | None:
-    """Pass 3 (the thesis file's `decisions.fallback`): thesis fit High and the impact level unknown. The impact is then read as
-    implied by the sector (`implied_impact`, Medium) and the fallback rules apply, first match wins. None when it does not apply."""
+def _fallback_match(bands: dict[str, str], cfg: dict) -> dict | None:
+    """The fallback rule the bands reach (thesis fit High and the impact level unknown, impact then read as `implied_impact`), before
+    the evidence gate. None when the fallback does not reach this company at all."""
     fb = cfg.get("fallback") or {}
     when = fb.get("when") or {}
     if not fb.get("rules") or not all(bands.get(k, UNKNOWN) == v for k, v in when.items()):
@@ -80,6 +83,25 @@ def fallback(bands: dict[str, str], cfg: dict) -> dict | None:
             return {**r, "kind": "fallback", "implied_impact": implied["impact"],
                     "text": f"fallback {r['id']}, impact implied by sector"}
     return None
+
+
+def _gate_open(cfg: dict, support) -> bool:
+    """True when the fallback has no gate, or at least one `requires_any` evidence is in `support`."""
+    need = (cfg.get("fallback") or {}).get("requires_any")
+    return not need or any(k in support for k in need)
+
+
+def fallback(bands: dict[str, str], cfg: dict, support=frozenset()) -> dict | None:
+    """Pass 3 (the thesis file's `decisions.fallback`): thesis fit High and the impact level unknown. The impact is then read as
+    implied by the sector (`implied_impact`, Medium) and the fallback rules apply, first match wins. The gate `requires_any` keeps it
+    from firing on a High fit that is only an industry code: at least one of those evidences must be in `support`. None when it does
+    not apply."""
+    return _fallback_match(bands, cfg) if _gate_open(cfg, support) else None
+
+
+def fallback_blocked(bands: dict[str, str], cfg: dict, support=frozenset()) -> bool:
+    """True when the fallback would have decided this company but its gate is shut (the High fit rests on the industry code alone)."""
+    return not _gate_open(cfg, support) and _fallback_match(bands, cfg) is not None
 
 
 def _latest(ev: list[dict]) -> str | None:
@@ -126,7 +148,9 @@ def _impact(conn, ctx: dict, key: str, spec: dict) -> dict:
 
 def _fit(conn, ctx: dict, thesis: dict, spec: dict) -> dict:
     """Thesis fit from the same explain() the feed uses. industry_code or own_text = High; line_of_business or corroborated_keyword =
-    Medium; only the legal name = Low; no reason = unknown. A declared cohort or portfolio company has at least the configured floor."""
+    Medium; only the legal name = Low; no reason = unknown. A declared cohort or portfolio company has at least the configured floor.
+    `support` lists what the fit rests on beyond the industry code (SUPPORT_KEYS): the declared membership, the source's own text, a name
+    word corroborated by a different source family (the reason store.explain() gives the feed; the rule is not repeated here)."""
     from radar import fit as fit_mod
     c, sigs = ctx["c"], ctx["sigs"]
     feed_types = set(thesis.get("feed_signal_types") or [])
@@ -149,12 +173,14 @@ def _fit(conn, ctx: dict, thesis: dict, spec: dict) -> dict:
         bullets.append({"text": ex["why"].removeprefix("Weak: "), "url": c["source_url"]})
     else:
         b = UNKNOWN
+    support = {"own_text": "own_text" in reasons, "corroborated_signal": "corroborated_keyword" in reasons}
     if c["group_tag"] in ("cohort", "portfolio") and c.get("source_url"):
+        support["declared_member"] = True
         floor = spec.get("declared_member_band")
         if floor and BANDS.index(floor) > (BANDS.index(b) if b in BANDS else -1):
             b = floor
         bullets.append({"text": f"declared {c['group_tag']} company", "url": c["source_url"]})
-    return {"band": b, "bullets": bullets}
+    return {"band": b, "bullets": bullets, "support": frozenset(k for k, v in support.items() if v)}
 
 
 def _why_now(ctx: dict, funding: list[dict], today: date) -> dict | None:
@@ -229,11 +255,15 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
     nxt = matching.who_comes_next(company_key, thesis, 5, conn=conn, today=t)
     step = matching.next_step(company_key, thesis, conn=conn, today=t)
 
+    blocked = False
     if ctx["status"] in matching.INACTIVE:
         row, unknown, decision = None, [], "WATCHLIST"
     else:
-        row, unknown = decide(bands, cfg)
+        row, unknown = decide(bands, cfg, fit["support"])
         decision = row["decision"] if row else "WATCHLIST"
+        blocked = row is None and fallback_blocked(bands, cfg, fit["support"])
+        if blocked:
+            unknown = ["impact"]  # the one missing piece: the evidence the fallback would have implied by the sector
     labels = cfg["labels"]
     needed = [d for d in unknown]  # dimensions with no public evidence while no row matched
     shown = dict(bands)
@@ -244,13 +274,15 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
            "matched": row["text"] if row else None, "team_label": row.get("team") if row else None, "kind": row.get("kind") if row else None,
            "because": because, "because_labels": [{"label": labels.get(d, d), "band": shown[d]} for d in TABLE_DIMS],
            "table_source": cfg["source"], "needs": [labels.get(d, d) for d in needed],
-           "dimensions": dimensions_line(ctx["fw"])}
+           "dimensions": dimensions_line(ctx["fw"]), "fallback_blocked": blocked}
     if row and row.get("kind") == "fallback":
         rec["note"] = (f"No measured impact on record; thesis fit is High, so impact is read as {row['implied_impact']}, implied by the "
                        f"sector, and fallback {row['id']} of the decision rules applies.")
     if row is None:
+        why_blocked = f" ({cfg['fallback'].get('blocked_note') or 'the fallback gate is not met'})" if blocked else ""
         rec["note"] = ("The company has defunct status in the declared dataset." if ctx["status"] in matching.INACTIVE else
-                       ("more public evidence needed: " + ", ".join(rec["needs"]) if needed else "no decision row or rule matches these levels, so the company stays on the watchlist"))
+                       ("more public evidence needed: " + ", ".join(rec["needs"]) + why_blocked
+                        if needed else "no decision row or rule matches these levels, so the company stays on the watchlist"))
 
     why = []
     for dim, label in (("impact", labels.get("impact", "impact")),):

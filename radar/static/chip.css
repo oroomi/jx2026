@@ -1,13 +1,13 @@
 /* Evidence chip (Receipts). Tokens only: --surface --text --muted --hairline --accent from app.css. */
 .ev{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.5rem}
 .ev-chip{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.25rem .6rem;min-height:44px;padding:.25rem .75rem;
-  border:1px solid var(--hairline);border-radius:999px;background:var(--surface);color:var(--text);text-decoration:none;font-size:.8125rem}
+  border:1px solid var(--hairline);border-radius:var(--round);background:var(--surface);color:var(--text);text-decoration:none;font-size:.875rem}
 .ev-chip:hover,.ev-chip:focus-visible{border-color:var(--accent)}
 .ev-src{font-weight:600}
 .ev-date{font-variant-numeric:tabular-nums}
 .ev-fetched{color:var(--muted);font-variant-numeric:tabular-nums}
-.ev-conf{color:var(--muted);font-size:.8125rem}
-.ev-missing{display:inline-flex;align-items:center;min-height:44px;padding:.25rem .75rem;border:1px solid var(--hairline);border-radius:999px;
-  font-size:.8125rem;color:var(--muted);
+.ev-conf{color:var(--muted);font-size:.875rem}
+.ev-missing{display:inline-flex;align-items:center;min-height:44px;padding:.25rem .75rem;border:1px solid var(--hairline);border-radius:var(--round);
+  font-size:.875rem;color:var(--muted);
   background:repeating-linear-gradient(135deg,transparent 0 5px,var(--hairline) 5px 6px)}
 @media (min-width:640px){.ev-chip,.ev-missing{min-height:32px}}

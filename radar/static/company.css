@@ -3,13 +3,13 @@ main.wrap{max-width:1360px}
 .co-layout{display:block}
 .co-rail{display:none}
 .co-main{min-width:0;padding-bottom:72px}
-.co-group{margin:24px 0 0;color:var(--muted);font-size:.8125rem;text-transform:uppercase;letter-spacing:.08em}
+.co-group{margin:24px 0 0;color:var(--muted);font-size:.875rem;text-transform:uppercase;letter-spacing:.08em}
 .co-head h1{margin-top:4px;font-size:2.25rem;overflow-wrap:anywhere}
 .facts{margin:16px 0 0}
 .fact{display:grid;grid-template-columns:8.5rem 1fr;gap:4px 12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--hairline)}
 .fact dt{color:var(--muted);font-size:.875rem}
 .fact dd{margin:0;display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;min-width:0;overflow-wrap:anywhere}
-.url{font-size:.8125rem;color:var(--muted);overflow-wrap:anywhere}
+.url{font-size:.875rem;color:var(--muted);overflow-wrap:anywhere}
 .status{font-weight:600}
 .status-bankrupt,.status-ended{color:var(--text);border-bottom:2px solid var(--accent)}
 .q{margin-top:40px;scroll-margin-top:16px}
@@ -28,10 +28,10 @@ main.wrap{max-width:1360px}
 .siglist li{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--hairline)}
 .s-type{font-weight:600}
 .s-detail{flex:1 1 100%;color:var(--muted);font-size:.875rem}
-.s-conf{color:var(--muted);font-size:.8125rem}
+.s-conf{color:var(--muted);font-size:.875rem}
 .connectors{margin-top:24px}
 .connectors li{display:flex;gap:12px;align-items:center;padding:6px 0;color:var(--muted);font-size:.875rem}
-.connectors button{min-width:7rem;min-height:36px;background:transparent;color:var(--muted);border:1px dashed var(--hairline);border-radius:6px;font:inherit;cursor:not-allowed}
+.connectors button{min-width:7rem;min-height:36px;background:transparent;color:var(--muted);border:1px dashed var(--hairline);border-radius:var(--radius);font:inherit;cursor:not-allowed}
 .co-sources{margin-top:40px;border-top:1px solid var(--hairline)}
 .co-sources h2{font-size:1rem;margin-top:16px}
 .co-sources ul{list-style:none;padding:0;margin:0}
@@ -39,11 +39,12 @@ main.wrap{max-width:1360px}
 .fetched{color:var(--muted)}
 .co-bar{position:fixed;left:0;right:0;bottom:0;z-index:5;min-height:52px;display:flex;align-items:center;justify-content:center;background:var(--surface);border-top:1px solid var(--hairline);padding:0 16px}
 .co-bar a,.co-bar span{font-weight:600;color:var(--text)}
-.co-bar a{color:var(--accent)}
+.co-bar a{display:inline-flex;align-items:center;min-height:var(--tap);color:var(--accent)}
+.fact dd>a{display:inline-flex;align-items:center;min-height:var(--tap)}
 .search{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0}
 .search label{flex:1 1 100%;color:var(--muted);font-size:.875rem}
-.search input{flex:1 1 14rem;min-height:44px;padding:0 12px;background:var(--surface);color:var(--text);border:1px solid var(--hairline);border-radius:6px;font:inherit}
-.search button{min-height:44px;padding:0 16px;background:var(--surface);color:var(--text);border:1px solid var(--accent);border-radius:6px;font:inherit;cursor:pointer}
+.search input{flex:1 1 14rem;min-height:44px;padding:0 12px;background:var(--surface);color:var(--text);border:1px solid var(--hairline);border-radius:var(--radius);font:inherit}
+.search button{min-height:44px;padding:0 16px;background:var(--surface);color:var(--text);border:1px solid var(--accent);border-radius:var(--radius);font:inherit;cursor:pointer}
 @media (min-width:1100px){
   .co-layout{display:grid;grid-template-columns:240px minmax(0,720px) 360px;gap:32px;justify-content:center;align-items:start}
   .co-rail{display:flex;flex-direction:column;position:sticky;top:16px;margin-top:32px}
@@ -62,8 +63,55 @@ main.wrap{max-width:1360px}
 .connect p{margin:0}
 .dims{list-style:none;padding:0;margin:8px 0 0;display:flex;flex-direction:column;gap:6px}
 .dim-name{font-weight:600;margin-right:6px}
-.ready .rule{font-size:.8125rem}
+.ready .rule{font-size:.875rem}
 .ready th a{color:inherit}
 /* jx20 */
 .connectors button{min-height:44px}
 .connect a{display:inline-block;min-width:44px;padding:10px 0;text-align:center}
+/* jx30: the company page leads with the answers. Visual order: name, memo (cloud/vc_memo, any element before
+   question 01), the four questions, then the evidence (connections, life-line, register facts, records).
+   The DOM order is unchanged; only the main column is reordered. */
+.co-main{display:flex;flex-direction:column}
+.co-head{display:contents}
+.co-group{order:-3}
+.co-head h1{order:-2;margin-bottom:var(--s4)}
+.q-fit{order:1}.q-ready{order:2}.q-next{order:3}.q-step{order:4}
+.connect{order:5;margin-top:var(--s7)}
+.lifeline{order:6}
+.facts{order:7;margin-top:var(--s6)}
+.signals{order:8}
+/* four clearly separated answers: rule, number, question, one answer line, then the evidence */
+.q{margin-top:var(--s6);padding-top:var(--s5);border-top:1px solid var(--hairline)}
+.co-head h1+.q,.q:first-of-type{margin-top:var(--s5)}
+.q h2{font-size:1.375rem;margin-bottom:var(--s3)}
+.answer-line,.step-sentence{font-family:var(--serif);font-size:var(--fs-answer);font-weight:400;line-height:1.35;color:var(--text);margin:0 0 var(--s3)}
+.q-ready>p.plain,.q-next>p.plain{color:var(--muted);font-size:var(--fs-small);margin:0 0 var(--s3)}
+.q-step>p.plain{margin:0 0 var(--s3)}
+/* question 01 opens with its long reasons sentence (one-line answer comes with the wide-intake change), read at body size */
+.q-fit>p.plain:first-of-type{font-size:1.0625rem;color:var(--text);margin:0 0 var(--s3)}
+.lifeline h2,.signals h2{font-size:1.25rem}
+/* evidence looks clickable; missing evidence stays hatched and never looks like a value */
+.ev-src{color:var(--accent);text-decoration:underline;text-underline-offset:3px}
+.lvl strong{font-family:var(--serif);font-size:1.1875rem;font-weight:600;color:var(--text)}
+.ready th{font-size:var(--fs-small)}
+@media (max-width:640px){
+  .ready,.ready tbody,.ready tr,.ready th,.ready td{display:block;width:100%}
+  .ready th{padding:var(--s4) 0 var(--s1);border-bottom:0}
+  .ready td{padding:0 0 var(--s4)}
+}
+/* the header and footer line up with the three-column layout on a laptop */
+body:has(.co-layout) .top .wrap,body:has(.co-layout) .foot{max-width:1360px}
+/* memo block from cloud/vc_memo (section.q.memo, its own memo.css is linked later in the body, so these rules carry
+   one more class): hero position under the name, the recommendation in Newsreader at the answer size, then its lines */
+.co-main .memo{order:0;margin:0 0 var(--s5);padding:var(--s4) var(--s5) var(--s3);border:1px solid var(--hairline);border-left:4px solid var(--accent);border-radius:var(--radius);background:var(--surface)}
+.memo .memo-head{display:flex;justify-content:space-between;align-items:center;gap:var(--s3)}
+.memo .memo-head h2{margin:0;font-family:var(--sans);font-size:var(--fs-small);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.memo .memo-print{display:inline-flex;align-items:center;min-height:var(--tap);font-size:var(--fs-small)}
+.memo .memo-decision{display:flex;flex-direction:column;gap:2px;margin:var(--s1) 0 var(--s2)}
+.memo .memo-label{font-size:var(--fs-small);color:var(--muted);text-transform:none;letter-spacing:0}
+.memo .memo-verdict{margin:0;font-family:var(--serif);font-size:var(--fs-answer);font-weight:600;line-height:1.25;color:var(--text)}
+.memo>.plain{margin:0 0 var(--s2)}
+.memo h3{margin:var(--s4) 0 var(--s1);font-size:var(--fs-small);font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.memo .memo-list{margin:0;padding-left:1.25rem}
+.memo .memo-list li{margin:0 0 var(--s2)}
+.memo .rule{margin-top:var(--s3)}

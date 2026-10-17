@@ -1,21 +1,21 @@
 /* Cohort radar. Tokens only (app.css). */
-.muted{color:var(--muted);font-size:.8125rem}
+.muted{color:var(--muted);font-size:.875rem}
 .rd-rule{white-space:normal;max-width:70ch;font-size:.875rem}
 .rd-table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-.rd-table th{text-align:left;font-weight:500;color:var(--muted);font-size:.8125rem;padding:6px 8px;border-bottom:1px solid var(--hairline)}
+.rd-table th{text-align:left;font-weight:500;color:var(--muted);font-size:.875rem;padding:6px 8px;border-bottom:1px solid var(--hairline)}
 .rd-table td{padding:8px;border-bottom:1px solid var(--hairline);vertical-align:middle}
 .rd-table .num{text-align:right}
 .rd-name a{display:inline-block;min-height:24px;font-weight:600}
 .rd-name .muted{display:block}
 .rd-n{font-size:1.125rem;font-weight:600}
-.rd-tag{display:inline-block;margin:0 6px 4px 0;font-size:.75rem;color:var(--muted);border:1px solid var(--hairline);padding:1px 6px;border-radius:3px}
+.rd-tag{display:inline-block;margin:0 6px 4px 0;font-size:.875rem;color:var(--muted);border:1px solid var(--hairline);padding:1px 6px;border-radius:var(--radius)}
 .rd-sub th{padding-top:20px;color:var(--text);font-size:.875rem}
 .rd-none .rd-name a{font-weight:500}
 .rd-axis{stroke:var(--hairline);stroke-width:1}
 .rd-tick{fill:var(--accent);stroke:var(--accent);stroke-width:1.5}
 .rd-tick.hollow{fill:var(--bg)}
 .rd-slots ul{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:8px}
-.rd-slots button{min-height:44px;padding:0 12px;border:1px dashed var(--hairline);background:transparent;color:var(--muted);border-radius:4px}
+.rd-slots button{min-height:var(--tap);padding:0 var(--s3);border:1px dashed var(--hairline);background:transparent;color:var(--muted);border-radius:var(--radius);font:inherit;font-size:var(--fs-small)}
 @media (max-width:640px){
   .rd-table thead{position:absolute;left:-9999px}
   .rd-table,.rd-table tbody,.rd-table tr,.rd-table td,.rd-table th{display:block;width:100%}
@@ -27,15 +27,15 @@
   .rd-sub th{border:0}
 }
 .rd-table .ev{display:block}
-.rd-table .ev-chip{display:inline-flex;flex-wrap:nowrap;gap:6px;align-items:baseline;padding:2px 8px;border-radius:4px;white-space:nowrap;font-size:.8125rem}
+.rd-table .ev-chip{display:inline-flex;flex-wrap:nowrap;gap:6px;align-items:baseline;padding:2px 8px;border-radius:var(--round);white-space:nowrap;font-size:.875rem}
 .rd-table .ev-fetched{display:none}
-.rd-table .ev-conf{font-size:.75rem;color:var(--muted)}
+.rd-table .ev-conf{font-size:.875rem;color:var(--muted)}
 .rd-table .rd-latest .muted{display:block}
 .rd-tag{white-space:nowrap}
 .rd-types{max-width:200px}
 @media (max-width:640px){.rd-table .ev-fetched{display:inline}.rd-table .ev-chip{flex-wrap:wrap;white-space:normal}.rd-types{max-width:none}}
 main.wrap{max-width:1040px}
-.rd-types{max-width:none;font-size:.8125rem;color:var(--muted)}
+.rd-types{max-width:none;font-size:.875rem;color:var(--muted)}
 .rd-tag{display:inline;border:0;padding:0;margin:0;font-size:inherit}
 .rd-tag:not(:last-child)::after{content:", "}
 .rd-name a{white-space:nowrap}
@@ -51,3 +51,22 @@ main.wrap{max-width:1040px}
 .rd-table td,.rd-table th{padding-left:6px;padding-right:6px}
 .rd-table .rd-latest .ev-conf{display:none}
 @media (max-width:640px){.rd-strip{width:100%}.rd-strip svg{width:120px}.rd-types{width:100%}.rd-table .rd-latest .ev-conf{display:inline}}
+/* jx30: on a phone each row reads as one small card: name and count on top, country under the name, then the latest record and the timeline. */
+@media (max-width:640px){
+  .rd-table tr.rd-row{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--s3);align-items:center;padding:var(--s2) 0}
+  .rd-table td.rd-name{grid-column:1;grid-row:1}
+  .rd-table td.rd-name a{min-height:var(--tap);line-height:1.25;display:inline-flex;align-items:center}
+  .rd-table td.rd-n{grid-column:2;grid-row:1;justify-self:end;margin:0;font-family:var(--serif);font-size:1.375rem}
+  .rd-table td.rd-cc{grid-column:1/-1;grid-row:2;margin:0;color:var(--muted);font-size:var(--fs-small)}
+  .rd-table td.rd-latest,.rd-table td.rd-types,.rd-table td.rd-strip{grid-column:1/-1}
+  .rd-none .rd-latest{display:none!important}
+  .rd-none td.rd-n{font-family:var(--sans);font-size:inherit}
+  .rd-table td.rd-strip svg{width:100%;max-width:240px;height:18px}
+}
+/* jx30: on a laptop the table fits its column (the latest-record chip wraps instead of pushing Kinds and Timeline off screen),
+   and the header and footer line up with the 1040 px column */
+@media (min-width:641px){
+  .rd-table .ev-chip{white-space:normal;flex-wrap:wrap}
+  .rd-table td.rd-latest{min-width:14rem;max-width:22rem}
+}
+body:has(.rd-table) .top .wrap,body:has(.rd-table) .foot{max-width:1040px}

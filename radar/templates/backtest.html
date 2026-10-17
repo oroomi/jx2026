@@ -44,6 +44,19 @@
     {% endfor %}
     <g class="bt-ref"><line x1="{{ chart.ref_x }}" x2="{{ chart.ref_x }}" y1="{{ chart.top - 4 }}" y2="{{ chart.h - 4 }}"/><text x="{{ chart.ref_x + (-4 if chart.ref_anchor == 'end' else 4) }}" y="12" text-anchor="{{ chart.ref_anchor }}">reference {{ chart.ref_label }}</text></g>
   </svg>
+  {# jx30: the same lanes as HTML for a phone, where the SVG text would shrink below 10 px. Positions come from the chart geometry above. #}
+  {% set span = chart.x1 - chart.x0 %}{% macro pct(x) %}{{ ((x - chart.x0) / span * 100) | round(1) }}%{% endmacro %}
+  <div class="bt-phone">
+    <div class="bt-lrow bt-laxis"><span></span><div class="bt-ltrack">{% for t in chart.ticks %}<span class="bt-ltick" style="left:{{ pct(t.x) }}">{{ t.label }}</span>{% endfor %}<span class="bt-lref" style="left:{{ pct(chart.ref_x) }}"></span></div></div>
+    {% for l in chart.lanes %}
+    <div class="bt-lrow{% if l.blank %} blank{% endif %}">
+      <a class="bt-lname" href="/c/{{ l.key }}">{{ l.name }}</a>
+      <div class="bt-ltrack"><span class="bt-lref" style="left:{{ pct(chart.ref_x) }}"></span>{% if not l.blank %}<span class="bt-lmk{% if l.hollow %} hollow{% endif %}" style="left:{{ pct(l.mx) }}"></span>{% endif %}</div>
+      {% if l.blank %}<span class="bt-llabel bt-lblank">no public signal</span>{% else %}<span class="bt-llabel">{{ l.label }}</span>{% endif %}
+    </div>
+    {% endfor %}
+    <p class="bt-lnote">The vertical line is the reference date, {{ chart.ref_label }}.</p>
+  </div>
 </section>
 
 <section aria-labelledby="tbl-h">

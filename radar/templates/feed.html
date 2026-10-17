@@ -20,6 +20,7 @@
   {% if H.countries %}<nav class="hc-countries" aria-label="Countries">
     {% for k, label, rs in H.countries %}<a href="/?group={{ k }}"{% if cur[0] == k %} aria-current="true"{% endif %}>{{ label }}</a>{% endfor %}
   </nav>{% endif %}
+  {% include "_filter_rail.html" %}
   <ol class="hc-rows">
   {% for r in cur[2] %}
     {% set w = (r.name | replace(" Oyj", "") | replace(" Oy", "") | replace(" Ab", "") | replace(" AB", "") | trim).split() %}
@@ -33,6 +34,7 @@
         {% if r.tape %}<svg class="hc-tape" viewBox="0 0 100 12" preserveAspectRatio="none" role="img" aria-label="{{ r.tape | length }} public record{{ "s" if r.tape | length != 1 }} in the last 12 months"><line x1="0" y1="11.5" x2="100" y2="11.5"/>{% for x in r.tape %}<line class="{{ 'tk-last' if loop.last else 'tk' }}" x1="{{ x }}" y1="{{ 1 if loop.last else 5 }}" x2="{{ x }}" y2="11"/>{% endfor %}</svg>{% endif %}
         {% if r.verdict %}<span class="hc-pill hc-{{ vk }} v-{{ vk }}">{{ r.verdict | capitalize }}</span>{% endif %}
       </span>
+      {% include "_criteria_box.html" %}
     </a></li>
   {% endfor %}
   </ol>

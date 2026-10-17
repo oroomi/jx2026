@@ -2,6 +2,15 @@
 
 Applies the moment the chief says "main merged, go". Another agent is editing these files on main now, so nothing here is touched before then. Prototype to match: `c_company.html` (Viva Jets).
 
+## Shared components (merged from cloud/design_c_components 493cb0a; use these, not my prototype versions)
+`radar/templates/_c_components.html` and `radar/static/c_components.css`, tested in `tests/test_c_components.py`:
+- `verdict_pill(verdict, reason)`: grey Watchlist, teal Partner introduction or Accelerator, green Invest or Due diligence, red Reject. The memo's decision arrives in capitals ("WATCHLIST"), so the page passes it title-cased (`rec.decision|capitalize`) and puts `rec.note` in `reason`.
+- `key_stats(rows, title)`: rows of `{label, value, source_url}`. Block 5 builds its 8 rows: Technology, Business, Investment, Ocean impact ("4 / 9" strings from the frameworks level, empty means hatched), Founded, Business ID, First public record, Last signal. The Investment "N of 10 dimensions" line goes into the label ("Investment (2 of 10 dimensions)"), so the macro stays unchanged.
+- `sparkline(signals, ...)`: home rows only (on hold for Dayo's screenshot).
+- `lifeline(...)`: not used on the company page. Dayo removed the chart; block 3 is the one-line public record.
+- `_tabbar.html` `tabbar(current)`: included once in `base.html` (`current` = radar, search, lists, backtest or data per route).
+My prototype CSS (`docs/design_v2/c.css`) only adds what the macros do not cover: the instrument header, the big verdict word, the public-record line, the capsule buttons, the About card, News and Analysts. Those rules go to `radar/static/company.css`, not a second component sheet.
+
 ## Page order (top to bottom), mapped to today's files
 | # | Block | Built from | File |
 |---|---|---|---|
@@ -24,7 +33,8 @@ Laptop at 960 px and up: blocks 1 to 5 on the left (about 520 px), 6 to 8 on the
 - "Sources on this page" and every source URL stay in the page.
 
 ## Files, in order (one commit each, `pytest -q` green, phone and laptop screenshots read)
-1. `radar/static/company.css` + **new** `radar/static/c.css` (from `docs/design_v2/c.css`, company rules only): 30 min
+0. Already done: `cloud/design_c_components` merged into this branch (b0b3b63), tests green (407 passed).
+1. `radar/static/company.css` (the company-only rules from `docs/design_v2/c.css`; components come from `c_components.css`) and `base.html` (`{% include "_tabbar.html" %}` plus `c_components.css` linked once): 30 min
 2. **new** `radar/card.py`, `radar/routes/card.py`, `radar/templates/company_card.html`, `tests/test_card.py`: 50 min
 3. `radar/templates/company.html` (blocks 1 to 9) and `company_memo.html` (split into the verdict and Analysts partials, with why, risks and actions under Evidence): 70 min
 4. Include lines for `company_brief.html` (jx35) and `_aava.html` (jx25) if they exist on main at that moment; otherwise the card and a disabled "Ask Aava" with "not connected yet": 15 min
@@ -43,7 +53,7 @@ About 3 hours. The home page waits for Dayo's screenshot.
 |---|---|---|---|
 | C1 | `radar/static/app.css` (+ **new** `radar/static/c.css`, from `docs/design_v2/c.css`) | Tokens plus the C skin: 16 px cards, segmented tabs, big numbers, verdict pills coloured like change pills (grey Watchlist, teal Partner or Accelerator, green Invest or Due diligence, red Reject; the only status colours), 52 px action buttons, the bottom tab bar | 40 min |
 | C2 | `radar/templates/base.html` | Bottom tab bar on phone (Radar `/`, Search `/company-search`, Lists `/radar`, Backtest `/backtest`, Data `/data`), a top tab bar at 960 px and up. Keeps `#theme-toggle` and the `theme` localStorage key. The health thesis becomes a quiet "Sector" switch. `/method` and `/how` stay linked from the footer | 30 min |
-| C3 | **new** `radar/svg.py` (pure functions, unit tested in **new** `tests/test_svg.py`) | Server-side inline SVG: `sparkline(dates, today)` (cumulative dated signals over 12 months, about 72x24) and `lifeline(signals, today, years)` (the step chart). Rendered without JavaScript. The 1Y, 3Y and MAX chips are plain links (`?range=1y`) that htmx swaps in place | 50 min |
+| C3 | *(superseded: the sparkline and life-line now come from `_c_components.html`)* | Server-side inline SVG: `sparkline(dates, today)` (cumulative dated signals over 12 months, about 72x24) and `lifeline(signals, today, years)` (the step chart). Rendered without JavaScript. The 1Y, 3Y and MAX chips are plain links (`?range=1y`) that htmx swaps in place | 50 min |
 | C4 | **new** `radar/card.py` + **new** `radar/routes/card.py` + **new** `radar/templates/company_card.html` | The six-row card as in the B plan (template global, no edit to `company.py`, `memo.py` or `matching.py`). On the C page it is the "About" section | 50 min |
 | C5 | `radar/templates/company.html`, `company.css`, `company_memo.html`, `memo.css` | The instrument page: initials mark, name, Business ID and group; the verdict as the big word with its one-line reason; the life-line SVG with chips; "Ask Aava" (a plain button, so the browser gets the user gesture speech needs) and "Print memo" (`window.print()` plus a print stylesheet); Key statistics grid (4 readiness levels, founded, Business ID, first public record, last signal, each sourced); About (the card); News (dated signals, newest first, sourced); Analysts (the decision-table bands as bars, "because: ..."). The existing 01 to 04 sections, stitcher block and sources fold under "Evidence" with their ids kept for tests | 70 min |
 | C6 | `radar/templates/feed.html`, `feed_rows.html`, `feed.css` | "/" as the C home: segmented country tabs (Finland, Baltic; they switch `?thesis=`), "On the radar" count with a "+N this quarter" badge, search, rows (initials, name, one-liner, sparkline, verdict pill, "New" plus "N d ago"), weak matches and "no thesis evidence yet" as two closed disclosures. On laptop the Lists cards sit on the right | 60 min |

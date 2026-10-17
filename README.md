@@ -143,6 +143,8 @@ public sources --> radar/adapters/*.py --> radar/emit.py --> data/radar_{thesis 
 The sector rules (industry codes, keywords, intake families, the memo's decision table, the backtest population) sit in one thesis
 file in `config/`, so a sector swap is one environment variable or one `?thesis=` parameter; the few sector words still in code are
 named in ARCHITECTURE.md. Adapters and page routes are discovered by module, so parallel branches never edit a shared list. Full detail:
+**Matchmaking** (`/match`, "Next steps" on every company page, `/api/match/...`; method in [docs/MATCHING.md](docs/MATCHING.md)). Filter then rank, and every match says why in words: for a startup, the investors, programmes, funders and pilot partners that fit its verdict path, geography and readiness window, with the same sector or impact area, shared words, lookalikes in the counterpart's declared cohort or portfolio, and a deadline inside 90 days as reason chips; for a counterpart, the startups that fit it, its declared cohort first. Demand is declared (its own text, stages, geography, window) plus revealed (the companies it has chosen); there is no score anywhere. Weights, keyword groups and regions are in `config/thesis.yaml`; rules D22 to D24 and A34 in [PROJECT_RULES.md](PROJECT_RULES.md).
+
 [ARCHITECTURE.md](ARCHITECTURE.md); the module map with commands to run each piece: [MODULES.md](MODULES.md).
 
 ## Documents
@@ -153,6 +155,7 @@ named in ARCHITECTURE.md. Adapters and page routes are discovered by module, so 
 - [METHOD.md](METHOD.md): how the AI stitcher searches, reads, dates and double-checks an event.
 - [DISCLOSURE.md](DISCLOSURE.md): what we built this weekend and what we brought.
 - [PILOT.md](PILOT.md): eight weeks with Redstone Blue and A'Pelago.
+- [docs/MATCHING.md](docs/MATCHING.md): matchmaking, the practices adopted and rejected, the method and its limits.
 - [DEMO_SCRIPT.md](DEMO_SCRIPT.md): the table and stage demo.
 
 ## Team

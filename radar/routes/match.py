@@ -10,7 +10,7 @@ from fastapi import APIRouter, Query, Request
 from jinja2 import pass_context
 
 from radar import matchmaker, matchtext, store, thesis as thesis_mod
-from radar.routes.api import _error, _head, _open, _run, _thesis, _Fail
+from radar.routes.api import _head, _open, _run, _thesis, _Fail
 from radar.routes.home import _has_route, templates
 
 router = APIRouter()

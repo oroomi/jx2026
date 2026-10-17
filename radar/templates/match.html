@@ -64,7 +64,7 @@
   </dl>
   {% if o.closed_note %}<p class="mt-note">{{ o.closed_note | capitalize }}. Only its declared members are listed.</p>{% endif %}
   {% if result.startups %}
-  <h3 class="mt-sub">Startups that fit ({{ result.listed }} pass the filters{% if result.startups | length < result.listed %}, the top {{ result.startups | length }} shown{% endif %})</h3>
+  <h3 class="mt-sub">Startups that fit ({{ result.listed }} checked in full pass the filters{% if result.startups | length < result.listed %}, the top {{ result.startups | length }} shown{% endif %}{% if result.unprofiled %}; {{ result.unprofiled }} more passed the first pass and were not checked in full{% endif %})</h3>
   <ol class="mt-results">
   {% for s in result.startups %}
     <li class="mt-res">

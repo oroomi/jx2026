@@ -15,11 +15,11 @@ from __future__ import annotations
 import re
 import sqlite3
 from collections import Counter
-from datetime import date, timedelta
+from datetime import date
+from pathlib import Path
 
-from radar import blueinvest, fit as fit_mod, frameworks, matching, memo, store, matchmaker_orgs as orgs_mod, matchtext
+from radar import fit as fit_mod, matching, memo, store, matchmaker_orgs as orgs_mod, matchtext
 from radar.matchtext import plain_list
-from radar.store import name_key as fold
 
 _IDX: dict = {}
 COMPONENTS = ("sector", "lookalike", "keywords", "readiness", "timing", "geography")
@@ -44,31 +44,35 @@ def _clean(text: str | None) -> str:
     return _NOISE.sub(" ", text or "")
 
 
+def _brief_text(row) -> str:
+    """The one-sentence 'what it does' slot of a company's brief, if one is stored."""
+    import json
+    v = (json.loads(row[1]) or {}).get("what_it_does")
+    return v["text"] if v and v.get("text") else ""
+
+
 def _index(conn, thesis: dict, cfg: dict, today: date) -> dict:
     """One light record per company: code family, country, age, words, sector groups. Built once per store version."""
     dbp = conn.execute("PRAGMA database_list").fetchone()[2]
-    from pathlib import Path
     sig = (thesis["id"], dbp, Path(dbp).stat().st_mtime_ns, today.isoformat())
     if sig in _IDX:
         return _IDX[sig]
-    cs, cg = {}, {}                      # per distinct text: the same line of business repeats for thousands of companies
+    cg: dict = {}                        # per distinct text: the same line of business repeats for thousands of companies
     text: dict[str, list[str]] = {}
     types = list(cfg.get("text_signal_types") or [])
     if types:
         for key, detail in conn.execute(f"SELECT company_key, detail FROM signals WHERE signal_type IN ({','.join('?' * len(types))}) AND detail IS NOT NULL", types):
             text.setdefault(key, []).append(_clean(detail))
-    try:
-        for key, t in conn.execute("SELECT s.company_key, t.text FROM signal_text t JOIN signals s ON s.id = t.signal_id"):
-            text.setdefault(key, []).append(_clean(t))
-        for key, title, desc in conn.execute("SELECT company_key, title, description FROM blueinvest_profiles WHERE company_key IS NOT NULL"):
-            text.setdefault(key, []).append(_clean(f"{title or ''}. {desc or ''}"))
-        for key, js in conn.execute("SELECT company_key, slots_json FROM company_brief_slots"):
-            import json
-            v = (json.loads(js) or {}).get("what_it_does")
-            if v and v.get("text"):
-                text.setdefault(key, []).append(v["text"])
-    except sqlite3.OperationalError:
-        pass
+    for sql, fmt in (("SELECT s.company_key, t.text FROM signal_text t JOIN signals s ON s.id = t.signal_id", lambda r: _clean(r[1])),
+                     ("SELECT company_key, title, description FROM blueinvest_profiles WHERE company_key IS NOT NULL", lambda r: _clean(f"{r[1] or ''}. {r[2] or ''}")),
+                     ("SELECT company_key, slots_json FROM company_brief_slots", _brief_text)):
+        try:                              # a store without one of these tables (an older snapshot) simply has no such text
+            for r in conn.execute(sql):
+                t = fmt(r)
+                if t:
+                    text.setdefault(r[0], []).append(t)
+        except sqlite3.OperationalError:
+            pass
     eco_by_key = _eco_text(conn)
     cap_group = {g["capability"]: gid for gid, g in cfg["groups"].items() if g.get("capability")}
     out: dict[str, dict] = {}
@@ -277,8 +281,9 @@ def _window(sp: dict, org: dict, cfg: dict, today: date) -> tuple[str, dict]:
         why = matching.stage_mismatch(stage, org["stage_text"]) if org["programme"] else None
         if why:
             fail = fail or why
-        elif stage in matching.EARLY_STAGES and any(w in sw for w in matching._EARLY_WORDS) or \
-                stage in matching.LATER_STAGES and any(w in sw for w in matching._LATER_WORDS):
+        elif not (org.get("stages") and stage in org["stages"]) and (
+                stage in matching.EARLY_STAGES and any(w in sw for w in matching._EARLY_WORDS) or
+                stage in matching.LATER_STAGES and any(w in sw for w in matching._LATER_WORDS)):
             met.append((f"its stage ({matching._stage_words(stage)}) fits the stage {org['name']} states, '{org['stage_text']}'", f"Stage {matching._stage_words(stage)} fits"))
     if org.get("stages") and stage:
         if stage in org["stages"]:
@@ -324,7 +329,8 @@ def _geography(sp: dict, org: dict, cfg: dict) -> tuple[bool, dict]:
 def _open(org: dict, today: date) -> str | None:
     dl = org["deadline"]
     if not dl.get("open"):
-        return "closed: " + (dl.get("text") or "not accepting applications")
+        txt = dl.get("text") or "not accepting applications"
+        return txt if txt.casefold().startswith("closed") else "closed: " + txt
     if dl.get("date") and dl["date"] < today.isoformat():
         return f"the deadline {dl['date']} has passed"
     return None
@@ -412,16 +418,14 @@ def match_company(company_key: str, thesis: dict, *, conn: sqlite3.Connection | 
             return None
         allowed = set(cfg["path_kinds"].get(sp["decision"]) or []) | set(cfg.get("always_kinds") or [])
         primary = set(cfg["path_kinds"].get(sp["decision"]) or [])
-        rows, connected, dropped = [], [], {}
+        rows, connected = [], []
         for org in reg["orgs"]:
             if company_key in org["members"]:
                 connected.append({"id": org["id"], "name": org["name"], "why": org["members"][company_key]["basis"]})
                 continue
             if org["kind"] not in allowed:
                 continue
-            closed = _open(org, t)
-            if closed:
-                dropped["closed or past deadline"] = dropped.get("closed or past deadline", 0) + 1
+            if _open(org, t):
                 continue
             ev = evaluate(sp, org, cfg, idx, reg["df"], t)
             if ev["excluded"]:
@@ -483,7 +487,7 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
             ev = evaluate(sp, org, cfg, idx, reg["df"], t)
             comps = [{"id": "member", "label": LABELS["member"], "met": True, "weight": 0, "chip": "In its declared cohort or portfolio",
                       "reason": f"Declared member: {m['basis']}" + (f", dated {m['since']}" if m["since"] else "") + ".",
-                      "note": None, "links": [{"text": "declared list", "url": m["url"] or sp["url"]}]}] + [c for c in ev["components"] if c["met"]]
+                      "note": None, "links": [{"text": "declared list", "url": m["url"] if (m["url"] or "").startswith("http") else sp["url"]}]}] + [c for c in ev["components"] if c["met"]]
             out_rows.append(_startup_row(sp, comps, True, ev))
         out_rows.sort(key=lambda r: (-r["met"], r["name"].casefold()))
         closed = _open(org, t)
@@ -522,6 +526,7 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
                            "lookalikes_from": org.get("via_parent")}
         return {"org": row, "as_of": t.isoformat(), "rule": RULE, "weights": cfg["weights"],
                 "candidates_profiled": min(len(cand), int(cfg.get("candidates", 300))) if not closed else 0,
+                "unprofiled": max(0, len(cand) - int(cfg.get("candidates", 300))),
                 "listed": len(out_rows), "startups": shown, "limits": LIMITS}
     finally:
         if own:

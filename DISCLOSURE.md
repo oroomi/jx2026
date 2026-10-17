@@ -56,6 +56,25 @@ Named by the official Redstone x A'Pelago brief; levels on the company page are 
 | Investment Potential dimensions (ten) | Market, Product, Team, Business Model, Competition, Marketing & Distribution, Financials, Tech, Deal Dynamics, Impact | official brief | five have no source here and show "not in public records" |
 | PRH registered notices API v3 | Dated equity events, board changes, capital losses and start-up notices | https://avoindata.prh.fi/opendata-registerednotices-api/v3/ | CC BY 4.0, no key; fetched by radar/adapters/prh_notices.py, cached in data/cache/prh_notices/ |
 
+## Matchmaking method: sources read (ideas only, no code, text or data copied)
+
+Read on 17 Oct 2026 for `radar/matchmaker.py`; what we took is in [docs/MATCHING.md](docs/MATCHING.md). Each row is a public web page; nothing from them is stored in the repo.
+
+| Source | URL | What we took | Licence or access |
+|---|---|---|---|
+| Google, Recommendation systems overview | https://developers.google.com/machine-learning/recommendation/overview/types | candidate generation, then scoring, then constraints: filter then rank | public documentation, read only |
+| Metal, Recommended process (investor identification) | https://docs.metal.so/content/high-resolution-identification/recommended-process.md | elimination criteria before ranking; past investments in similar companies as a starting point | public documentation, read only |
+| b2match, Event networking | https://www.b2match.com/news/give-your-attendees-the-networking-they-actually-want | mutual interest first; each match labelled with why it exists | vendor page, read only |
+| Reciprocal recommender systems: analysis of state-of-art literature | https://arxiv.org/abs/2007.16120 | both sides' preferences must be taken into account | arXiv abstract, read only |
+| Xu, Zhang, Lv, Mariani, Recommending investors for new startups | https://arxiv.org/abs/1912.02962 | investors' domain preference is revealed by past deals and helps for startups with no investors yet | arXiv abstract, read only |
+| InEvent, AI matchmaking | https://inevent.com/products/ai/matchmaking.php | configurable weights and cut-offs; matchmaking "cannot be a black box" | vendor page, read only |
+| Converve, B2B matchmaking software | https://www.converve.com/event-platform/b2b-event-matchmaking/ | rules the organiser can read, not an AI black box | vendor page, read only |
+| Tintarev and Masthoff, Explaining recommendations | https://abdn.elsevierpure.com/en/publications/explaining-recommendations-design-and-evaluation/ | explanations give seven distinct benefits | publisher abstract, read only |
+| freeCodeCamp, Cold start problem in recommender systems | https://www.freecodecamp.org/news/cold-start-problem-in-recommender-systems/ | content features carry a match when there is no history | public article, read only |
+| Stanford NLP group, Introduction to Information Retrieval, inverse document frequency | https://nlp.stanford.edu/IR-book/html/htmledition/inverse-document-frequency-1.html | rare terms weigh more than common ones | public book chapter, read only |
+
+The matchmaking reads only data already declared above (the declared lists and the ecosystem dataset, organisations only), our store, and `config/thesis.yaml`; it adds no dataset and calls no external service or paid API.
+
 ## Third-party services
 | Service | Purpose | Account pre-existed? |
 |---|---|---|

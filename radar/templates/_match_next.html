@@ -15,7 +15,7 @@
       <p class="mn-head"><a class="mn-name" href="/match?org={{ r.id }}">{{ r.name }}</a> <span class="mn-kind">{{ r.kind_label }}</span>
         {% if r.deadline %}<span class="mn-dl">deadline {{ r.deadline }}</span>{% elif r.deadline_text and r.kind in ("programme", "accelerator", "funder") %}<span class="mn-dl">{{ r.deadline_text }}</span>{% endif %}</p>
       {{ chips(r.components) }}
-      {{ why(r.components, "Why") }}
+      {{ why(r.components, "Why this match") }}
     </li>
   {% endfor %}
   </ol>

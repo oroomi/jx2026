@@ -202,6 +202,8 @@ def _focus(o: dict, thesis: dict, names: tuple[str, ...]) -> str:
     """One line of what the organisation says it wants, person names redacted (the words of listed organisation names are not names),
     or '' when it says nothing."""
     text = next((p.strip() for p in o["parts"] if p and len(p.strip()) > 12), "")
+    segs = [x for x in re.split(r"(?<=[.;])\s+", text) if not re.search(r"\.csv\b|\b(?:we|our)\b", x, re.I)]   # the list's own working notes are not the organisation's words
+    text = " ".join(segs).replace("_", " ")
     text = fit_mod.redact_person_names(text, o["name"], thesis, also_allowed=names)
     text = re.sub(r"\s+", " ", text).strip(" ;,.")
     if len(text) > 150:
@@ -274,7 +276,7 @@ def _revealed(orgs: list[dict], conn, thesis: dict, cfg: dict) -> None:
                 continue
             for key, in conn.execute("SELECT company_key FROM companies WHERE group_tag=?", (group,)):
                 _add_member(o, key, ref if group == (thesis.get("backtest") or {}).get("cohort_group") else None,
-                            f"declared {group} company in cohort_portfolio_companies.csv", "data/declared/cohort_portfolio_companies.csv")
+                            f"declared {group} company in the declared cohort and portfolio list", None)
             counts.setdefault(o["id"], set()).update(fold(r["company"]) for r in csv_rows if r.get("group") == group)
 
     eco = matching._eco_db()

@@ -264,7 +264,7 @@ def readiness_rows(conn: sqlite3.Connection, key: str) -> list[tuple]:
     if cat.get("category"):
         ev = cat.get("evidence") or {}
         url = ev.get("url") or (c.get("source_url") if cat.get("industry") else None)
-        rule = f"keyword '{cat['keyword']}' in " + ("the register industry text" if cat.get("industry") else "a record's text")
+        rule = f"the word {cat['keyword']} in " + ("the register industry text" if cat.get("industry") else "a record's text")
         out.append((key, CATEGORY_DIM, fw["labels"][CATEGORY_DIM], None, cat["category"], rule, url, 1 if url else 0))
     else:
         out.append((key, CATEGORY_DIM, fw["labels"][CATEGORY_DIM], None, None, None, None, 0))

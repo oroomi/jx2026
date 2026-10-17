@@ -516,6 +516,7 @@ def company(conn, key) -> dict | None:
     for s in conn.execute("SELECT * FROM signals WHERE company_key = ? ORDER BY date DESC, id DESC", (key,)):
         d = dict(s)
         d["type_label"] = labels.signal_label(d["signal_type"])
+        d["detail"] = labels.plain_text(d["detail"]) if d.get("detail") else d.get("detail")  # no register type code or snake_case id on a page
         d["evidence"] = evidence(d)
         sigs.append(d)
     with_precision(conn, sigs)

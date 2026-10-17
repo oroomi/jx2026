@@ -92,7 +92,11 @@ def source_label(adapter: str | None, url: str | None = None) -> str:
 _SNAKE = re.compile(r"(?<![/\w.=&?-])([a-z][a-z0-9]*(?:_[a-z0-9]+)+)(?![\w/.=&-])")
 
 
+# A register type code in brackets, "(type 6_80)": the register's own list code. The words before it already say which register it is.
+_TYPE_CODE = re.compile(r"\s*\((?:register )?type \d+_\d+\)", re.I)
+
+
 def plain_text(text: str | None) -> str:
-    """A stored detail line with any snake_case id our adapters wrote (for example a dataset event type) turned into words.
-    Parts of a link are left alone."""
-    return _SNAKE.sub(lambda m: m.group(1).replace("_", " "), text or "")
+    """A stored detail line with any snake_case id our adapters wrote (for example a dataset event type) turned into words, and a
+    register type code in brackets ("(type 6_80)") dropped. Parts of a link are left alone."""
+    return _SNAKE.sub(lambda m: m.group(1).replace("_", " "), _TYPE_CODE.sub("", text or ""))

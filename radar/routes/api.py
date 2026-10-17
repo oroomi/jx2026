@@ -83,7 +83,7 @@ def _readiness(conn, key: str, c: dict, sigs: list[dict]) -> dict:
         "ocean_impact": {"framework": frameworks.LABELS["ocean_impact"], "framework_url": fw["urls"].get("navigator"),
                          "category": cat["category"], "keyword": cat["keyword"],
                          "source_url": (cat.get("evidence") or {}).get("url") or (c.get("source_url") if cat.get("industry") else None),
-                         "because": f"'{cat['keyword']}' in a signal detail or the industry text" if cat["category"] else "no public evidence"},
+                         "because": f"the word {cat['keyword']} in a signal detail or the industry text" if cat["category"] else "no public evidence"},
         "declared_dataset": eco_reading(conn, key, fw),
         "investment_dimensions": [{"name": d["name"], "evidence_count": d["n"], "note": d["note"],
                                    "evidence": [{"source_url": e.get("url"), "source_label": e.get("label"), "date": e.get("date_label")}

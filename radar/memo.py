@@ -142,8 +142,15 @@ def _impact(conn, ctx: dict, key: str, spec: dict) -> dict:
         ev = cat.get("evidence") or {}
         url = ev.get("url") or (ctx["c"].get("source_url") if cat.get("industry") else None)
         if url:
-            return {"band": spec["category_band"], "text": f"works in the '{cat['category']}' category (keyword '{cat['keyword']}')", "url": url}
+            return {"band": spec["category_band"], "text": f"works in the {cat['category']} category (matched on the word {cat['keyword']})", "url": url}
     return {"band": UNKNOWN, "text": None, "url": None}
+
+
+def medium_code(code, spec: dict) -> bool:
+    """True when the industry code belongs to a family in `memo.bands.fit.medium_codes` (a code prefix from the sector file; a dot is
+    ignored, so the NACE spelling 36.00 and the stored 36000 are the same family)."""
+    c = str(code or "").replace(".", "").strip()
+    return bool(c) and any(c.startswith(str(f).replace(".", "").strip()) for f in spec.get("medium_codes") or [] if str(f).strip())
 
 
 def _fit(conn, ctx: dict, thesis: dict, spec: dict) -> dict:
@@ -164,9 +171,12 @@ def _fit(conn, ctx: dict, thesis: dict, spec: dict) -> dict:
         shared = ("industry_code", "line_of_business", "corroborated_keyword")
         bullets.append({"text": ex["why"].removeprefix("Why: "),
                         "url": c.get("source_url") if reasons[0] in shared else (own[0]["source_url"] if own else c.get("source_url"))})
-    if any(r in reasons for r in spec.get("high", [])):
+    # A code in a `medium_codes` family (D22) is a sector match, not a High fit on the code alone: it counts as Medium. A reason of the
+    # source's own text still lifts the fit to High; a corroborated name word or the line of business is Medium anyway.
+    code_medium = "industry_code" in reasons and medium_code(c.get("industry_code"), spec)
+    if any(r in reasons for r in spec.get("high", []) if not (r == "industry_code" and code_medium)):
         b = "High"
-    elif any(r in reasons for r in spec.get("medium", [])):
+    elif code_medium or any(r in reasons for r in spec.get("medium", [])):
         b = "Medium"
     elif fit_mod.matched_keywords(c.get("name"), thesis) and c.get("source_url"):
         b = "Low"

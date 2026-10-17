@@ -96,9 +96,15 @@ def _sentence(*parts: str) -> str:
     return (body[:1].upper() + body[1:] + ".") if body else ""
 
 
-def _caps_phrase(codes) -> str:
+def cap_names(codes) -> list[str]:
+    """Capability codes as the dataset's own labels, in code order. A code the dataset does not label is left out: a reader is never
+    shown a bare code like "C3" (D24)."""
     labels = _cap_labels()
-    return plain_list(f"{c} {labels[c]}" if c in labels else f"capability {c}" for c in sorted(codes, key=lambda c: int(c[1:])))
+    return [labels[c] for c in sorted(codes, key=lambda c: int(c[1:])) if c in labels]
+
+
+def _caps_phrase(codes) -> str:
+    return plain_list(cap_names(codes)) or "a shared capability"
 
 
 _STAGE_WORDS = {"idea": "idea", "pre_seed": "pre-seed", "seed": "seed", "series_a": "Series A", "series_b_plus": "Series B and later",

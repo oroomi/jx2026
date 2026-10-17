@@ -61,6 +61,7 @@ memo:
     fit:                          # thesis fit from the feed rule's reasons; name-only = Low, no reason = unknown
       high: [industry_code, own_text]
       medium: [line_of_business, corroborated_keyword]
+      medium_codes: []                 # code families whose code match is Medium, not High (none in this thesis; see thesis.yaml, D22)
       declared_member_band: Medium     # a declared cohort or portfolio company has at least this fit (it was selected for the programme)
   decisions:
     source: "The team's decision table (pass 1: exact match on all four, first match wins; pass 2: the team's condition rules; otherwise WATCHLIST). Level mapping to Low / Medium / High is the chief's configuration."

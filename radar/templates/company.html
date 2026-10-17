@@ -59,7 +59,7 @@
   {% for label, r in (("Technology (TRL)", fw.trl), ("Business (BRL)", fw.brl), ("Investment", fw.irl)) %}
     {% if r.level %}{% set _ = ks.append({"label": label, "value": r.level ~ " / 9", "source_url": (r.evidence[0].evidence.url if r.evidence else none)}) %}{% endif %}
   {% endfor %}
-  {% if fw.category.category %}{% set _ = ks.append({"label": "Ocean impact", "value": fw.category.category, "source_url": none}) %}{% endif %}
+  {% if fw.category.category %}{% set _ = ks.append({"label": "Ocean impact", "value": (m.levels.impact.band if m and m.levels.impact.band in ["Low", "Medium", "High"] else none), "source_url": none}) %}{% endif %}
   {% if c.founded %}{% set _ = ks.append({"label": "Founded", "value": c.founded[:4], "source_url": c.source_url}) %}{% endif %}
   {% set _ = ks.append({"label": "Business ID", "value": c.y_tunnus or c.company_key, "source_url": c.source_url}) %}
   {% if sig_asc %}{% set _ = ks.append({"label": "First public record", "value": sig_asc[0].date_label or sig_asc[0].date, "source_url": sig_asc[0].source_url}) %}

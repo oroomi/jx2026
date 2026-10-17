@@ -3,6 +3,7 @@ Potential dimensions, Ocean Impact Readiness (Ocean Impact Navigator), and the c
 Every level is a printed evidence-class rule, never a judgement: no signal in a class means no level (None)."""
 from __future__ import annotations
 
+import re
 from datetime import date as _date
 from pathlib import Path
 
@@ -85,18 +86,26 @@ def mapping_rows(mapping):
     return [{"level": lv, "rule": text} for lv, text, _ in mapping]
 
 
+def whole_word(text: str, stem: str) -> str:
+    """The whole word in `text` that holds the category hint `stem` ("aquacultur" -> "aquaculture"). The hints in frameworks.yaml are
+    word stems, so a reader must never see one: every reason prints the word as the record spells it (D24)."""
+    m = re.search(rf"\w*{re.escape(stem)}\w*", text or "")
+    return m.group(0) if m else stem
+
+
 def category(c: dict, sigs: list[dict]) -> dict:
-    """First Navigator-style category whose keyword appears in a signal detail or the industry description."""
+    """First Navigator-style category whose keyword appears in a signal detail or the industry description. `keyword` is the whole
+    word as the record spells it, not the stem hint that found it."""
     for cat, words in CATEGORIES.items():
         for s in sigs:
             text = (s.get("detail") or "").lower()
             hit = next((w for w in words if w in text), None)
             if hit:
-                return {"category": cat, "keyword": hit, "evidence": s["evidence"]}
+                return {"category": cat, "keyword": whole_word(text, hit), "evidence": s["evidence"]}
         ind = (c.get("industry_desc") or "").lower()
         hit = next((w for w in words if w in ind), None)
         if hit and c.get("source_url"):
-            return {"category": cat, "keyword": hit, "evidence": None, "industry": c.get("industry_desc")}
+            return {"category": cat, "keyword": whole_word(ind, hit), "evidence": None, "industry": c.get("industry_desc")}
     return {"category": None, "keyword": None, "evidence": None}
 
 

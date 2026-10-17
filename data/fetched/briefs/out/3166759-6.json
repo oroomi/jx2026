@@ -1,0 +1,45 @@
+{
+ "company_key": "3166759-6",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Arctic Fry Oy is a cohort company registered on 2020-10-23 under the industry code 03220, freshwater aquaculture.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   ]
+  },
+  {
+   "text": "The tax register shows first sales on 2020-10-05 and a first hire on 2025-04-01.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3166759-6",
+    "https://tietopalvelu.ytj.fi/yritys/3166759-6"
+   ]
+  },
+  {
+   "text": "The company-register shows eight board changes since 2023-02-01, the latest on 2026-06-03.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6"
+   ]
+  },
+  {
+   "text": "A programme-entry record dated 2026-02-09 sits on the apelago.fi site.",
+   "cites": [
+    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/"
+   ]
+  },
+  {
+   "text": "No funding, EU project or public contract record is on file, so investment and technology readiness are unknown.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case, and the next evidence to look for is a first public funding or customer record.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   ]
+  }
+ ]
+}

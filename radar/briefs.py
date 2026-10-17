@@ -151,6 +151,8 @@ def _strings(obj):
     elif isinstance(obj, (list, tuple)):
         for v in obj:
             yield from _strings(v)
+    elif isinstance(obj, float) and obj.is_integer():
+        yield str(int(obj))
     elif isinstance(obj, (int, float)) and not isinstance(obj, bool):
         yield str(obj)
 
@@ -224,7 +226,7 @@ def verify_sentence(sent: dict, facts: Facts, thesis: dict | None = None) -> str
             return f"capitalised word not in the export (possible name): {w}"
     for a, b in zip(toks, toks[1:]):
         if b.start() - a.end() == 1:
-            if thesis is not None and a.group() not in GENERIC and b.group() not in GENERIC \
+            if thesis is not None and (a.group() not in facts.caps or b.group() not in facts.caps) and a.group() not in GENERIC and b.group() not in GENERIC \
                     and fit_mod.looks_like_person(f"{a.group()} {b.group()} Holding Oy", thesis):
                 return f"person-shaped name: {a.group()} {b.group()}"
             if a.group() not in facts.caps or b.group() not in facts.caps:

@@ -1,0 +1,46 @@
+{
+ "company_key": "3197621-7",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Sub Marine Store Oy is a cohort company registered on 2021-03-15 under the industry code 46900, non-specialised wholesale trade.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7"
+   ]
+  },
+  {
+   "text": "Business Finland shows a funding decision for 2026 of EUR 99 450, but the export gives the year only, not a day.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "A programme-entry record is dated 2026-02-09, and first sales are recorded on 2021-03-15.",
+   "cites": [
+    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+    "https://tietopalvelu.ytj.fi/yritys/3197621-7"
+   ]
+  },
+  {
+   "text": "On the radar's rules the technology and business levels are both 4 and the investment level is 3, all resting on that public funding.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "The registered industry is wholesale trade, so ocean impact cannot be read from the record and stays unknown.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case until the impact side can be shown from a public source.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3197621-7"
+   ]
+  }
+ ]
+}

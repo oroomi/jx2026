@@ -1,0 +1,46 @@
+{
+ "company_key": "3380111-1",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Taikoa Oy is a cohort company registered on 2023-07-28 under the industry code 70200, management consultancy activities.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3380111-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3380111-1"
+   ]
+  },
+  {
+   "text": "Business Finland shows a funding decision for 2026 of EUR 60 000; the export gives the year only.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "The register also holds a start-up notification dated 2023-08-10 and a board change dated 2025-11-20.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3380111-1",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3380111-1"
+   ]
+  },
+  {
+   "text": "Technology and business readiness both read level 4 and investment readiness reads level 3 on the radar's rules, based on that funding.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "The registered industry is consultancy and no ocean category is found in the record, so impact is unknown.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3380111-1"
+   ]
+  },
+  {
+   "text": "For the fund this stays on the watchlist.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3380111-1"
+   ]
+  }
+ ]
+}

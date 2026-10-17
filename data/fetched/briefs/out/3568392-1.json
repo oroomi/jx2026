@@ -1,0 +1,39 @@
+{
+ "company_key": "3568392-1",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Sireness Oy is a cohort company registered on 2025-09-29 under the industry code 72100, research and experimental development.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   ]
+  },
+  {
+   "text": "A grant or public funding record of EUR 70 000 is dated 2025-04-30, which is earlier than the registration date, and the record does not say how the two relate.",
+   "cites": [
+    "https://www.alandsbanken.fi/news/alandsbankenin_itameriprojekti_jakaa_550_000_euroa_itameren_tilaa/pdf",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   ]
+  },
+  {
+   "text": "The register shows a start-up notification dated 2025-10-08, and a programme-entry record is dated 2026-02-09.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3568392-1",
+    "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/"
+   ]
+  },
+  {
+   "text": "No EU project, Business Finland decision or public contract is on file, so investment readiness is unknown.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3568392-1"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case, and the funding record should be checked at its source before anyone relies on it.",
+   "cites": [
+    "https://www.alandsbanken.fi/news/alandsbankenin_itameriprojekti_jakaa_550_000_euroa_itameren_tilaa/pdf"
+   ]
+  }
+ ]
+}

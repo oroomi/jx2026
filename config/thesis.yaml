@@ -87,6 +87,191 @@ matching:
     - {name: "EIC Accelerator 2026 cut-off", date: "2026-11-04", trl_window: "TRL 6-8 (5 completed)", source: "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"}
     - {name: "Helsinki Blue Economy Studio by A'Pelago 2027", date: "2026-11-30", source: "https://www.apelago.fi/"}
 
+  # ---- Matchmaking (radar/matchmaker.py; PROJECT_RULES D22 to D24). Everything sector- or organisation-specific is here, never in code. ----
+  kinds:                         # counterpart kinds; `label` is printed, `role` says why a startup would meet it
+    investor:      {label: Investor, role: capital}
+    accelerator:   {label: Accelerator or incubator, role: support}
+    programme:     {label: Grant or loan programme, role: support}
+    funder:        {label: Public funder or foundation, role: support}
+    corporate:     {label: Corporate or public buyer, role: pilot partner}
+    port:          {label: Port, role: pilot partner}
+    cluster:       {label: Cluster, network or research programme, role: network}
+  kind_by_type:                  # the `type` column of the declared lists, and the ecosystem dataset's entity_type, mapped to a kind
+    vc: investor
+    angel: investor
+    corporate_vc: investor
+    equity: investor
+    investor_vc: investor
+    investor_angel: investor
+    investor_corporate: investor
+    public: funder
+    public_funder: funder
+    ngo_funder: funder
+    accelerator: accelerator
+    accelerator_incubator: accelerator
+    grant: programme
+    loan: programme
+    port: port
+    cluster_network: cluster
+    research: cluster
+    corporate: corporate
+    authority: corporate
+    public_buyer: corporate
+    water_utility: corporate
+    engine_tech: corporate
+    shipping: corporate
+    shipping_services: corporate
+    shipyard: corporate
+    engineering: corporate
+    water_chemicals: corporate
+    aquaculture: corporate
+    insurer: corporate
+    bank: corporate
+  path_kinds:                    # HARD FILTER 1: the verdict path of the startup (radar/memo.py decision) -> the kinds it is shown
+    ACCELERATOR: [accelerator, programme, funder]
+    GRANT SUPPORT: [accelerator, programme, funder]
+    DUE DILIGENCE: [investor]
+    INVEST: [investor]
+    PARTNER INTRODUCTION: [cluster]
+    WATCHLIST: [accelerator, programme, funder]
+    REJECT / LOW FIT: []
+  always_kinds: [corporate, port]  # every startup also sees these as pilot partners
+  regions:                       # HARD FILTER 2: words a counterpart's declared geography can use -> country codes ("*" = anywhere). Longest word first, matched once.
+    finland: [FI]
+    suomi: [FI]
+    turku: [FI]
+    helsinki: [FI]
+    southwest finland: [FI]
+    sweden: [SE]
+    norway: ["NO"]
+    denmark: [DK]
+    iceland: [IS]
+    estonia: [EE]
+    latvia: [LV]
+    lithuania: [LT]
+    germany: [DE]
+    poland: [PL]
+    nordic: [FI, SE, "NO", DK, IS]
+    nordics: [FI, SE, "NO", DK, IS]
+    baltics: [EE, LV, LT]
+    baltic sea: [FI, SE, DK, DE, PL, EE, LV, LT]
+    central baltic: [FI, EE, LV, SE]
+    northern europe: [FI, SE, "NO", DK, IS, EE, LV, LT]
+    europe: [AT, BE, BG, HR, CY, CZ, DK, EE, FI, FR, DE, GR, HU, IE, IT, LV, LT, LU, MT, NL, PL, PT, RO, SK, SI, ES, SE, "NO", IS, CH, GB]
+    eu: [AT, BE, BG, HR, CY, CZ, DK, EE, FI, FR, DE, GR, HU, IE, IT, LV, LT, LU, MT, NL, PL, PT, RO, SK, SI, ES, SE]
+    associated countries: ["NO", IS, CH, GB]
+    global: ["*"]
+    worldwide: ["*"]
+  weights: {sector: 3, lookalike: 3, keywords: 2, readiness: 2, timing: 1, geography: 1}   # a satisfied component adds its weight; the page shows the components, never the sum
+  topic_components: [sector, lookalike, keywords]   # a counterpart is listed only if at least one of these is satisfied (a place or a date alone is not a match)
+  agnostic_qualifies_by: [readiness]   # a counterpart whose declared text names no sector is listed when one of these holds instead (a grant open to any sector)
+  deadline_days: 90              # timing is satisfied when a stated deadline falls inside this many days
+  exclude_when_window_fails: true  # HARD FILTER 3: a stated TRL window or age limit that excludes the startup removes the counterpart
+  stem_len: 6                    # word stems: the first 6 letters of a longer word
+  min_word_len: 5                # shorter words are not raw shared-word evidence (keyword groups still read them)
+  family_digits: 3               # an industry family is the first 3 digits of the code (the NACE group)
+  min_shared_words: 2            # one shared word is a coincidence; two are evidence
+  max_startup_share: 0.01        # the same, over the startups' texts (register boilerplate such as 'activities' is in a third of them)
+  max_doc_share: 0.03            # a stem found in more than this share of the counterparts' texts is too common to be evidence
+  min_lookalike: 2               # members of a counterpart's declared cohort or portfolio that share the startup's industry group ...
+  min_lookalike_share: 0.15      # ... and at least this share of its declared companies in our records (one of twenty is a coincidence)
+  candidates: 300                # org view: how many cheap-ranked startups are fully profiled before the final order
+  tier_order: [cohort, portfolio, ecosystem, feed, intake]   # org view, equal reasons: a declared or thesis-evidenced company before a bare register entry
+  age_bands:                     # registration age, used for the lookalike and printed with it
+    - {id: young, label: under 3 years, max_years: 3}
+    - {id: early, label: 3 to 5 years, max_years: 6}
+    - {id: established, label: 6 years or more, max_years: 200}
+  text_signal_types: [eu_project, research_output, public_contract, site_customer, blueinvest, patent, job_ad]
+  grant_signal_types: [bf_funding, eu_project, eu_grant, public_funding, blueinvest]
+  pipeline_signal_types: [programme_entry, funding_round, equity_event, pilot_named, award]
+  revealed_groups:               # a declared group in cohort_portfolio_companies.csv -> the organisation that selected it (name start)
+    cohort: ["A'Pelago", "A'Pelago Nordic Blue Accelerator 2026"]
+    portfolio: ["Redstone Blue"]
+  org_aliases: {redstone: Redstone Blue}   # a name the ecosystem dataset's rounds use for a listed organisation
+  stop_words: [platform, smart, optimization, optimisation, optimizing, optimising, integrating, integrated, integrates, integration, results, result, revenue, acquired, acquisition, reports, report, being, annual, dated, retrieved, headcount, delivered, sources, status, started, after, professional, experts, attended, extended, agreements, largest, strongest, ranked, ranking, third, alternative, rather, expected, disclosed, chose, roles, recruited, functions, developer, builder, class, centre, material, series, intelligent, additional, continuously, continues, commercial, commercialise, commercialising, rapid, vision, pitch, public-safety, strong, redacted, footer, legal, matches, lists, participated, exhibiting, cohort, activities, development, design, building, buildings, facilities, processing, publishing, equipment, machinery, structural, electrical, testing, records, analysis, search, operator, supply, maintenance, special-purpose, general-purpose, registered, found, founded, support, sales, collection, production, planning, portfolio, handling, target, source, contribution, prepared, stated, components, distribution, control, office, initiative, countries, named, tools, since, staff, international, large, future, includes, collaborative, reporting, announced, listed, organization, direct, planned, early-stage, pre-seed, under, show, shows, maker, makers, launch, launched, amount, date, hankintatoimi, public-key-infrastructure, helsinki, turku, tampere, espoo, oulu, vantaa, about, across, also, and, are, based, been, both, build, builds, business, businesses, can, companies, company, from, have, help, helps, including, into, more, most, new, other, over, such, that, their, them, these, they, this, through, using, with, within, year, years, startup, startups, start, early, stage, growth, programme, programmes, program, funding, fund, funds, invest, invests, investment, investments, investor, investors, innovation, innovative, solution, solutions, service, services, technology, technologies, industry, industries, market, markets, product, products, partner, partners, partnership, team, teams, finland, finnish, nordic, nordics, europe, european, global, region, regional, national, first, open, close, closed, applications, application, call, calls, ja, on, ovat, että, joka, sekä, tai, ei, oy, ab, ltd, plc, group, oyj, korkea, yritys, yritykset, toiminta]
+  keyword_groups:                # the sector and impact vocabulary. `stems`: a word starts with a stem of 5+ letters, or equals a shorter one; a stem with a space is a phrase.
+    - id: ocean_data
+      label: ocean data and sensing
+      theme: marine_intelligence
+      capability: C4
+      category: ocean data
+      stems: [ocean data, oceanograph, hydrograph, bathymetr, remote sensing, satellite, sensor, sensing, monitoring, buoy, buoys, drone, drones, digital twin, imaging, sonar, hyperspectral, weather, mittaus, merikartoit, kaukokartoit, vesistömittaus, seuranta]
+    - id: aquaculture_bio
+      label: aquaculture and fisheries
+      theme: blue_bio_water
+      capability: C5
+      category: aquatech
+      stems: [aquacultur, aquatech, fish, fisher, salmon, shellfish, mussel, oyster, algae, seaweed, kelp, macroalgae, marine biotech, blue bio, bioeconom, protein, seafood, kalankasvat, kalastus, kalatalous, kala, levä, vesiviljely]
+    - id: water_treatment
+      label: water treatment and pollution
+      theme: blue_bio_water
+      capability: C6
+      category: water quality
+      stems: [water treat, water qualit, water purif, drinking water, wastewater, waste water, jätevesi, vedenpuhdist, vedenlaatu, microplastic, ballast, eutroph, nutrient, oil spill, pollution, remediation, sludge, desalinat, hydrolog]
+    - id: decarbonisation
+      label: maritime decarbonisation
+      theme: ocean_infra_clean_energy
+      capability: C3
+      category: emissions
+      stems: [decarbon, emission, hydrogen, ammonia, methanol, battery, batteries, electrif, fuel cell, shore power, energy efficien, wind-assist, wind assist, energy storage, clean energy, renewable, net zero, päästö, sähköist, vetyvoima, akku, energiatehok, hiilineutraal]
+    - id: autonomy_navigation
+      label: maritime autonomy and navigation
+      theme: maritime_port_tech
+      capability: C1
+      stems: [autonom, navigation, vessel, vessels, remote pilot, situational, route optimi, ship software, maritime software, voyage, fleet, traffic management]
+    - id: ship_design
+      label: ship design and propulsion
+      theme: maritime_port_tech
+      capability: C2
+      stems: [shipbuild, shipyard, ship design, naval architect, hull, propulsion, boat, boats, yacht, yachts, watercraft, ferry, ferries, icebreaker, telakka, laiva, vene, alus]
+    - id: ports_logistics
+      label: ports and logistics
+      theme: maritime_port_tech
+      capability: C7
+      stems: [port, ports, harbour, harbor, terminal, cargo, logistic, freight, supply chain, container, port call, shipping, satama, sataman, rahti, kuljetus]
+    - id: offshore_energy
+      label: offshore and marine energy
+      theme: ocean_infra_clean_energy
+      capability: C8
+      stems: [offshore, wind farm, wind power, wave energy, tidal, floating, marine renewable, ocean energy, marine construction, subsea cable, tuulivoima]
+    - id: safety_defence
+      label: marine safety and defence
+      theme: maritime_port_tech
+      capability: C9
+      stems: [defence, defense, security, arctic, icebreak, surveillance, search and rescue, dual-use, dual use, maritime safety, resilience, puolustus, turvallisuus, jäänmurto]
+    - id: tourism_boating
+      label: coastal tourism and boating
+      capability: C10
+      stems: [tourism, boating, marina, cruise, archipelago, leisure, matkailu, saaristo]
+    - id: climate_impact
+      label: climate and sustainability
+      theme: ocean_infra_clean_energy
+      stems: [climate, sustainab, circular, carbon, green transition, biodivers, conservation, restoration, nature, ilmasto, kestävä, vaikuttavuus, impact investing, esg]
+    - id: software_data
+      label: software and data
+      needs_structure: true
+      stems: [software, saas, analytics, machine learning, artificial intelligence, algorithm, ai, ohjelmisto, tekoäly]
+    - id: industrial_tech
+      label: hardware and deep tech
+      needs_structure: true
+      stems: [hardware, electronics, robot, robotics, automation, manufactur, deep tech, deeptech, photonics, laser, optics, valmistus]
+  code_groups:                   # industry-code family (prefix) -> keyword groups it is structural evidence for
+    "03": [aquaculture_bio]
+    "30": [ship_design]
+    "33": [ship_design]
+    "36": [water_treatment]
+    "37": [water_treatment]
+    "39": [water_treatment]
+    "50": [ports_logistics]
+    "52": [ports_logistics]
+    "26": [industrial_tech]
+    "27": [industrial_tech]
+    "28": [industrial_tech]
+    "29": [industrial_tech]
+    "582": [software_data]
+    "62": [software_data]
+    "63": [software_data]
+
 # Backtest: the 19 Nordic Blue 2026 cohort companies in data/declared/cohort_portfolio_companies.csv (group = cohort)
 backtest:
   cohort_group: cohort

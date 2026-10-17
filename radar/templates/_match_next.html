@@ -1,0 +1,26 @@
+{# Company page, "Next steps": the top three counterparts from radar.matchmaker, each with its reasons in words and its deadline.
+   One include line in company.html; the data comes from the template function match_next (radar/routes/match.py). #}
+{% from "_match_parts.html" import chips, why %}
+{% set mn = match_next(c.company_key) if match_next is defined else none %}
+{% if mn %}
+<link rel="stylesheet" href="/static/match.css?v={{ asset_v }}">
+<section class="cc-sec mn" aria-labelledby="mn-h">
+  <h2 id="mn-h" class="cc-h">Next steps</h2>
+  <p class="mn-lede">On the {{ mn.company.verdict | lower }} path this startup meets {{ mn.company.meets | map("lower") | join(", ") if mn.company.meets else "pilot partners only" }}{% if mn.company.meets %}, and pilot partners{% endif %}.
+    {% if mn.listed %}{{ mn.listed }} counterparts pass the filters; the three with the most reasons:{% else %}No counterpart passes the filters with a reason for this startup.{% endif %}</p>
+  {% if mn.counterparts %}
+  <ol class="mn-list">
+  {% for r in mn.counterparts %}
+    <li class="mn-item">
+      <p class="mn-head"><a class="mn-name" href="/match?org={{ r.id }}">{{ r.name }}</a> <span class="mn-kind">{{ r.kind_label }}</span>
+        {% if r.deadline %}<span class="mn-dl">deadline {{ r.deadline }}</span>{% elif r.deadline_text and r.kind in ("programme", "accelerator", "funder") %}<span class="mn-dl">{{ r.deadline_text }}</span>{% endif %}</p>
+      {{ chips(r.components) }}
+      {{ why(r.components, "Why") }}
+    </li>
+  {% endfor %}
+  </ol>
+  {% endif %}
+  {% if mn.connected %}<p class="mn-conn">Already connected: {% for k in mn.connected %}<a href="/match?org={{ k.id }}">{{ k.name }}</a> ({{ k.why }}){% if not loop.last %}; {% endif %}{% endfor %}.</p>{% endif %}
+  <p class="mn-more"><a href="/match?company={{ c.company_key }}">All counterparts for this startup, and the rules</a></p>
+</section>
+{% endif %}

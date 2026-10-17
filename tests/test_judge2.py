@@ -180,9 +180,7 @@ def test_capability_codes_become_their_labels():
     assert "Maritime decarbonisation and energy" in s and "Coastal tourism, boating and marine services" in s
     assert not re.search(r"\bC\d+\b", s)
     assert matching.cap_names(["C99"]) == [] and matching._caps_phrase(["C99"]) == "a shared capability"
-    from radar import aava
-    spoken = aava._reason("caps ['C3']; kw []; stage 1.0")
-    assert "Maritime decarbonisation and energy" in spoken and not re.search(r"\bC\d+\b", spoken)
+    # Aava's spoken answers are checked for bare capability ids in tests/test_aava.py (the conversational rewrite has no _reason).
 
 
 # ---- the rendered company pages: snapshot, and the live copy when one is named ----------------------------------------------
@@ -210,7 +208,7 @@ def _check_pages(client):
             assert not rx.search(page), (key, label, rx.search(page) and page[max(0, rx.search(page).start() - 80):rx.search(page).end() + 80])
         stat = _ocean_impact_stat(page)
         assert stat is None or stat in LEVEL_WORDS, (key, stat)
-    assert _ocean_impact_stat(_page_text(client, "3166759-6")) in LEVEL_WORDS  # Arctic Fry: a category is found, so the row is there
+    assert "Ocean Impact Assessment" in _page_text(client, "3166759-6")  # Arctic Fry: the ocean block replaces the key-statistic row (D27)
 
 
 @needs_snapshot

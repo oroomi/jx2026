@@ -134,7 +134,9 @@ def run(conn: sqlite3.Connection, thesis: dict, today: date | None = None, path=
         if data is None:
             return stats
     c = nordic.import_cohort(conn, data, NAME, REGISTER, COUNTRY)
-    r = nordic.import_rows(conn, thesis, data, NAME, REGISTER, COUNTRY, "no")
+    # live-window rows belong to a thesis that covers Norway; the cohort matches are imported for every thesis
+    r = (nordic.import_rows(conn, thesis, data, NAME, REGISTER, COUNTRY, "no") if COUNTRY in thesis_mod.countries(thesis)
+         else {"companies": 0, "signals": 0, "skipped": 0})
     stats.update(found=c["found"], not_found=c["not_found"], ambiguous=c["ambiguous"], companies=r["companies"] + c["found"],
                  signals=c["signals"] + r["signals"], skipped=r["skipped"])
     return stats

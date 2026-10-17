@@ -229,3 +229,15 @@ def test_declared_number_naming_another_company_is_ambiguous_not_chosen(tmp_path
     monkeypatch.setattr(cvr, "fetch", lambda params, client=None: cvr_answer(43880322, "Something Else ApS"))
     res = cvr.run(conn, BALTIC, path=tmp_path / "c.json")
     assert res["ambiguous"] == 1 and res["found"] == 0 and conn.execute("SELECT COUNT(*) FROM signals").fetchone()[0] == 0
+
+
+def test_committed_json_imports_live_rows_only_into_a_thesis_that_covers_norway(tmp_path, monkeypatch):
+    conn = store_with(tmp_path, ("no-fixture-sea", "Fixture Sea", "NO", "cohort"))
+    monkeypatch.setattr(brreg, "cached_get", lambda adapter, url, **kw: (page(unit("999000001", "Fixture Sea AS", code="10.890")), False))
+    path = tmp_path / "brreg.json"
+    brreg.run(conn, BALTIC, today=TODAY, path=path)
+    finland_only = db.connect(tmp_path / "fi.sqlite")
+    emit.upsert_company(finland_only, company_key="no-fixture-sea", name="Fixture Sea", country="NO", group_tag="cohort", source_url="https://example.test/d")
+    res = brreg.run(finland_only, thesis.load("config/thesis.yaml"), path=path, offline=True)
+    assert res["found"] == 1 and res["companies"] == 1  # the cohort match only, no Norwegian feed companies in a Finland-only thesis
+    assert finland_only.execute("SELECT COUNT(*) FROM companies WHERE group_tag='feed'").fetchone()[0] == 0

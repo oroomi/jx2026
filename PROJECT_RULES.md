@@ -18,6 +18,7 @@ How the register is used:
 - An answer becomes the next D number.
 - Every change-log entry cites an A or D id (A32).
 - `python3 -m radar.consistency` checks the stores against this file before delivery.
+- `python3 -m radar.rules_pdf` renders this file as the "Assumptions & Decisions" chapter, `docs/method/assumptions_and_decisions.pdf`.
 
 This file is re-issued after every question batch.
 
@@ -124,17 +125,7 @@ and `git log`. Times are UTC commit times. Counts are the ones the repo states; 
 **A32. Every rule-driven change is logged with its rule.** A tool that changes records under a rule appends an entry to `provenance` citing the A or D id, with the records affected; a dated decision is recorded with its commit and the counts the repo states. An entry citing an id that is not in this file fails the consistency check.
 *Example:* each `radar.candidates build` run logs an A1 entry with its row and conflict counts. *Where:* `radar/provenance.py`; `radar/schema/061_provenance.sql`.
 
-**A33. Nothing is delivered until the consistency check passes.** Before a ZIP, a deploy or a store swap, `python3 -m radar.consistency` runs read-only over each store and every check prints PASS:
-- no PENDING_DECISION on an applied value;
-- every signal's confidence is what its adapter's rule gives;
-- every signal type and source has a label;
-- every date is ISO 8601 with a precision;
-- every Business ID has a valid check digit;
-- every country code is ISO 3166-1 alpha-2;
-- every amount is EUR;
-- every provenance entry cites an id in this file.
-
-A FAIL is fixed or asked, never waived.
+**A33. Nothing is delivered until the consistency check passes.** Before a ZIP, a deploy or a store swap, `python3 -m radar.consistency` runs read-only over each store and all eight checks print PASS: no PENDING_DECISION on an applied value; every signal's confidence is what its adapter's rule gives; every signal type and source has a label; every date is ISO 8601 with a precision; every Business ID has a valid check digit; every country code is ISO 3166-1 alpha-2; every amount is EUR; every provenance entry cites an id in this file. A FAIL is fixed or asked, never waived.
 *Example:* the blue and health snapshot copies pass 8 of 8 (17 Oct). *Where:* `radar/consistency.py`; `tests/test_consistency.py`.
 
 ## D. Decisions

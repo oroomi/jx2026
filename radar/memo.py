@@ -350,7 +350,7 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
            "table_source": cfg["source"], "needs": [labels.get(d, d) for d in needed],
            "dimensions": dimensions_line(ctx["fw"]), "fallback_blocked": blocked}
     if row and row.get("kind") == "fallback":
-        rec["note"] = (f"No measured impact on record; thesis fit is High, so impact is read as {row['implied_impact']}, implied by the "
+        rec["note"] = (f"Impact not yet measured; thesis fit is High, so impact is read as {row['implied_impact']}, implied by the "
                        f"sector, and fallback {row['id']} of the decision rules applies.")
     if row is None:
         why_blocked = f" ({cfg['fallback'].get('blocked_note') or 'the fallback gate is not met'})" if blocked else ""

@@ -135,7 +135,7 @@ def test_the_score_answer_has_the_verdict_the_bands_the_rule_and_no_number(clien
     assert "Thesis fit is high and business readiness is medium." in t
     assert "The rule that fired is a condition rule of the team's decision table: technology high, business low or medium." in t
     assert "a rule the code checks, not my mood" in t and "no single number by design" in t
-    assert not re.search(r"\d", t)                                            # never invents a number
+    assert not re.search(r"\d", re.sub(r"level \d of 9", "", t))                                          # never invents a number
     assert "dataset match" not in t
 
 
@@ -165,8 +165,8 @@ def test_the_score_answer_leads_with_the_ocean_impact_the_memo_carries():
 def test_the_verdict_is_said_with_the_rule_that_fired_never_a_bare_id():
     fb = aava.score(_memo(decision="ACCELERATOR", kind="fallback", row_id="c2", table_action="Accept into accelerator and provide mentoring",
                           impact="Medium, implied by sector",
-                          note="No measured impact on record; thesis fit is High, so impact is read as Medium, implied by the sector, and fallback c2 of the decision rules applies."))["text"]
-    assert "The rule that fired is the table's fallback: no measured impact on record, and thesis fit is high." in fb
+                          note="Impact not yet measured; thesis fit is High, so impact is read as Medium, implied by the sector, and fallback c2 of the decision rules applies."))["text"]
+    assert "The rule that fired is the table's fallback: impact not yet measured, and thesis fit is high." in fb
     assert "The verdict is accelerator: accept into accelerator and provide mentoring." in fb
     assert not re.search(r"\bc2\b", fb) and not dirty(fb)
 

@@ -74,7 +74,7 @@
     </div>
     <div class="oi-sec oi-level">
       <p class="oi-k">{{ ir.label or "Ocean Impact Readiness" }}</p>
-      {% if lv %}<p class="oi-big oi-lv">level {{ lv }} of {{ oi.level_max }}{% if oi.band %} <span class="oi-band oi-band-{{ oi.band | lower }}">{{ oi.band }}</span>{% endif %}</p>{% else %}
+      {% if lv %}<p class="oi-big oi-lv">level {{ lv }} of {{ oi.level_max }}{% if oi.band %} <span class="oi-band oi-band-{{ oi.band | lower }}">{{ oi.band }}</span>{% else %} <span class="oi-band oi-band-gap">not yet evidenced</span>{% endif %}</p>{% else %}
       <p class="oi-big oi-lv">{{ missing("no level on record") }}{% if oi.band %} <span class="oi-band oi-band-{{ oi.band | lower }}">{{ oi.band }}</span>{% endif %}</p>{% endif %}
       <ol class="oi-steps" role="img" aria-label="{{ ('Level ' ~ lv ~ ' of ' ~ oi.level_max) if lv else 'No level on record' }}">
         {% for i in range(1, oi.level_max + 1) %}<li class="{{ 'on' if lv and i <= lv else '' }}{{ ' cur' if lv and i == lv else '' }}"></li>{% endfor %}

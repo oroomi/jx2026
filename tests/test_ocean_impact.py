@@ -75,7 +75,7 @@ def test_the_shape_is_always_complete(world):
         assert tuple(d) == ocean_impact.SHAPE, k
         assert isinstance(d["evidence"], list) and set(d["scalability"]) == {"text", "basis"} and d["level_max"] == 9
         assert d["confidence"] in ("high", "medium", "low") and d["confidence_reason"] and d["level_rule"] and isinstance(d["raise"], str)
-        assert d["band"] in (None, "Low", "Medium", "High") and (d["band"] is None) == (d["level"] is None)
+        assert d["band"] in (None, "Low", "Medium", "High") and (d["level"] is not None or d["band"] is None) and (d["band"] is not None or d["level"] is None or d["level"] < 3)
         assert all(set(e) == {"text", "date", "source_label", "url", "family"} for e in d["evidence"])
     blank = ocean_impact.empty(th["impact_readiness"])        # and when the thesis defines nothing
     assert tuple(blank) == ocean_impact.SHAPE and blank["level"] is None and blank["area"] is None
@@ -87,7 +87,7 @@ def test_four_companies_span_the_ladder(world):
     assert none["area"] is None and none["level"] is None and none["band"] is None and none["confidence"] == "low"
     assert "No rung applies" in none["level_rule"] and none["scalability"] == {"text": "not assessed from public records", "basis": None}
     one = _oi(world, "9300002-1")
-    assert one["level"] == 1 and one["band"] == "Low" and one["confidence"] == "low" and one["area_basis"] == "industry code family"
+    assert one["level"] == 1 and one["band"] is None and one["confidence"] == "low" and one["area_basis"] == "industry code family"
     assert one["area"] == "Sustainable ocean resources: aquaculture and fisheries"
     three = _oi(world, "9300003-1")
     assert three["level"] == 3 and three["band"] == "Medium" and three["confidence"] == "medium" and three["area_basis"] == "own text"

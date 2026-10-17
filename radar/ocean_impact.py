@@ -233,6 +233,8 @@ def _band(level: int | None, cfg: dict) -> str | None:
     if level is None:
         return None
     spec = cfg.get("bands") or {}
+    if level < spec.get("evidenced_min", 1):
+        return None  # sector-implied only: a gap to investigate, never a low score (A'Pelago guidance, D-rule in PROJECT_RULES.md)
     if level <= spec.get("low_max", 2):
         return "Low"
     return "High" if level >= spec.get("high_min", 7) else "Medium"

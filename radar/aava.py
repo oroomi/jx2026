@@ -417,7 +417,7 @@ def _ocean_words(memo: dict, bands: dict) -> str:
         conf = oi.get("confidence")
         conf = conf.strip().lower() if isinstance(conf, str) and re.fullmatch(r"[A-Za-z ]+", conf.strip()) else ""
         if isinstance(level, int) and not isinstance(level, bool):
-            rating = f"level {level} of {_LEVEL_OF}"
+            rating = f"level {level} of {_LEVEL_OF}" + ("" if oi.get("band") else ", not yet evidenced")
         elif band and band != UNKNOWN:
             rating = f"the {_words(band)} band, with no level on record"
         else:

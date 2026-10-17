@@ -1,6 +1,6 @@
 # Evaluation
 
-Every rule and dated decision behind these numbers: [ASSUMPTIONS.md](ASSUMPTIONS.md).
+Every rule and dated decision behind these numbers: [PROJECT_RULES.md](PROJECT_RULES.md) (assumptions, decisions, taxonomy, formats; it folds in ASSUMPTIONS.md with the same ids).
 
 **Headline, measured on the live site: 0 of 19.** Applying its own feed rule to live public records, the radar would have shown
 0 of the 19 Nordic Blue 2026 cohort companies before January 2026. With declared

@@ -401,7 +401,7 @@ def _selftest(question: str, dry: bool, thesis_id: str | None) -> int:
         return 0
     if not available():
         print("BLOCKED: ANTHROPIC_API_KEY is not set in the environment (or the anthropic package is missing), so no turn was run. Put the key in the service's "
-              "EnvironmentFile (/root/hack/jx2026/.env) and export it for this shell to run the selftest.", file=sys.stderr)
+              "EnvironmentFile (unit hack-jx2026) and export it in this shell to run the selftest.", file=sys.stderr)
         return EXIT_BLOCKED
     turn = Turn(msgs, th, s=s)
     first = None

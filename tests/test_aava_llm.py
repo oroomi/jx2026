@@ -403,3 +403,24 @@ def test_the_system_prompt_states_the_rules_the_owner_set():
     p = aava_llm.system_prompt()
     for phrase in ("not a FAQ bot", "Never invent", "Missing information is not a low score", "Companies and organisations only", "what to do next", "suggest_followups"):
         assert phrase in p
+
+
+# ---- the selftest CLI -----------------------------------------------------------------------------------------------------------------
+def test_selftest_dry_run_makes_no_call_and_without_a_key_it_is_blocked(th, capsys):
+    assert aava_llm.main(["selftest", "Which Finnish aquaculture startups should A'Pelago meet?", "--dry-run"]) == 0
+    out = capsys.readouterr().out
+    assert "model claude-sonnet-5-5" in out and "DRY RUN" in out and "search_startups" in out
+    assert aava_llm.main(["selftest", "hello"]) == aava_llm.EXIT_BLOCKED
+    assert "BLOCKED: ANTHROPIC_API_KEY is not set" in capsys.readouterr().err
+
+
+def test_selftest_runs_one_turn_and_prints_answer_tool_calls_latency_and_tokens(th, monkeypatch, capsys):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-ant-test")
+    fake = FakeClient([call(thinking=True, tools=[("search_startups", {"text": "viva"})], usage=(3000, 600, 2400, 0)),
+                       call(text=f"Open [Viva Jets Oy](/c/{VIVA}) first.", usage=(3800, 200, 0, 2400))])
+    monkeypatch.setattr(aava_llm, "make_client", lambda s: fake)
+    assert aava_llm.main(["selftest", "Which Finnish aquaculture startups should A'Pelago meet?"]) == 0
+    out = capsys.readouterr().out
+    assert "--- answer ---" in out and f"[Viva Jets Oy](/c/{VIVA})" in out and "--- tool calls ---" in out
+    assert "search_startups" in out and "latency" in out and "tokens in 6800 out 800 cache write 2400 read 2400" in out and "cost ~$" in out
+    assert "sk-ant-test" not in out

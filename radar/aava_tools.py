@@ -16,6 +16,7 @@ import logging
 import threading
 import time
 from datetime import date
+from urllib.parse import urlparse
 
 from radar.aava_entities import urls_in
 from radar import fit as fit_mod, home_config, home_filter, home_list, matchmaker, matchmaker_orgs as orgs_mod, matchtext, memo as memo_mod, store
@@ -107,8 +108,10 @@ def source_lines(ctx: ToolContext, keys: list[str], text: str, per: int = 4) -> 
     site) and each organisation the answer names (its declared page). Every address comes from a tool result, none from the model."""
     out = []
     for k in keys:
-        links = ctx.sources.get(k) or [("The radar's record", f"/c/{k}")]
-        out.append({"name": ctx.seen.get(k, k), "links": [{"label": lb, "url": u} for lb, u in links[:per]]})
+        links = (ctx.sources.get(k) or [("The radar's record", f"/c/{k}")])[:per]
+        counts = {lb: sum(1 for x, _ in links if x == lb) for lb, _ in links}
+        shown = [{"label": lb if counts[lb] == 1 else f"{lb} ({urlparse(u).hostname or 'link'})", "url": u} for lb, u in links]
+        out.append({"name": ctx.seen.get(k, k), "links": shown})
     for oid, name in ctx.seen_orgs.items():
         if name in text and ctx.org_sources.get(oid):
             out.append({"name": name, "links": [{"label": "Declared page", "url": ctx.org_sources[oid]}]})

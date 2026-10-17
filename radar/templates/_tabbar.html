@@ -6,20 +6,22 @@
   is already on screen; see radar/static/c_components.css.
 
   `current` is the active key: radar | search | lists | backtest | data.
+  Lists opens /radar (the cohort and portfolio lists); there is no separate /lists route.
+  `li_class` names the items when the bar sits on a page whose own lists are counted (base.html passes c-tab).
   Icons are inline strokes in currentColor. No emoji, per the slop list in CLAUDE.md.
 #}
-{%- macro tabbar(current='radar') -%}
+{%- macro tabbar(current='radar', li_class='') -%}
 {%- set tabs = [
   ('radar',    'Radar',    '/',         'circles'),
   ('search',   'Search',   '/search',   'glass'),
-  ('lists',    'Lists',    '/lists',    'rows'),
+  ('lists',    'Lists',    '/radar',    'rows'),
   ('backtest', 'Backtest', '/backtest', 'bars'),
   ('data',     'Data',     '/data',     'grid')
 ] -%}
 <nav class="c-tabbar" aria-label="Sections">
   <ul>
     {%- for key, label, href, icon in tabs -%}
-    <li>
+    <li{% if li_class %} class="{{ li_class }}"{% endif %}>
       <a href="{{ href }}"{% if key == current %} aria-current="page"{% endif %}>
         <svg class="c-tab-icon" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"
              fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">

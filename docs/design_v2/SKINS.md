@@ -28,3 +28,13 @@ Linear, Raycast, Stripe, Mercury, The Pudding and the FT Visual Vocabulary were 
 
 ## Lifeline (folded into editorial only)
 The concept session's lifeline is in **editorial** only, because it suits that skin's calm, ruled pages best. On a company page it is a full-width strip under the header: every dated public record is a dot on one time axis from the first record to today, with year ticks only and the latest record larger in the accent. A dashed cohort-entry marker is drawn when `data/declared/cohort_entry_dates.csv` has the company (that file is absent today, so none shows). Home rows in editorial draw the same dots in place of the sparkline, so the mark is one identity across both pages. There is no motion, no axes beyond year ticks, and no chart chips. Terminal keeps its tape and product keeps its sparkline.
+
+## Phase 5, push 2: editorial on every page
+
+- `base.html` now loads `skins.css`, `site.css` (new, editorial site-wide rules) and `_skin_head.html` on every page, so `/method`, `/data`, `/radar`, `/backtest`, `/how`, search results, the 404 and error pages all share the editorial skin. `feed.html` and `company.html` no longer load them in their own heads.
+- Header: serif nameplate, small-caps section links with an accent underline on the current one, and the theme switch as a text control. On phones the header nav is hidden and the jx37 bottom tab bar (Radar / Search / Lists / Backtest / Data) takes over. Lists opens `/radar`, because there is no `/lists` route. Rules is linked from the footer.
+- Light theme: a paper-and-ink palette (`#F7F1E6` paper, `#1D1914` ink, `#A84B24` terracotta accent). No blue or teal. The favicon switched from teal to the editorial accent.
+- Backtest, following the FT pattern: the headline sentence (`#verdict`) above one chart, an in-chart annotation beside the reference line ("found earlier" or "found later"), and a source line under the chart (`#bt-source`).
+- Tables use ruled heads in small caps; empty states are a sentence on a rule; buttons are square ink.
+- The print memo prints ink on white, without the header, tab bar or footer, and shows each external link's URL.
+- Critique round (FT, The Pudding, Businessweek): fixed tab labels that were clipped (an app.css `nav` flex rule was squeezing the list), row headers in the /data table that had the column-head style, and a backtest annotation that collided with the first lane. Still open: on a phone the sector line takes three lines of the header.

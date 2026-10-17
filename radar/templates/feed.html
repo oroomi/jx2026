@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Early signals | Ocean Opportunity Radar{% endblock %}
-{% block head %}<link rel="stylesheet" href="/static/feed.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/c_components.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/home_c.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/skins.css?v={{ asset_v }}">
-{% include "_skin_head.html" %}{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/feed.css?v={{ asset_v }}"><link rel="stylesheet" href="/static/home_c.css?v={{ asset_v }}">
+{% endblock %}
 {% block content %}
 {% from "_c_components.html" import sparkline %}
 {% set H = home_list_for(thesis) if (q is none and home_list_for is defined) else none %}

@@ -298,3 +298,13 @@ def test_tts_streams_audio_strips_markdown_and_stops_at_the_daily_cap(client, mo
     aava_chat.limiter.reset()
     client.post("/api/aava/tts", json={"text": "Hi"}, headers=DEMO)
     assert "VoiceXYZ" in sent["url"]
+
+
+def test_a_turn_with_no_answer_ends_in_the_deterministic_one(client, monkeypatch):
+    """The model's last call writes nothing, twice: the visitor still gets an answer (the radar's own), never an empty box."""
+    with_key(monkeypatch, [call(tools=[("get_current_view", {})]), call(text=None), call(text="  ")])
+    ev = sse(chat(client, "Viva Jets"))
+    names = [e for e, _ in ev]
+    assert names.count("error") == 1 and dict(ev)["error"]["kind"] == "empty" and names[-1] == "done"
+    done = dict(ev)["done"]
+    assert done["fallback"] is True and done["text"].strip() and "".join(d["text"] for e, d in ev if e == "delta") == done["text"]

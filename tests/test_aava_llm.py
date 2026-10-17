@@ -447,7 +447,7 @@ def test_input_hygiene():
 def test_the_system_prompt_states_the_rules_the_owner_set():
     p = aava_llm.system_prompt()
     for phrase in ("not a FAQ bot", "Never invent", "Missing information is not a low score", "Companies and organisations only", "what to do next", "Follow-ups:", "Three short paragraphs and nothing else",
-                   "Write nothing between tool calls", 'subsector ["aquaculture_fisheries"]', "one concrete fact", "not yet evidenced"):
+                   "Write nothing between tool calls", "Do not infer it from its name or website address", 'subsector ["aquaculture_fisheries"]', "one concrete fact", "not yet evidenced"):
         assert phrase in p
 
 

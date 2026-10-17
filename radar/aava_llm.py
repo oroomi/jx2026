@@ -14,6 +14,8 @@ so they get thinking={"type": "adaptive"} and an effort level read from the budg
 rejects the thinking parameters for the model, the call is retried once without them, logged, and remembered for the process.
 
 The turn is a generator of events {"event", "data"}: status, delta, action, entities, followups, done, error. The SSE route is in radar/routes/aava_chat.py.
+Text is held until a model call ends: only the text of the call that ends the loop is the answer (D62); text beside a data tool is an interim note and is dropped.
+The first status ("looking at the radar") is sent at once; the answer arrives as one delta when the last call ends (about 5 s a turn on the live store).
 
 CLI:  python3 -m radar.aava_llm selftest "Which Finnish aquaculture startups should A'Pelago meet?" [--dry-run]
 """

@@ -1,0 +1,32 @@
+{
+ "company_key": "3636115-8",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Koukun Vesi osk is a company registered on 2026-06-26 under the industry code 36000, water collection, treatment and supply.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3636115-8",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3636115-8"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were both registered on 2026-09-18.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3636115-8",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3636115-8"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3636115-8"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is water supply, which is on the thesis list, but with no other record it is not yet visible as a venture.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3636115-8"
+   ]
+  }
+ ]
+}

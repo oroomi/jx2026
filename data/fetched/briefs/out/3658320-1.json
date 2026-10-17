@@ -1,0 +1,32 @@
+{
+ "company_key": "3658320-1",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Black Ocean Media Oy is a newly registered company, entered in the register on 2026-09-27 under the industry code 73112, other activities of advertising agencies.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658320-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658320-1"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were both registered on 2026-10-02.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3658320-1",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3658320-1"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658320-1"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name has an ocean word but the registered industry is advertising.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658320-1"
+   ]
+  }
+ ]
+}

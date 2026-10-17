@@ -1,0 +1,39 @@
+{
+ "company_key": "3657415-3",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "WW-Marine Power Oy is a newly registered company, entered in the register on 2026-09-23 under the industry code 43210, electrical installation.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657415-3",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657415-3"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were registered on 2026-09-30.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3657415-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3657415-3"
+   ]
+  },
+  {
+   "text": "The tax-register records give first sales on 2026-11-01 and a first hire on 2026-11-30, which are later than the date of this export.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3657415-3",
+    "https://tietopalvelu.ytj.fi/yritys/3657415-3"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657415-3"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name has a marine word but the registered industry is electrical installation.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657415-3"
+   ]
+  }
+ ]
+}

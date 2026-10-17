@@ -1,0 +1,34 @@
+{
+ "company_key": "3656103-7",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Hazero Oy is a newly registered company, entered in the register on 2026-09-17 under the industry code 39000, remediation activities and other waste management services.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656103-7",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656103-7"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-09-17 and a first hire on 2026-10-01, with a start-up notification and a board change registered on 2026-09-28.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3656103-7",
+    "https://tietopalvelu.ytj.fi/yritys/3656103-7",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3656103-7",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3656103-7"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file, and the register confidence for the entry is low.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656103-7"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the industry code is the only link to the thesis and the record does not show what the company does.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3656103-7"
+   ]
+  }
+ ]
+}

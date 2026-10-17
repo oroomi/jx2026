@@ -1,0 +1,32 @@
+{
+ "company_key": "3658267-1",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "300 Maritime Oy is a newly registered company, entered in the register on 2026-09-27 under the industry code 46180, agents in the wholesale of other particular products.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658267-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658267-1"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were both registered on 2026-10-02.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3658267-1",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3658267-1"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658267-1"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name contains a maritime word but the registered industry is wholesale agency work.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3658267-1"
+   ]
+  }
+ ]
+}

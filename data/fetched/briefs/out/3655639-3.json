@@ -1,0 +1,33 @@
+{
+ "company_key": "3655639-3",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Pollari Works Oy is a newly registered company, entered in the register on 2026-09-15 under the industry code 33150, repair and maintenance of civilian ships and boats.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655639-3",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655639-3"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-09-15, and a start-up notification and a board change were registered on 2026-09-24.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3655639-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3655639-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3655639-3"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file, and the register confidence for the entry is low.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655639-3"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is on the thesis list, but a new boat repair firm shows no technology or growth evidence yet.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655639-3"
+   ]
+  }
+ ]
+}

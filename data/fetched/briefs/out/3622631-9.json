@@ -1,0 +1,32 @@
+{
+ "company_key": "3622631-9",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Astrum Vene Turku Oy is a company registered on 2026-05-05 under the industry code 70100, activities of head offices.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622631-9",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622631-9"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were both registered on 2026-09-30.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3622631-9",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3622631-9"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622631-9"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the record shows a head-office company and nothing about its activity.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3622631-9"
+   ]
+  }
+ ]
+}

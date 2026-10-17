@@ -1,0 +1,32 @@
+{
+ "company_key": "3659772-6",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Marine Software Solutions Ab is a newly registered company, entered in the register on 2026-10-02 under the industry code 58290, other software publishing.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659772-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659772-6"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were both registered on 2026-10-14.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3659772-6",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3659772-6"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file, so only the first business level is read.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659772-6"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case, and the record does not yet show what the software does or whether it has an ocean use.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659772-6"
+   ]
+  }
+ ]
+}

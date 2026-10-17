@@ -1,0 +1,32 @@
+{
+ "company_key": "3661355-4",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Vuori Subsea Oy is a newly registered company, entered in the register on 2026-10-09 under the industry code 64210, activities of holding companies.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661355-4",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661355-4"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were both registered on 2026-10-11.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3661355-4",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3661355-4"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file, so only the first business level is read and the rest are unknown.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661355-4"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name suggests an ocean link but the registered industry is a holding company, and no public record yet shows what it does.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661355-4"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,34 @@
+{
+ "company_key": "3638597-7",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "AM Marine Service Oy Ab is a company registered on 2026-07-10 under the industry code 33150, repair and maintenance of civilian ships and boats.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3638597-7",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3638597-7"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were registered on 2026-07-13, and first sales and a first hire are recorded on 2026-09-01.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3638597-7",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3638597-7",
+    "https://tietopalvelu.ytj.fi/yritys/3638597-7",
+    "https://tietopalvelu.ytj.fi/yritys/3638597-7"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3638597-7"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is on the thesis list, but a boat repair service shows no technology or growth evidence yet.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3638597-7"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "company_key": "3652516-7",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Sillanpään Saaristo & Rannikkopalvelut Oy is a newly registered company, entered in the register on 2026-09-03 under the industry code 81300, landscape service activities.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652516-7",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652516-7"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-09-01, and a start-up notification and a board change were registered on 2026-09-14.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3652516-7",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3652516-7",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3652516-7"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652516-7"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name has archipelago and coastal words but the registered industry is landscape services.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652516-7"
+   ]
+  }
+ ]
+}

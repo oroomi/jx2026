@@ -1,0 +1,33 @@
+{
+ "company_key": "3660794-7",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Nostic Waters Oy is a newly registered company, entered in the register on 2026-10-07 under the industry code 47763, retail sale of pets and pet food.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3660794-7",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3660794-7"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-10-07, and a start-up notification and a board change were registered on 2026-10-08.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3660794-7",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3660794-7",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3660794-7"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3660794-7"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is pet retail and the record shows no ocean use.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3660794-7"
+   ]
+  }
+ ]
+}

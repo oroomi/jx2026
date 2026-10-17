@@ -1,0 +1,32 @@
+{
+ "company_key": "3661460-2",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Maatz rakennnus & kumppanit Oy is a newly registered company, entered in the register on 2026-10-09 under the industry code 39000, remediation activities and other waste management services.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661460-2",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661460-2"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were both registered on 2026-10-11.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3661460-2",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3661460-2"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file, and the register confidence for the entry is low.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661460-2"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case, and the industry code is the only link to the thesis.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3661460-2"
+   ]
+  }
+ ]
+}

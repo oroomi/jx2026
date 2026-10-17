@@ -1,0 +1,34 @@
+{
+ "company_key": "3609869-5",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Aaltoillen Kuntoutus Oy is a company registered on 2026-03-18 under the industry code 86990, other human health activities.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were registered on 2026-04-13, and first sales and a first hire are recorded on 2026-08-15.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3609869-5",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3609869-5",
+    "https://tietopalvelu.ytj.fi/yritys/3609869-5",
+    "https://tietopalvelu.ytj.fi/yritys/3609869-5"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name has a word that can mean waves in Finnish, but the registered industry is health activities and the record shows no ocean use.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3609869-5"
+   ]
+  }
+ ]
+}

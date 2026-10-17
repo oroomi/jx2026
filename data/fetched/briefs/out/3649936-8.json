@@ -1,0 +1,33 @@
+{
+ "company_key": "3649936-8",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Boat Services Finland Oy is a company registered on 2026-08-25 under the industry code 33150, repair and maintenance of civilian ships and boats.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-08-25, and a start-up notification and a board change were registered on 2026-08-28.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3649936-8",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649936-8",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649936-8"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is on the thesis list, but a new boat service firm shows no technology or growth evidence yet.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649936-8"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "company_key": "3657918-1",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Kustservice i Finland Ab Oy is a newly registered company, entered in the register on 2026-09-25 under the industry code 50200, sea and coastal freight water transport.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657918-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657918-1"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-10-01, and a start-up notification and a board change were registered on 2026-10-06.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3657918-1",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3657918-1",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3657918-1"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file, and the register confidence for the entry is low.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657918-1"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry fits the thesis, but nothing else on record shows technology or growth.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3657918-1"
+   ]
+  }
+ ]
+}

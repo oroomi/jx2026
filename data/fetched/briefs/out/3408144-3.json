@@ -1,0 +1,41 @@
+{
+ "company_key": "3408144-3",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Valavia Oy is a company registered on 2023-11-24 under the industry code 71121, engineering design and technical consultancy.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3408144-3",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3408144-3"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2023-11-24, a share issue was registered on 2026-09-22, and a first hire is recorded on 2026-08-24.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3408144-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3408144-3",
+    "https://tietopalvelu.ytj.fi/yritys/3408144-3"
+   ]
+  },
+  {
+   "text": "The register also shows a start-up notification dated 2023-11-27 and board changes dated 2025-10-03 and 2026-03-11.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3408144-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3408144-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3408144-3"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file, so only the first business level is read.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3408144-3"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the record shows an engineering consultancy and nothing about an ocean use.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3408144-3"
+   ]
+  }
+ ]
+}

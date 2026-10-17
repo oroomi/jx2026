@@ -1,0 +1,33 @@
+{
+ "company_key": "3655576-1",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Rannikon Rakennus & Remontti Oy is a newly registered company, entered in the register on 2026-09-15 under the industry code 41000, construction of buildings.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655576-1",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655576-1"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-09-15, and a start-up notification and a board change were registered on 2026-09-24.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3655576-1",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3655576-1",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3655576-1"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655576-1"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name has a coastal word but the registered industry is building construction.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3655576-1"
+   ]
+  }
+ ]
+}

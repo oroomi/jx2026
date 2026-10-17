@@ -1,0 +1,32 @@
+{
+ "company_key": "3649940-5",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "OUTrading Marine Oy is a company registered on 2026-08-25 under the industry code 46890, other specialised wholesale.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649940-5",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649940-5"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were both registered on 2026-08-28.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649940-5",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3649940-5"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649940-5"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name has a marine word but the registered industry is wholesale trade and the record shows no ocean use.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3649940-5"
+   ]
+  }
+ ]
+}

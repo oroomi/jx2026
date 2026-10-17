@@ -1,0 +1,32 @@
+{
+ "company_key": "3659133-2",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Satama Trading Oy is a newly registered company, entered in the register on 2026-09-30 under the industry code 46900, non-specialised wholesale trade.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659133-2",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659133-2"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were both registered on 2026-10-08.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3659133-2",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3659133-2"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659133-2"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name has a harbour word but the record shows no ocean use.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659133-2"
+   ]
+  }
+ ]
+}

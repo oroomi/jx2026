@@ -1,0 +1,32 @@
+{
+ "company_key": "3654269-6",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Runni Water Energy Oy is a newly registered company, entered in the register on 2026-09-10 under the industry code 28250, manufacture of non-domestic air conditioning equipment.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654269-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654269-6"
+   ]
+  },
+  {
+   "text": "A start-up notification and a board change were both registered on 2026-09-21.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3654269-6",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3654269-6"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654269-6"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the name has water and energy words, but the registered industry is air conditioning equipment and the record shows no ocean use.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3654269-6"
+   ]
+  }
+ ]
+}

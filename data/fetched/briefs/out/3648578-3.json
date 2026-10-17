@@ -1,0 +1,33 @@
+{
+ "company_key": "3648578-3",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Paattikiiltoon Oy is a company registered on 2026-08-20 under the industry code 33150, repair and maintenance of civilian ships and boats.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3648578-3",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3648578-3"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2026-08-20, and a start-up notification and a board change were registered on 2026-08-24.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3648578-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3648578-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3648578-3"
+   ]
+  },
+  {
+   "text": "No grant, EU project, public contract or funding record is on file.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3648578-3"
+   ]
+  },
+  {
+   "text": "For the fund this is a watchlist case: the registered industry is on the thesis list, but a new boat care firm shows no technology or growth evidence yet.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3648578-3"
+   ]
+  }
+ ]
+}

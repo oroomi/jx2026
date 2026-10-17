@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "key": "3166759-6",
+  "model": "eleven_multilingual_v2",
+  "voice_id": "21m00Tcm4TlvDq8ikWAM",
+  "output_format": "mp3_44100_64",
+  "segments": [
+    {
+      "n": 0,
+      "target": "aava-who",
+      "text_sha": "83575d26118a8997",
+      "file": "0_83575d26.mp3",
+      "chars": 446,
+      "duration_s": 32.627,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "brief"
+      ]
+    },
+    {
+      "n": 1,
+      "target": "memo",
+      "text_sha": "a2860fcf3f20603f",
+      "file": "1_a2860fcf.mp3",
+      "chars": 433,
+      "duration_s": 30.877,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "why"
+      ]
+    },
+    {
+      "n": 2,
+      "target": "signals",
+      "text_sha": "d24d8ad9bb47252c",
+      "file": "2_d24d8ad9.mp3",
+      "chars": 352,
+      "duration_s": 27.063,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "why"
+      ]
+    },
+    {
+      "n": 3,
+      "target": "q3",
+      "text_sha": "bea1fefa2b9e45e5",
+      "file": "3_bea1fefa.mp3",
+      "chars": 257,
+      "duration_s": 18.887,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "meet",
+        "talk"
+      ]
+    },
+    {
+      "n": 4,
+      "target": "q4",
+      "text_sha": "cb532e24828ba1e0",
+      "file": "4_cb532e24.mp3",
+      "chars": 210,
+      "duration_s": 17.032,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "next"
+      ]
+    },
+    {
+      "n": 5,
+      "target": "memo",
+      "text_sha": "1f06f2178675e1cd",
+      "file": "5_1f06f217.mp3",
+      "chars": 286,
+      "duration_s": 22.047,
+      "duration_source": "measured",
+      "rendered": true,
+      "thesis": "redstone_apelago_blue",
+      "intents": [
+        "missing"
+      ]
+    }
+  ]
+}

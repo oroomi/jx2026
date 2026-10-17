@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sonar, cohort earliness</title>
+<style>:root{--bg:#0B0F14;--surface:#121820;--text:#E8EDF2;--muted:#9AA7B4;--accent:#4FD1B5;--hairline:#232C37;
+--serif:Newsreader,"Iowan Old Style",Georgia,serif;--sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme:light){:root{--bg:#F6F4EF;--surface:#FFF;--text:#14181D;--muted:#5A6470;--accent:#0B6B5C;--hairline:#D9D5CB}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums}
+main{max-width:1180px;margin:0 auto;padding:40px 24px 64px}
+h1{font-family:var(--serif);font-weight:500;font-size:30px;line-height:1.2;margin:0 0 10px}
+p.answer{font-family:var(--serif);font-size:22px;line-height:1.35;margin:0 0 18px;max-width:46em}
+p.meta{color:var(--muted);font-size:13px;margin:0 0 22px;max-width:60em}
+a{color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:18px;margin:0 0 20px}
+.chip{display:inline-block;border:1px solid var(--hairline);border-radius:999px;padding:2px 9px;font-size:11.5px;color:var(--muted);background:var(--surface);margin:0 6px 6px 0}
+.legend{font-size:13px;color:var(--muted);margin:14px 0 0;max-width:62em}
+.legend b{color:var(--text);font-weight:600}
+.keyrow{display:flex;flex-wrap:wrap;gap:14px;margin:12px 0 0;font-size:12.5px;color:var(--muted)}
+.keyrow span{display:flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
+svg{display:block;width:100%;height:auto}
+.narrow{display:none}
+@media (max-width:760px){main{padding:24px 16px 48px}h1{font-size:23px}p.answer{font-size:18px}.wide{display:none}.narrow{display:block}}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--hairline);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+td.num{text-align:right}.scroll{overflow-x:auto}
+</style>
+</head><body>
+<main>
+<h1>Sonar: distance from the centre is how early we saw them</h1>
+<p class="answer">The sweep is empty where it matters. Not one of the 19 cohort companies sits out
+in the rings as a company the rule would have found before the programme began, and 11 hold no
+public record at all.</p>
+<p class="meta">The centre is cohort entry, 2026-01-01, the programme start month declared by the
+team, not a published entry date. A blip's distance out is the whole months between the signal it
+stands for and that date. A filled blip is the signal the thesis rule counts; an outline is a stored
+record the rule does not admit. Where the rule counts a later signal, the blip sits on that signal,
+not on an earlier rejected record.</p>
+<div class="panel">
+<div id="plot"></div>
+<div class="keyrow">
+<span><span class="sw" style="background:var(--accent)"></span>counted by the rule</span>
+<span><span class="sw" style="border:1.5px solid var(--muted)"></span>stored, not counted</span>
+<span><span class="sw" style="background:var(--muted);opacity:.5"></span>hatched band, no stored record</span>
+</div>
+<p class="legend"><b>Each dot is a company. Further out means we saw it earlier.</b>
+Eight companies hold a public record, but the rule admits only one of them, and that one falls on the
+reference day itself, which is why the backtest counts 18 companies with no counted signal rather
+than 11. An empty ring is the finding.</p>
+</div>
+</main>
+
+<script type="application/json" id="cohort-data">{"ref":"2026-01-01","counts":{"earlier":0,"declared":0,"later":1,"none":18},"total":19,"cols":["key","name","country","group","lat","lon","town"],"rows":[["3166759-6","Arctic Fry Oy","FI","none",60.17,24.94,"Helsinki"],["fi-edilm","Edilm","FI","none",null,null,""],["3543918-7","Emission-Eye Oy","FI","none",60.21,24.66,"Espoo"],["3516783-9","Finnish Sauna Shop Oy","FI","none",60.57,22.1,"Masku"],["dk-just-measure","Just-measure","DK","none",56.16,10.2,"Aarhus"],["1840910-3","Kilocode Oy","FI","none",63.1,21.62,"Vaasa"],["se-mor","MOR","SE","none",null,null,""],["es-nido-contech","NIDO Contech","ES","none",40.42,-3.7,"Madrid"],["dk-peatz","PEATZ","DK","none",55.68,12.57,"Copenhagen"],["dk-race-for-oceans-technology","Race for Oceans Technology","DK","none",57.37,9.72,"Lokken"],["bg-redget-io","RedGet.io","BG","none",42.7,23.32,"Sofia"],["dk-reefcircular","ReefCircular","DK","none",55.68,12.57,"Copenhagen"],["dk-sensemakers","Sensemakers","DK","none",55.13,14.92,"Bornholm"],["3568392-1","Sireness Oy","FI","none",60.29,25.04,"Vantaa"],["3197621-7","Sub Marine Store Oy","FI","later",60.42,22.52,"Piikkio"],["3380111-1","Taikoa Oy","FI","none",60.17,24.94,"Helsinki"],["no-tunisea","TuniSea","NO","none",null,null,""],["es-vesselchain","VesselChain","ES","none",41.39,2.17,"Barcelona"],["se-your-devocean","Your Devocean","SE","none",58.9,17.95,"Nynashamn"]],"sig":{"3166759-6":[["2020-10-23","r",0,62]],"3543918-7":[["2025-06-13","r",0,6]],"3516783-9":[["2025-03-08","r",0,9]],"1840910-3":[["2003-07-11","r",0,269]],"es-nido-contech":[["2026-06-01","e",0,-4]],"3568392-1":[["2025-09-29","r",0,3]],"3197621-7":[["2021-03-15","r",0,57],["2026-01-01","b",1,0]],"3380111-1":[["2023-07-28","r",0,29],["2026-01-01","b",1,0]]}}</script>
+<script>const D = JSON.parse(document.getElementById("cohort-data").textContent);
+const C = D.cols, CO = D.rows.map(r => Object.fromEntries(C.map((k, i) => [k, r[i]])));
+const RINGS = [12, 24, 36, 48, 60, 72], MAXM = 72;
+
+// The blip must stand for the signal the rule COUNTS where one exists. EARLINESS_AUDIT.md
+// finding 2 warns that Sub Marine Store's 57-month register entry is a same-day VAT record,
+// not an early find, so drawing it as the counted signal would overstate the result.
+function plotted(c) {
+  const ss = D.sig[c.key];
+  if (!ss) return null;
+  if (c.group === "later") {
+    const b = ss.filter(s => s[1] === "b");
+    if (b.length) return { s: b[0], counted: true };
+  }
+  return { s: ss.slice().sort((a, b) => a[0] < b[0] ? -1 : 1)[0], counted: false };
+}
+
+function draw(wide) {
+  const sfx = wide ? "w" : "n";
+  const S = wide ? 640 : 352, cx = S / 2, cy = S / 2;
+  const R = S / 2 - (wide ? 92 : 48), BAND = wide ? 20 : 13, FS = wide ? 11.5 : 7.4;
+  const rad = m => R * Math.max(0, Math.min(m, MAXM)) / MAXM;
+  const o = [`<svg class="${wide ? "wide" : "narrow"}" viewBox="0 0 ${S} ${S}" role="img"
+    aria-label="Sonar view of the 19 cohort companies by months before cohort entry">
+    <defs><pattern id="h-${sfx}" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="7" stroke="var(--muted)" stroke-width="1.6" opacity=".5"/></pattern>
+    <radialGradient id="g-${sfx}"><stop offset="0%" stop-color="var(--accent)" stop-opacity=".2"/>
+    <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/></radialGradient></defs>`];
+
+  o.push(`<circle cx="${cx}" cy="${cy}" r="${R + BAND}" fill="url(#h-${sfx})" stroke="var(--hairline)"/>`);
+  o.push(`<circle cx="${cx}" cy="${cy}" r="${R}" fill="var(--surface)" stroke="var(--hairline)"/>`);
+  const a0 = 28 * Math.PI / 180, a1 = 78 * Math.PI / 180;
+  o.push(`<path d="M ${cx} ${cy} L ${cx + R * Math.cos(a0)} ${cy + R * Math.sin(a0)}
+    A ${R} ${R} 0 0 1 ${cx + R * Math.cos(a1)} ${cy + R * Math.sin(a1)} Z" fill="url(#g-${sfx})"/>`);
+
+  RINGS.forEach(m => {
+    const r = rad(m);
+    o.push(`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--hairline)"/>`);
+    if (wide || [24, 48, 72].includes(m)) {
+      const ty = cy - r + (wide ? 3.5 : 2.6), t = m + " months earlier", w = t.length * FS * .52;
+      o.push(`<rect x="${cx - w / 2}" y="${ty - FS * .82}" width="${w}" height="${FS * 1.15}" fill="var(--surface)" rx="2"/>`);
+      o.push(`<text x="${cx}" y="${ty}" font-size="${FS - 1.5}" fill="var(--muted)" text-anchor="middle">${t}</text>`);
+    }
+  });
+
+  const placed = CO.filter(c => D.sig[c.key]).sort((a, b) => plotted(b).s[3] - plotted(a).s[3]);
+  const blank = CO.filter(c => !D.sig[c.key]);
+  const LBL = R * (wide ? .42 : .46);
+  placed.forEach((c, i) => {
+    const p = plotted(c), m = p.s[3];
+    const ang = (-54 + 300 / placed.length * i) * Math.PI / 180;
+    const r = m > 0 ? rad(m) : rad(3), lr = Math.max(r, LBL);
+    const x = cx + r * Math.cos(ang), y = cy + r * Math.sin(ang);
+    const lx = cx + lr * Math.cos(ang), ly = cy + lr * Math.sin(ang);
+    if (lr > r + 2) o.push(`<line x1="${x}" y1="${y}" x2="${lx}" y2="${ly}" stroke="var(--hairline)"/>`);
+    o.push(`<circle cx="${x}" cy="${y}" r="${wide ? 4.6 : 3.2}" ${p.counted
+      ? 'fill="var(--accent)"' : 'fill="none" stroke="var(--muted)" stroke-width="1.5"'}/>`);
+    if (m > MAXM) {
+      const ox = cx + (R + BAND / 2) * Math.cos(ang), oy = cy + (R + BAND / 2) * Math.sin(ang);
+      o.push(`<circle cx="${ox}" cy="${oy}" r="${wide ? 3 : 2.2}" fill="none" stroke="var(--muted)" stroke-width="1.2" stroke-dasharray="1.5 1.5"/>`);
+    }
+    if (wide) {
+      const right = Math.cos(ang) >= 0;
+      const tail = p.counted ? "on the reference day"
+        : (m > MAXM ? `${m} mo, off scale` : (m > 0 ? `${m} mo` : `${Math.abs(m)} mo after`));
+      o.push(`<text x="${lx + (right ? 9 : -9)}" y="${ly + 3.4}" font-size="${FS - 2}"
+        fill="${p.counted ? "var(--accent)" : "var(--muted)"}" text-anchor="${right ? "start" : "end"}">${c.name}, ${tail}</text>`);
+    }
+  });
+
+  o.push(`<circle cx="${cx}" cy="${cy}" r="${wide ? 3.4 : 2.4}" fill="var(--accent)"/>`);
+  const ct = "cohort entry, Jan 2026", cw = ct.length * FS * .52, cyy = cy + (wide ? 30 : 20);
+  o.push(`<rect x="${cx - cw / 2}" y="${cyy}" width="${cw}" height="${FS * 1.15}" fill="var(--surface)" rx="2"/>`);
+  o.push(`<text x="${cx}" y="${cyy + FS * .85}" font-size="${FS - 1}" fill="var(--accent)" text-anchor="middle">${ct}</text>`);
+  const bt = `no stored record at all, ${blank.length} companies`, bw = bt.length * FS * .52;
+  const by = cy + R + BAND - (wide ? 4 : 2.5);
+  o.push(`<rect x="${cx - bw / 2}" y="${by - FS * .82}" width="${bw}" height="${FS * 1.15}" fill="var(--bg)" rx="2"/>`);
+  o.push(`<text x="${cx}" y="${by}" font-size="${FS - 1}" fill="var(--muted)" text-anchor="middle">${bt}</text>`);
+  o.push("</svg>");
+  return o.join("");
+}
+document.getElementById("plot").innerHTML = draw(true) + draw(false);
+</script>
+</body></html>

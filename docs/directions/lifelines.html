@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Life-lines, 19 cohort companies</title>
+<style>:root{--bg:#0B0F14;--surface:#121820;--text:#E8EDF2;--muted:#9AA7B4;--accent:#4FD1B5;--hairline:#232C37;
+--serif:Newsreader,"Iowan Old Style",Georgia,serif;--sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme:light){:root{--bg:#F6F4EF;--surface:#FFF;--text:#14181D;--muted:#5A6470;--accent:#0B6B5C;--hairline:#D9D5CB}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums}
+main{max-width:1180px;margin:0 auto;padding:40px 24px 64px}
+h1{font-family:var(--serif);font-weight:500;font-size:30px;line-height:1.2;margin:0 0 10px}
+p.answer{font-family:var(--serif);font-size:22px;line-height:1.35;margin:0 0 18px;max-width:46em}
+p.meta{color:var(--muted);font-size:13px;margin:0 0 22px;max-width:60em}
+a{color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:18px;margin:0 0 20px}
+.chip{display:inline-block;border:1px solid var(--hairline);border-radius:999px;padding:2px 9px;font-size:11.5px;color:var(--muted);background:var(--surface);margin:0 6px 6px 0}
+.legend{font-size:13px;color:var(--muted);margin:14px 0 0;max-width:62em}
+.legend b{color:var(--text);font-weight:600}
+.keyrow{display:flex;flex-wrap:wrap;gap:14px;margin:12px 0 0;font-size:12.5px;color:var(--muted)}
+.keyrow span{display:flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
+svg{display:block;width:100%;height:auto}
+.narrow{display:none}
+@media (max-width:760px){main{padding:24px 16px 48px}h1{font-size:23px}p.answer{font-size:18px}.wide{display:none}.narrow{display:block}}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--hairline);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+td.num{text-align:right}.scroll{overflow-x:auto}
+</style>
+</head><body>
+<main>
+<h1>Life-lines: every public signal of the 19 cohort companies</h1>
+<p class="answer">Against a January 2026 cohort entry, the radar's own rule counts a signal for
+1 of the 19 companies, and that one lands on the reference day itself. No company is found earlier.</p>
+<p class="meta">One row per company. Marks are stored signals at their real dates, shape by source.
+A filled mark is counted by the thesis rule; an outline is a record the rule does not admit. A hatched
+row holds no stored record at all. Reference date 2026-01-01: the programme start month, declared by
+the team, not a published entry date (radar/earliness.py).</p>
+<div class="panel">
+<div id="plot"></div>
+<div class="keyrow">
+<span><span class="sw" style="background:var(--accent)"></span>counted by the rule</span>
+<span><span class="sw" style="border:1.5px solid var(--muted)"></span>stored, not counted</span>
+<span><span class="sw" style="background:var(--muted);opacity:.5"></span>hatched row, no stored record</span>
+<span>circle register, square Business Finland, triangle EU project, diamond public contract</span>
+</div>
+<p class="legend"><b>Each row is one company. Marks left of the line are public signals that existed
+before the cohort started.</b> Eleven rows are empty because the company has no Finnish business ID,
+so no register, tax or notice record can be joined to it. Eight rows do hold records, but the rule
+admits only one, which is why the table below counts eighteen with no counted signal, not eleven.</p>
+</div>
+<div class="panel">
+<p class="meta" style="margin-bottom:12px">Counts, from EARLINESS_AUDIT.md section 3, live store as it stands.</p>
+<div class="scroll"><table>
+<thead><tr><th>Group</th><th class="num">Companies</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Found earlier, live records</td><td class="num">0</td><td>a counted live signal strictly before January 2026</td></tr>
+<tr><td>Found earlier, declared research only</td><td class="num">0</td><td>no live signal, but a declared research event before it</td></tr>
+<tr><td>Found later</td><td class="num">1</td><td>counted signals exist, none before the reference date</td></tr>
+<tr><td>No counted signal</td><td class="num">18</td><td>the rule counts nothing for this company</td></tr>
+</tbody></table></div>
+</div>
+</main>
+
+<script type="application/json" id="cohort-data">{"ref":"2026-01-01","counts":{"earlier":0,"declared":0,"later":1,"none":18},"total":19,"cols":["key","name","country","group","lat","lon","town"],"rows":[["3166759-6","Arctic Fry Oy","FI","none",60.17,24.94,"Helsinki"],["fi-edilm","Edilm","FI","none",null,null,""],["3543918-7","Emission-Eye Oy","FI","none",60.21,24.66,"Espoo"],["3516783-9","Finnish Sauna Shop Oy","FI","none",60.57,22.1,"Masku"],["dk-just-measure","Just-measure","DK","none",56.16,10.2,"Aarhus"],["1840910-3","Kilocode Oy","FI","none",63.1,21.62,"Vaasa"],["se-mor","MOR","SE","none",null,null,""],["es-nido-contech","NIDO Contech","ES","none",40.42,-3.7,"Madrid"],["dk-peatz","PEATZ","DK","none",55.68,12.57,"Copenhagen"],["dk-race-for-oceans-technology","Race for Oceans Technology","DK","none",57.37,9.72,"Lokken"],["bg-redget-io","RedGet.io","BG","none",42.7,23.32,"Sofia"],["dk-reefcircular","ReefCircular","DK","none",55.68,12.57,"Copenhagen"],["dk-sensemakers","Sensemakers","DK","none",55.13,14.92,"Bornholm"],["3568392-1","Sireness Oy","FI","none",60.29,25.04,"Vantaa"],["3197621-7","Sub Marine Store Oy","FI","later",60.42,22.52,"Piikkio"],["3380111-1","Taikoa Oy","FI","none",60.17,24.94,"Helsinki"],["no-tunisea","TuniSea","NO","none",null,null,""],["es-vesselchain","VesselChain","ES","none",41.39,2.17,"Barcelona"],["se-your-devocean","Your Devocean","SE","none",58.9,17.95,"Nynashamn"]],"sig":{"3166759-6":[["2020-10-23","r",0,62]],"3543918-7":[["2025-06-13","r",0,6]],"3516783-9":[["2025-03-08","r",0,9]],"1840910-3":[["2003-07-11","r",0,269]],"es-nido-contech":[["2026-06-01","e",0,-4]],"3568392-1":[["2025-09-29","r",0,3]],"3197621-7":[["2021-03-15","r",0,57],["2026-01-01","b",1,0]],"3380111-1":[["2023-07-28","r",0,29],["2026-01-01","b",1,0]]}}</script>
+<script>const D = JSON.parse(document.getElementById("cohort-data").textContent);
+const C = D.cols, row = r => Object.fromEntries(C.map((k, i) => [k, r[i]]));
+const CO = D.rows.map(row);
+const X0 = Date.UTC(2020, 0, 1), X1 = Date.UTC(2027, 0, 1), SPAN = X1 - X0;
+const T = d => Date.parse(d + "T00:00:00Z");
+// the one signal the thesis rule counts, per EARLINESS_AUDIT.md section 1
+const isCounted = (c, s) => c.group === "later" && s[1] === "b";
+const SHAPE = { r: "circle", b: "square", e: "triangle", h: "diamond" };
+
+function mark(x, y, kind, solid, r) {
+  const f = solid ? 'fill="var(--accent)" stroke="var(--accent)"'
+                  : 'fill="none" stroke="var(--muted)"';
+  const a = `${f} stroke-width="1.5"`;
+  if (kind === "square") return `<rect x="${x - r}" y="${y - r}" width="${2 * r}" height="${2 * r}" rx="1" ${a}/>`;
+  if (kind === "triangle") return `<polygon points="${x},${y - r - .6} ${x + r + .4},${y + r} ${x - r - .4},${y + r}" ${a}/>`;
+  if (kind === "diamond") return `<polygon points="${x},${y - r - 1} ${x + r + 1},${y} ${x},${y + r + 1} ${x - r - 1},${y}" ${a}/>`;
+  return `<circle cx="${x}" cy="${y}" r="${r}" ${a}/>`;
+}
+
+function draw(wide) {
+  const sfx = wide ? "w" : "n";
+  const W = wide ? 1140 : 360, LAB = wide ? 250 : 112, PAD = wide ? 24 : 8;
+  const ROW = wide ? 25 : 20, TOP = wide ? 46 : 36, FS = wide ? 12 : 8.2;
+  const PX0 = LAB + PAD, PX1 = W - PAD, PW = PX1 - PX0;
+  const rank = c => (c.group === "later" ? 0 : (D.sig[c.key] ? 1 : 2));
+  const cs = CO.slice().sort((a, b) => rank(a) - rank(b) || a.name.localeCompare(b.name));
+  const H = TOP + ROW * cs.length + 34;
+  const xf = d => PX0 + Math.max(0, Math.min(1, (T(d) - X0) / SPAN)) * PW;
+  const o = [`<svg class="${wide ? "wide" : "narrow"}" viewBox="0 0 ${W} ${H}" role="img"
+    aria-label="Timeline of the 19 cohort companies against the reference date">
+    <defs><pattern id="h-${sfx}" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <line x1="0" y1="0" x2="0" y2="7" stroke="var(--muted)" stroke-width="1.6" opacity=".5"/></pattern></defs>`];
+
+  for (let y = 2020; y <= 2027; y++) {
+    const x = xf(y + "-01-01");
+    o.push(`<line x1="${x}" y1="${TOP - 14}" x2="${x}" y2="${H - 30}" stroke="var(--hairline)"/>`);
+    if (wide || y % 2 === 0)
+      o.push(`<text x="${x}" y="${TOP - 20}" font-size="${FS - 1}" fill="var(--muted)" text-anchor="middle">${y}</text>`);
+  }
+  const rx = xf(D.ref);
+  o.push(`<line x1="${rx}" y1="${TOP - 26}" x2="${rx}" y2="${H - 26}" stroke="var(--accent)" stroke-width="1.6"/>`);
+  o.push(`<text x="${rx}" y="${H - 14}" font-size="${FS - .5}" fill="var(--accent)" text-anchor="middle">cohort entry, Jan 2026</text>`);
+
+  cs.forEach((c, i) => {
+    const y = TOP + i * ROW + ROW / 2, sigs = D.sig[c.key];
+    const nm = wide ? c.name : (c.name.length > 17 ? c.name.slice(0, 17) + "." : c.name);
+    o.push(`<text x="${LAB}" y="${y + FS * .35}" font-size="${FS}" fill="${sigs ? "var(--text)" : "var(--muted)"}" text-anchor="end">${nm}</text>`);
+    o.push(`<line x1="${PX0}" y1="${y}" x2="${PX1}" y2="${y}" stroke="var(--hairline)"/>`);
+    if (!sigs) {
+      o.push(`<rect x="${PX0}" y="${y - 6}" width="${PW}" height="12" fill="url(#h-${sfx})" stroke="var(--hairline)" rx="2"/>`);
+      if (wide) {
+        o.push(`<rect x="${PX0 + PW / 2 - 103}" y="${y - 7}" width="206" height="14" fill="var(--surface)" rx="2"/>`);
+        o.push(`<text x="${PX0 + PW / 2}" y="${y + 3.6}" font-size="${FS - 1.5}" fill="var(--muted)" text-anchor="middle">no stored record in the snapshot</text>`);
+      }
+      return;
+    }
+    sigs.forEach(s => {
+      if (T(s[0]) < X0) {                      // older than the axis, pinned at the left edge
+        o.push(`<polygon points="${PX0 - 2},${y} ${PX0 + 7},${y - 4.5} ${PX0 + 7},${y + 4.5}" fill="none" stroke="var(--muted)" stroke-width="1.5"/>`);
+        if (wide) o.push(`<text x="${PX0 + 12}" y="${y + 3.4}" font-size="${FS - 2}" fill="var(--muted)">${s[0]}, before 2020</text>`);
+        return;
+      }
+      const x = xf(s[0]), cnt = isCounted(c, s);
+      if (s[2]) o.push(`<line x1="${x - 5}" y1="${y}" x2="${x + 5}" y2="${y}" stroke="var(--muted)" stroke-dasharray="2 2"/>`);
+      o.push(mark(x, y, SHAPE[s[1]], cnt, 4.2));
+      if (cnt && wide) o.push(`<text x="${x - 9}" y="${y + 3.4}" font-size="${FS - 1.5}" fill="var(--accent)" text-anchor="end">counted, on the reference day</text>`);
+    });
+  });
+  o.push("</svg>");
+  return o.join("");
+}
+document.getElementById("plot").innerHTML = draw(true) + draw(false);
+</script>
+</body></html>

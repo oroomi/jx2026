@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Map, cohort and who comes next</title>
+<style>:root{--bg:#0B0F14;--surface:#121820;--text:#E8EDF2;--muted:#9AA7B4;--accent:#4FD1B5;--hairline:#232C37;
+--serif:Newsreader,"Iowan Old Style",Georgia,serif;--sans:"IBM Plex Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+@media (prefers-color-scheme:light){:root{--bg:#F6F4EF;--surface:#FFF;--text:#14181D;--muted:#5A6470;--accent:#0B6B5C;--hairline:#D9D5CB}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;font-variant-numeric:tabular-nums}
+main{max-width:1180px;margin:0 auto;padding:40px 24px 64px}
+h1{font-family:var(--serif);font-weight:500;font-size:30px;line-height:1.2;margin:0 0 10px}
+p.answer{font-family:var(--serif);font-size:22px;line-height:1.35;margin:0 0 18px;max-width:46em}
+p.meta{color:var(--muted);font-size:13px;margin:0 0 22px;max-width:60em}
+a{color:var(--accent)}
+.panel{background:var(--surface);border:1px solid var(--hairline);border-radius:12px;padding:18px;margin:0 0 20px}
+.chip{display:inline-block;border:1px solid var(--hairline);border-radius:999px;padding:2px 9px;font-size:11.5px;color:var(--muted);background:var(--surface);margin:0 6px 6px 0}
+.legend{font-size:13px;color:var(--muted);margin:14px 0 0;max-width:62em}
+.legend b{color:var(--text);font-weight:600}
+.keyrow{display:flex;flex-wrap:wrap;gap:14px;margin:12px 0 0;font-size:12.5px;color:var(--muted)}
+.keyrow span{display:flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:3px;display:inline-block;flex:none}
+svg{display:block;width:100%;height:auto}
+.narrow{display:none}
+@media (max-width:760px){main{padding:24px 16px 48px}h1{font-size:23px}p.answer{font-size:18px}.wide{display:none}.narrow{display:block}}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--hairline);vertical-align:top}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+td.num{text-align:right}.scroll{overflow-x:auto}
+</style>
+</head><body>
+<main>
+<h1>Map: where the cohort sits, and where the radar can actually see</h1>
+<p class="answer">The radar holds register depth in Finland only. 7 of the 19 cohort companies have
+a Finnish business ID; the other 12 cannot be joined to any register, tax or notice record,
+whatever they go on to do.</p>
+<p class="meta">Each dot is one cohort company at its registered town, read from ytj_address or
+hq_note in data/declared/cohort_portfolio_companies.csv. Diamonds are Kelluu Oy's who-comes-next
+matches. The plane is a plain latitude and longitude grid under a one-point perspective; no
+coastline is drawn, because none is held in the data.</p>
+<div class="panel">
+<div id="plot"></div>
+<div class="keyrow">
+<span><span class="sw" style="background:var(--accent)"></span>counted by the rule, or the selected company</span>
+<span><span class="sw" style="border:1.4px solid var(--muted)"></span>cohort company, no counted signal</span>
+<span>solid arc customer, dashed arc investor, dotted arc programme</span>
+</div>
+<p class="legend"><b>Each dot is a company at its registered town. The arcs are who comes next for
+one company.</b> 16 of 19 companies have a town in the declared file. Location not stated for:
+<span class="chip">Edilm, FI</span><span class="chip">MOR, SE</span><span class="chip">TuniSea, NO</span></p>
+</div>
+<div class="panel">
+<p class="meta" style="margin-bottom:12px">Kelluu Oy (2902007-2), who comes next. Every row is evidence already held in the repository.</p>
+<div class="scroll"><table>
+<thead><tr><th>Match</th><th>Kind</th><th>Town</th><th>Why</th><th>Evidence</th></tr></thead>
+<tbody id="arcrows"></tbody>
+</table></div>
+</div>
+</main>
+
+<script type="application/json" id="cohort-data">{"ref":"2026-01-01","counts":{"earlier":0,"declared":0,"later":1,"none":18},"total":19,"cols":["key","name","country","group","lat","lon","town"],"rows":[["3166759-6","Arctic Fry Oy","FI","none",60.17,24.94,"Helsinki"],["fi-edilm","Edilm","FI","none",null,null,""],["3543918-7","Emission-Eye Oy","FI","none",60.21,24.66,"Espoo"],["3516783-9","Finnish Sauna Shop Oy","FI","none",60.57,22.1,"Masku"],["dk-just-measure","Just-measure","DK","none",56.16,10.2,"Aarhus"],["1840910-3","Kilocode Oy","FI","none",63.1,21.62,"Vaasa"],["se-mor","MOR","SE","none",null,null,""],["es-nido-contech","NIDO Contech","ES","none",40.42,-3.7,"Madrid"],["dk-peatz","PEATZ","DK","none",55.68,12.57,"Copenhagen"],["dk-race-for-oceans-technology","Race for Oceans Technology","DK","none",57.37,9.72,"Lokken"],["bg-redget-io","RedGet.io","BG","none",42.7,23.32,"Sofia"],["dk-reefcircular","ReefCircular","DK","none",55.68,12.57,"Copenhagen"],["dk-sensemakers","Sensemakers","DK","none",55.13,14.92,"Bornholm"],["3568392-1","Sireness Oy","FI","none",60.29,25.04,"Vantaa"],["3197621-7","Sub Marine Store Oy","FI","later",60.42,22.52,"Piikkio"],["3380111-1","Taikoa Oy","FI","none",60.17,24.94,"Helsinki"],["no-tunisea","TuniSea","NO","none",null,null,""],["es-vesselchain","VesselChain","ES","none",41.39,2.17,"Barcelona"],["se-your-devocean","Your Devocean","SE","none",58.9,17.95,"Nynashamn"]],"sig":{"3166759-6":[["2020-10-23","r",0,62]],"3543918-7":[["2025-06-13","r",0,6]],"3516783-9":[["2025-03-08","r",0,9]],"1840910-3":[["2003-07-11","r",0,269]],"es-nido-contech":[["2026-06-01","e",0,-4]],"3568392-1":[["2025-09-29","r",0,3]],"3197621-7":[["2021-03-15","r",0,57],["2026-01-01","b",1,0]],"3380111-1":[["2023-07-28","r",0,29],["2026-01-01","b",1,0]]}}</script>
+<script>const D = JSON.parse(document.getElementById("cohort-data").textContent);
+const C = D.cols, CO = D.rows.map(r => Object.fromEntries(C.map((k, i) => [k, r[i]])));
+const LON0 = -7, LON1 = 32, LAT0 = 39, LAT1 = 66;
+
+const KELLUU = { name: "Kelluu Oy", town: "Reijola", lat: 62.5, lon: 29.83 };
+// Kelluu Oy 2902007-2, who comes next. Every row is evidence already held in the repository.
+const ARCS = [
+  { name: "Terrafame", kind: "customer", town: "Sotkamo", lat: 64.11, lon: 28.05,
+    why: "named customer on kelluu.com news", src: "https://kelluu.com/" },
+  { name: "Koli National Park", kind: "customer", town: "Koli", lat: 63.1, lon: 29.8,
+    why: "named customer on kelluu.com news", src: "https://kelluu.com/" },
+  { name: "Redstone Blue Fund I", kind: "investor", town: "Turku", lat: 60.45, lon: 22.27,
+    why: "ticket EUR 200k to 2M, thesis match", src: "https://redstone.vc/strategies/blue-economy" },
+  { name: "Helsinki Blue Economy Studio", kind: "programme", town: "Helsinki", lat: 60.17, lon: 24.94,
+    why: "A'Pelago 2027, deadline 2026-11-30", src: "https://www.apelago.fi/helsinki-blue-economy-studio/" },
+  { name: "EU level: SingleTree, EIC Accelerator", kind: "programme", town: "Brussels", lat: 50.85, lon: 4.35,
+    why: "CORDIS 101157488, EUR 301500; EIC cut-off 2026-11-04", src: "https://cordis.europa.eu/project/id/101157488" },
+];
+const DASH = { customer: "none", investor: "5 3", programme: "2 3" };
+
+// Most of the cohort sits in one tight cluster on the Gulf of Finland. Without pushing the
+// labels apart they land on top of each other and none of them can be read.
+function placeLabels(labels, W) {
+  const GAP = 13, out = [];
+  [1, -1].forEach(side => {
+    const col = labels.filter(l => (l.x <= W * 0.56 ? 1 : -1) === side).sort((a, b) => a.y - b.y);
+    let prev = null;
+    col.forEach(l => {
+      l.ly = (prev !== null && l.y - prev < GAP) ? prev + GAP : l.y;
+      prev = l.ly; l.side = side; out.push(l);
+    });
+  });
+  return out.map(l => {
+    const tx = l.x + 9 * l.side;
+    const lead = Math.abs(l.ly - l.y) > 2.5
+      ? `<line x1="${l.x + 4.5 * l.side}" y1="${l.y}" x2="${tx - 1.5 * l.side}" y2="${l.ly}" stroke="var(--hairline)"/>` : "";
+    return lead + `<text x="${tx}" y="${l.ly + 3.2}" font-size="${l.s}" fill="${l.c}"
+      text-anchor="${l.side > 0 ? "start" : "end"}">${l.t}</text>`;
+  }).join("");
+}
+
+function draw(wide) {
+  const W = wide ? 1100 : 360, H = wide ? 580 : 290, PAD = wide ? 34 : 14, FS = wide ? 11.5 : 7.2;
+  const TOP = PAD + (wide ? 16 : 8), BOT = H - PAD - (wide ? 24 : 14), PH = BOT - TOP;
+  // one-point perspective ground plane: far rows narrow, near rows wide, text upright
+  const proj = (lat, lon) => {
+    const u = (lon - LON0) / (LON1 - LON0), v = (LAT1 - lat) / (LAT1 - LAT0);
+    const sc = 0.72 + 0.28 * v;
+    return [W / 2 + (u - .5) * (W - 2 * PAD) * sc, TOP + v * PH, sc];
+  };
+  const o = [`<svg class="${wide ? "wide" : "narrow"}" viewBox="0 0 ${W} ${H}" role="img"
+    aria-label="Map of the cohort by registered town, with who-comes-next arcs from Kelluu Oy">`];
+  const tl = proj(LAT1, LON0), tr = proj(LAT1, LON1), bl = proj(LAT0, LON0), br = proj(LAT0, LON1);
+  o.push(`<path d="M ${tl[0]} ${tl[1]} L ${tr[0]} ${tr[1]} L ${br[0]} ${br[1]} L ${bl[0]} ${bl[1]} Z"
+    fill="var(--surface)" stroke="var(--hairline)"/>`);
+  for (let lon = -5; lon <= 31; lon += 5) {
+    const a = proj(LAT1, lon), b = proj(LAT0, lon);
+    o.push(`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="var(--hairline)" opacity=".55"/>`);
+  }
+  for (let lat = 40; lat <= 65; lat += 5) {
+    const a = proj(lat, LON0), b = proj(lat, LON1);
+    o.push(`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="var(--hairline)" opacity=".55"/>`);
+    if (wide) o.push(`<text x="${a[0] - 7}" y="${a[1] + 3}" font-size="${FS - 2.5}" fill="var(--muted)" text-anchor="end">${lat} N</text>`);
+  }
+  const k = proj(KELLUU.lat, KELLUU.lon);
+  ARCS.forEach(a => {
+    const p = proj(a.lat, a.lon);
+    const mx = (k[0] + p[0]) / 2, my = (k[1] + p[1]) / 2 - Math.abs(p[0] - k[0]) * .28 - 18;
+    o.push(`<path d="M ${k[0]} ${k[1]} Q ${mx} ${my} ${p[0]} ${p[1]}" fill="none" stroke="var(--accent)"
+      stroke-width="1.3" opacity=".75" stroke-dasharray="${DASH[a.kind]}"/>`);
+  });
+  const labels = [];
+  ARCS.forEach(a => {
+    const p = proj(a.lat, a.lon);
+    o.push(`<rect x="${p[0] - 3.4 * p[2]}" y="${p[1] - 3.4 * p[2]}" width="${6.8 * p[2]}" height="${6.8 * p[2]}"
+      fill="var(--bg)" stroke="var(--accent)" stroke-width="1.4" transform="rotate(45 ${p[0]} ${p[1]})"/>`);
+    labels.push({ x: p[0], y: p[1], t: a.name, c: "var(--accent)", s: FS - 2 });
+  });
+  CO.filter(c => c.lat !== null).sort((a, b) => a.lat - b.lat).forEach(c => {
+    const p = proj(c.lat, c.lon), r = (wide ? 4.4 : 3) * p[2];
+    o.push(`<circle cx="${p[0]}" cy="${p[1]}" r="${r}" ${c.group === "later"
+      ? 'fill="var(--accent)"' : 'fill="var(--bg)" stroke="var(--muted)" stroke-width="1.4"'}/>`);
+    labels.push({ x: p[0], y: p[1], t: c.name, c: "var(--muted)", s: FS - 2.5 });
+  });
+  o.push(`<circle cx="${k[0]}" cy="${k[1]}" r="${(wide ? 6 : 4) * k[2]}" fill="var(--accent)"/>`);
+  labels.push({ x: k[0], y: k[1], t: `${KELLUU.name}, ${KELLUU.town}`, c: "var(--accent)", s: FS - .5 });
+  if (wide) o.push(placeLabels(labels, W));
+  o.push("</svg>");
+  return o.join("");
+}
+document.getElementById("plot").innerHTML = draw(true) + draw(false);
+document.getElementById("arcrows").innerHTML = ARCS.map(a =>
+  `<tr><td>${a.name}</td><td>${a.kind}</td><td>${a.town}</td><td>${a.why}</td>
+   <td><a href="${a.src}">source</a></td></tr>`).join("");
+</script>
+</body></html>

@@ -5,7 +5,9 @@ carries what the home page prints and nothing more: name, country, the register'
 public records (for the sparkline), the fund memo verdict and its investment band, and the first and latest record
 dates. Groups are computed from those fields only:
   new     = first public record inside the feed window (the thesis' window, ending today)
-  fit     = memo verdict INVEST, DUE DILIGENCE or ACCELERATOR first, then any other row whose thesis fit is High
+  fit     = memo verdict INVEST, DUE DILIGENCE or ACCELERATOR, or thesis fit High
+Every group is ordered by verdict strength (INVEST, DUE DILIGENCE, ACCELERATOR, PARTNER INTRODUCTION, GRANT SUPPORT,
+WATCHLIST), then thesis-fit band, then the latest record; "New this quarter" stays newest record first.
   ready   = memo investment readiness band High
   country = companies.country
 Memos are the slow part (about 0.1 s each), so the list is cached per thesis and database file modification time,
@@ -20,6 +22,8 @@ from datetime import date, timedelta
 from radar import memo, store
 
 TOP_VERDICTS = ("INVEST", "DUE DILIGENCE", "ACCELERATOR")
+VERDICT_ORDER = ("INVEST", "DUE DILIGENCE", "ACCELERATOR", "PARTNER INTRODUCTION", "GRANT SUPPORT", "WATCHLIST")
+FIT_ORDER = ("High", "Medium", "Low")
 COUNTRY_NAMES = {"FI": "Finland", "SE": "Sweden", "NO": "Norway", "DK": "Denmark", "EE": "Estonia", "IS": "Iceland",
                  "DE": "Germany", "PL": "Poland", "LV": "Latvia", "LT": "Lithuania", "ES": "Spain", "BG": "Bulgaria", "CH": "Switzerland"}
 
@@ -63,16 +67,19 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
             "verdict": rec.get("decision"), "fit": bands.get("Thesis fit"),
             "investment": ((m.get("levels") or {}).get("investment") or {}).get("band"),
         })
-    rows.sort(key=lambda r: (r["latest"] or "", r["name"]), reverse=True)
+    def strength(r):
+        """Verdict strength, then thesis-fit band, then the latest record (newest first), then name."""
+        v = VERDICT_ORDER.index(r["verdict"]) if r["verdict"] in VERDICT_ORDER else len(VERDICT_ORDER)
+        f = FIT_ORDER.index(r["fit"]) if r["fit"] in FIT_ORDER else len(FIT_ORDER)
+        return (v, f, -int((r["latest"] or "0000-00-00").replace("-", "")[:8] or 0), r["name"])
 
-    def rank(r):
-        return (TOP_VERDICTS.index(r["verdict"]) if r["verdict"] in TOP_VERDICTS else len(TOP_VERDICTS))
-
-    fit = sorted([r for r in rows if r["verdict"] in TOP_VERDICTS or r["fit"] == "High"], key=lambda r: (rank(r), r["name"]))
+    by_date = sorted(rows, key=lambda r: (r["latest"] or "", r["name"]), reverse=True)
+    rows.sort(key=strength)
+    fit = [r for r in rows if r["verdict"] in TOP_VERDICTS or r["fit"] == "High"]
     groups = [("all", "All startups", rows),
               ("fit", "Top fits", fit),
               ("ready", "Investor-ready", [r for r in rows if r["investment"] == "High"]),
-              ("new", "New this quarter", [r for r in rows if r["first"] and r["first"] >= start])]
+              ("new", "New this quarter", [r for r in by_date if r["first"] and r["first"] >= start])]
     countries = {}
     for r in rows:
         if r["country"]:

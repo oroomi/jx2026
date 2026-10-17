@@ -57,3 +57,7 @@
   .thesis-bar .thesis-now { font-size: 14px; }
   .hc-kicker { margin-top: 8px; }
 }
+/* The country and group rows scroll sideways on phones; a soft fade on the right edge says there is more. */
+@media (max-width: 600px) {
+  .hc-countries, .hc-pills { -webkit-mask-image: linear-gradient(90deg, #000 85%, transparent); mask-image: linear-gradient(90deg, #000 85%, transparent); padding-right: 24px; }
+}

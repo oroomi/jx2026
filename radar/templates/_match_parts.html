@@ -1,0 +1,19 @@
+{# Matchmaking parts shared by /match and the company page. A reason is shown as a chip (short words) and a sentence with its record link. #}
+{% macro link(l) -%}<a href="{{ l.url }}"{% if l.url.startswith("http") %} target="_blank" rel="noopener"{% endif %}>{{ l.text }}</a>{%- endmacro %}
+
+{% macro chips(components) -%}
+<ul class="mt-chips" aria-label="Reasons">
+{%- for c in components if c.met and c.chip %}<li class="mt-chip" data-c="{{ c.id }}">{{ c.chip }}</li>{% endfor -%}
+</ul>
+{%- endmacro %}
+
+{% macro why(components, label="Why this match") -%}
+{% set shown = components | selectattr("met") | selectattr("reason") | list %}
+{% set rest = components | rejectattr("met") | selectattr("note") | list %}
+<details class="mt-why"><summary>{{ label }}</summary>
+  <ol class="mt-reasons">
+  {%- for c in shown %}<li><strong>{{ c.label }}.</strong> {{ c.reason }}{% for l in c.links %} {{ link(l) }}{% endfor %}</li>{% endfor -%}
+  </ol>
+  {%- if rest %}<p class="mt-no">Not matched or not stated: {% for c in rest %}{{ c.label | lower }} ({{ c.note }}){% if not loop.last %}; {% endif %}{% endfor %}.</p>{% endif %}
+</details>
+{%- endmacro %}

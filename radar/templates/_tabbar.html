@@ -1,11 +1,11 @@
 {#
   Bottom tab bar (jx37, direction C), phone only.
 
-  Five destinations, 44 px tap targets, clear of the home indicator through
+  Six destinations, 44 px tap targets, clear of the home indicator through
   env(safe-area-inset-bottom). Hidden from 640 px up, where the top nav in base.html
   is already on screen; see radar/static/c_components.css.
 
-  `current` is the active key: radar | search | lists | backtest | data.
+  `current` is the active key: radar | search | lists | match | backtest | data.
   Lists opens /radar (the cohort and portfolio lists); there is no separate /lists route.
   `li_class` names the items when the bar sits on a page whose own lists are counted (base.html passes c-tab).
   Icons are inline strokes in currentColor. No emoji, per the slop list in CLAUDE.md.
@@ -15,6 +15,7 @@
   ('radar',    'Radar',    '/',         'circles'),
   ('search',   'Search',   '/search',   'glass'),
   ('lists',    'Lists',    '/radar',    'rows'),
+  ('match',    'Match',    '/match',    'link'),
   ('backtest', 'Backtest', '/backtest', 'bars'),
   ('data',     'Data',     '/data',     'grid')
 ] -%}
@@ -31,6 +32,8 @@
           <circle cx="9.5" cy="9.5" r="6"/><path d="M14 14l5 5"/>
           {%- elif icon == 'rows' -%}
           <path d="M4 6h14M4 11h14M4 16h9"/>
+          {%- elif icon == 'link' -%}
+          <circle cx="6.5" cy="11" r="3"/><circle cx="15.5" cy="11" r="3"/><path d="M9.5 11h3"/>
           {%- elif icon == 'bars' -%}
           <path d="M4 18V9M9.5 18V4M15 18v-6M20 18h-17"/>
           {%- else -%}

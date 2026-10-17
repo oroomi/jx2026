@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% from "_match_parts.html" import chips, why %}
+{% block title %}Match | Ocean Opportunity Radar{% endblock %}
+{% block head %}<link rel="stylesheet" href="/static/match.css?v={{ asset_v }}">{% endblock %}
+{% block content %}
+<div class="mt">
+<h1>Match startups and counterparts</h1>
+<p class="plain mt-lede">Who is the next step for a startup, and which startups fit an investor, programme, funder or pilot partner. Each match says why in words: the same sector, shared words, lookalikes in its declared portfolio, a readiness window that fits, a deadline, a place it covers. No score.</p>
+{% if message %}
+<section class="empty" aria-label="Empty state"><p class="answer">{{ message }}</p></section>
+{% else %}
+<div class="mt-toggle" role="group" aria-label="Start from">
+  <a href="/match?view=org" {% if view == "org" %}aria-current="true"{% endif %}>From a counterpart</a>
+  <a href="/match?view=company" {% if view == "company" %}aria-current="true"{% endif %}>From a startup</a>
+</div>
+<div class="mt-grid">
+<aside class="mt-side" aria-label="{{ 'Counterparts' if view == 'org' else 'Startups' }}">
+{% if view == "org" %}
+  <details class="mt-pick" id="mt-pick" open>
+    <summary>Choose a counterpart ({{ orgs | length }}{% if kind %} of {{ org_total }}{% endif %})</summary>
+    <div class="mt-kinds" role="group" aria-label="Kind">
+      <a href="/match?org={{ selected }}" {% if not kind %}aria-current="true"{% endif %}>All</a>
+      {% for k in kinds %}<a href="/match?org={{ selected }}&amp;kind={{ k.key }}" {% if kind == k.key %}aria-current="true"{% endif %}>{{ k.label }} <span>{{ k.n }}</span></a>{% endfor %}
+    </div>
+    <ul class="mt-orgs">
+    {% for o in orgs %}
+      <li><a class="mt-org" href="/match?org={{ o.id }}{% if kind %}&amp;kind={{ kind }}{% endif %}#results" {% if o.id == selected %}aria-current="true"{% endif %}>
+        <span class="mt-org-k">{{ o.kind_label }}{% if not o.open %} · closed{% endif %}</span>
+        <span class="mt-org-n">{{ o.name }}</span>
+        <span class="mt-org-f">{{ o.focus }}</span></a></li>
+    {% endfor %}
+    </ul>
+  </details>
+{% else %}
+  <form class="mt-search" action="/match" method="get" role="search">
+    <input type="hidden" name="view" value="company">
+    <label for="mt-q">Find a startup by name, Business ID or key</label>
+    <div class="mt-search-row"><input id="mt-q" type="search" name="q" value="{{ q }}" autocomplete="off"><button type="submit">Search</button></div>
+  </form>
+  <details class="mt-pick" id="mt-pick" open>
+    <summary>{{ "Search results" if searched else "The cohort and portfolio companies" }} ({{ companies | length }})</summary>
+    <ul class="mt-orgs">
+    {% for k in companies %}
+      <li><a class="mt-org" href="/match?company={{ k.company_key }}#results" {% if k.company_key == selected %}aria-current="true"{% endif %}>
+        <span class="mt-org-k">{{ k.group_tag }}{% if k.country %} · {{ k.country }}{% endif %}</span><span class="mt-org-n">{{ k.name }}</span></a></li>
+    {% else %}
+      <li class="mt-none">No company matches that search.</li>
+    {% endfor %}
+    </ul>
+  </details>
+{% endif %}
+</aside>
+
+<section class="mt-main" id="results" aria-live="polite">
+{% if view == "org" and result %}
+  {% set o = result.org %}
+  <p class="mt-kind">{{ o.kind_label }} · demand is {{ o.demand }}</p>
+  <h2 class="mt-title">{% if o.url %}<a href="{{ o.url }}" target="_blank" rel="noopener">{{ o.name }}</a>{% else %}{{ o.name }}{% endif %}</h2>
+  <p class="mt-focus">{{ o.focus }}</p>
+  <dl class="mt-facts">
+    {% if o.geography %}<div><dt>Geography it declares</dt><dd>{{ o.geography }}</dd></div>{% endif %}
+    <div><dt>Deadline</dt><dd>{{ o.deadline or o.deadline_text or "none stated" }}</dd></div>
+    <div><dt>Declared cohort or portfolio</dt><dd>{{ o.declared_companies }} companies, {{ o.members_in_records }} in our records{% if o.revealed.lookalikes_from %}; lookalikes are read from {{ o.revealed.lookalikes_from }}{% endif %}</dd></div>
+  </dl>
+  {% if o.closed_note %}<p class="mt-note">{{ o.closed_note | capitalize }}. Only its declared members are listed.</p>{% endif %}
+  {% if result.startups %}
+  <h3 class="mt-sub">Startups that fit ({{ result.listed }} checked in full pass the filters{% if result.startups | length < result.listed %}, the top {{ result.startups | length }} shown{% endif %}{% if result.unprofiled %}; {{ result.unprofiled }} more passed the first pass and were not checked in full{% endif %})</h3>
+  <ol class="mt-results">
+  {% for s in result.startups %}
+    <li class="mt-res">
+      <p class="mt-res-h"><a class="mt-res-n" href="{{ s.url }}">{{ s.name }}</a> <span class="mt-meta">{{ s.country or "country not in records" }}{% if s.verdict %} · {{ s.verdict | lower }}{% endif %}</span></p>
+      {{ chips(s.components) }}
+      {{ why(s.components) }}
+    </li>
+  {% endfor %}
+  </ol>
+  {% else %}<p class="mt-note">No startup passes the filters with a reason for this counterpart.</p>{% endif %}
+{% elif view == "company" and result %}
+  {% set k = result.company %}
+  <p class="mt-kind">{{ k.verdict | lower }} path · {{ k.country or "country not in records" }}{% if k.age_band %} · {{ k.age_band }} old{% endif %}</p>
+  <h2 class="mt-title"><a href="{{ k.url }}">{{ k.name }}</a></h2>
+  <p class="mt-focus">On this path it meets {{ k.meets | map("lower") | join(", ") if k.meets else "no investors or programmes" }}; every startup also meets pilot partners. Read from the startup: industry group {{ k.industry_family or "unknown" }}{% if k.sector_groups %}, sector {{ k.sector_groups | join(", ") }}{% endif %}{% if k.words %}, words {{ k.words[:6] | join(", ") }}{% endif %}.</p>
+  {% if result.connected %}<p class="mt-note">Already connected: {% for c in result.connected %}<a href="/match?org={{ c.id }}">{{ c.name }}</a> ({{ c.why }}){% if not loop.last %}; {% endif %}{% endfor %}. Not listed below.</p>{% endif %}
+  {% if result.counterparts %}
+  <h3 class="mt-sub">Next steps ({{ result.listed }} pass the filters{% if result.counterparts | length < result.listed %}, the top {{ result.counterparts | length }} shown{% endif %})</h3>
+  <ol class="mt-results">
+  {% for r in result.counterparts %}
+    <li class="mt-res">
+      <p class="mt-res-h"><a class="mt-res-n" href="/match?org={{ r.id }}">{{ r.name }}</a> <span class="mt-meta">{{ r.kind_label }} · demand is {{ r.demand }}{% if r.deadline %} · deadline {{ r.deadline }}{% endif %}</span></p>
+      {{ chips(r.components) }}
+      {{ why(r.components) }}
+    </li>
+  {% endfor %}
+  </ol>
+  {% else %}<p class="mt-note">No counterpart passes the filters with a reason for this startup.</p>{% endif %}
+{% elif view == "company" and not selected %}
+  <p class="mt-note">Choose a startup, or search for one, to see its next steps.</p>
+{% else %}
+  <p class="mt-note">That {{ "counterpart" if view == "org" else "startup" }} is not in this radar.</p>
+{% endif %}
+</section>
+</div>
+
+<details class="mt-rule"><summary>How the ranking works</summary>
+  <p>{{ rule }}</p>
+  <p>Weights set in the sector file: {% for c in components %}{{ labels[c] | lower }} {{ weights[c] }}{% if not loop.last %}, {% endif %}{% endfor %}. They order the list; they are never shown as a score.</p>
+  <p>Sources: the declared investor, programme and corporate lists, the ecosystem dataset (organisations only, never its people table), the declared cohort and portfolio list, and the programme windows in the sector file. <a href="/method">All rules</a>.</p>
+</details>
+{% endif %}
+</div>
+<script>
+(function(){var d=document.getElementById("mt-pick");if(d&&window.matchMedia&&matchMedia("(max-width: 899px)").matches&&document.querySelector(".mt-title"))d.open=false;})();
+</script>
+{% endblock %}

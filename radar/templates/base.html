@@ -28,6 +28,7 @@
     <nav aria-label="Main">
       <a href="/" {% if active == "feed" %}aria-current="page"{% endif %}>New this quarter</a>
       <a href="/radar" {% if active == "radar" %}aria-current="page"{% endif %}>{{ cur.cohort_label or "Cohort radar" }}</a>
+      <a href="/match" {% if active == "match" %}aria-current="page"{% endif %}>Match</a>
       <a href="/backtest" {% if active == "backtest" %}aria-current="page"{% endif %}>Earliness test</a>
       <a href="/method" {% if active == "method" %}aria-current="page"{% endif %}>Rules</a>
       <a href="/data" {% if active == "data" %}aria-current="page"{% endif %}>Data</a>
@@ -52,7 +53,7 @@
   <span>Public records only. Companies only.</span>
   <span class="foot-links"><a class="foot-link" href="/how">How to read this (60 seconds)</a> <a class="foot-link" href="/method">Rules</a></span>
 </footer>
-{% from "_tabbar.html" import tabbar %}{{ tabbar("search" if searching else {"feed": "radar", "radar": "lists", "backtest": "backtest", "data": "data"}.get(active, ""), "c-tab") }}
+{% from "_tabbar.html" import tabbar %}{{ tabbar("search" if searching else {"feed": "radar", "radar": "lists", "match": "match", "backtest": "backtest", "data": "data"}.get(active, ""), "c-tab") }}
 {% block scripts %}{% endblock %}
 </body>
 </html>

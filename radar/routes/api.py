@@ -17,6 +17,9 @@ ENDPOINTS = [
     {"path": "/api/company/{company_key}?thesis=&limit=", "what": "register facts, signals with sources, readiness levels, the Ocean Impact Assessment (area, evidence, scalability, level of 9, confidence), who comes next, next step"},
     {"path": "/api/feed?thesis=&window=&type=", "what": "the early-signal feed rows with their reason; window = days (default from the thesis)"},
     {"path": "/api/backtest?thesis=", "what": "the earliness backtest per cohort company"},
+    {"path": "/api/match/company/{company_key}?thesis=&limit=", "what": "matchmaking: the counterparts that are the next steps for a startup, each with its reasons in words"},
+    {"path": "/api/match/org/{org_id}?thesis=&limit=", "what": "matchmaking: the startups that fit one counterpart (declared members first), each with its reasons"},
+    {"path": "/api/match/orgs?thesis=", "what": "every counterpart with its kind, declared focus, deadline and revealed cohort size"},
 ]
 
 
@@ -201,6 +204,5 @@ def api_backtest(thesis: str | None = None):
     return _run(body)
 
 
-@router.get("/{rest:path}", include_in_schema=False)
-def api_not_found(rest: str):
-    return _error(404, f"no API endpoint /api/{rest}", endpoints=ENDPOINTS)
+# The unknown-endpoint 404 for /api/... lives in radar/routes/zz_notfound.py, registered after every other route module, so a module
+# loaded after this one (match.py) can still add /api/match/... routes.

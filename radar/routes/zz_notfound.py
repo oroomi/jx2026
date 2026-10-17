@@ -3,9 +3,15 @@ from __future__ import annotations
 
 from fastapi import APIRouter, Request
 
+from radar.routes.api import ENDPOINTS, _error
 from radar.routes.how import error_page
 
 router = APIRouter()
+
+
+@router.get("/api/{rest:path}", include_in_schema=False)
+def api_not_found(rest: str):
+    return _error(404, f"no API endpoint /api/{rest}", endpoints=ENDPOINTS)
 
 
 @router.get("/{path:path}", include_in_schema=False)

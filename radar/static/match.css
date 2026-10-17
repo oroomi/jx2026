@@ -6,6 +6,9 @@
 .mt-toggle { display: inline-flex; border: 1px solid var(--hairline); margin: 0 0 20px; max-width: 100%; }
 .mt-toggle a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; color: var(--muted); text-decoration: none; font-weight: 500; }
 .mt-toggle a[aria-current="true"] { background: var(--text); color: var(--bg); }
+.mt-tabs { margin-top: 4px; }
+.mt-tabs a { gap: 8px; }
+.mt-tabs a span { font-weight: 400; opacity: .7; font-variant-numeric: tabular-nums; }
 .mt-grid { display: grid; gap: 24px; align-items: start; }
 @media (min-width: 900px) { .mt-grid { grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 40px; } .mt-side { position: sticky; top: 12px; } }
 

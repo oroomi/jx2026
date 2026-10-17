@@ -316,3 +316,15 @@ def test_earliness_words_say_counted_not_public(H):
     finally:
         conn.close()
     assert "no counted signal" in res["headline"] and "no public signal" not in res["headline"]
+
+
+def test_the_tuning_note_sits_directly_under_the_backtest_headline(client):
+    """The count 'found earlier' is partly in-sample (a code family was added after a miss was seen): the sector file's note is the next element
+    after the headline, in the page and in the phone's flex order (backtest.css keeps the chart above the long text)."""
+    html = client.get("/backtest").text
+    m = re.search(r'<p class="answer" id="verdict">.*?</p>\s*<p class="rule" id="tuning-note">(.*?)</p>', html, flags=re.S)
+    assert m and "used to tune the net" in m.group(1) and "582" in m.group(1)
+    css = (ROOT / "radar" / "static" / "backtest.css").read_text()
+    assert "main>#tuning-note" in css and "main>#bt-nocount" in css
+    health = client.get("/backtest?thesis=health_tech_turku").text
+    assert 'id="tuning-note"' not in health, "a sector without a tuning note prints none"

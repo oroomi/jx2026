@@ -434,8 +434,10 @@ ask:
     - "What is new on the radar?"
     - "Tell me about Viva Jets"
     - "Who should A'Pelago meet?"
-    - "Show investment-ready companies in Finland"
+    - "Show accelerator candidates in Finland"
     - "Aquaculture startups with a TRL above 4"
+    - "Show high thesis fit companies in Finland"            # the bar shows the first five that have a non-empty answer in the store (D40)
+    - "Show companies on the watchlist"
   lead_ins: [tell me about, what do you know about, what about, show me, find me, find, open, about, give me, list]
   filler_words: [a, an, the, all, any, some, me, show, list, give, find, companies, company, startups, startup, firms, in, with, and, of, that, are, is, only, which, have, has, from, based, top]
   feed_words: [what is new, what's new, whats new, new on the radar, new this week, new this quarter, newest, latest, recent, recently, anything new, whats happening, what is happening]

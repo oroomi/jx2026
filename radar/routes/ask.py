@@ -8,11 +8,23 @@ from fastapi.responses import JSONResponse
 
 from radar import ask, store
 from radar.routes import api as api_routes
-from radar.routes.aava import _inputs
+from radar.routes.aava import _inputs, feed_reader
 from radar.routes.home import templates
 
 router = APIRouter()
-templates.env.globals["ask_examples"] = ask.examples
+
+
+def ask_examples(th: dict) -> list[str]:
+    """The example chips: the thesis' example questions whose answer is not empty in this thesis' store (D40)."""
+    conn = store.open_db(thesis=th)
+    try:
+        return ask.live_examples(th, conn)
+    finally:
+        if conn is not None:
+            conn.close()
+
+
+templates.env.globals["ask_examples"] = ask_examples
 api_routes.ENDPOINTS.append({"path": "/api/ask?q=&thesis=", "what": "the answer behind the home page's Ask Aava bar: {intent, say, url, action}, deterministic, no model"})
 
 def _paths(routes):
@@ -47,7 +59,8 @@ templates.env.globals["site_pages"] = site_pages
 def ask_api(request: Request, q: str = Query("", max_length=400), thesis: str | None = None):
     th, conn = store.context(request)
     try:
-        out = ask.resolve(q, th, conn, inputs=_inputs, has_match=has_page(request, "/match"), thesis_id=th["id"] if thesis else None)
+        out = ask.resolve(q, th, conn, inputs=_inputs, has_match=has_page(request, "/match"), thesis_id=th["id"] if thesis else None,
+                          feed_reader=feed_reader)
     finally:
         if conn is not None:
             conn.close()

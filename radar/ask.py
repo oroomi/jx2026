@@ -6,9 +6,10 @@ One question in, one answer out: {intent, say, url, action, ...}. The intent is 
   2. a company by name or business id (legal-form words ignored, fuzzy for speech): Aava's question 1 answer and a link to the full memo.
   3. filter phrases (verdict words, countries, sector words, "TRL above 4"): the querystring of the home filter rail, and how many companies
      of the cached home list match.
-  4. "what is new / latest / recent": the feed answer (radar.aava.feed_script).
+  4. "what is new / latest / recent": the feed answer, read by the same function as the home page's own (radar.routes.aava.feed_reader).
   5. an organisation name alone: the match view.
-  6. a company name that only partly matches, once: that company. Anything else: the search page.
+  6. a company name that only partly matches, once: that company. Anything else: the search page when it lists something for those letters, else
+     "Nothing on the radar matches ..." with no link.
 Every word the rules react to comes from the thesis file (`ask:` in config/thesis.yaml); this module holds no sector, verdict or country word.
 The spoken text is the text of the Aava segments (their sha is returned, so the player can use a pre-rendered MP3 when one matches)."""
 from __future__ import annotations
@@ -166,16 +167,24 @@ def company_answer(q: str, key: str, name: str, th: dict, conn, inputs, which: s
 
 
 # ---- the feed -------------------------------------------------------------------------------------------------------------------------
-def feed_answer(q: str, th: dict, conn) -> dict:
-    rows = [r for r in store.feed(conn, th, limit=50) if r["strength"] == "strong"]
-    segs = aava.feed_script(rows)["segments"]
+FEED_ROWS = 500          # the rows the home feed reads (radar.routes.feed.ROW_LIMIT); the answer reads the same ones
+
+
+def feed_answer(q: str, th: dict, conn, reader=None) -> dict:
+    """The home feed's own reader: the strong rows of the same feed, with the same utility-code skip (D22), so "what is new" never opens with
+    a row the home answer would not name. `reader(rows, thesis)` is radar.routes.aava.feed_reader; without it the same two calls are made."""
+    rows = store.feed(conn, th, limit=FEED_ROWS)
+    if reader is not None:
+        segs = reader(rows, th)["segments"]
+    else:
+        segs = aava.feed_script([r for r in rows if r["strength"] == "strong"], skip=aava.code_only_skip(th))["segments"]
     names = {r["company_key"]: r["name"] for r in rows}
     items = []
-    for s in segs:
-        key = (s.get("target") or "").removeprefix("aava-feed-")
+    for sg in segs:
+        key = (sg.get("target") or "").removeprefix("aava-feed-")
         if key in names:
             items.append({"label": names[key], "url": f"/c/{quote(key, safe='')}"})
-    return answer("feed", q, " ".join(s["text"] for s in segs), url="/?group=new" if items else None, action="open" if items else "none",
+    return answer("feed", q, " ".join(sg["text"] for sg in segs), url="/?group=new" if items else None, action="open" if items else "none",
                   label="See all new this quarter", segments=_segments(segs), audio_dir="feed", items=items)
 
 
@@ -408,19 +417,25 @@ def search_answer(q: str, thesis_id: str | None, items: list[dict] | None = None
     return answer("search", q, f"Here is what the radar holds on {q}.", url=_search_url(q, thesis_id), action="search", label="Open the search results", items=items)
 
 
+def nothing_answer(q: str) -> dict:
+    """A question the rules cannot place and the search page cannot either: say so, link nowhere, open nothing."""
+    return answer("nothing", q, f"Nothing on the radar matches {q}. Try a company name, a country, or a sector.")
+
+
 HELP = ("Ask about a company by name, ask what is new, name a verdict, a country or a sector, or ask who an organisation should meet. "
         "Every answer comes from the records on file.")
 
 
 # ---- the one entry point -----------------------------------------------------------------------------------------------------------------
-def resolve(q: str, th: dict, conn, *, inputs, has_match: bool = False, thesis_id: str | None = None) -> dict:
-    """The answer to a question. `inputs` is radar.routes.aava._inputs; `has_match` says whether the /match page exists in this build."""
-    q = re.sub(r"\s+", " ", (q or "")).strip()[:MAX_Q]
+def _clean(q: str) -> str:
+    return re.sub(r"\s+", " ", (q or "")).strip()[:MAX_Q]
+
+
+def classify(q: str, th: dict, conn, *, has_match: bool = False) -> tuple[str, object, str]:
+    """(kind, payload, core) for a question, by the rules in the module docstring. kind is meet_company | meet_org | meet_search | company |
+    filter | feed | match | many | none. `core` is the question without its lead-in. resolve() answers from this, and the example chips ask it
+    too, so an example is shown only when the answer it would get is not empty."""
     cfg = config(th)
-    if len(norm(q)) < 2:
-        return answer("help", q, HELP)
-    if conn is None:
-        return answer("help", q, "The radar has no data loaded yet. " + store.NO_DB_MESSAGE)
     t = norm(q)
     core, words = q, q.split()
     for rx, n in _table([(w, len(norm(w).split())) for w in cfg.get("lead_ins") or []]):   # one lead-in: 'tell me about Viva Jets'
@@ -437,26 +452,95 @@ def resolve(q: str, th: dict, conn, *, inputs, has_match: bool = False, thesis_i
         subject = m.group("org")
         kind, hit = find_company(conn, th, subject)
         if kind == "exact":
-            return company_answer(q, hit["company_key"], hit["name"], th, conn, inputs, "meet")
+            return "meet_company", hit, core
         org = find_org(subject, counterparts(th, conn) if has_match else None)
         if org:
-            return match_answer(q, org, cfg, has_match, thesis_id)
+            return "meet_org", org, core
         if kind in ("unique", "fuzzy"):
-            return company_answer(q, hit["company_key"], hit["name"], th, conn, inputs, "meet")
-        return search_answer(subject, thesis_id)
+            return "meet_company", hit, core
+        return "meet_search", subject, core
 
     kind, hit = find_company(conn, th, core)
     if kind == "exact":
-        return company_answer(q, hit["company_key"], hit["name"], th, conn, inputs)
+        return "company", hit, core
     parsed = parse_filters(core, th, cfg)
     if parsed:
-        return filter_answer(q, parsed, th, conn, thesis_id)
+        return "filter", parsed, core
     if any(rx.search(" " + t + " ") for rx, _ in _table([(w, 1) for w in cfg.get("feed_words") or []])):
-        return feed_answer(q, th, conn)
+        return "feed", None, core
     org = find_org(core, counterparts(th, conn) if has_match else None)
     if org:
-        return match_answer(q, org, cfg, has_match, thesis_id)
+        return "match", org, core
     if kind in ("unique", "fuzzy"):
+        return "company", hit, core
+    if kind == "many":
+        return "many", hit, core
+    return "none", None, core
+
+
+def resolve(q: str, th: dict, conn, *, inputs, has_match: bool = False, thesis_id: str | None = None, feed_reader=None) -> dict:
+    """The answer to a question. `inputs` is radar.routes.aava._inputs; `has_match` says whether the /match page exists in this build;
+    `feed_reader` is radar.routes.aava.feed_reader, the home feed's own reader."""
+    q = _clean(q)
+    cfg = config(th)
+    if len(norm(q)) < 2:
+        return answer("help", q, HELP)
+    if conn is None:
+        return answer("help", q, "The radar has no data loaded yet. " + store.NO_DB_MESSAGE)
+    kind, hit, core = classify(q, th, conn, has_match=has_match)
+    if kind == "meet_company":
+        return company_answer(q, hit["company_key"], hit["name"], th, conn, inputs, "meet")
+    if kind == "meet_org":
+        return match_answer(q, hit, cfg, has_match, thesis_id)
+    if kind == "meet_search":
+        return search_answer(hit, thesis_id)
+    if kind == "company":
         return company_answer(q, hit["company_key"], hit["name"], th, conn, inputs)
-    items = [{"label": h["name"], "url": f"/c/{quote(h['company_key'], safe='')}"} for h in hit] if kind == "many" else None
-    return search_answer(core, thesis_id, items)
+    if kind == "filter":
+        return filter_answer(q, hit, th, conn, thesis_id)
+    if kind == "feed":
+        return feed_answer(q, th, conn, feed_reader)
+    if kind == "match":
+        return match_answer(q, hit, cfg, has_match, thesis_id)
+    if kind == "many":
+        return search_answer(core, thesis_id, [{"label": h["name"], "url": f"/c/{quote(h['company_key'], safe='')}"} for h in hit])
+    if store.search(conn, core, 1):          # the search page would list something for these letters
+        return search_answer(core, thesis_id)
+    return nothing_answer(core)
+
+
+# ---- the example chips -------------------------------------------------------------------------------------------------------------------
+_examples_cache: dict = {}
+
+
+def example_has_answer(q: str, th: dict, conn, H) -> bool:
+    """True when the answer to this example is not empty for the thesis: a company, an organisation, a feed with rows, a filter that counts
+    at least one company of the cached home list `H` (a list that is not built yet counts nothing, so the chip waits)."""
+    q = _clean(q)
+    kind, hit, _core = classify(q, th, conn, has_match=False)
+    if kind in ("company", "meet_company", "match", "meet_org", "many"):
+        return True
+    if kind == "filter":
+        n, _total, _hits = count_matches(H, hit["sel"], th, conn)
+        return bool(n)
+    if kind == "feed":
+        return any(r["strength"] == "strong" for r in store.feed(conn, th, limit=FEED_ROWS))
+    return False
+
+
+def live_examples(th: dict, conn) -> list[str]:
+    """The thesis' example questions that have a non-empty answer in this store, in the file's order. Cached per store version once the home
+    list is built; computed again while it is not."""
+    if conn is None:
+        return []
+    exs = examples(th)
+    H = home_list.for_template(th)
+    ready = bool(H and H.get("rows"))
+    dbp = conn.execute("PRAGMA database_list").fetchone()[2]
+    sig = (th["id"], dbp, Path(dbp).stat().st_mtime_ns if dbp and Path(dbp).is_file() else 0, tuple(exs))
+    if ready and sig in _examples_cache:
+        return list(_examples_cache[sig])
+    out = [q for q in exs if example_has_answer(q, th, conn, H)]
+    if ready:
+        _examples_cache[sig] = out
+    return out

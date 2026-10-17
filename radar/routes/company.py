@@ -9,7 +9,7 @@ import sqlite3
 
 from markupsafe import Markup, escape
 
-from radar import blueinvest, fit as fit_mod, frameworks, intake as intake_mod, lifeline, matching, store
+from radar import blueinvest, fit as fit_mod, frameworks, intake as intake_mod, lifeline, matching, store, thesis as thesis_mod
 from radar.adapters import stitcher
 from radar.routes.home import _has_route, templates
 
@@ -114,6 +114,26 @@ def _page(request, name, status=200, **ctx):
     return templates.TemplateResponse(request, name, ctx, status_code=status)
 
 
+def held_elsewhere(request: Request, key: str, current_id: str):
+    """The company is missing from the sector the cookie or query picked: the first other configured sector whose store holds it, as
+    (thesis, open connection, company data), else None. The page then renders with that sector and the cookie follows it, so a link to
+    a company never lands on a 404 because of a sector chosen earlier (D39)."""
+    for tid, path in thesis_mod.available().items():
+        if tid == current_id:
+            continue
+        th = thesis_mod.load(path)
+        conn = store.open_db(thesis=th)
+        if conn is None:
+            continue
+        data = store.company(conn, key)
+        if data is not None:
+            request.state.thesis = th
+            request.state.set_thesis_cookie = th["id"]
+            return th, conn, data
+        conn.close()
+    return None
+
+
 @router.get("/c/{company_key:path}")
 def company_page(request: Request, company_key: str):
     thesis, conn = store.context(request)
@@ -121,6 +141,11 @@ def company_page(request: Request, company_key: str):
         return _page(request, "company_404.html", 503, key=company_key, message=store.NO_DB_MESSAGE, hits=[])
     try:
         data = store.company(conn, company_key)
+        if data is None:
+            other = held_elsewhere(request, company_key, thesis["id"])
+            if other is not None:
+                conn.close()
+                thesis, conn, data = other
         if data is None:
             return _page(request, "company_404.html", 404, key=company_key,
                          message=f"no company with key {company_key} in this radar", hits=store.search(conn, company_key, 5))

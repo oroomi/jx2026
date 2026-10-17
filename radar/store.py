@@ -54,6 +54,14 @@ def _requested_thesis(request) -> tuple[str | None, bool]:
     q = request.query_params.get("thesis")
     if q in av:
         return q, True
+    if request.url.path == "/" and request.query_params.get("demo") == "1":
+        # The demo entry point always opens the default sector and resets a cookie an earlier visit left on another one (D39).
+        try:
+            default_id = thesis_mod.load()["id"]
+        except thesis_mod.ThesisError:
+            default_id = None
+        if default_id in av:
+            return default_id, True
     c = request.cookies.get(COOKIE)
     if c in av:
         return c, False

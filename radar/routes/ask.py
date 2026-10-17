@@ -1,17 +1,32 @@
 """GET /api/ask?q=&thesis= : the answer behind the home page's "Ask Aava" bar -> {intent, say, url, action, label, segments, audio_dir, items, count, total}.
 Deterministic: rules over the question's words (radar.ask, vocabulary in the thesis file's `ask:` block), the cached home list and the Aava scripts;
-no model and no network call. Also registers the template globals the bar reads (`ask_examples`, `has_route`)."""
+no model and no network call. Also registers the template globals the bar and the site menu read (`ask_examples`, `site_pages`)."""
 from __future__ import annotations
 
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import JSONResponse
 
 from radar import ask, store
+from radar.routes import api as api_routes
 from radar.routes.aava import _inputs
 from radar.routes.home import _has_route, templates
 
 router = APIRouter()
 templates.env.globals["ask_examples"] = ask.examples
+api_routes.ENDPOINTS.append({"path": "/api/ask?q=&thesis=", "what": "the answer behind the home page's Ask Aava bar: {intent, say, url, action}, deterministic, no model"})
+
+# The pages the header's tab row used to list. The Menu sheet (header) and the footer both read this one list. A page whose route is not in
+# this build (Match, from the matchmaking branch) is listed only when the route exists, so no link ever points at a missing page.
+SITE_PAGES = (("/", "New this quarter", "feed", False), ("/radar", None, "radar", False), ("/match", "Match", "match", True),
+              ("/backtest", "Earliness test", "backtest", False), ("/method", "Rules", "method", False), ("/data", "Data", "data", False))
+
+
+def site_pages(request: Request, cur: dict) -> list[tuple[str, str, str]]:
+    has = _has_route(request)
+    return [(href, label or cur.get("cohort_label") or "Cohort radar", key) for href, label, key, optional in SITE_PAGES if not optional or has(href)]
+
+
+templates.env.globals["site_pages"] = site_pages
 
 
 @router.get("/api/ask")

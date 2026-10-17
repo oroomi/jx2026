@@ -45,7 +45,7 @@
 <footer class="wrap foot">
   <span>{{ build_line }}</span>
   <span>Public records only. Companies only.</span>
-  <nav class="foot-links" aria-label="Pages"><a class="foot-link" href="/how">How to read this (60 seconds)</a> <a class="foot-link" href="/">New this quarter</a> <a class="foot-link" href="/radar">{{ cur.cohort_label or "Cohort radar" }}</a> <a class="foot-link" href="/backtest">Earliness test</a> <a class="foot-link" href="/method">Rules</a> <a class="foot-link" href="/data">Data</a></nav>
+  <nav class="foot-links" aria-label="Pages"><a class="foot-link" href="/how">How to read this (60 seconds)</a>{% for href, label, key in site_pages(request, cur) %} <a class="foot-link" href="{{ href }}">{{ label }}</a>{% endfor %}</nav>
 </footer>
 {% from "_tabbar.html" import tabbar %}{{ tabbar("search" if searching else {"feed": "radar", "radar": "lists", "backtest": "backtest", "data": "data"}.get(active, ""), "c-tab") }}
 {% block scripts %}{% endblock %}

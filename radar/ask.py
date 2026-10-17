@@ -203,31 +203,58 @@ def orgs() -> list[dict]:
     return hit
 
 
-def find_org(text: str) -> dict | None:
-    """The organisation a phrase names: {name, type} or None. A partner prefix (store.PARTNER_PREFIXES) names the organisation behind its programmes."""
+def counterparts(th: dict, conn) -> list[dict]:
+    """The matchmaking page's counterpart list ([{id, name, kind_label, ...}], radar.matchmaker.org_list) when that module is in this build, else []."""
+    try:
+        from radar import matchmaker
+        return list(matchmaker.org_list(th, conn=conn) or [])
+    except Exception:  # noqa: BLE001  (no matchmaker in this build, or it is not configured for this thesis)
+        return []
+
+
+def _counterpart(rows: list[dict], text: str) -> dict | None:
+    k = store.name_key(text)
+    if len(k) < 4:
+        return None
+    hit = [o for o in rows if store.name_key(o["name"]) == k] or [o for o in rows if len(k) >= 5 and store.name_key(o["name"]).startswith(k)]
+    return hit[0] if len({store.name_key(o["name"]) for o in hit}) == 1 else None
+
+
+def find_org(text: str, rows: list[dict] | None = None) -> dict | None:
+    """The organisation a phrase names: {name, type, id?, kind_label?} or None. A partner prefix (store.PARTNER_PREFIXES) names the organisation behind its
+    programmes. `rows` is the matchmaking counterpart list: it supplies the id the match page selects by, and names the declared lists do not hold."""
     k = store.name_key(text)
     if len(k) < 4:
         return None
     prefix = next((p for p in store.PARTNER_PREFIXES if store.name_key(p) == k), None)
-    rows = [o for o in orgs() if o["key"] == k]
-    if not rows:   # a longer list name that starts with the phrase, or the phrase that starts with a short list name; one organisation only
-        rows = [o for o in orgs() if (len(k) >= 5 and o["key"].startswith(k)) or (len(o["key"]) >= 5 and k.startswith(o["key"]))]
-        if prefix is None and len({o["key"] for o in rows}) != 1:
-            return None
-    if not rows:
+    found = [o for o in orgs() if o["key"] == k]
+    if not found:   # a longer list name that starts with the phrase, or the phrase that starts with a short list name; one organisation only
+        found = [o for o in orgs() if (len(k) >= 5 and o["key"].startswith(k)) or (len(o["key"]) >= 5 and k.startswith(o["key"]))]
+        if prefix is None and len({o["key"] for o in found}) != 1:
+            found = []
+    cp = _counterpart(rows or [], prefix or (found[0]["name"] if found else text))
+    if not found and cp is None:
         return None
-    types = [o["type"] for o in rows if o["type"]]
-    return {"name": prefix or rows[0]["name"], "type": max(set(types), key=types.count) if types else ""}
+    types = [o["type"] for o in found if o["type"]]
+    out = {"name": prefix or (found[0]["name"] if found else cp["name"]), "type": max(set(types), key=types.count) if types else ""}
+    if cp:
+        out.update({"id": cp.get("id"), "kind_label": cp.get("kind_label")})
+    return out
 
 
 def match_answer(q: str, org: dict, cfg: dict, has_match: bool, thesis_id: str | None) -> dict:
-    kind = (cfg.get("org_types") or {}).get(org["type"]) or cfg.get("org_default") or "an organisation in the declared lists"
-    say = f"{org['name']} is on the declared lists as {kind}."
-    url = f"/match?{urlencode({'org': org['name'], **({'thesis': thesis_id} if thesis_id else {})})}"
+    kind = (cfg.get("org_types") or {}).get(org["type"])
+    if kind:
+        say = f"{org['name']} is on the declared lists as {kind}."
+    elif org.get("kind_label"):
+        say = f"{org['name']} is on the counterpart list as {org['kind_label'].lower()}."
+    else:
+        say = f"{org['name']} is {cfg.get('org_default') or 'an organisation in the declared lists'}."
+    url = f"/match?{urlencode({'org': org.get('id') or org['name'], **({'thesis': thesis_id} if thesis_id else {})})}"
     if has_match:
         say += " Here is who it should meet, ranked."
     return answer("match", q, say, url=url if has_match else None, action="open" if has_match else "none", label="Open the match view",
-                  org={"name": org["name"], "type": org["type"]})
+                  org={"name": org["name"], "type": org["type"], "id": org.get("id")})
 
 
 # ---- filters ---------------------------------------------------------------------------------------------------------------------------
@@ -411,7 +438,7 @@ def resolve(q: str, th: dict, conn, *, inputs, has_match: bool = False, thesis_i
         kind, hit = find_company(conn, th, subject)
         if kind == "exact":
             return company_answer(q, hit["company_key"], hit["name"], th, conn, inputs, "meet")
-        org = find_org(subject)
+        org = find_org(subject, counterparts(th, conn) if has_match else None)
         if org:
             return match_answer(q, org, cfg, has_match, thesis_id)
         if kind in ("unique", "fuzzy"):
@@ -426,7 +453,7 @@ def resolve(q: str, th: dict, conn, *, inputs, has_match: bool = False, thesis_i
         return filter_answer(q, parsed, th, conn, thesis_id)
     if any(rx.search(" " + t + " ") for rx, _ in _table([(w, 1) for w in cfg.get("feed_words") or []])):
         return feed_answer(q, th, conn)
-    org = find_org(core)
+    org = find_org(core, counterparts(th, conn) if has_match else None)
     if org:
         return match_answer(q, org, cfg, has_match, thesis_id)
     if kind in ("unique", "fuzzy"):

@@ -1,0 +1,42 @@
+{
+ "company_key": "3154837-8",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Redkik Oy is a portfolio company registered on 2020-08-28 under the industry code 62200, computer consultancy and facilities management.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8"
+   ]
+  },
+  {
+   "text": "Two funding rounds are on record, dated 2021-06-25 and 2022-02-09, and a Business Finland decision of EUR 50 000 for 2020.",
+   "cites": [
+    "https://fintech.global/2021/06/25/insurtech-redkik-reels-in-fresh-investment-to-transform-marine-cargo-insurance/",
+    "https://www.logisticsbusiness.com/it-in-logistics/redkik-attracts-investment-dollarm/",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "A first customer or pilot record is dated 2024-05-15 and another dated event is 2025-11-27.",
+   "cites": [
+    "https://airfreight.news/articles/full/new-digital-partnership-stablished-between-conqueror-and-redkik",
+    "https://www.hellenicshippingnews.com/?p=1114422"
+   ]
+  },
+  {
+   "text": "On the radar's rules technology and business readiness are level 4 and investment readiness is level 3.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "The registered industry is software consultancy and no ocean category is found, so ocean impact is unknown and the memo keeps it on the watchlist.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3154837-8"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,42 @@
+{
+ "company_key": "2982240-3",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Norolan Artisanlures Oy is a portfolio company registered on 2019-02-18 under the industry code 32300, manufacture of sports goods.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2982240-3",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2982240-3"
+   ]
+  },
+  {
+   "text": "A funding round of EUR 600 000 is dated 2025-02-17 and three Business Finland decisions are on record, the largest EUR 360 610 for 2025.",
+   "cites": [
+    "https://bebeez.eu/2025/02/17/finlands-norolan-secures-first-funding-round-with-fibans-support-to-revolutionize-fishing-gear-market/",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "The register shows share issues dated 2022-12-13 and 2026-04-27, and first sales on 2019-03-01.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2982240-3",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2982240-3",
+    "https://tietopalvelu.ytj.fi/yritys/2982240-3"
+   ]
+  },
+  {
+   "text": "On the radar's rules technology, business and investment readiness are all level 4.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "For the fund the memo says watchlist because ocean impact reads Low and investment readiness reads Low, so no decision row matches.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2982240-3"
+   ]
+  }
+ ]
+}

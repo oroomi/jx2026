@@ -1,0 +1,42 @@
+{
+ "company_key": "3274823-2",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Valkama Watercrafts Oy is a portfolio company registered on 2022-03-16 under the industry code 30120, building of pleasure and sporting boats.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3274823-2",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3274823-2"
+   ]
+  },
+  {
+   "text": "First sales are recorded on 2022-04-01 and a first hire on 2022-06-01, with a start-up notification dated 2022-05-17.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3274823-2",
+    "https://tietopalvelu.ytj.fi/yritys/3274823-2",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3274823-2"
+   ]
+  },
+  {
+   "text": "Funding on record is a round dated 2023-04-04 and a Business Finland decision of EUR 50 000 for 2022, with share issues dated 2023-09-29 and 2024-07-18.",
+   "cites": [
+    "https://www.redstone.vc/portfolio/valkama-watercrafts",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3274823-2",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3274823-2"
+   ]
+  },
+  {
+   "text": "An employer-register record marked as ended is dated 2026-04-30, and the record does not say why.",
+   "cites": [
+    "https://tietopalvelu.ytj.fi/yritys/3274823-2"
+   ]
+  },
+  {
+   "text": "For the fund the memo says watchlist because ocean impact and investment readiness read Low and no decision row matches.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3274823-2"
+   ]
+  }
+ ]
+}

@@ -1,0 +1,48 @@
+{
+ "company_key": "2902007-2",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "Kelluu Oy is a portfolio company registered on 2018-03-09 under the industry code 30310, manufacture of civilian air and spacecraft and related machinery.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"
+   ]
+  },
+  {
+   "text": "A funding round of EUR 15 000 000 is dated 2026-04-14, and the linked sources describe it as a series A.",
+   "cites": [
+    "https://www.nif.fund/news/the-nato-innovation-fund-leads-e15mn-series-a-in-kelluu-to-build-europes-persistent-aerial-intelligence-layer-and-strengthen-natos-surveillance-capabilities/",
+    "https://tech.eu/2026/04/14/kelluu-raises-eur15m-to-scale-autonomous-airship-intelligence-platform/"
+   ]
+  },
+  {
+   "text": "Earlier funding on record includes a round of EUR 1 000 000 dated 2020-01-28 and five Business Finland decisions between 2018 and 2026, the largest listed at EUR 884 740 for 2022.",
+   "cites": [
+    "https://www.yrittajat.fi/uutiset/ilmalaivahankkeesta-ei-tullut-tahdenlento-kelluu-palkkasi-huippuosaajia/",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "An EU project started on 2024-09-01 with EUR 301 500 attached, and three share issues are registered, the latest on 2025-05-22.",
+   "cites": [
+    "https://cordis.europa.eu/project/id/101157488",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2"
+   ]
+  },
+  {
+   "text": "Its own site names Terrafame as a customer in a notice dated 2023-10-10, which is what lifts the business level to 6 on the radar's rules.",
+   "cites": [
+    "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production",
+    "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production"
+   ]
+  },
+  {
+   "text": "For the fund the memo says watchlist: the ocean impact reading is Low and no decision row matches, so the next step is to reassess when a new public record appears.",
+   "cites": [
+    "https://tech.eu/2026/04/14/kelluu-raises-eur15m-to-scale-autonomous-airship-intelligence-platform/"
+   ]
+  }
+ ]
+}

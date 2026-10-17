@@ -1,0 +1,43 @@
+{
+ "company_key": "3399187-5",
+ "written": "2026-10-17",
+ "sentences": [
+  {
+   "text": "NanoHalen Oy is a portfolio company registered on 2023-10-23 under the industry code 26510, manufacture of instruments and appliances for measuring, testing and navigation.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5"
+   ]
+  },
+  {
+   "text": "The register shows a start-up notification dated 2023-11-30, share issues dated 2024-06-13 and 2025-10-10, and first sales on 2024-05-01.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5",
+    "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3399187-5",
+    "https://tietopalvelu.ytj.fi/yritys/3399187-5"
+   ]
+  },
+  {
+   "text": "Funding on record is a round dated 2024 with the year only and a Business Finland decision of EUR 60 000 for 2025.",
+   "cites": [
+    "https://www.redstone.vc/portfolio/nanohalen",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "On the radar's rules technology and business readiness are level 4 and investment readiness is level 3.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  {
+   "text": "The registered industry is instrument manufacturing and no ocean category is found, so ocean impact is unknown and the memo keeps it on the watchlist.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5"
+   ]
+  }
+ ]
+}

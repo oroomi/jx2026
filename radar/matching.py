@@ -9,6 +9,7 @@ import csv
 import re
 import sqlite3
 from datetime import date, timedelta
+from functools import lru_cache
 from pathlib import Path
 
 from radar import blueinvest, frameworks, store
@@ -209,6 +210,7 @@ def _name_words(name: str | None) -> list[str]:
     return [w for w in (fold(x) for x in re.split(r"[\s(),:;/–-]+", name or "")) if w]
 
 
+@lru_cache(maxsize=8192)
 def same_programme(declared: str | None, name: str | None) -> bool:
     """D76: True when `name` (a row of the ecosystem dataset or a counterpart list) is the declared programme `declared`: the same folded name,
     or the declared name's words followed by more words ('Interreg Central Baltic' and 'Interreg Central Baltic Programme 2021-2027'). A

@@ -126,7 +126,7 @@ def test_a_refresh_or_a_shared_url_renders_the_view_a_swap_produced(client):
 # ---- chips, Clear all, the empty state ----------------------------------------------------------------------------------------------
 def test_active_filters_are_removable_chips_with_clear_all(client, H):
     t = client.get("/home/list?group=fit&verdict=ACCELERATOR&country=FI", headers=HX).text
-    chips = [tuple(htmllib.unescape(x) for x in c) for c in re.findall(r'<a class="hc-chip" id="([^"]+)" href="([^"]+)" hx-get="([^"]+)" hx-replace-url="([^"]+)" aria-label="([^"]+)"><span>([^<]+)</span>', t)]
+    chips = [tuple(htmllib.unescape(x) for x in c) for c in re.findall(r'<a class="hc-chip" id="([^"]+)" href="([^"]+)" hx-get="([^"]+)" hx-replace-url="([^"]+)" aria-label="([^"]+)"><span>(?:<img[^>]*>)?([^<]+)</span>', t)]
     assert [c[5] for c in chips] == ["Verdict: Accelerator", "Country: Finland"]
     # each chip removes exactly its own value and keeps the rest of the state, group included
     assert chips[0][1] == "/?group=fit&country=FI" and chips[1][1] == "/?group=fit&verdict=ACCELERATOR"
@@ -305,3 +305,86 @@ def test_other_pages_still_work_with_the_default_sector(client):
     for url in ("/radar", "/backtest", "/method", "/data", "/search?q=zzz", "/c/does-not-exist"):
         assert client.get(url).status_code in (200, 404), url
     assert client.get("/").status_code == 200 and client.get(f"/?thesis={BLUE}").status_code == 200
+
+
+# ---- Step 4: the country filter -----------------------------------------------------------------------------------------------------
+def test_country_values_are_iso_alpha_2_and_names_come_from_the_config(H):
+    codes = {v for r in H["rows"] for v in r["facets"]["country"]}
+    assert codes and all(re.fullmatch(r"[A-Z]{2}", c) or c == "none" for c in codes)
+    R = home_filter.rail(H["rows"], {}, {})
+    country = next(f for f in R["facets"] if f["param"] == "country")
+    names = home_config.country_names()
+    for o in country["options"]:
+        assert o["label"] == (names[o["value"]] if o["value"] != "none" else "Not stated")
+    assert "Finland" in [o["label"] for o in country["options"]] and "FI" not in [o["label"] for o in country["options"]]
+
+
+def test_country_options_come_only_from_the_countries_in_the_current_list(H):
+    for key in ("all", "fit", "new"):
+        rows = next((rs for k, _l, rs in H["groups"] if k == key), None)
+        if not rows:
+            continue
+        R = home_filter.rail(rows, {}, {})
+        offered = {o["value"] for f in R["facets"] if f["param"] == "country" for o in f["options"]}
+        assert offered == {v for r in rows for v in r["facets"]["country"]}, key
+    # a selected country that this list has no row for stays visible (with 0), so it can be switched off
+    R = home_filter.rail(H["rows"], {"country": ["ZZ"]}, {})
+    country = next(f for f in R["facets"] if f["param"] == "country")
+    assert [(o["value"], o["on"], o["count"]) for o in country["options"] if o["value"] == "ZZ"] == [("ZZ", True, 0)]
+
+
+def test_several_countries_are_alternatives_and_other_filters_all_have_to_hold(client, H):
+    rows = H["rows"]
+    two = [c for c, _n in __import__("collections").Counter(r["country"] for r in rows).most_common(2)]
+    assert len(two) == 2
+    either = [r["company_key"] for r in rows if r["country"] in two]                                    # OR inside the country filter
+    q = "&".join(f"country={c}" for c in two)
+    page = client.get("/?" + q).text
+    assert sorted(re.findall(r'class="hc-row" href="/c/([^"]+)"', page)) == sorted(either)
+    both = [r["company_key"] for r in rows if r["country"] in two and r["verdict"] == "WATCHLIST"]       # AND across filters
+    page = client.get("/?" + q + "&verdict=WATCHLIST").text
+    assert sorted(re.findall(r'class="hc-row" href="/c/([^"]+)"', page)) == sorted(both)
+    assert len(both) < len(either)
+    # the count line says so, and one chip per country is offered for removal
+    n = len(both)
+    part = client.get("/home/list?" + q + "&verdict=WATCHLIST", headers=HX).text
+    assert f"{n} of {len(rows)} startups</p>" in part
+    assert [htmllib.unescape(c) for c in re.findall(r'<span>(?:<img[^>]*>)?(Country: [^<]+)</span>', part)] == [f"Country: {home_config.country_name(c)}" for c in two]
+
+
+def test_a_country_link_adds_or_removes_one_country_and_keeps_the_rest(client, H):
+    t = client.get("/home/list?country=FI&verdict=WATCHLIST", headers=HX).text
+    nav = t[t.index('<nav class="hc-countries"'):t.index("</nav>", t.index('<nav class="hc-countries"'))]
+    links = {htmllib.unescape(m.group(1)): htmllib.unescape(m.group(2)) for m in re.finditer(r'<a class="hc-cc[^"]*" href="([^"]+)" [^>]*?aria-checked="[^"]+">(?:<img[^>]*>)?([^<]+)</a>', nav)}
+    by_name = {name: href for href, name in links.items()}
+    assert by_name["Finland"] == "/?verdict=WATCHLIST"                                    # on: following it switches Finland off
+    other = next(n for n in by_name if n not in ("Finland", "Not stated"))
+    assert by_name[other].startswith("/?verdict=WATCHLIST&country=FI&country=")           # off: following it adds a second country
+    assert nav.count('aria-checked="true"') == 1
+
+
+def test_a_flag_is_shown_beside_a_country_only_when_its_file_is_vendored(client, H, monkeypatch):
+    t = client.get("/?country=FI").text
+    sec = list_section(t)
+    assert '<img class="hc-flag" src="/static/vendor/flags/fi.svg" width="16" height="12" alt="" loading="lazy">' in sec
+    assert sec.count("/static/vendor/flags/fi.svg") >= 3        # the rail option, the country link and the chip
+    folder = ROOT / "radar" / "static" / "vendor" / "flags"
+    present = {r["country"] for r in H["rows"] if r["country"]}
+    assert {c.lower() + ".svg" for c in present} <= {p.name for p in folder.glob("*.svg")}
+    for svg in folder.glob("*.svg"):
+        assert svg.read_text().lstrip().startswith("<svg") and client.get(f"/static/vendor/flags/{svg.name}").status_code == 200
+    readme = (folder / "README.md").read_text()
+    assert "MIT" in readme and "flag-icons" in readme and "MIT License" in (folder / "LICENSE").read_text()
+    monkeypatch.setattr(home_config, "flag_codes", lambda: frozenset({"DK"}))
+    sec = list_section(client.get("/?country=FI&country=DK").text)
+    assert "/static/vendor/flags/dk.svg" in sec and "/static/vendor/flags/fi.svg" not in sec        # no file: the name alone
+    assert home_config.flag_url("FI") is None and home_config.flag_url("none") is None
+
+
+def test_no_country_name_is_written_in_the_python_that_builds_the_filter():
+    names = set(home_config.country_names().values())
+    for rel in ("radar/home_filter.py", "radar/home_config.py", "radar/home_list.py", "radar/routes/home_rail.py", "radar/routes/feed.py", "radar/ask.py"):
+        src = (ROOT / rel).read_text()
+        code = re.sub(r'""".*?"""|#.*', " ", src, flags=re.S)
+        for n in names:
+            assert not re.search(rf"\b{re.escape(n)}\b", code), (rel, n)

@@ -46,3 +46,7 @@
 .hc-sectors { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 16px 0 0; }
 .hc-sectors a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-weight: 600; text-underline-offset: 3px; }
 .hc-sectors a[aria-current] { color: var(--text); text-decoration: none; }
+
+/* a 16 px flag beside a country's name (flag-icons, MIT: radar/static/vendor/flags/README.md); decorative, the name is always printed */
+.hc-flag { display: inline-block; flex: none; width: 16px; height: 12px; margin-right: 8px; vertical-align: -1px; object-fit: cover; outline: 1px solid var(--hairline); outline-offset: -1px; }
+.hc-chip .hc-flag { margin-right: 6px; }

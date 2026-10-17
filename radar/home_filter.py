@@ -244,7 +244,8 @@ def rail(rows: list[dict], sel: dict[str, list[str]], extra: dict[str, str], sec
         for v in sel.get(param, []):
             present.setdefault(v, 0)
         options = [{"value": v, "label": _label(param, v), "count": count[v], "on": v in sel.get(param, []),
-                    "href": href(sel, extra, (param, v)), "hx": href(sel, extra, (param, v), PARTIAL), "id": f"f-{param}-{_slug(v)}"}
+                    "href": href(sel, extra, (param, v)), "hx": href(sel, extra, (param, v), PARTIAL), "id": f"f-{param}-{_slug(v)}",
+                    "flag": home_config.flag_url(v) if param == "country" and v != NONE else None}
                    for v in _order(param, present)]
         if not options:
             continue
@@ -259,6 +260,7 @@ def chips(sel: dict[str, list[str]], extra: dict[str, str]) -> list[dict]:
     """One removable chip per selected value: its words, and the URL of the view without it."""
     heading = {f[0]: f[1] for f in facet_list()}
     return [{"param": p, "value": v, "heading": heading.get(p, p), "label": _label(p, v), "id": f"chip-{p}-{_slug(v)}",
+             "flag": home_config.flag_url(v) if p == "country" and v != NONE else None,
              "href": href(sel, extra, (p, v)), "hx": href(sel, extra, (p, v), PARTIAL)}
             for p in params() for v in sel.get(p, [])]
 

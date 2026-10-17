@@ -38,6 +38,9 @@ groups:
   ready: {label: Investor-ready}
   new:   {label: New this quarter}
 
+flags:
+  dir: /static/vendor/flags
+
 countries:
   "AD": "Andorra"
   "AE": "United Arab Emirates"

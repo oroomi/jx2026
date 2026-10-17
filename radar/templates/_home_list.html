@@ -5,7 +5,7 @@
 {% from "_c_components.html" import sparkline %}
 {% macro chip_list(R, sector=false, filters=true) %}<ul class="hc-chips" aria-label="Active filters">
   {% if sector and R.sector_chip %}<li><span class="hc-chip hc-chip-default" title="The sector in view. Change it in the filter, under Sector."><span>{{ R.sector_chip }}</span></span></li>{% endif %}
-  {% if filters %}{% for c in R.chips %}<li><a class="hc-chip" id="{{ c.id }}" href="{{ c.href }}" hx-get="{{ c.hx }}" hx-replace-url="{{ c.href }}" aria-label="Remove filter {{ c.heading }}: {{ c.label }}"><span>{{ c.heading }}: {{ c.label }}</span><i aria-hidden="true">&times;</i></a></li>{% endfor %}{% endif %}
+  {% if filters %}{% for c in R.chips %}<li><a class="hc-chip" id="{{ c.id }}" href="{{ c.href }}" hx-get="{{ c.hx }}" hx-replace-url="{{ c.href }}" aria-label="Remove filter {{ c.heading }}: {{ c.label }}"><span>{% if c.flag %}<img class="hc-flag" src="{{ c.flag }}" width="16" height="12" alt="" loading="lazy">{% endif %}{{ c.heading }}: {{ c.label }}</span><i aria-hidden="true">&times;</i></a></li>{% endfor %}{% endif %}
 </ul>{% endmacro %}
 {% set R = H.rail %}
 {% set cur = H.cur %}
@@ -15,7 +15,7 @@
     {% for t in H.tabs %}<a href="{{ t.href }}" hx-get="{{ t.hx }}" hx-replace-url="{{ t.href }}" data-key="{{ loop.index }}"{% if t.on %} aria-current="true"{% endif %}><kbd class="sk-terminal">{{ loop.index }}</kbd>{{ t.label }} <span>{{ t.n }}</span></a>{% endfor %}
   </nav>
   {% if R.country and R.country.options | length > 1 %}<nav class="hc-countries" aria-label="Countries">
-    {% for o in R.country.options %}<a class="hc-cc{{ ' on' if o.on }}" href="{{ o.href }}" hx-get="{{ o.hx }}" hx-replace-url="{{ o.href }}" role="checkbox" aria-checked="{{ 'true' if o.on else 'false' }}">{{ o.label }}</a>{% endfor %}
+    {% for o in R.country.options %}<a class="hc-cc{{ ' on' if o.on }}" href="{{ o.href }}" hx-get="{{ o.hx }}" hx-replace-url="{{ o.href }}" role="checkbox" aria-checked="{{ 'true' if o.on else 'false' }}">{% if o.flag %}<img class="hc-flag" src="{{ o.flag }}" width="16" height="12" alt="" loading="lazy">{% endif %}{{ o.label }}</a>{% endfor %}
   </nav>{% endif %}
   <div class="hc-filterbar">
     <button type="button" class="hc-fbtn" data-rail-toggle aria-controls="hc-rail" aria-expanded="false">Filter{% if R.n_active %} <span class="hc-fn">{{ R.n_active }}</span>{% endif %}</button>

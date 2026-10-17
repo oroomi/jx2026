@@ -12,6 +12,7 @@ from markupsafe import Markup, escape
 from radar import blueinvest, fit as fit_mod, frameworks, intake as intake_mod, lifeline, matching, store, thesis as thesis_mod
 from radar.adapters import stitcher
 from radar.routes.home import _has_route, templates
+from radar.routes.radar import EVENT_TYPES as RADAR_EVENT_TYPES
 
 
 router = APIRouter()
@@ -162,6 +163,8 @@ def company_page(request: Request, company_key: str):
         stitch = stitcher.page_view(conn, company_key, thesis)
     finally:
         conn.close()
+    # The page counts every dated signal; the cohort radar ranks seven kinds and skips name-only matches. Both numbers are printed, each named (D41).
+    radar_n = sum(1 for x in sigs if x["signal_type"] in RADAR_EVENT_TYPES and x.get("confidence") != "low")
     reasons = fit_mod.fit(c, sigs, thesis)
     entered = sorted({s["evidence"]["label"] for s in sigs}) or [store.evidence(c)["label"]]
     return _page(request, "company.html", c=c, signals=sigs, counts=data["counts"], thesis=thesis,
@@ -171,7 +174,7 @@ def company_page(request: Request, company_key: str):
                  fw=fw, connections=frameworks.connections(rule_sigs),
                  nxt=nxt, step=step, step_rule=matching.NEXT_RULES[step["rule"] - 1], step_rules=matching.NEXT_RULES, rank_rule=matching.RANK_RULE, eco=eco,
                  type_labels=store.TYPE_LABELS, lifeline=lifeline.build(c, sigs), speed=speed, min_sample=lifeline.MIN_SAMPLE,
-                 stitch=stitch)
+                 stitch=stitch, radar_n=radar_n)
 
 
 @router.get("/company-search")

@@ -90,7 +90,7 @@
   </section>
   {% endif %}
   {% if sig_asc %}
-  <p class="cc-line">Public record: first <a href="#sig-{{ sig_asc[0].id }}">{{ sig_asc[0].date_label or sig_asc[0].date }}</a> · {{ signals | length }} dated signal{{ "s" if signals | length != 1 }} · latest <a href="#sig-{{ sig_asc[-1].id }}">{{ sig_asc[-1].date_label or sig_asc[-1].date }}</a></p>
+  <p class="cc-line">Public record: first <a href="#sig-{{ sig_asc[0].id }}">{{ sig_asc[0].date_label or sig_asc[0].date }}</a> · {{ signals | length }} dated signal{{ "s" if signals | length != 1 }} of every kind{% if c.group_tag in ("cohort", "portfolio") %} ({{ radar_n }} of the seven kinds <a href="/radar">the cohort radar</a> ranks){% endif %} · latest <a href="#sig-{{ sig_asc[-1].id }}">{{ sig_asc[-1].date_label or sig_asc[-1].date }}</a></p>
   {% endif %}
   <p class="cc-line">Public record covers {{ covered | length }} of {{ checks | length }} checks.</p>
 

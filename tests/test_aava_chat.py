@@ -98,7 +98,7 @@ def test_the_chat_needs_the_demo_header_a_json_body_and_a_short_question(client,
 # ---- the happy path -----------------------------------------------------------------------------------------------------------------------
 def test_a_turn_streams_status_delta_action_entities_followups_done(client, monkeypatch):
     fake = with_key(monkeypatch, [
-        call(thinking=True, tools=[("search_startups", {"verdict": ["ACCELERATOR"]}), ("apply_filters", {"filters": {"verdict": ["ACCELERATOR"]}})]),
+        call(thinking=True, tools=[("search_startups", {"verdict": ["PORTFOLIO SUPPORT"]}), ("apply_filters", {"filters": {"verdict": ["PORTFOLIO SUPPORT"]}})]),
         call(text=f"Three accelerator candidates. I would open [Viva Jets Oy](/c/{VIVA}) first.", tools=[("suggest_followups", {"questions": ["Why Viva Jets?", "Who funds them?"]})]),
         call(),
     ])
@@ -109,7 +109,7 @@ def test_a_turn_streams_status_delta_action_entities_followups_done(client, monk
     assert names[0] == "status" and names[-1] == "done"
     assert {"delta", "action", "entities", "followups"} <= set(names) and "error" not in names
     action = dict(ev)["action"]
-    assert action["type"] == "apply_filters" and action["filters"] == {"verdict": ["ACCELERATOR"]} and action["matches"] >= 1
+    assert action["type"] == "apply_filters" and action["filters"] == {"verdict": ["PORTFOLIO SUPPORT"]} and action["matches"] >= 1
     assert dict(ev)["entities"]["keys"] == [VIVA]
     assert dict(ev)["followups"]["questions"] == ["Why Viva Jets?", "Who funds them?"]
     text = "".join(d["text"] for e, d in ev if e == "delta")

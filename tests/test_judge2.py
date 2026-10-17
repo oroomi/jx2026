@@ -83,14 +83,14 @@ def test_validation_rejects_a_malformed_medium_codes(tmp_path):
         thesis.load(p)
 
 
-def test_a_utility_code_with_the_line_of_business_is_watchlist_while_a_ship_code_is_accelerator(conn):
+def test_a_utility_code_with_the_line_of_business_is_watchlist_and_a_ship_code_alone_is_capped_too(conn):
     # the same fixture, the same registered line of business (a thesis word), one code in a medium family and one not
     _company(conn, "9500001-1", "Plain Utility Oy", "36000", desc="Water collection and supply")
     _company(conn, "9500001-2", "Plain Yard Oy", "30110", desc="Water collection and supply")
     u, y = _memo(conn, "9500001-1"), _memo(conn, "9500001-2")
     assert u["levels"]["fit"]["band"] == "Medium" and u["recommendation"]["decision"] == "WATCHLIST"
     assert u["recommendation"]["kind"] is None and u["recommendation"]["fallback_blocked"] is False
-    assert y["levels"]["fit"]["band"] == "High" and y["recommendation"]["decision"] == "ACCELERATOR"
+    assert y["levels"]["fit"]["band"] == "Medium" and y["recommendation"]["decision"] == "WATCHLIST"   # D66: a High fit on the code and its label alone is capped (was High, ACCELERATOR)
 
 
 def test_every_medium_family_reads_medium(conn):
@@ -115,7 +115,7 @@ def test_a_declared_member_on_a_utility_code_reads_high(conn):
 
 
 @needs_snapshot
-def test_snapshot_utilities_are_not_high_on_the_code_alone_and_viva_jets_stays_accelerator(tmp_path, monkeypatch):
+def test_snapshot_utilities_are_not_high_on_the_code_alone_and_viva_jets_reads_portfolio_support(tmp_path, monkeypatch):
     for f in SNAP.glob("*.sqlite"):
         shutil.copy(f, tmp_path / f.name)
     monkeypatch.setenv("RADAR_DATA_DIR", str(tmp_path))
@@ -128,10 +128,10 @@ def test_snapshot_utilities_are_not_high_on_the_code_alone_and_viva_jets_stays_a
         m = memo.build(c, th, key)
         fit_line = next(w["text"] for w in m["why"] if w["text"].startswith("Thesis fit"))
         if m["levels"]["fit"]["band"] == "High":  # another reason has to stand beside the code (the source's own text)
-            assert "more reason" in fit_line, (name, code, fit_line)
+            assert "more reason" in fit_line or "declared" in fit_line, (name, code, fit_line)   # D47: a declared member is High by its floor
         else:
             assert m["recommendation"]["decision"] != "ACCELERATOR", (name, code)
-    assert memo.build(c, th, "2962040-6")["recommendation"]["decision"] == "ACCELERATOR"
+    assert memo.build(c, th, "2962040-6")["recommendation"]["decision"] == "PORTFOLIO SUPPORT"   # D65 (ACCELERATOR under D53)
 
 
 # ---- 3. no raw token on a page (D24) -------------------------------------------------------------------------------------------

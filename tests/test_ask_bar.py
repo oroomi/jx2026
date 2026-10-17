@@ -65,16 +65,16 @@ def test_what_is_new_is_the_feed_answer(client):
 
 
 def test_verdict_and_country_words_become_the_filter_rail_querystring_with_a_count(client):
-    d = _ask(client, "accelerator companies in Finland")
+    d = _ask(client, "watchlist companies in Finland")   # D65: no company reads ACCELERATOR in the snapshot now
     assert d["intent"] == "filter" and d["action"] == "filter"
-    assert d["url"] == "/?verdict=ACCELERATOR&country=FI"
-    assert d["filters"] == {"verdict": ["ACCELERATOR"], "country": ["FI"]}
+    assert d["url"] == "/?verdict=WATCHLIST&country=FI"
+    assert d["filters"] == {"verdict": ["WATCHLIST"], "country": ["FI"]}
     assert isinstance(d["count"], int) and 1 <= d["count"] <= d["total"]
-    assert d["say"].startswith(f"{d['count']} of {d['total']} companies on the list match: accelerator candidates, in Finland.")
+    assert d["say"].startswith(f"{d['count']} of {d['total']} companies on the list match: on the watchlist, in Finland.")
     assert len(d["items"]) == min(d["count"], ask.LIST_ITEMS)
     # the count is the cached home list's own count
     rows = home_list.for_template(thesis.load())["rows"]
-    assert d["total"] == len(rows) and d["count"] == sum(1 for r in rows if r["verdict"] == "ACCELERATOR" and r["country"] == "FI")
+    assert d["total"] == len(rows) and d["count"] == sum(1 for r in rows if r["verdict"] == "WATCHLIST" and r["country"] == "FI")
 
 
 def test_a_sector_word_names_the_rail_sector(client):

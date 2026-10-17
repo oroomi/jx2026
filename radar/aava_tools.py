@@ -683,7 +683,7 @@ def _filters(th: dict | None) -> dict:
             "THE way to ask for a sector or industry: one or more sub-sectors of the blue economy (alternatives). Example: {\"subsector\": [\"aquaculture_fisheries\"]} "
             f"finds aquaculture and fisheries startups. Slug = label: {listing}.", [c["slug"] for c in cat])
     out.update({
-        "verdict": _facet_prop("Verdicts (any of): INVEST, DUE DILIGENCE, ACCELERATOR, PARTNER INTRODUCTION, GRANT SUPPORT, WATCHLIST, REJECT / LOW FIT, or none for no verdict."),
+        "verdict": _facet_prop("Verdicts (any of): INVEST, DUE DILIGENCE, ACCELERATOR, PARTNER INTRODUCTION, GRANT SUPPORT, PORTFOLIO SUPPORT, WATCHLIST, REJECT / LOW FIT, or none for no verdict."),
         "impact": _facet_prop("Ocean impact band (any of): High, Medium, Low, 'Not yet evidenced' (sector implied only), or none for no public record."),
         "trl": _facet_prop("Technology readiness band (any of): 1-3, 4-6, 7-9, or none for no public record. A single level 1 to 9 is mapped to its band."),
         "brl": _facet_prop("Business readiness band (any of): 1-3, 4-6, 7-9, or none."),

@@ -125,11 +125,11 @@ def test_a_refresh_or_a_shared_url_renders_the_view_a_swap_produced(client):
 
 # ---- chips, Clear all, the empty state ----------------------------------------------------------------------------------------------
 def test_active_filters_are_removable_chips_with_clear_all(client, H):
-    t = client.get("/home/list?group=fit&verdict=ACCELERATOR&country=FI", headers=HX).text
+    t = client.get("/home/list?group=fit&verdict=WATCHLIST&country=FI", headers=HX).text
     chips = [tuple(htmllib.unescape(x) for x in c) for c in re.findall(r'<a class="hc-chip" id="([^"]+)" href="([^"]+)" hx-get="([^"]+)" hx-replace-url="([^"]+)" aria-label="([^"]+)"><span>(?:<img[^>]*>)?([^<]+)</span>', t)]
-    assert [c[5] for c in chips] == ["Verdict: Accelerator", "Country: Finland"]
-    # each chip removes exactly its own value and keeps the rest of the state, group included
-    assert chips[0][1] == "/?group=fit&country=FI" and chips[1][1] == "/?group=fit&verdict=ACCELERATOR"
+    assert [c[5] for c in chips] == ["Verdict: Watchlist", "Country: Finland"]
+    # D65: no company reads ACCELERATOR in the snapshot, so the chips use WATCHLIST. Each chip removes exactly its own value and keeps the rest of the state, group included
+    assert chips[0][1] == "/?group=fit&country=FI" and chips[1][1] == "/?group=fit&verdict=WATCHLIST"
     for _id, href, hx, rep, label, _t in chips:
         assert hx == href.replace("/?", "/home/list?", 1) and rep == href and label.startswith("Remove filter ")
     clear = re.search(r'<a class="hc-clearall" href="([^"]+)" hx-get="([^"]+)" hx-replace-url="([^"]+)">Clear all</a>', t)

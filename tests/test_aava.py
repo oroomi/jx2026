@@ -56,6 +56,16 @@ def embedded(html: str) -> dict:
     return json.loads(m.group(1))
 
 
+def undeclare(db_path, *keys):
+    """The fixtures are declared cohort companies, which now read PORTFOLIO SUPPORT (D65). These tests are about the entry decision a company
+    outside the lists gets, so they take the cohort tag off first."""
+    import sqlite3
+    c = sqlite3.connect(db_path)
+    c.executemany("UPDATE companies SET group_tag='feed' WHERE company_key=?", [(k,) for k in keys])
+    c.commit()
+    c.close()
+
+
 def answers(client, key) -> dict[int, dict]:
     """{question number: its one segment}, from what the company page itself embeds."""
     data = embedded(client.get("/c/" + key).text)
@@ -111,14 +121,16 @@ def test_old_intent_names_map_to_the_questions(client):
     assert client.get("/aava/script/nope-1").status_code == 404
 
 
-def test_the_first_answer_opens_with_the_opinion_and_gives_the_facts(client):
+def test_the_first_answer_opens_with_the_opinion_and_gives_the_facts(client, db_path):
+    undeclare(db_path, RICH)
     t = answers(client, RICH)[1]["text"]
     assert t.startswith("Based on what the radar holds on Synthetic Rich Oy, I think ")
     assert "synthetic shipbuilding" in t and "since 2025" in t          # line of business and the registration year
     assert re.search(r"\b\d{1,2} [A-Z][a-z]+ 2025\b", t) and " in a Finnish public procurement notice" in t   # a dated record, its source family in words
 
 
-def test_a_watchlist_company_reads_honestly(client):
+def test_a_watchlist_company_reads_honestly(client, db_path):
+    undeclare(db_path, SPARSE)
     t = answers(client, SPARSE)[1]["text"]
     assert "I think we should watch, not call, and here is why:" in t
     assert "no public evidence yet for" in t and "No public record of its line of business or of when it was registered." in t
@@ -128,11 +140,12 @@ def test_a_watchlist_company_reads_honestly(client):
     assert nxt.startswith("No call yet.") and "Watch: not enough public evidence" not in nxt
 
 
-def test_the_score_answer_has_the_verdict_the_bands_the_rule_and_no_number(client):
+def test_the_score_answer_has_the_verdict_the_bands_the_rule_and_no_number(client, db_path):
+    undeclare(db_path, RICH)
     t = answers(client, RICH)[2]["text"]
     assert t.startswith("On ocean impact")
     assert "The verdict is partner introduction" in t
-    assert "Thesis fit is high and business readiness is medium." in t
+    assert "Thesis fit is medium and business readiness is medium." in t     # outside the lists the industry code alone gives at most a Medium fit (D66)
     assert "The rule that fired is a condition rule of the team's decision table: technology high, business low or medium." in t
     assert "a rule the code checks, not my mood" in t and "no single number by design" in t
     assert not re.search(r"\d", re.sub(r"level \d of 9", "", t))                                          # never invents a number
@@ -166,17 +179,20 @@ def test_the_verdict_is_said_with_the_rule_that_fired_never_a_bare_id():
     fb = aava.score(_memo(decision="ACCELERATOR", kind="fallback", row_id="c2", table_action="Accept into accelerator and provide mentoring",
                           impact="Medium, implied by sector",
                           note="Impact not yet measured; thesis fit is High, so impact is read as Medium, implied by the sector, and fallback c2 of the decision rules applies."))["text"]
-    assert "The rule that fired is the table's fallback: impact not yet measured, and thesis fit is high." in fb
+    assert "The rule that fired is the table's High-fit rule: impact not yet measured, and thesis fit is high." in fb   # the page's chip names it so (D67)
     assert "The verdict is accelerator: accept into accelerator and provide mentoring." in fb
     assert not re.search(r"\bc2\b", fb) and not dirty(fb)
 
 
-def test_missing_facts_are_spoken_as_missing(client):
+def test_missing_facts_are_spoken_as_missing(client, db_path):
+    undeclare(db_path, SPARSE)
     a = answers(client, SPARSE)
     assert "No public record of its line of business or of when it was registered." in a[1]["text"]
     assert "nothing here is verified in an official register" in a[3]["text"]
     assert "no evidence yet for" in a[6]["text"]
-    assert "I would not take a meeting yet." in a[4]["text"]
+    assert "I have nobody to point you to" in a[4]["text"]               # outside the lists this fixture has no counterpart match
+    nxt = {"investors": [{"name": "Fixture Fund", "kind": "investor", "score": 3, "reason": None, "source_url": "https://example.test/f"}]}
+    assert "I would not take a meeting yet." in aava.meet(nxt, _memo())["text"]
     assert "I have nobody to point you to" in answers(client, "9000003-3")[4]["text"]
     bare = aava.company_groups({"name": "Bare", "company_key": "k"}, [], thesis=None)
     assert all("None" not in s["text"] for g in bare.values() for s in g)

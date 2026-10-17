@@ -81,7 +81,7 @@ FORBIDDEN = {
     "masked code": r"\bmasked\b|\b\d{2,3}xx+\b",
     "redaction marker": r"\[name",
     "list working note": r"task brief|marine relevance not checked|Brief item|Thesis not verified|returned HTTP|named in (?:the )?brief",
-    "group tag as a word": r"· (?:feed|intake|ecosystem)\b|· cohort(?! company)|· portfolio(?! company)",
+    "group tag as a word": r"· (?:feed|intake|ecosystem)\b|· cohort(?! company)|· portfolio(?! (?:company|support))",
 }
 PAGES = ["/", f"/c/{VIVA}", f"/c/{ARCTIC}", f"/c/{FEEDCO}", "/match", "/match?org=apelago", "/match?org=apelago&tab=connected", "/method", "/data"]
 
@@ -357,7 +357,7 @@ def test_radar_company_and_backtest_name_their_measures(site):
     radar = _visible(client.get("/radar").text)
     assert re.search(r"\d+ with at least one dated public event of the seven kinds this page ranks", radar)
     page = _visible(client.get(f"/c/{ARCTIC}").text)
-    m = re.search(r"(\d+) dated signals? of every kind \((\d+) of the seven kinds the cohort radar ranks\)", page)
+    m = re.search(r"(\d+) dated signals? of every kind \((\d+) of them in the seven kinds the cohort radar ranks\)", page)
     assert m and int(m.group(2)) <= int(m.group(1))
     row = re.search(r"Arctic Fry Oy \S+ (\d+) ", radar)
     assert row and int(row.group(1)) == int(m.group(2)), "the company page and /radar print the same ranked count"

@@ -9,7 +9,7 @@ import sqlite3
 
 from markupsafe import Markup, escape
 
-from radar import blueinvest, fit as fit_mod, frameworks, intake as intake_mod, lifeline, matching, store, thesis as thesis_mod
+from radar import blueinvest, fit as fit_mod, frameworks, intake as intake_mod, lifeline, matching, memo, store, thesis as thesis_mod
 from radar.adapters import stitcher
 from radar.routes.home import _has_route, templates
 from radar.routes.radar import EVENT_TYPES as RADAR_EVENT_TYPES
@@ -161,6 +161,7 @@ def company_page(request: Request, company_key: str):
         nxt = matching.who_comes_next(company_key, thesis, 5, conn=conn)
         step = matching.next_step(company_key, thesis, conn=conn)
         stitch = stitcher.page_view(conn, company_key, thesis)
+        record_checks = memo.checks_for(conn, thesis, c, sigs, (fw.get("category") or {}).get("category"), nxt)
     finally:
         conn.close()
     # The page counts every dated signal; the cohort radar ranks seven kinds and skips name-only matches. Both numbers are printed, each named (D41).
@@ -174,7 +175,8 @@ def company_page(request: Request, company_key: str):
                  fw=fw, connections=frameworks.connections(rule_sigs),
                  nxt=nxt, step=step, rank_rule=matching.RANK_RULE, eco=eco,
                  type_labels=store.TYPE_LABELS, lifeline=lifeline.build(c, sigs), speed=speed, min_sample=lifeline.MIN_SAMPLE,
-                 stitch=stitch, radar_n=radar_n)
+                 stitch=stitch, radar_n=radar_n,
+                 record_checks=record_checks)
 
 
 @router.get("/company-search")

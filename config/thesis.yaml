@@ -130,6 +130,7 @@ matching:
     bank: corporate
   path_kinds:                    # HARD FILTER 1: the verdict path of the startup (radar/memo.py decision) -> the kinds it is shown
     ACCELERATOR: [accelerator, programme, funder]
+    PORTFOLIO SUPPORT: [programme, funder, cluster]   # D65: a declared member is already inside a programme, so no accelerator
     GRANT SUPPORT: [accelerator, programme, funder]
     DUE DILIGENCE: [investor]
     INVEST: [investor]
@@ -483,8 +484,22 @@ memo:
       # The company's own text, or a name word corroborated by a different source family, can still lift it to High.
       medium_codes: ["36", "37", "39"]
       declared_member_band: High       # a declared cohort or portfolio company has at least this fit (it was selected for the programme; D47)
+      # D66: a High fit whose every reason is the industry code or the register's own label for that code (the line of business) rests on
+      # the code alone, so it is capped here. A declared member is excepted (the floor above applies after the cap).
+      code_alone_band: Medium
+      code_alone_reasons: [industry_code, line_of_business]
+      code_alone_note: "the industry code alone gives at most a Medium fit"
   decisions:
-    source: "The team's decision table (pass 1: exact match on all four, first match wins; pass 2: the team's condition rules; pass 3: the fallback for High thesis fit with no impact evidence, only when that fit rests on more than the industry code; otherwise WATCHLIST). Level mapping to Low / Medium / High is the chief's configuration."
+    # pass 0 (D65): a declared portfolio or cohort company is already inside, so it is supported, not assessed for entry. The sentence names
+    # the relationship and the next support from the who-comes-next lists (a pilot partner and a grant), the organisations in `own` left out.
+    members:
+      decision: PORTFOLIO SUPPORT
+      team: "Portfolio Support"
+      action: "Support the company the fund or programme already holds: line up the next pilot partner and grant"
+      relation:
+        portfolio: {says: "Already in Redstone Blue's portfolio", own: ["Redstone"]}
+        cohort: {says: "Already in A'Pelago's Nordic Blue 2026 cohort", own: ["A'Pelago"]}
+    source: "The team's decision table (pass 0: a declared portfolio or cohort company gets PORTFOLIO SUPPORT; pass 1: exact match on all four, first match wins; pass 2: the team's condition rules; pass 3: the fallback for High thesis fit with no impact evidence, only when that fit rests on more than the industry code; otherwise WATCHLIST). Level mapping to Low / Medium / High is the chief's configuration."
     rows:
       - {id: 1, impact: High, business: High, investment: High, fit: High, team: "Invest Candidate", decision: INVEST, action: "Start due diligence and investor introductions"}
       - {id: 2, impact: High, business: High, investment: Medium, fit: High, team: "Investment Preparation", decision: DUE DILIGENCE, action: "Help prepare fundraising and connect with investors"}
@@ -519,7 +534,7 @@ memo:
         - {id: c1, when: {business: [Low, Medium], technology: Low}, team: "Early-Stage Impact Startup", decision: GRANT SUPPORT, action: "TRL 1-3: recommend grants and incubation support"}
         - {id: c2, when: {business: [Low, Medium]}, team: "Accelerator Candidate", decision: ACCELERATOR, action: "Accept into accelerator and provide mentoring"}
         - {id: c3, when: {business: High, investment: High}, team: "Investment Preparation", decision: DUE DILIGENCE, action: "Help prepare fundraising and connect with investors"}
-    fallback_text: "Fallback (pass 3): when thesis fit is High and there is no public evidence of impact, impact is read as Medium, implied by the sector, but only if the fit rests on more than an industry code: the company is a declared cohort or portfolio company, or a fit reason comes from the source's own text or its registered line of business, or a name word is corroborated by a record from a different source family. A company whose fit rests on the industry code alone stays on the watchlist (more public evidence needed: ocean impact). Then business Low or Medium gives ACCELERATOR (c2), except TRL 1-3 gives GRANT SUPPORT (c1); business High and investment High gives DUE DILIGENCE (c3). The memo prints which one matched."
+    fallback_text: "Fallback (pass 3): when thesis fit is High and there is no public evidence of impact, impact is read as Medium, implied by the sector, but only if the fit rests on more than an industry code: a fit reason comes from the source's own text, or a name word is corroborated by a record from a different source family. A fit that rests on the industry code alone (the code and its register label) is at most Medium, so the fallback never reaches it and the company stays on the watchlist (more public evidence needed: ocean impact). A declared cohort or portfolio company is not assessed here: it gets PORTFOLIO SUPPORT. Then business Low or Medium gives ACCELERATOR (c2), except TRL 1-3 gives GRANT SUPPORT (c1); business High and investment High gives DUE DILIGENCE (c3). The memo prints which one matched."
 
 # Sources the /data page's Refresh button re-reads (names from radar/refresh.py STEPS): the fast live ones only.
 refresh_adapters: [prh_notices, prh_recent]

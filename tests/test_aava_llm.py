@@ -66,7 +66,7 @@ def kinds(evs):
 def test_loop_runs_tools_streams_deltas_and_finishes(th):
     answer = f"I would start with [Viva Jets Oy](/c/{VIVA}): the register and Business Finland records agree on its sector. Next: open its page."
     t, client = turn_for(th, "Which startup should we look at first?", [
-        call(thinking=True, tools=[("search_startups", {"verdict": ["ACCELERATOR"], "limit": 5})], usage=(2600, 180, 2400, 0)),
+        call(thinking=True, tools=[("search_startups", {"verdict": ["PORTFOLIO SUPPORT"], "limit": 5})], usage=(2600, 180, 2400, 0)),
         call(text=answer, tools=[("suggest_followups", {"questions": ["What is missing?", "Who should meet them?", "Show the others"]})], usage=(3400, 260, 0, 2400)),
     ])
     evs = run(t)
@@ -82,7 +82,7 @@ def test_loop_runs_tools_streams_deltas_and_finishes(th):
     assert done["keys"] == [VIVA] and done["unverified"] == []
     # the tool ran on the real list and its result went back in the next call; thinking blocks went back unchanged
     res = tool_results(client.messages.calls[1]["messages"])
-    assert res and VIVA in res[0]["content"] and "ACCELERATOR" in res[0]["content"]
+    assert res and VIVA in res[0]["content"] and "PORTFOLIO SUPPORT" in res[0]["content"]
     assistant = client.messages.calls[1]["messages"][1]
     assert assistant["role"] == "assistant" and [b.type for b in assistant["content"]] == ["thinking", "tool_use"]
     assert [e for e in evs if e["event"] == "followups"][0]["data"]["questions"] == ["What is missing?", "Who should meet them?", "Show the others"]
@@ -331,7 +331,8 @@ def test_an_empty_apply_filters_clears_and_an_unknown_value_is_explained(th):
 def test_search_has_the_same_semantics_as_the_filter_rail(th):
     ctx = aava_tools.ToolContext(th, limits=aava_llm.settings().limits)
     rows = ctx.rows()
-    cases = [{"verdict": ["ACCELERATOR"]}, {"verdict": ["ACCELERATOR", "PARTNER INTRODUCTION"]}, {"verdict": ["WATCHLIST"], "fit": ["High"]},
+    cases = [{"verdict": ["PORTFOLIO SUPPORT"]}, {"verdict": ["PORTFOLIO SUPPORT", "PARTNER INTRODUCTION"]},   # D65: members read PORTFOLIO SUPPORT
+              {"verdict": ["WATCHLIST"], "fit": ["Medium"]},   # a High fit is a declared member now (D66)
              {"country": ["FI"], "trl": ["4-6"]}, {"irl": ["none"], "member": ["portfolio"]}, {"brl": ["1-3"], "impact": ["Not yet evidenced"]}]
     for sel in cases:
         res = json.loads(aava_tools.run_tool(ctx, "search_startups", {**sel, "limit": 25})[0])

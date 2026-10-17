@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Concept 2, Dossier</title>
+<link rel="stylesheet" href="concepts.css">
+<style>
+:root{--board:#100E0A;--board-rule:#2E2822;--board-dim:#938876;--ink:#EFE6D6}
+/* the concept's own palette: dark warm paper, one amber accent, printed rules */
+.vp{--bg:#14110D;--paper:#1B1711;--rule:#342C22;--hair:#272118;--txt:#EFE6D6;--dim:#9A8E7A;
+  --amber:#D8A657;
+  width:100%;height:100%;background:var(--bg);color:var(--txt);overflow:hidden;
+  font:400 15px/1.6 "IBM Plex Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.vp *{box-sizing:border-box}
+.vp a{color:inherit;text-decoration:none}
+.vp .mast{display:flex;align-items:baseline;gap:12px;padding:16px 36px;border-bottom:2px solid var(--amber)}
+.vp .mast b{font:600 15px/1 "Newsreader",Georgia,serif;letter-spacing:.14em;text-transform:uppercase}
+.vp .mast span{color:var(--dim);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.vp .mast em{margin-left:auto;font-style:normal;color:var(--dim);font-size:11px}
+.vp .pad{padding:26px 36px}
+.vp .folio{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);margin:0 0 10px}
+.vp h1{font:400 40px/1.03 "Newsreader",Georgia,serif;margin:0 0 10px;letter-spacing:-.02em}
+.vp h1 .q{color:var(--amber)}
+.vp .deck{font:400 17px/1.5 "Newsreader",Georgia,serif;color:var(--dim);margin:0;max-width:52ch}
+.vp .srcline{font-size:10.5px;color:var(--dim);border-top:1px solid var(--hair);padding-top:5px;margin:7px 0 0}
+.vp .srcline u{text-decoration:none;color:var(--amber)}
+/* numbered table of contents, the dossier's spine */
+.vp .toc{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:22px 0 0;border-top:1px solid var(--rule)}
+.vp .toc a{display:block;padding:9px 14px 9px 0;border-right:1px solid var(--hair)}
+.vp .toc a:last-child{border-right:0}
+.vp .toc i{font-style:normal;display:block;font:600 13px/1 "IBM Plex Sans",sans-serif;color:var(--amber);letter-spacing:.1em}
+.vp .toc b{display:block;font:400 17px/1.25 "Newsreader",Georgia,serif;margin-top:5px;font-weight:400}
+.vp .sec{margin:15px 0 0;padding-top:11px;border-top:1px solid var(--rule)}
+.vp .sec > .folio{margin-bottom:12px}
+/* a big number with its sentence beside it and its source beneath */
+.vp .fig{display:grid;grid-template-columns:116px 1fr;gap:16px;padding:9px 0;border-top:1px solid var(--hair)}
+.vp .fig:first-of-type{border-top:0}
+.vp .fig .n{font:400 42px/.92 "Newsreader",Georgia,serif;letter-spacing:-.02em;color:var(--amber)}
+.vp .fig .n small{display:block;font:400 10.5px/1 "IBM Plex Sans",sans-serif;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--dim);margin-top:7px}
+.vp .fig p{margin:0;font-size:13.5px;color:var(--txt)}
+.vp .fig .srcline{margin-top:6px}
+.vp .none{display:inline-block;padding:2px 9px;border:1px dashed var(--rule);border-radius:2px;
+  font-size:10.5px;color:var(--dim);letter-spacing:.02em;
+  background:repeating-linear-gradient(135deg,transparent 0 4px,var(--rule) 4px 5px)}
+.vp .fig .none{display:block;font-size:11px;padding:10px 8px;text-align:center;line-height:1.25}
+.vp .ruled{margin:0}
+.vp .ruled li{list-style:none;display:grid;grid-template-columns:30px 1fr auto;gap:14px;
+  padding:7px 0;border-top:1px solid var(--hair);align-items:baseline}
+.vp .ruled{padding:0;margin:0}
+.vp .ruled .ix{color:var(--amber);font:600 11px/1.5 "IBM Plex Sans",sans-serif}
+.vp .ruled b{font-weight:500;font-size:14px}
+.vp .ruled em{font-style:normal;display:block;color:var(--dim);font-size:12px;margin-top:2px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vp .ruled time{color:var(--dim);font-size:12px;white-space:nowrap}
+.vp .tl{display:grid;grid-template-columns:86px 1fr auto;gap:12px;padding:8px 0;
+  border-top:1px solid var(--hair);font-size:13px;align-items:baseline}
+.vp .tl time{color:var(--dim);font-size:11.5px}
+.vp .tl u{text-decoration:none;color:var(--amber);font-size:10.5px}
+.vp .verdictline{font:400 29px/1.14 "Newsreader",Georgia,serif;margin:0;letter-spacing:-.015em}
+.vp.sm .mast,.vp.sm .pad{padding-left:18px;padding-right:18px}
+.vp.sm .mast{gap:8px}
+.vp.sm .mast b{font-size:11px;letter-spacing:.1em}
+.vp.sm .mast span{font-size:9px}
+.vp .mast em{white-space:nowrap}
+.vp.sm h1{font-size:30px}
+.vp.sm .verdictline{font-size:23px}
+.vp.sm .toc{grid-template-columns:repeat(2,1fr)}
+.vp.sm .toc a{border-right:0;border-top:1px solid var(--hair)}
+.vp.sm .fig{grid-template-columns:84px 1fr;gap:12px}
+.vp.sm .fig .n{font-size:32px}
+</style>
+</head><body>
+<div class="board">
+<div class="board-head">
+  <h1 class="board-title">Concept 2 &mdash; Dossier</h1>
+  <p class="board-sub">The product as a printed investment dossier on screen: a masthead, ruled lines,
+  a numbered table of contents, and every figure set as a big number with one sentence beside it and its
+  source beneath. Dark warm paper, amber accent. After <b>Bloomberg Businessweek</b> for the masthead and
+  the numbered spine, <b>FT Visual Vocabulary</b> for the source line under every figure,
+  <b>Stripe Press</b> for the book-like measure. The signature: the verdict is the page's headline sentence.
+  Real data from <b>jx.hankintaviikko.fi/api</b>, read <span id="when"></span>. No number here is invented.</p>
+</div>
+<div class="board-sec"><h2>Home, the 90-day feed</h2>
+  <div class="pair">
+    <div><div class="frame" id="f-home-d"></div><p class="cap">1440 &times; 900, shown at 50%</p></div>
+    <div><div class="frame" id="f-home-m"></div><p class="cap">390 &times; 844, shown at 72%</p></div>
+  </div>
+</div>
+<div class="board-sec"><h2>Company page</h2>
+  <div class="pair">
+    <div><div class="frame" id="f-co-d"></div><p class="cap">1440 &times; 900, shown at 50%</p></div>
+    <div><div class="frame" id="f-co-m"></div><p class="cap">390 &times; 844, shown at 72%</p></div>
+  </div>
+</div>
+</div>
+<script src="concepts-data.js"></script>
+<script>
+const R = window.RADAR, URL_AT = i => (i == null || i < 0) ? null : R.urls[i];
+document.getElementById("when").textContent = R.today;
+const host = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return "source"; } };
+const src = u => u ? `<p class="srcline">Source <a href="${u}"><u>${host(u)}</u></a></p>` : "";
+const mast = sub => `<div class="mast"><b>Ocean Opportunity Radar</b><span>${sub}</span>
+  <em>${R.today}</em></div>`;
+
+// a figure: the number, the sentence beside it, the source beneath
+const fig = (n, unit, sentence, url) => `<div class="fig">
+  <div class="n">${n == null ? `<span class="none">no evidence</span>` : n}${unit ? `<small>${unit}</small>` : ""}</div>
+  <div><p>${sentence}</p>${src(url)}</div></div>`;
+
+function home(sm) {
+  const rows = R.feed.slice(0, sm ? 5 : 9);
+  return mast("Early-signal feed") + `<div class="pad">
+    <p class="folio">The 90 days to ${R.today}</p>
+    <h1>${R.total} companies entered<br>the public record.</h1>
+    <p class="deck">Each one surfaced through a filing, a grant, a contract or a hire.
+      ${R.main} match the thesis on their own facts; ${R.weak} match more weakly and are kept
+      where they can be checked.</p>
+    <p class="srcline">Window ${R.win_start} to ${R.today}. Source <u>jx.hankintaviikko.fi/api/feed</u></p>
+    <div class="sec"><p class="folio">The register, newest first</p>
+      <ul class="ruled">${rows.map((r, i) => `<li>
+        <span class="ix">${String(i + 1).padStart(2, "0")}</span>
+        <span><b>${r.name}</b><em>${r.l} &middot; ${r.n} record${r.n === 1 ? "" : "s"} on file</em></span>
+        <time>${r.d}</time></li>`).join("")}</ul>
+    </div>
+  </div>`;
+}
+
+function company(sm) {
+  const c = sm ? R.cos[1] : R.cos[0];
+  const [head, tail] = c.verdict.includes(":") ? [c.verdict.split(":")[0], c.verdict.split(":").slice(1).join(":").trim()] : [c.verdict, ""];
+  const sigs = c.sigs.slice().reverse().slice(0, sm ? 3 : 4);
+  return mast("Company dossier") + `<div class="pad">
+    <p class="folio">${c.grp} &middot; ${c.key} &middot; founded ${c.founded}</p>
+    <h1>${c.name}</h1>
+    <p class="deck">${c.ind}. ${c.n_sig} public records on file, ${c.first} to ${c.last}.</p>
+
+    <div class="sec"><p class="folio">01 &nbsp;Verdict</p>
+      <p class="verdictline"><span class="q">&ldquo;</span>${head}<span class="q">:</span> ${tail}<span class="q">&rdquo;</span></p>
+      <p class="srcline">Because ${c.because}. Source <a href="${URL_AT(c.u)}"><u>${host(URL_AT(c.u))}</u></a></p>
+    </div>
+
+    <div class="toc">
+      <a><i>01</i><b>Verdict</b></a><a><i>02</i><b>Evidence</b></a>
+      <a><i>03</i><b>Who to meet</b></a><a><i>04</i><b>Timeline</b></a>
+    </div>
+
+    <div class="sec"><p class="folio">02 &nbsp;Evidence</p>
+      ${c.levels.slice(0, sm ? 2 : 2).map(l => fig(l.n == null ? null : l.n, l.n == null ? "" : l.l + ", of 9",
+        l.n == null ? `${l.l}: nothing in the public record supports a level yet.` : l.b, URL_AT(l.u))).join("")}
+    </div>
+
+    ${sm ? "" : `<div class="sec"><p class="folio">03 &nbsp;Who to meet</p>
+      <ul class="ruled">${c.next.slice(0, 2).map((n, i) => `<li>
+        <span class="ix">${String(i + 1).padStart(2, "0")}</span>
+        <span><b>${n.n}</b><em>${n.w}</em></span>
+        <time>${n.k}</time></li>`).join("")}</ul></div>`}
+
+    <div class="sec"><p class="folio">04 &nbsp;Timeline</p>
+      ${sigs.map(s => `<div class="tl"><time>${s.p === "year" ? s.d.slice(0, 4) + " (year)" : s.d}</time>
+        <span>${s.l}</span><a href="${URL_AT(s.u)}"><u>${host(URL_AT(s.u))}</u></a></div>`).join("")}
+    </div>
+  </div>`;
+}
+
+function mount(id, html, w, h, s, sm) {
+  const f = document.getElementById(id);
+  f.style.width = (w * s) + "px"; f.style.height = (h * s) + "px";
+  f.innerHTML = `<div class="vp${sm ? " sm" : ""}" style="width:${w}px;height:${h}px;transform:scale(${s})">${html}</div>`;
+}
+mount("f-home-d", home(false), 1440, 900, .5, false);
+mount("f-home-m", home(true), 390, 844, .72, true);
+mount("f-co-d", company(false), 1440, 900, .5, false);
+mount("f-co-m", company(true), 390, 844, .72, true);
+</script>
+</body></html>

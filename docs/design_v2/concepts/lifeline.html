@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Concept 1, Lifeline</title>
+<link rel="stylesheet" href="concepts.css">
+<style>
+:root{--board:#0B0B0C;--board-rule:#242428;--board-dim:#8A867E;--ink:#EDE9E2}
+/* the concept's own palette: near-black ground, one warm white accent */
+.vp{--bg:#0A0A0B;--surface:#141416;--rule:#222226;--txt:#EDE9E2;--dim:#8C8880;
+  --warm:#F4EEE3;--faint:#2C2C30;
+  width:100%;height:100%;background:var(--bg);color:var(--txt);overflow:hidden;
+  font:400 15px/1.55 "IBM Plex Sans",system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.vp *{box-sizing:border-box}
+.vp a{color:inherit;text-decoration:none}
+.vp .bar{display:flex;align-items:center;gap:16px;height:56px;padding:0 28px;border-bottom:1px solid var(--rule)}
+.vp .mark{width:16px;height:16px;border-radius:5px;background:var(--warm);flex:none}
+.vp .brand{font-weight:600;font-size:14px;letter-spacing:.01em}
+.vp .search{margin-left:auto;height:32px;flex:0 1 300px;border:1px solid var(--rule);border-radius:8px;
+  display:flex;align-items:center;padding:0 10px;color:var(--dim);font-size:13px;background:var(--surface)}
+.vp .pad{padding:26px 28px}
+.vp .kicker{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin:0 0 8px}
+.vp h1{font:400 40px/1.08 "Newsreader",Georgia,serif;margin:0 0 6px;letter-spacing:-.02em}
+.vp h2{font:400 22px/1.2 "Newsreader",Georgia,serif;margin:0 0 10px}
+.vp .sub{color:var(--dim);font-size:13px;margin:0}
+.vp .stat{display:flex;gap:30px;margin:18px 0 0;padding-top:16px;border-top:1px solid var(--rule)}
+.vp .stat div span{display:block;color:var(--dim);font-size:11.5px}
+.vp .stat div b{font:400 26px/1.1 "Newsreader",Georgia,serif;font-weight:400}
+.vp .rows{margin:22px 0 0}
+.vp .row{display:grid;grid-template-columns:34px minmax(0,1.25fr) minmax(130px,1.6fr) auto;
+  gap:14px;align-items:center;padding:11px 0;border-top:1px solid var(--rule)}
+.vp .ini{width:34px;height:34px;border:1px solid var(--rule);border-radius:8px;display:flex;
+  align-items:center;justify-content:center;font-size:11.5px;color:var(--dim);font-weight:600}
+.vp .who b{display:block;font-weight:500;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vp .who span{display:block;color:var(--dim);font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vp .meta{text-align:right;white-space:nowrap}
+.vp .meta time{display:block;font-size:12.5px}
+.vp .meta span{display:block;color:var(--dim);font-size:11px}
+.vp .pill{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:999px;
+  font-size:11.5px;font-weight:600;letter-spacing:.02em;border:1px solid currentColor;white-space:nowrap}
+.vp .pill i{width:6px;height:6px;border-radius:50%;background:currentColor;flex:none}
+.vp .scale{display:flex;gap:6px;margin:14px 0 0;flex-wrap:wrap}
+.vp .step{display:flex;flex-direction:column;gap:5px;min-width:62px}
+.vp .step .sw{height:5px;border-radius:3px}
+.vp .step em{font-style:normal;font-size:10px;color:var(--dim);letter-spacing:.03em}
+.vp .strip{margin:20px 0 0;padding:18px 0 0;border-top:1px solid var(--rule)}
+.vp .yr{margin:18px 0 0}
+.vp .yr h3{font:600 11px/1 "IBM Plex Sans",sans-serif;letter-spacing:.09em;color:var(--dim);
+  margin:0 0 7px;text-transform:uppercase}
+.vp .sig{display:flex;gap:12px;align-items:baseline;padding:7px 0;border-top:1px solid var(--faint);font-size:13px}
+.vp .sig time{color:var(--dim);font-size:11.5px;flex:none;width:80px}
+.vp .sig b{font-weight:400;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vp .sig a{flex:none}
+.vp .sig u{text-decoration:none;color:var(--dim);font-size:11px}
+.vp .lv{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:18px 0 0;padding-top:14px;border-top:1px solid var(--rule)}
+.vp .lv div span{display:block;color:var(--dim);font-size:11px}
+.vp .lv div b{font:400 24px/1.1 "Newsreader",Georgia,serif}
+.vp .lv .none,.vp .none{display:inline-block;width:auto;padding:1px 8px;border:1px dashed var(--faint);border-radius:999px;
+  font-size:10.5px;color:var(--dim);
+  background:repeating-linear-gradient(135deg,transparent 0 4px,var(--faint) 4px 5px)}
+.vp .nx{padding:7px 0;border-top:1px solid var(--faint);font-size:12.5px}
+.vp .nx b{font-weight:500}.vp .nx span{display:block;color:var(--dim);font-size:11px}
+.vp.sm{font-size:14px}
+.vp.sm .bar,.vp.sm .pad{padding-left:16px;padding-right:16px}
+.vp.sm h1{font-size:28px}
+.vp.sm .row{grid-template-columns:28px minmax(0,1fr) auto;gap:10px}
+.vp.sm .row .life{grid-column:1/-1}
+.vp.sm .stat{gap:18px}.vp.sm .lv{grid-template-columns:repeat(2,1fr)}
+</style>
+</head><body>
+<div class="board">
+<div class="board-head">
+  <h1 class="board-title">Concept 1 &mdash; Lifeline</h1>
+  <p class="board-sub">The dated public record is the identity. Every company carries one horizontal
+  lifeline, first record to today, and the same mark does the work on the list and on the dossier.
+  Calm chart treatment after <b>Apple Stocks</b> and <b>Robinhood</b>; frame and type scale after <b>Linear</b>.
+  One accent, a warm white. Verdict sits on a seven-step tonal scale.
+  Real data from <b>jx.hankintaviikko.fi/api</b>, read <span id="when"></span>. No number here is invented.</p>
+</div>
+<div class="board-sec"><h2>Home, the 90-day feed</h2>
+  <div class="pair">
+    <div><div class="frame" id="f-home-d"></div><p class="cap">1440 &times; 900, shown at 50%</p></div>
+    <div><div class="frame" id="f-home-m"></div><p class="cap">390 &times; 844, shown at 72%</p></div>
+  </div>
+</div>
+<div class="board-sec"><h2>Company page</h2>
+  <div class="pair">
+    <div><div class="frame" id="f-co-d"></div><p class="cap">1440 &times; 900, shown at 50%</p></div>
+    <div><div class="frame" id="f-co-m"></div><p class="cap">390 &times; 844, shown at 72%</p></div>
+  </div>
+</div>
+</div>
+<script src="concepts-data.js"></script>
+<script>
+const R = window.RADAR, URL_AT = i => (i == null || i < 0) ? null : R.urls[i], DAY = 86400000, T = d => Date.parse(d + "T00:00:00Z");
+document.getElementById("when").textContent = R.today;
+
+// one lifeline: dots on a time axis from the first record to today
+function life(dates, w, h, opts) {
+  const o = Object.assign({dot: 2.6, last: 3.6, entry: null, ticks: false, from: null}, opts || {});
+  if (!dates.length) return `<span class="none">no public record</span>`;
+  const t0 = o.from ? T(o.from) : T(dates[0]), t1 = T(R.today), span = Math.max(t1 - t0, DAY);
+  const x = d => 3 + ((T(d) - t0) / span) * (w - 6), y = h - (o.ticks ? 16 : h / 2);
+  let s = `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img"
+    aria-label="${dates.length} public records, ${dates[0]} to ${dates[dates.length-1]}">
+    <line x1="3" y1="${y}" x2="${w-3}" y2="${y}" stroke="var(--faint)" stroke-width="1"/>`;
+  if (o.entry && T(o.entry) > t0 && T(o.entry) < t1) {
+    const ex = x(o.entry);
+    const near = ex > w - 72, tx = near ? ex - 5 : ex + 5;
+    s += `<line x1="${ex.toFixed(1)}" y1="${y-14}" x2="${ex.toFixed(1)}" y2="${y+6}"
+            stroke="var(--warm)" stroke-width="1" stroke-dasharray="2 2"/>
+          <text x="${tx.toFixed(1)}" y="${y-7}" font-size="9" fill="var(--warm)"
+            text-anchor="${near ? "end" : "start"}">cohort entry</text>`;
+  }
+  if (o.ticks) {
+    const y0 = new Date(t0).getUTCFullYear(), y1 = new Date(t1).getUTCFullYear();
+    for (let yr = y0; yr <= y1; yr++) {
+      const d = yr + "-01-01"; if (T(d) < t0) continue;
+      s += `<line x1="${x(d).toFixed(1)}" y1="${y}" x2="${x(d).toFixed(1)}" y2="${y+5}" stroke="var(--faint)"/>
+            <text x="${x(d).toFixed(1)}" y="${y+15}" font-size="9" fill="var(--dim)" text-anchor="middle">${yr}</text>`;
+    }
+  }
+  dates.forEach((d, i) => {
+    const lastOne = i === dates.length - 1;
+    s += `<circle cx="${x(d).toFixed(1)}" cy="${y}" r="${lastOne ? o.last : o.dot}"
+      fill="${lastOne ? "var(--warm)" : "var(--bg)"}" stroke="var(--warm)" stroke-width="1.2"/>`;
+  });
+  return s + "</svg>";
+}
+
+// seven-step tonal scale. The live decision table has five rules today; the two
+// outer steps carry the empty states so nothing has to be invented to fill it.
+const STEPS = [["01","no record"],["02","watch"],["03","monitor"],["04","meet"],
+               ["05","introduce"],["06","diligence"],["07","act"]];
+const tone = i => `rgba(244,238,227,${(0.34 + i * 0.11).toFixed(2)})`;
+const scale = sm => `<p class="kicker" style="margin:18px 0 0">Verdict scale, seven steps</p>
+  <div class="scale">` + STEPS.map(([n, l], i) =>
+  `<div class="step"><div class="sw" style="background:${tone(i)}"></div><em>${sm ? n : n + " " + l}</em></div>`).join("")
+  + `</div><p class="sub" style="margin:6px 0 0;font-size:11px">The live decision table has five rules today;
+  the outer steps carry the two empty states.</p>`;
+
+const ini = n => n.replace(/[^A-Za-z\s]/g, "").trim().split(/\s+/).slice(0, 2).map(w => w[0] || "").join("").toUpperCase() || "--";
+const pill = (txt, i) => `<span class="pill" style="color:${tone(i)}"><i></i>${txt}</span>`;
+
+function home(sm) {
+  const lw = sm ? 300 : 260;
+  const shown = R.feed.slice(0, sm ? 5 : 9);
+  const from = shown.flatMap(r => r.dates).sort()[0];   // one axis for every row
+  return `<div class="bar"><span class="mark"></span><span class="brand">Ocean Opportunity Radar</span>
+    ${sm ? "" : `<span class="search">Search a company or business ID</span>`}</div>
+  <div class="pad">
+    <p class="kicker">On the radar</p>
+    <h1>${R.total} companies surfaced<br>in the last ${R.window} days</h1>
+    <p class="sub">Window ${R.win_start} to ${R.today}. Every row is a public record with its source.
+      All lifelines below share one axis, ${from} to ${R.today}, so rows can be compared.</p>
+    <div class="stat">
+      <div><span>Thesis match</span><b>${R.main}</b></div>
+      <div><span>Weaker match</span><b>${R.weak}</b></div>
+      <div><span>Total</span><b>${R.total}</b></div>
+    </div>
+    ${scale(sm)}
+    <div class="rows">${shown.map(r => `
+      <div class="row">
+        <span class="ini">${ini(r.name)}</span>
+        <span class="who"><b>${r.name}</b><span>${r.l}</span></span>
+        <span class="life">${life(r.dates, lw, 26, {dot: 2.2, last: 3.2, from})}</span>
+        <span class="meta"><time>${r.d}</time><span>${r.n} record${r.n === 1 ? "" : "s"}</span></span>
+      </div>`).join("")}</div>
+  </div>`;
+}
+
+function company(sm) {
+  const c = sm ? R.cos[1] : R.cos[0], w = sm ? 358 : 1384;
+  const byYear = {};
+  c.sigs.forEach(s => (byYear[s.d.slice(0, 4)] = byYear[s.d.slice(0, 4)] || []).push(s));
+  const years = Object.keys(byYear).sort().reverse().slice(0, sm ? 2 : 3);
+  return `<div class="bar"><span class="mark"></span><span class="brand">Ocean Opportunity Radar</span></div>
+  <div class="pad">
+    <p class="kicker">${c.grp} &middot; ${c.key}</p>
+    <h1>${c.name}</h1>
+    <p class="sub">${c.ind} &middot; founded ${c.founded} &middot; ${c.n_sig} public records,
+      ${c.first} to ${c.last}</p>
+    <p style="margin:14px 0 0">${pill(c.verdict.split(":")[0], 1)}
+      <span class="sub" style="display:block;margin-top:6px">${c.verdict}. Because ${c.because}.</span></p>
+    <div class="strip">${life(c.sigs.map(s => s.d), w, 58, {dot: 3, last: 4.4, ticks: true,
+      entry: c.grp === "cohort" ? R.cohort_entry : null})}</div>
+    <div class="lv">${c.levels.map(l => `<div><span>${l.l}</span>${
+      l.n == null ? `<span class="none">no public evidence</span>` : `<b>${l.n} of 9</b>`}</div>`).join("")}</div>
+    ${years.map(y => `<div class="yr"><h3>${y}</h3>${byYear[y].slice().reverse().slice(0, sm ? 3 : 4).map(s => `
+      <div class="sig"><time>${s.p === "year" ? s.d.slice(0,4) + " (year)" : s.d}</time>
+      <b>${s.l}</b><a href="${URL_AT(s.u)}"><u>source</u></a></div>`).join("")}</div>`).join("")}
+    ${sm ? "" : `<div class="yr"><h3>Who comes next</h3>${c.next.map(n => `
+      <div class="nx"><b>${n.n}</b><span>${n.k}. ${n.w}</span></div>`).join("")}</div>`}
+  </div>`;
+}
+
+function mount(id, html, w, h, s, sm) {
+  const f = document.getElementById(id);
+  f.style.width = (w * s) + "px"; f.style.height = (h * s) + "px";
+  f.innerHTML = `<div class="vp${sm ? " sm" : ""}" style="width:${w}px;height:${h}px;transform:scale(${s})">${html}</div>`;
+}
+mount("f-home-d", home(false), 1440, 900, .5, false);
+mount("f-home-m", home(true), 390, 844, .72, true);
+mount("f-co-d", company(false), 1440, 900, .5, false);
+mount("f-co-m", company(true), 390, 844, .72, true);
+</script>
+</body></html>

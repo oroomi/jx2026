@@ -27,7 +27,7 @@
     {% for e in ex[:5] %}<li><button type="button" class="ask-chip" data-q="{{ e }}">{{ e }}</button></li>{% endfor %}
   </ul>{% endif %}
   <div class="ask-card" id="ask-card" hidden aria-live="polite" aria-atomic="true"></div>
-  <p class="ask-count" id="ask-count">{{ n_new }} compan{{ "y" if n_new == 1 else "ies" }} first seen in the last {{ days }} days, {{ H.rows | length }} on the list.<span class="ask-key" hidden> Press <kbd class="ask-kbd" id="ask-kbd">Ctrl</kbd> <kbd class="ask-kbd">K</kbd> to ask.</span></p>
+  <p class="ask-count" id="ask-count">{% with oob = false %}{% include "_ask_count.html" %}{% endwith %}<span class="ask-key" hidden> Press <kbd class="ask-kbd" id="ask-kbd">Ctrl</kbd> <kbd class="ask-kbd">K</kbd> to ask.</span></p>
 </div>
 
 {# Voice mode. Hidden until the microphone button is pressed (demo flag on). All colour is the skin's tokens. #}

@@ -178,14 +178,59 @@ def _order(param: str, present: Counter) -> list[str]:
     return sorted(vals, key=lambda v: (v == NONE, -present[v], _label(param, v).casefold()))
 
 
+# ---- the sector (thesis) group -------------------------------------------------------------------------------------------------------
+
+def short_title(title: str) -> str:
+    """A thesis title without its trailing bracket ('Blue economy, Finland and Nordics (Redstone Blue x A'Pelago)' reads 'Blue economy, Finland
+    and Nordics'): what the sector chip and the Sector group print."""
+    return re.sub(r"\s*\([^)]*\)\s*$", "", title or "").strip() or (title or "")
+
+
+def offered(rows: list[dict] | None) -> dict[str, set[str]] | None:
+    """{param: the values some row carries} for a list's rows: what a sector offers. None when its rows are not known yet."""
+    if rows is None:
+        return None
+    out: dict[str, set[str]] = {}
+    for r in rows:
+        for p, vals in (r.get("facets") or {}).items():
+            out.setdefault(p, set()).update(vals or ())
+    return out
+
+
+def _carried(st: State, sector: dict) -> tuple[dict[str, list[str]], str]:
+    """The selection and group that survive a switch to `sector`: only what that sector's rows offer. When its rows are not known yet
+    nothing is carried (a reset is the safe answer: a filter it does not offer would only show an empty list)."""
+    have = sector.get("offered")
+    if have is None:
+        return {}, ""
+    keep = {p: [v for v in vs if v in have.get(p, ())] for p, vs in st.sel.items()}
+    groups = sector.get("groups") or ()
+    return {p: vs for p, vs in keep.items() if vs}, (st.group if st.group in groups else "")
+
+
+def sector_options(st: State, sectors: list[dict], current: str) -> list[dict]:
+    """The Sector group's options, one per configured thesis. Choosing one asks for that thesis' list with the filters it also offers (the
+    others are reset); the investor of the Top matching tab is reset to that sector's default."""
+    out = []
+    for s in sectors:
+        sel, group = _carried(st, s) if s["id"] != current else (st.sel, st.group)
+        extra = {"group": group, "for": st.org if s["id"] == current else "", "thesis": s["id"]}
+        out.append({"value": s["id"], "label": short_title(s["title"]), "count": s.get("rows"), "on": s["id"] == current,
+                    "href": href(sel, extra), "hx": href(sel, extra, None, PARTIAL), "id": f"f-thesis-{_slug(s['id'])}"})
+    return out
+
+
 # ---- what the page prints -----------------------------------------------------------------------------------------------------------
 
-def rail(rows: list[dict], sel: dict[str, list[str]], extra: dict[str, str]) -> dict:
-    """Everything the rail prints for one group's (unfiltered) rows and the current selection."""
+def rail(rows: list[dict], sel: dict[str, list[str]], extra: dict[str, str], sector_opts: list[dict] | None = None) -> dict:
+    """Everything the rail prints for one group's (unfiltered) rows and the current selection. `sector_opts` (sector_options) fills the
+    Sector group; it takes one choice, so it is neither a filter nor counted among the active ones."""
     shown = apply(rows, sel)
     facets = []
     for param, heading, section, is_open, source in facet_list():
         if source:
+            if source == "theses" and sector_opts and len(sector_opts) > 1:
+                facets.append({"param": param, "heading": heading, "section": section, "options": sector_opts, "active": 0, "open": is_open, "single": True})
             continue
         present: Counter = Counter()      # values in the group's rows, whatever the other facets say
         count: Counter = Counter()        # rows that would show with this value on and the other facets as selected
@@ -218,9 +263,10 @@ def chips(sel: dict[str, list[str]], extra: dict[str, str]) -> list[dict]:
             for p in params() for v in sel.get(p, [])]
 
 
-def view(H: dict, params_) -> dict:
+def view(H: dict, params_, *, sectors: list[dict] | None = None, current: str = "", title: str = "") -> dict:
     """The cached home list for this request: every group's rows filtered by the state, plus what the list section prints for the group in
-    view (`cur`, `rail`, `chips`, `count`). The cached dict is never modified; with no filter the rows are the cached ones."""
+    view (`cur`, `rail`, `chips`, `count`). `sectors` are the configured theses ({id, title, rows, offered, groups}), `current` the one in
+    view. The cached dict is never modified; with no filter the rows are the cached ones."""
     st = params_ if isinstance(params_, State) else parse_state(params_)
     sel, extra = st.sel, st.extra()
     base = H.get("groups") or []
@@ -235,13 +281,15 @@ def view(H: dict, params_) -> dict:
     out["tabs"] = [{"key": k, "label": label, "n": len(rs), "on": bool(cur) and cur[0] == k,
                     "href": href(sel, {**extra, "group": "" if k == "all" else k}), "hx": href(sel, {**extra, "group": "" if k == "all" else k}, None, PARTIAL)}
                    for k, label, rs in out["groups"]]
-    R = rail(cur_unfiltered[2], sel, extra) if cur_unfiltered else None
+    S = sector_options(st, sectors, current) if sectors else None
+    R = rail(cur_unfiltered[2], sel, extra, S) if cur_unfiltered else None
     if R is not None:
         R["total"] = len(H.get("rows") or [])
         R["count_text"] = f"{R['shown']} of {R['total']} startups"
         R["chips"] = chips(sel, extra)
         R["state_url"] = st.url
         R["country"] = next((f for f in R["facets"] if f["param"] == "country"), None)
+        R["sector_chip"] = short_title(title) if title else None
     out["rail"] = R
     out["state"] = st
     return out

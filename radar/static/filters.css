@@ -19,6 +19,18 @@
 .hc-empty-p a { color: var(--accent); font-weight: 600; }
 :root[data-skin="editorial"] .hc-empty-h { font-family: var(--e-serif); font-weight: 500; font-size: 24px; }
 
+/* the default chip: the sector in view. It is a label, not a control: no cross, no link */
+.hc-chip-default { border-color: var(--hairline); background: var(--surface); padding: 0 14px; cursor: default; }
+.hc-chip-default > span { color: var(--text); }
+
+/* the Sector group takes one choice: a round mark instead of a square one */
+.hr-radio .hr-box { border-radius: 50%; }
+.hr-radio.on .hr-box::after { left: 3px; top: 3px; width: 10px; height: 10px; border: 0; border-radius: 50%; background: var(--bg); transform: none; }
+
+/* the full records under the list, when another sector than the page's own is in view */
+.hc-stale { max-width: 640px; margin: 28px auto 0; padding-top: 14px; border-top: 1px solid var(--hairline); }
+.hc-stale a { color: var(--accent); font-weight: 600; }
+
 /* country links: a multi-select row (the same state as the rail's Country group) */
 .hc-countries a.hc-cc[aria-checked="true"] { color: var(--text); border-bottom-color: var(--accent); }
 .hc-countries a.hc-cc { gap: 6px; }
@@ -29,3 +41,8 @@
 /* a request is in flight: the list dims a little; reduced motion gets no transition */
 .hc[aria-busy="true"] .hc-rows, .hc[aria-busy="true"] .hc-empty { opacity: .55; transition: opacity .12s ease; }
 @media (prefers-reduced-motion: reduce) { .hc[aria-busy="true"] .hc-rows { transition: none; } }
+
+/* no list to filter yet (no store for the sector): the sectors as plain links, so the way to another sector is never lost */
+.hc-sectors { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin: 16px 0 0; }
+.hc-sectors a { display: inline-flex; align-items: center; min-height: 44px; color: var(--accent); font-weight: 600; text-underline-offset: 3px; }
+.hc-sectors a[aria-current] { color: var(--text); text-decoration: none; }

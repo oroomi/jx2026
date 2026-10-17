@@ -13,6 +13,7 @@
 # flags       a flag is printed beside a country when `dir`/<lowercase code>.svg exists (flag-icons, MIT; see the README beside the files).
 
 facets:
+  - {param: thesis,   heading: Sector,                      section: scope,    open: true,  source: theses}
   - {param: verdict,  heading: Verdict,                     section: criteria, open: true}
   - {param: impact,   heading: Ocean impact,                section: criteria, open: true}
   - {param: trl,      heading: Technology readiness (TRL),  section: criteria, open: true}
@@ -27,6 +28,7 @@ facets:
   - {param: member,   heading: Declared company,            section: more,     open: false}
 
 sections:
+  scope: ""
   criteria: What the judges score
   more: Narrow down
 

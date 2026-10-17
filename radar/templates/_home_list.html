@@ -3,12 +3,13 @@
    (radar/routes/home_rail.py). Needs H (radar.home_filter.view), thesis. Every control is a link carrying the next state in the query
    and, with htmx, hx-get to /home/list plus hx-replace-url (the address bar is rewritten, no history entry is added). #}
 {% from "_c_components.html" import sparkline %}
-{% macro chip_list(R) %}<ul class="hc-chips" aria-label="Active filters">
-  {% for c in R.chips %}<li><a class="hc-chip" id="{{ c.id }}" href="{{ c.href }}" hx-get="{{ c.hx }}" hx-replace-url="{{ c.href }}" aria-label="Remove filter {{ c.heading }}: {{ c.label }}"><span>{{ c.heading }}: {{ c.label }}</span><i aria-hidden="true">&times;</i></a></li>{% endfor %}
+{% macro chip_list(R, sector=false, filters=true) %}<ul class="hc-chips" aria-label="Active filters">
+  {% if sector and R.sector_chip %}<li><span class="hc-chip hc-chip-default" title="The sector in view. Change it in the filter, under Sector."><span>{{ R.sector_chip }}</span></span></li>{% endif %}
+  {% if filters %}{% for c in R.chips %}<li><a class="hc-chip" id="{{ c.id }}" href="{{ c.href }}" hx-get="{{ c.hx }}" hx-replace-url="{{ c.href }}" aria-label="Remove filter {{ c.heading }}: {{ c.label }}"><span>{{ c.heading }}: {{ c.label }}</span><i aria-hidden="true">&times;</i></a></li>{% endfor %}{% endif %}
 </ul>{% endmacro %}
 {% set R = H.rail %}
 {% set cur = H.cur %}
-<div id="hc-list" class="hc-list" data-thesis="{{ thesis.id }}" data-params="{{ H.params | join(',') }}" hx-target="#hc-list" hx-swap="outerHTML" hx-sync="closest .hc:replace" hx-history="false">
+<div id="hc-list" class="hc-list" data-thesis="{{ thesis.id }}" data-params="{{ H.params | join(',') }}" data-examples="{{ (ask_examples(thesis) if ask_examples is defined else []) | tojson | forceescape }}" hx-target="#hc-list" hx-swap="outerHTML" hx-sync="closest .hc:replace" hx-history="false">
   <p class="hc-status sk-terminal" aria-label="Data status"><span class="hc-live">LIVE</span> store {{ H.fetched }} · {{ H.rows | length }} rows · {{ H.window[0] }} to {{ H.window[1] }}</p>
   <nav class="hc-pills" aria-label="Groups">
     {% for t in H.tabs %}<a href="{{ t.href }}" hx-get="{{ t.hx }}" hx-replace-url="{{ t.href }}" data-key="{{ loop.index }}"{% if t.on %} aria-current="true"{% endif %}><kbd class="sk-terminal">{{ loop.index }}</kbd>{{ t.label }} <span>{{ t.n }}</span></a>{% endfor %}
@@ -19,7 +20,7 @@
   <div class="hc-filterbar">
     <button type="button" class="hc-fbtn" data-rail-toggle aria-controls="hc-rail" aria-expanded="false">Filter{% if R.n_active %} <span class="hc-fn">{{ R.n_active }}</span>{% endif %}</button>
   </div>
-  {% if R.n_active and cur[2] %}<div class="hc-active">{{ chip_list(R) }}<a class="hc-clearall" href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-replace-url="{{ R.clear_href }}">Clear all</a></div>{% endif %}
+  {% if (R.n_active and cur[2]) or R.sector_chip %}<div class="hc-active">{{ chip_list(R, true, cur[2] | length > 0) }}{% if R.n_active and cur[2] %}<a class="hc-clearall" href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-replace-url="{{ R.clear_href }}">Clear all</a>{% endif %}</div>{% endif %}
   {% include "_filter_rail.html" %}
   {% if cur[2] %}
   <ol class="hc-rows">

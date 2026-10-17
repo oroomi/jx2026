@@ -16,9 +16,11 @@
   {% include "_home_list.html" %}
   <p class="hc-keys sk-terminal" aria-hidden="true"><kbd>/</kbd> search <kbd>1</kbd>-<kbd>{{ H.groups | length }}</kbd> groups <kbd>j</kbd><kbd>k</kbd> rows <kbd>&#8629;</kbd> open</p>
 </section>
-<details class="hc-more" id="all-records">
+<p class="hc-stale meta" id="hc-stale" hidden>The records below belong to the sector you opened this page with. <a href="/#all-records">Open the full records of the sector in view</a>.</p>
+<details class="hc-more" id="all-records" data-thesis="{{ thesis.id }}">
 <summary>All public records in the window, weak matches and the rules</summary>
 {% endif %}
+{% if not (H and H.rows) and q is none and sector_links is defined %}<nav class="hc-sectors meta" aria-label="Sector"><span>Sector:</span> {% for s in sector_links(thesis) %}<a href="{{ s.href }}"{% if s.on %} aria-current="true"{% endif %}>{{ s.title }}</a>{% endfor %}</nav>{% endif %}
 <h1 class="hero">Early signals of {{ thesis.sector_label or "new" }} startups, for fund and accelerator teams.</h1>
 {% if H and H.warming %}<p class="meta hc-warming" id="home-warming">The grouped view of this sector is still being prepared; this is the plain feed. Reload in a minute.</p>{% endif %}
 <p class="lede">Every line links to the public record. {% if counts %}Window: {{ counts.window_start }} to {{ counts.window_end }} ({{ counts.window_days }} days), newest first.{% else %}Window: last {{ thesis.geography.feed_window_days }} days.{% endif %}</p>

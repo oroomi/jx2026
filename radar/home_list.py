@@ -300,6 +300,20 @@ def for_template(thesis: dict, wait=_DEFAULT_WAIT) -> dict | None:
     return {"warming": True, "rows": []} if busy else None  # not cached and not building: the build failed, the page shows the plain feed
 
 
+def peek(thesis: dict) -> dict | None:
+    """The cached list for this thesis if there is one, else None. Never builds and never waits (the sector links use it to see which
+    filters another sector offers)."""
+    conn = store.open_db(thesis=thesis)
+    if conn is None:
+        return None
+    try:
+        key = _cache_key(conn, thesis)
+    finally:
+        conn.close()
+    with _lock:
+        return _cache.get(key)
+
+
 def warm(thesis: dict) -> None:
     """Build one thesis' list now, on this thread (skips what is cached; waits for a build another thread already started)."""
     for_template(thesis, wait=None)

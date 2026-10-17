@@ -10,12 +10,12 @@
     <button type="button" class="hr-close" data-rail-toggle aria-label="Close the filter">Done</button>
   </div>
   {% for f in R.facets %}
-  {% if loop.first or loop.previtem.section != f.section %}<p class="hr-sec">{{ R.sections.get(f.section, f.section) }}</p>{% endif %}
+  {% if (loop.first or loop.previtem.section != f.section) and R.sections.get(f.section, f.section) %}<p class="hr-sec">{{ R.sections.get(f.section, f.section) }}</p>{% endif %}
   <details class="hr-f" data-f="{{ f.param }}"{% if f.open %} open{% endif %}>
     <summary><span>{{ f.heading }}</span>{% if f.active %}<span class="hr-on">{{ f.active }}</span>{% endif %}</summary>
-    <ul>
+    <ul{% if f.single %} role="radiogroup" aria-label="{{ f.heading }}"{% endif %}>
       {% for o in f.options %}
-      <li><a id="{{ o.id }}" class="hr-o{{ ' on' if o.on }}{{ ' zero' if (not o.count and not o.on) }}" href="{{ o.href }}" hx-get="{{ o.hx }}" hx-replace-url="{{ o.href }}" role="checkbox" aria-checked="{{ 'true' if o.on else 'false' }}"><span class="hr-box" aria-hidden="true"></span><span class="hr-t">{{ o.label }}</span><span class="hr-n">{{ o.count }}</span></a></li>
+      <li><a id="{{ o.id }}" class="hr-o{{ ' on' if o.on }}{{ ' hr-radio' if f.single }}{{ ' zero' if (o.count == 0 and not o.on) }}" href="{{ o.href }}" hx-get="{{ o.hx }}" hx-replace-url="{{ o.href }}" role="{{ 'radio' if f.single else 'checkbox' }}" aria-checked="{{ 'true' if o.on else 'false' }}"><span class="hr-box" aria-hidden="true"></span><span class="hr-t">{{ o.label }}</span><span class="hr-n">{{ o.count if o.count is not none }}</span></a></li>
       {% endfor %}
     </ul>
   </details>

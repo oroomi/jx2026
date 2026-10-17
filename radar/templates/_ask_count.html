@@ -1,0 +1,3 @@
+{# The Ask bar's one-line count. A sector change swaps its text in place (hx-swap-oob="innerHTML"), because the numbers belong to the sector in view. #}
+{% set days = thesis.geography.feed_window_days or 90 %}{% set n_new = H.headline.new %}
+<span id="ask-count-text"{% if oob %} hx-swap-oob="innerHTML"{% endif %}>{{ n_new }} compan{{ "y" if n_new == 1 else "ies" }} first seen in the last {{ days }} days, {{ H.rows | length }} on the list.</span>

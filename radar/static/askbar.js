@@ -361,6 +361,30 @@
     b.addEventListener("click", function () { input.value = b.dataset.q; ask(b.dataset.q); });
   });
 
+  /* The sector changed in place (radar/static/filters.js): ask about that sector from now on, with its example questions. */
+  document.addEventListener("filters:swapped", function (e) {
+    var d = e.detail || {};
+    if (d.thesis && d.thesis !== (root.dataset.thesis || "")) {
+      root.dataset.thesis = d.thesis;
+      card.hidden = true;
+      if (d.examples && d.examples.length) {
+        examples = d.examples;
+        root.dataset.examples = JSON.stringify(examples);
+        input.placeholder = examples[0];
+        var ul = root.querySelector(".ask-try");
+        if (ul) {
+          ul.textContent = "";
+          examples.slice(0, 5).forEach(function (q) {
+            var li = el("li"), b = el("button", "ask-chip", q);
+            b.type = "button"; b.dataset.q = q;
+            b.addEventListener("click", function () { input.value = q; ask(q); });
+            li.appendChild(b); ul.appendChild(li);
+          });
+        }
+      }
+    }
+  });
+
   /* Ctrl or Cmd + K focuses the bar (the Linear and Raycast habit). */
   var mac = /Mac|iPhone|iPad/i.test(navigator.platform || navigator.userAgent || "");
   var key = root.querySelector(".ask-key");

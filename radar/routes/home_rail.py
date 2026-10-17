@@ -10,11 +10,34 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from jinja2 import pass_context
 
-from radar import home_filter, home_list, store
+from radar import home_filter, home_list, store, thesis as thesis_mod
 from radar.routes import home_list as _registers_first  # noqa: F401  (its template globals must exist before this module overrides one)
 from radar.routes.home import templates
 
 router = APIRouter()
+
+
+def sectors_for(current: dict, current_data: dict) -> list[dict]:
+    """The configured theses for the Sector group: id, title, how many rows its list has and which filter values and groups it offers.
+    Another sector's list is only read from the cache (never built here): when it is not cached yet its rows and filters are unknown, and
+    choosing it carries no filter over."""
+    out = []
+    for tid, path in thesis_mod.available().items():
+        th = current if tid == current["id"] else thesis_mod.load(path)
+        data = current_data if tid == current["id"] else home_list.peek(th)
+        rows = data.get("rows") if data and not data.get("warming") else None
+        out.append({"id": tid, "title": th["title"], "rows": len(rows) if rows is not None else None,
+                    "offered": home_filter.offered(rows), "groups": [g[0] for g in (data or {}).get("groups") or []] if rows is not None else None})
+    return out
+
+
+def sector_links(current: dict) -> list[dict]:
+    """The configured sectors as plain links, for the page that has no list to filter yet (no store for this sector, or a search result)."""
+    return [{"id": tid, "title": home_filter.short_title(thesis_mod.load(path)["title"]), "on": tid == current["id"], "href": f"/?thesis={tid}"}
+            for tid, path in thesis_mod.available().items()]
+
+
+templates.env.globals["sector_links"] = sector_links
 
 
 def filtered_view(request: Request, thesis: dict) -> dict | None:
@@ -23,7 +46,7 @@ def filtered_view(request: Request, thesis: dict) -> dict | None:
     data = home_list.for_template(thesis)
     if not data or not data.get("rows"):
         return data
-    return home_filter.view(data, home_filter.parse_state(request.query_params))
+    return home_filter.view(data, home_filter.parse_state(request.query_params), sectors=sectors_for(thesis, data), current=thesis["id"], title=thesis["title"])
 
 
 @pass_context

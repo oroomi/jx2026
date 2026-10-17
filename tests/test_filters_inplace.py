@@ -64,7 +64,7 @@ def test_an_in_place_swap_returns_only_the_list_section_and_the_count(client):
     for page_only in ("<html", "<head", "<body", '<section class="hc"', 'id="ask-form"', "<h1", 'class="top"', "c-tabbar"):
         assert page_only not in t, page_only
     # the count is a separate node, swapped out of band into the live region that stays on the page
-    assert t.rstrip().endswith("</p>") and 'id="hc-count"' in t and 'hx-swap-oob="innerHTML"' in t
+    assert 'id="hc-count"' in t and t.count('hx-swap-oob="innerHTML"') == 2          # the result count and the Ask bar's count line
     assert r.headers["cache-control"] == "no-store"
 
 
@@ -136,7 +136,7 @@ def test_active_filters_are_removable_chips_with_clear_all(client, H):
     assert clear and clear.groups() == ("/?group=fit", "/home/list?group=fit", "/?group=fit")
     # nothing selected: no chips and no Clear all
     plain = client.get("/home/list", headers=HX).text
-    assert 'class="hc-chip"' not in plain and 'class="hc-clearall"' not in plain and "hc-active" not in plain
+    assert '<a class="hc-chip"' not in plain and 'class="hc-clearall"' not in plain      # only the sector's default chip, which is not a control
 
 
 def test_the_empty_state_says_so_and_offers_the_chips_to_remove(client, H):
@@ -146,8 +146,8 @@ def test_the_empty_state_says_so_and_offers_the_chips_to_remove(client, H):
     t = client.get("/home/list?" + q, headers=HX).text
     box = t[t.index('<div class="hc-empty"'):t.index('class="hc-note"')]
     assert "No startup matches these filters" in box and 'class="hc-rows"' not in t
-    assert len(re.findall(r'class="hc-chip"', box)) == 4          # the chips live in the box, once (not also above it)
-    assert t.count('class="hc-chip"') == 4 and 'class="hc-active"' not in t
+    assert len(re.findall(r'<a class="hc-chip"', box)) == 4          # the chips live in the box, once (not also above it)
+    assert t.count('<a class="hc-chip"') == 4 and 'class="hc-clearall"' in box and t.count('class="hc-clearall"') == 1
     assert 'class="hc-clearall"' in box and ">0 of " in t
 
 
@@ -211,3 +211,97 @@ def test_the_country_name_table_is_complete_and_iso():
     names = home_config.country_names()
     assert len(names) == 249 and all(isinstance(k, str) and re.fullmatch(r"[A-Z]{2}", k) for k in names)
     assert names["NO"] == "Norway" and home_config.country_name("FI") == "Finland" and home_config.country_name("ZZ") == "ZZ"   # NO must not read as a YAML false
+
+
+# ---- Step 2: the sector is a filter group, the header block is gone ------------------------------------------------------------------------
+HEALTH = "health_tech_turku"
+BLUE = "redstone_apelago_blue"
+
+
+@pytest.fixture(scope="module")
+def H_health():
+    mp = pytest.MonkeyPatch()
+    _use_snapshot(mp)
+    try:
+        yield home_list.for_template(thesis_mod.load(thesis_mod.available()[HEALTH]), wait=None)
+    finally:
+        mp.undo()
+
+
+def test_the_header_sector_block_is_gone_from_the_layout():
+    base = (ROOT / "radar" / "templates" / "base.html").read_text()
+    for gone in ("thesis-bar", "thesis-switch", "thesis-select", "Change sector or region", "thesis_options", 'class="sector"'):
+        assert gone not in base, gone
+    css = "".join((ROOT / "radar" / "static" / f).read_text() for f in ("app.css", "site.css", "home_c.css", "askbar.css"))
+    assert "thesis-bar" not in css and "thesis-switch" not in css and ".sector>summary" not in css
+
+
+def test_the_sector_group_lists_the_configured_theses_with_the_current_one_as_a_default_chip(client, H, H_health):
+    t = client.get("/").text
+    group = t[t.index('data-f="thesis"'):]
+    group = group[:group.index("</details>")]
+    ids = re.findall(r'<a id="f-thesis-([^"]+)"', group)
+    assert ids == [i.replace("_", "-") for i in thesis_mod.available()]
+    assert group.count('aria-checked="true"') == 1 and 'role="radiogroup"' in group
+    assert "<span>Sector</span>" in t[t.index('data-f="thesis"'):][:400]
+    # the current sector is the default chip: its title without the bracket, no cross, not a link
+    assert '<span class="hc-chip hc-chip-default"' in t and "<span>Blue economy, Finland and Nordics</span>" in t
+    assert home_filter.short_title("Blue economy, Finland and Nordics (Redstone Blue x A'Pelago)") == "Blue economy, Finland and Nordics"
+    # a sector that has a list shows how many startups it holds
+    assert f'{len(H_health["rows"])}</span></a></li>' in group
+
+
+def test_choosing_another_sector_swaps_the_list_in_place_for_that_thesis(client, H, H_health):
+    r = client.get(f"/home/list?thesis={HEALTH}", headers=HX)
+    assert r.status_code == 200 and r.text.lstrip().startswith('<div id="hc-list"')
+    assert f'data-thesis="{HEALTH}"' in r.text and f">{len(H_health['rows'])} of {len(H_health['rows'])} startups</p>" in r.text
+    assert r.headers["hx-replace-url"] == f"/?thesis={HEALTH}"            # the address follows, replaced and not pushed
+    assert f"radar_thesis={HEALTH}" in r.headers["set-cookie"]               # the other pages follow the sector chosen
+    assert 'id="ask-count-text" hx-swap-oob="innerHTML"' in r.text         # the Ask bar's count belongs to the sector in view
+    assert f'<span class="hc-chip hc-chip-default"' in r.text
+    # the whole page for the same address renders the same list (a refresh, a shared link, an old /?thesis= link)
+    page = client.get(f"/?thesis={HEALTH}")
+    assert list_section(page.text) == list_section(r.text)
+    # and the default sector again
+    back = client.get(f"/home/list?thesis={BLUE}", headers=HX)
+    assert f'data-thesis="{BLUE}"' in back.text and back.headers["hx-replace-url"] == f"/?thesis={BLUE}"
+
+
+def test_a_sector_switch_keeps_only_the_filters_the_new_sector_offers():
+    st = home_filter.parse_state(_qp("/?group=ready&verdict=INVEST&verdict=WATCHLIST&country=FI&trl=7-9"))
+    sectors = [{"id": "a", "title": "Alpha (note)", "rows": 5, "offered": {"verdict": {"INVEST"}, "country": {"FI"}}, "groups": ["all", "ready"]},
+               {"id": "b", "title": "Beta", "rows": 3, "offered": {"verdict": {"WATCHLIST"}, "country": {"SE"}, "trl": {"7-9"}}, "groups": ["all", "new"]},
+               {"id": "c", "title": "Gamma", "rows": None, "offered": None, "groups": None}]
+    o = {x["value"]: x for x in home_filter.sector_options(st, sectors, "a")}
+    assert o["a"]["on"] and o["a"]["href"] == "/?group=ready&thesis=a&verdict=INVEST&verdict=WATCHLIST&trl=7-9&country=FI"     # the current sector keeps its state
+    assert o["b"]["href"] == "/?thesis=b&verdict=WATCHLIST&trl=7-9"        # INVEST, FI and the group "ready" are not offered there
+    assert o["b"]["hx"] == "/home/list?thesis=b&verdict=WATCHLIST&trl=7-9"
+    assert o["c"]["href"] == "/?thesis=c"                                    # its list is not known yet: nothing is carried
+    assert [x["label"] for x in o.values()] == ["Alpha", "Beta", "Gamma"] and o["a"]["count"] == 5 and o["c"]["count"] is None
+
+
+def test_the_rail_links_to_the_other_sectors_with_only_what_they_offer(client, H, H_health):
+    have = home_filter.offered(H_health["rows"])
+    st_vals = {v for r in H["rows"] for v in r["facets"]["verdict"]}
+    missing = sorted(v for v in st_vals if v not in have.get("verdict", set()))
+    common = sorted(have.get("country", set()) & {v for r in H["rows"] for v in r["facets"]["country"]})
+    if not missing or not common:
+        pytest.skip("the snapshot sectors do not differ in verdicts or share no country")
+    q = f"verdict={missing[0].replace(' ', '+')}&country={common[0]}"
+    t = client.get("/?" + q).text
+    href = htmllib.unescape(re.search(rf'<a id="f-thesis-{HEALTH.replace("_", "-")}" class="[^"]*" href="([^"]+)"', t).group(1))
+    assert f"thesis={HEALTH}" in href and f"country={common[0]}" in href and "verdict=" not in href
+
+
+def test_the_sector_group_is_a_link_with_htmx_so_nothing_loads_a_page(client):
+    t = client.get("/").text
+    for a in tags(t[t.index('role="radiogroup"'):t.index("</details>", t.index('role="radiogroup"'))]):
+        if a.startswith("<a "):
+            assert 'hx-get="/home/list?' in a and 'hx-replace-url="/?' in a and 'role="radio"' in a, a
+    assert 'id="hc-stale"' in t and 'id="all-records" data-thesis="' in t        # the records below name the sector they belong to
+
+
+def test_other_pages_still_work_with_the_default_sector(client):
+    for url in ("/radar", "/backtest", "/method", "/data", "/search?q=zzz", "/c/does-not-exist"):
+        assert client.get(url).status_code in (200, 404), url
+    assert client.get("/").status_code == 200 and client.get(f"/?thesis={BLUE}").status_code == 200

@@ -94,7 +94,18 @@
       }
       saved = null;
     }
-    document.dispatchEvent(new CustomEvent("filters:swapped", { detail: { thesis: list.getAttribute("data-thesis") || "" } }));
+    var thesis = list.getAttribute("data-thesis") || "", examples = [];
+    try { examples = JSON.parse(list.getAttribute("data-examples") || "[]") || []; } catch (x) { examples = []; }
+    /* the full records under the list belong to the sector the page was loaded with: when another sector is in view they are hidden, with a link
+       to open them (a visitor's own choice, not a filter) */
+    var more = $("all-records"), stale = $("hc-stale");
+    if (more && stale) {
+      var other = !!more.getAttribute("data-thesis") && more.getAttribute("data-thesis") !== thesis;
+      more.hidden = other; stale.hidden = !other;
+      var link = stale.querySelector("a");
+      if (link && other) link.setAttribute("href", "/?thesis=" + encodeURIComponent(thesis) + "#all-records");
+    }
+    document.dispatchEvent(new CustomEvent("filters:swapped", { detail: { thesis: thesis, examples: examples } }));
   });
   function failed() {
     busy(false);
@@ -104,9 +115,9 @@
   document.addEventListener("htmx:responseError", failed);
   document.addEventListener("htmx:sendError", failed);
 
-  /* Space toggles a checkbox-like option as well as Enter (they are links, so only Enter works by itself) */
+  /* Space toggles a checkbox or radio option as well as Enter (they are links, so only Enter works by itself) */
   document.addEventListener("keydown", function (e) {
-    var a = e.target && e.target.closest && e.target.closest("a[role=checkbox]");
+    var a = e.target && e.target.closest && e.target.closest("a[role=checkbox], a[role=radio]");
     if (a && (e.key === " " || e.key === "Spacebar") && !e.altKey && !e.ctrlKey && !e.metaKey) { e.preventDefault(); a.click(); }
   });
 })();

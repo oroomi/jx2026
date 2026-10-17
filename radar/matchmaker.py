@@ -94,7 +94,7 @@ def _index(conn, thesis: dict, cfg: dict, today: date) -> dict:
                 break
         for c in eco.get("caps") or []:
             if cap_group.get(c):
-                groups.setdefault(cap_group[c], []).append(f"the dataset's capability tag {c}")
+                groups.setdefault(cap_group[c], []).append(orgs_mod.capability_evidence(cfg, cap_group[c]))
         if full not in cg:
             h = matchtext.group_hits(full, cfg)
             cg[full] = (h, matchtext.stems(full, cfg), matchtext.trigger_stems(h, cfg))
@@ -197,7 +197,7 @@ def _comp(cid: str, cfg: dict, met, chip: str | None = None, reason: str | None 
 
 def _sector(sp: dict, org: dict, cfg: dict) -> dict:
     shared = [g for g in sp["groups"] if g in org["groups"]]
-    shared.sort(key=lambda g: (not any(e.startswith(("its industry code", "the dataset", "the impact")) for e in sp["groups"][g]), -len(sp["groups"][g])))
+    shared.sort(key=lambda g: (not any(e.startswith(("its industry code", orgs_mod.CAP_EVIDENCE, "the impact")) for e in sp["groups"][g]), -len(sp["groups"][g])))
     if not org["has_declared"]:
         return _comp("sector", cfg, None, note="no declared text and no dataset tags")
     if not shared:

@@ -40,6 +40,7 @@ templates.env.filters["signal_label"] = _labels.signal_label
 templates.env.filters["source_label"] = _labels.source_label
 templates.env.filters["plain"] = _labels.plain
 templates.env.filters["origin_label"] = _labels.origin_label
+templates.env.filters["group_label"] = _labels.group_label
 templates.env.filters["plain_text"] = _labels.plain_text
 
 

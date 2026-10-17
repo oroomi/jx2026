@@ -246,9 +246,8 @@ def explain(row: dict, others: list, thesis: dict, texts: dict | None = None) ->
     # a sector word from the line of business, the source's own text or a corroborated name word. Without it the row stays weak.
     family = code_alone_family(code, thesis) if "industry_code" in reasons else None
     if family and not set(reasons) - {"industry_code"}:
-        masked = family + "x" * max(len(code.replace(".", "")) - len(family), 0)
         lob = f"'{desc}' ({code})" if desc else f"code {code}"
-        why = f"Weak: industry code {masked} alone; a consultancy code needs a sector word. The registered line of business is {lob}."
+        why = f"Weak: an industry code in the {family} family alone; a consultancy code needs a sector word. The registered line of business is {lob}."
         return {"reasons": reasons, "strength": "weak", "why": why}
     if family:  # the code is on the list, but something stronger backs it: lead with that, keep the code as a further reason
         reasons.remove("industry_code")

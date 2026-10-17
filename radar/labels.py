@@ -64,6 +64,20 @@ SOURCE_LABELS = {
 }
 
 
+# A company's group tag (companies.group_tag) in words. The tag is a table key; a page prints the label (D36).
+GROUP_LABELS = {
+    "cohort": "cohort company",
+    "portfolio": "portfolio company",
+    "feed": "found in the early-signal feed",
+    "intake": "new startup, no thesis evidence yet",
+    "ecosystem": "from the ecosystem dataset",
+}
+
+
+def group_label(tag: str | None) -> str:
+    return GROUP_LABELS.get(tag or "") or plain(tag)
+
+
 # Where a who-comes-next row came from (matching.py `origin`), in words.
 ORIGIN_LABELS = {"programmes_grants.csv": "declared programmes list", "ecosystem dataset": "ecosystem dataset"}
 

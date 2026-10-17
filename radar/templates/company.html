@@ -22,7 +22,7 @@
 <article class="co-c">
   <header class="cc-head" id="aava-who">
     <span class="cc-mark" aria-hidden="true" style="--pct: {{ ((covered | length) / (checks | length) * 100) | round | int }}%">{% set w = (c.name | replace(" Oyj", "") | replace(" Oy", "") | replace(" Ab", "") | trim).split() %}{{ ((w[0][:1] if w else "") ~ (w[1][:1] if w | length > 1 else (w[0][1:2] if w else ""))) | upper }}</span>
-    <div><p class="cc-tick">{{ c.y_tunnus or c.company_key }} · {{ c.group_tag }}</p><h1>{{ c.name }}</h1></div>
+    <div><p class="cc-tick">{{ c.y_tunnus or c.company_key }} · {{ c.group_tag | group_label }}</p><h1>{{ c.name }}</h1></div>
   </header>
 
   {% set vk = ((rec.decision if rec else none) or "none") | lower | replace(" ", "-") %}
@@ -167,7 +167,7 @@
 </nav>
 <div class="co-main">
 <header class="co-head">
-  <p class="co-group">{{ c.group_tag }}</p>
+  <p class="co-group">{{ c.group_tag | group_label }}</p>
   <h1>{{ c.name }}</h1>
   {% if connections %}
   <div class="connect">
@@ -310,7 +310,7 @@
 <section id="q3" class="q q-next">
   <h2><span class="num">03</span> Who comes next</h2>
   {% from "_answers.html" import next_answer %}{{ next_answer(nxt) }}
-  <p class="plain">Investors, funding and partners to approach, in priority order. Scored matches come from the declared ecosystem dataset{% if eco and eco.label %}: {{ eco.label }}{% endif %}; low-confidence rows are leads, not facts.</p>
+  <p class="plain">Investors, funding and partners to approach, in priority order. Rated matches come from the declared ecosystem dataset{% if eco and eco.label %}: {{ eco.label }}{% endif %}; low-confidence rows are leads, not facts.</p>
   <div class="nx-grid">
   {% for title, k in (("Investors", "investors"), ("Funding and programmes", "funding"), ("Partners and clients", "partners")) %}
     <div class="nx-list">
@@ -320,7 +320,7 @@
         {% for r in nxt[k] %}
         <li><span class="nx-name"><a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.name }}</a></span> <span class="nx-kind">{{ r.kind }}</span>
           <span class="nx-why">{{ r.reason }}</span>
-          <span class="nx-meta">{% if r.score is not none %}dataset score {{ r.score }}{% else %}{{ r.origin | origin_label }}{% endif %}{% if r.confidence %}, confidence {{ r.confidence }}{% endif %}{% if r.deadline %}, deadline {{ r.deadline }}{% endif %}</span>
+          <span class="nx-meta">{% if r.score is not none %}rated by the declared ecosystem research{% else %}{{ r.origin | origin_label }}{% endif %}{% if r.confidence %}, confidence {{ r.confidence }}{% endif %}{% if r.deadline %}, deadline {{ r.deadline }}{% endif %}</span>
           {% if r.facts %}<span class="nx-meta">{{ r.facts }}</span>{% endif %}</li>
         {% endfor %}
       </ol>
@@ -328,7 +328,7 @@
     </div>
   {% endfor %}
   </div>
-  <p class="rule">{{ rank_rule }} The reason text is the dataset's own: caps = capability codes the two share, kw = shared keywords, stage = stage fit from 0 to 1, impact = impact score.</p>
+  <p class="rule">{{ rank_rule }} The reason text is built from the declared ecosystem research: the capabilities the two share, shared keywords and how well the stages fit.</p>
 </section>
 
 <section id="q4" class="q q-step">

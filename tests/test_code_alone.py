@@ -54,10 +54,10 @@ def test_711_code_alone_is_weak_with_a_plain_reason(feed_rows):
     _, _, rows = feed_rows
     r = rows["A-alone"]
     assert r["strength"] == "weak"
-    assert r["why"].startswith("Weak: industry code 711xx alone; a consultancy code needs a sector word.")
+    assert r["why"].startswith("Weak: an industry code in the 711 family alone; a consultancy code needs a sector word.")
     assert f"'{CONSULT_DESC}' (71121)" in r["why"]
     assert "_" not in r["why"]  # plain words on the page, never snake_case
-    assert rows["A-r200"]["strength"] == "weak" and "industry code 712xx alone" in rows["A-r200"]["why"]
+    assert rows["A-r200"]["strength"] == "weak" and "an industry code in the 712 family alone" in rows["A-r200"]["why"]
 
 
 def test_711_with_a_sector_word_from_the_line_of_business_is_strong(feed_rows):

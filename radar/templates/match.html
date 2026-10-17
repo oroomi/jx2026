@@ -42,7 +42,7 @@
     <ul class="mt-orgs">
     {% for k in companies %}
       <li><a class="mt-org" href="/match?company={{ k.company_key }}#results" {% if k.company_key == selected %}aria-current="true"{% endif %}>
-        <span class="mt-org-k">{{ k.group_tag }}{% if k.country %} · {{ k.country }}{% endif %}</span><span class="mt-org-n">{{ k.name }}</span></a></li>
+        <span class="mt-org-k">{{ k.group_tag | group_label }}{% if k.country %} · {{ k.country }}{% endif %}</span><span class="mt-org-n">{{ k.name }}</span></a></li>
     {% else %}
       <li class="mt-none">No company matches that search.</li>
     {% endfor %}

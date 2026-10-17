@@ -24,6 +24,8 @@ def config(thesis: dict) -> dict | None:
     cfg["stop"] = {str(w).casefold() for w in m.get("stop_words") or []} | {str(w).casefold() for w in thesis.get("keyword_stop_words") or []}
     cfg["stem_len"] = int(m.get("stem_len", 6))
     cfg["min_word_len"] = int(m.get("min_word_len", 4))
+    cfg["note_rx"] = [re.compile(r"(?<!\w)" + r"\s+".join(re.escape(w) for w in str(p).casefold().split()) + r"(?!\w)")
+                      for p in m.get("note_markers") or [] if str(p).strip()]
     cfg["groups"] = {g["id"]: g for g in m["keyword_groups"]}
     cfg["_rx"] = {g["id"]: [(s, _stem_regex(str(s).casefold())) for s in g["stems"]] for g in m["keyword_groups"]}
     cfg["region_rx"] = sorted(((str(k).casefold(), re.compile(rf"(?<!\w){re.escape(str(k).casefold())}(?!\w)"), v)
@@ -36,6 +38,21 @@ def _stem_regex(s: str) -> re.Pattern:
     last = re.split(r"[\s-]+", s)[-1]
     tail = r"\w*" if len(last) >= 5 else r"(?!\w)"
     return re.compile(rf"(?<!\w){re.escape(s)}{tail}", re.UNICODE)
+
+
+_SENTENCE = re.compile(r"(?<=[.;])\s+")
+
+
+def is_working_note(segment: str, cfg: dict) -> bool:
+    """True when a sentence of a declared text is the list's own working note ("listed in task brief", "marine relevance not checked"),
+    not the organisation's words: it holds a configured marker, a file name, or the list-maker's "we" or "our"."""
+    t = segment.casefold()
+    return bool(re.search(r"\.csv\b|\b(?:we|our)\b", t)) or any(rx.search(t) for rx in cfg.get("note_rx") or [])
+
+
+def organisation_words(text: str | None, cfg: dict) -> str:
+    """A declared text without its working-note sentences. Empty when nothing but notes was there."""
+    return " ".join(x for x in _SENTENCE.split(text or "") if x.strip() and not is_working_note(x, cfg))
 
 
 def words(text: str | None) -> list[str]:

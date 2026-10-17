@@ -10,6 +10,6 @@
   </form>
   {% if not db_ok %}<p>no signals yet. Run python3 -m radar.build</p>
   {% elif q and not hits %}<p class="plain">No public record found for this name yet. Try the registered company name (ending in Oy).</p><p class="meta">Searched for {{ q }}: no company matching it in this radar.</p>{% endif %}
-  <ul class="siglist">{% for h in hits %}<li><a href="/c/{{ h.company_key }}">{{ h.name }}</a> <span class="s-conf">{{ h.group_tag }}, {{ h.company_key }}</span></li>{% endfor %}</ul>
+  <ul class="siglist">{% for h in hits %}<li><a href="/c/{{ h.company_key }}">{{ h.name }}</a> <span class="s-conf">{{ h.group_tag | group_label }}, {{ h.company_key }}</span></li>{% endfor %}</ul>
 </section>
 {% endblock %}

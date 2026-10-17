@@ -1,0 +1,10 @@
+{% set b = brief_for(c.company_key, thesis) %}
+<section class="brief" id="brief" aria-labelledby="brief-h">
+  <h2 id="brief-h">What the public record says</h2>
+  {% if b %}
+  <p class="brief-body">{% for s in b.sentences %}<span class="brief-sentence">{{ s.text }}{% for ct in s.cites %}<a class="brief-cite" href="{{ ct.url }}" target="_blank" rel="noopener" aria-label="Source {{ ct.n }}">[{{ ct.n }}]</a>{% endfor %}</span> {% endfor %}</p>
+  <p class="brief-foot">AI summary of the linked public records, checked by code; written {{ b.written }}.</p>
+  {% else %}
+  <p class="brief-none">No summary yet.</p>
+  {% endif %}
+</section>

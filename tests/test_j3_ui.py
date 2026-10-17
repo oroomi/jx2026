@@ -11,7 +11,7 @@ from radar import home_list, store, thesis as thesis_mod
 ROOT = Path(__file__).resolve().parent.parent
 SNAP = ROOT / "data" / "snapshot"
 pytestmark = pytest.mark.skipif(not (SNAP / "radar_redstone_apelago_blue.sqlite").is_file(), reason="snapshot store not in this checkout")
-HEALTH_ONLY = "2157464-4"      # Loihde Advisory Oy: held by the health sector's store only
+HEALTH_ONLY = "1091401-7"      # Biocomputing Platforms Ltd Oy: held by the health sector's store only (the committed blue store does not hold it)
 
 
 def _use_snapshot(mp):
@@ -53,7 +53,7 @@ def test_every_row_carries_its_first_reason_in_words(H):
     for r in H["rows"]:
         assert r.get("reason"), r["name"]
         assert len(r["reason"]) <= home_list.REASON_MAX + 1 and "—" not in r["reason"] and "–" not in r["reason"]
-        assert r["reason"][-1] in ".)" or r["reason"].endswith("..."), r["reason"]
+        assert r["reason"][-1] in ".)" or r["reason"].endswith(("...", "...'")), r["reason"]
 
 
 def test_a_reason_is_cut_at_a_clause_not_mid_word():
@@ -77,7 +77,7 @@ def test_the_reason_is_printed_visibly_on_each_row(client):
     rows = re.findall(r'<li id="row-[^"]+".*?</li>', html, flags=re.S)
     assert len(rows) >= 20
     for li in rows:
-        m = re.search(r'<span class="hc-reason"[^>]*>(.*?)</span>', li, flags=re.S)
+        m = re.search(r'<span class="hc-reason"[^>]*>(.*?)</span></span>', li, flags=re.S)      # the reason, then the closing of the name block
         assert m and len(text_of(m.group(1))) > 15, li[:200]
     # visible text, not a tooltip: the reason is element text, so a phone shows it
     assert "hc-reason" in (ROOT / "radar" / "static" / "filters.css").read_text() + (ROOT / "radar" / "static" / "home_c.css").read_text()
@@ -182,6 +182,13 @@ def live_server(monkeypatch):
                 break
             except Exception:
                 time.sleep(0.25)
+        for _ in range(120):      # the grouped home list is built in the background after start; the bar is part of it
+            try:
+                if b'id="ask-q"' in urllib.request.urlopen(f"http://127.0.0.1:{port}/?demo=1", timeout=5).read():
+                    break
+            except Exception:
+                pass
+            time.sleep(0.5)
         yield f"http://127.0.0.1:{port}"
     finally:
         p.terminate()

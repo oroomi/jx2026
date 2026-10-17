@@ -7,6 +7,7 @@
 <section class="empty" aria-label="Empty state"><p class="answer">{{ reason }}</p></section>
 {% else %}
 <p class="answer" id="verdict">{{ res.headline }}</p>
+{% if res.intake and res.intake.note %}<p class="rule" id="tuning-note"><strong>Read the count above with this note.</strong> {{ res.intake.note }}</p>{% endif %}
 <ul class="bt-groups" aria-label="The four groups">
   <li>Found earlier by live public records: <strong>{{ res.earlier }}</strong></li>
   <li>Found earlier only by declared research: <strong>{{ res.declared }}</strong></li>

@@ -6,7 +6,7 @@
 <details class="navmenu" id="navmenu">
   <summary class="navmenu-btn" aria-label="Menu: pages of this site"><span>Menu</span><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11"/></svg></summary>
   <div class="navmenu-sheet" role="group" aria-label="Pages">
-    {% for href, label, key in site_pages(request, cur) %}{% set new_tab = key == "feed" %}<a href="{{ "/?group=new" if new_tab else href }}"{% if (request.query_params.get("group") == "new") if new_tab else (active == key) %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+    {% for href, label, key in site_pages(request, cur) %}{% set new_tab = key == "feed" %}{% set here = ((active == key) and request.query_params.get("group") == "new") if new_tab else (active == key) %}<a href="{{ "/?group=new" if new_tab else href }}"{% if here %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
   </div>
 </details>
 <script>(function(){var m=document.getElementById("navmenu");if(!m)return;

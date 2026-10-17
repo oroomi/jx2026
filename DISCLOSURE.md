@@ -85,7 +85,7 @@ The matchmaking reads only data already declared above (the declared lists and t
 ## Third-party services
 | Service | Purpose | Account pre-existed? |
 |---|---|---|
-| ElevenLabs | text-to-speech: the Aava narration, rendered once at build time into MP3 files (voice Rachel, model `eleven_multilingual_v2`, Starter plan). 12 clips, 3,853 characters, for Viva Jets Oy and Arctic Fry Oy; no call and no key at run time | yes, the owner's existing account, opened before the event |
+| ElevenLabs | text-to-speech: the Aava narration, rendered once at build time into MP3 files (voice Rachel, model `eleven_multilingual_v2`, Starter plan). 16 clips, 4,404 characters: 12 for Viva Jets Oy and Arctic Fry Oy and 4 for the home page's "what is new" answer; no call and no key at run time | yes, the owner's existing account, opened before the event |
 | Anthropic Claude (Claude Code + API) | Pair programmer and in-product LLM calls (the stitcher's proposals and the batch-written company summaries; code checks both) | yes |
 | Cloudflare tunnel + VPS jx.hankintaviikko.fi | Public URL for the demo | yes |
 | GitHub (oroomi/jx2026) | Source hosting | account yes, repo created at the bell |
@@ -94,7 +94,7 @@ The matchmaking reads only data already declared above (the declared lists and t
 | Browser Web Speech API, speech recognition (the Ask Aava bar's voice input, live since 17 Oct 12:54 UTC, behind `?demo=1`; `radar/static/askbar.js`) | Turns the visitor's spoken question into text in the browser (language en-US). Some browsers do this on their vendor's speech service; this site receives only the text of the question, and the overlay prints that sentence. We call no speech service and keep no audio | built into the browser |
 | Browser microphone (`getUserMedia`) and Web Audio API (the same voice overlay) | The microphone level moves the orb animation. Nothing is recorded, stored or sent by us; the visitor is asked for permission by the browser | built into the browser |
 
-Narration audio pre-rendered with ElevenLabs text-to-speech from the page's own segment text; no runtime calls, no key in the app (build-time tool `radar/aava_voice.py`, voice id `21m00Tcm4TlvDq8ikWAM` (Rachel), MP3 files in `radar/static/aava/audio/<company key>/`, one manifest per page keyed by a fingerprint of the text). The browser voice stays as the fallback. The home feed reader's five earlier clips (voice Lily, 952 characters, `radar/static/aava/audio/feed/`) were rendered before the conversation was rewritten; their fingerprints no longer match the page text, so they are never played and the feed reader uses the browser voice.
+Narration audio pre-rendered with ElevenLabs text-to-speech from the page's own segment text; no runtime calls, no key in the app (build-time tool `radar/aava_voice.py`, voice id `21m00Tcm4TlvDq8ikWAM` (Rachel), MP3 files in `radar/static/aava/audio/<company key>/`, one manifest per page keyed by a fingerprint of the text). The browser voice stays as the fallback. The home page's "what is new" answer (4 clips, 551 characters, `radar/static/aava/audio/feed/`) was re-rendered in Rachel's voice on 17 Oct (commit de11098) when the feed reader changed; the five earlier clips in another voice were removed.
 
 ## Not used
 No code from any earlier project. No private or scraped personal data. No named private individuals.

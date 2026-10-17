@@ -11,8 +11,8 @@ plus a PRH tax-register record, so under the new rule the swapped live store sho
 only, 6 later, 1 none), measured with the code on 17 Oct before deploy. The tables below are measured after the change. The memo also
 gained a fallback: thesis fit High on more than an industry code, with no impact evidence, reads impact as Medium, implied by the sector (rule c2 gives ACCELERATOR,
 c1 GRANT SUPPORT for TRL 1-3, c3 DUE DILIGENCE), printed as "because: fallback c2, impact implied by sector".
-Source: <https://jx.hankintaviikko.fi/api/backtest> and <https://jx.hankintaviikko.fi/backtest>, read on 17 Oct 2026 at about 13:20 UTC,
-footer build 389564b. Every number below has a row in [docs/NUMBERS.md](docs/NUMBERS.md).
+Source: <https://jx.hankintaviikko.fi/api/backtest> and <https://jx.hankintaviikko.fi/backtest>, read on 17 Oct 2026 at about 13:25 UTC,
+footer build de11098. Every number below has a row in [docs/NUMBERS.md](docs/NUMBERS.md).
 
 **What the low number means.** For the Finnish companies the data was there; the sector rule is what missed them. All 7 cohort
 companies with a Finnish business ID have dated public records in our store from before January 2026 (register entry, first sales,
@@ -64,7 +64,7 @@ Each cohort company falls in exactly one of four groups, and the four always add
 | No public signal | 1 |
 | Total | 19 |
 
-Per company, first counted signal as served by `/api/backtest` on 17 Oct, about 13:20 UTC:
+Per company, first counted signal as served by `/api/backtest` on 17 Oct, about 13:25 UTC:
 
 | Company | Country | Business ID | Group | First counted signal |
 |---|---|---|---|---|
@@ -120,7 +120,7 @@ Kilocode's intake date is a 2003 VAT registration, so it is not an early find; K
 their code families after seeing them, so they are in-sample; Sireness enters on a declared-research record rather than a public one;
 and Emission-Eye, on a public start-up notice, ranks 132 of 1,176 among the 2025 registrations in its code family.
 
-Live, from `/api/backtest` (`intake`) and the wide intake table on `/backtest`, read 17 Oct 2026 at about 13:20 UTC. The headline there
+Live, from `/api/backtest` (`intake`) and the wide intake table on `/backtest`, read 17 Oct 2026 at about 13:25 UTC. The headline there
 reads "Entered wide intake before cohort entry: 4 of 19" (before = 4). The other 3 Finnish cohort companies are outside the intake
 code families (Finnish Sauna Shop 47279, Sub Marine Store 46900, Taikoa 70200); the other 12 have no Finnish business ID, so they
 are not checked against the Finnish register. Rank counts companies of the same registration year and code family that had entered
@@ -144,7 +144,7 @@ intake by 2026-01-01, strongest first by startup signals up to that date, then e
   still in the live result). The live store holds records that copy did not (a declared-research grant for Sireness, a start-up
   notification for Emission-Eye), so their dates and ranks moved: that run gave Sireness 2025-09-29, rank 20 of 103, and
   Emission-Eye 2025-08-01, rank 715 of 1,176. The live figures above replace them.
-- **Live store**: the intake rows are in the live store (16,385 from `prh_intake`, `/data`, 17 Oct about 13:20 UTC).
+- **Live store**: the intake rows are in the live store (16,385 from `prh_intake`, `/data`, 17 Oct about 13:25 UTC).
 
 ## AI stitcher
 
@@ -198,7 +198,7 @@ No ground truth exists for who should have met whom ([docs/MATCHING.md](docs/MAT
   only order the list. A partner rating of 20 pairs is the first real check (PILOT.md).
 - **No score:** the API returns the reasons with their links and an ordinal `rank`, never a number that could be read as a score (A34).
 
-## Judge dry-run fixes (D22 to D26), as they read on the live site
+## Judge dry-run fixes (D22 to D26 and D31), as they read on the live site
 
 | Fix | Rule | What the live site shows now (17 Oct) |
 |---|---|---|
@@ -206,11 +206,12 @@ No ground truth exists for who should have met whom ([docs/MATCHING.md](docs/MAT
 | A company's own name is never redacted, and `radar.repair_redaction` restores names that were hidden | D23 | The Viva Jets page prints "Snowsus Ltd., founded in Oulu in 2018", its company's former name, where it used to print "[name redacted].," |
 | No raw token on a company page: a register type code, a stemmed keyword, a capability id | D24 | Register type codes and stemmed keywords no longer print on a company page, and the capability labels in who-comes-next are words; the matchmaking sentences still print a capability tag id (open item in "What this does not show") |
 | The backtest states each rank beside its own pool and no median | D25 | "Sireness Oy 1 of 104, Arctic Fry Oy 3 of 16, Kilocode Oy 3 of 8 and Emission-Eye Oy 132 of 1,176" |
-| Every sector's home list is warm at start, and no request waits more than 3 seconds for it | D26 | `/?thesis=baltic_blue` answered in 0.44 to 0.56 s after a warm start; the first two requests after the 13:16 UTC restart took 3.6 s and 2.8 s while the list warmed (the wait is capped at 3 s, then the page renders what it has); it took 70 s on the first load before D26 |
+| Every sector's home list is warm at start, and a request waits at most 3 seconds for it (then the page renders without it) | D26 | `/?thesis=baltic_blue` answered in 0.44 to 0.56 s after a warm start; the first two requests after the 13:16 UTC restart took 3.6 s and 2.8 s while the list warmed (the wait is capped at 3 s, then the page renders what it has); it took 70 s on the first load before D26 |
+| An organisation's description never shows a redaction marker | D31 | `/match`, `/match?org=apelago`, `/api/match/orgs`, `/api/match/org/apelago` and `/api/match/company/2962040-6` hold 0 redaction markers ("[name]" or "[name redacted]"); the company pages still print "[name]" inside stitcher quotes and search queries (5 on Viva Jets Oy, 1 on Arctic Fry Oy), the accepted cost of D17 |
 
 ## Software checks
 
-- `python3 -m pytest -q --deselect tests/test_api.py::test_each_endpoint_answers_under_500_ms`: 698 passed, 5 skipped, 1 deselected in 232 s, run once at the end of the documentation pass on 17 Oct (13:09 to 13:13 UTC, code of main 389564b).
+- `python3 -m pytest -q --deselect tests/test_api.py::test_each_endpoint_answers_under_500_ms`: 713 passed, 5 skipped, 1 deselected in 221 s, run once at the end of the documentation pass on 17 Oct (13:20 to 13:24 UTC, on the merged tree with main de11098).
   The deselected test asserts a latency (best of three under 0.5 s), which depends on host load, so it is left out of this run; the latencies above are measured on the public URL instead.
 - `/root/hack/bin/smoke.py https://jx.hankintaviikko.fi --max 14`: PASS 15/15 pages on 17 Oct at 13:17 UTC (the home page with and without the trailing
   slash, radar, match, backtest, method, data and the home-list views: the tabs all, fit and new, and the country views FI, DK, ES and SE and BG), no console errors.
@@ -247,6 +248,6 @@ python3 -m pytest -q
   1 main match and 29 weak matches; several of the weak ones are not health companies (two "auto care" firms matched on the word "care").
 - No partner has yet scored the memos, the next steps, the ocean-impact rungs or the matches; usefulness to Redstone Blue and A'Pelago is untested (PILOT.md, weeks 5 to 8).
 - The Ocean Impact ladder and the matchmaking weights have no ground truth; the first is ours and the second is a hypothesis (above).
-- Aava has a recorded voice for two companies only (Viva Jets Oy and Arctic Fry Oy, 12 clips); everywhere else the browser's voice reads it. The home feed reader has no recording that matches its current text.
+- Aava has a recorded voice for two companies (Viva Jets Oy and Arctic Fry Oy, 12 clips) and for the home "what is new" answer (4 clips) only; everywhere else the browser's voice reads it. A clip plays only while its text fingerprint matches, so when the feed's rows change that answer goes back to the browser's voice until it is rendered again.
 - A capability tag is still printed as a code in the matchmaking reasons ("dataset capability tag C2"): those sentences were merged after the D24 fix and it did not reach them.
 - The Ask Aava bar (live) answers by deterministic rules and is not a measured feature; nothing in this document's results depends on it. Its fourth example question, "Show investment-ready companies in Finland", answers honestly that no company of the 58 matches.

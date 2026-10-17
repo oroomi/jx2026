@@ -2,12 +2,12 @@
 
 Gavel expo voting is pairwise: "better or worse than the last table?" The first ten seconds decide it.
 Partners pick their own track winner against their own criterion, so lead with the partners' words for partner judges.
-Every number below was read from the live site or its JSON API on 17 Oct 2026 (about 13:20 UTC, footer build 389564b); each is listed with its source in [docs/NUMBERS.md](docs/NUMBERS.md). Say the number on screen if one has moved.
+Every number below was read from the live site or its JSON API on 17 Oct 2026 (about 13:25 UTC, footer build de11098); each is listed with its source in [docs/NUMBERS.md](docs/NUMBERS.md). Say the number on screen if one has moved.
 
 Two companies carry the demo, both real and both on the live site:
 - **Viva Jets Oy**, business ID 2962040-6, Redstone Blue portfolio: <https://jx.hankintaviikko.fi/c/2962040-6>. Industry code 30120 (building of pleasure and sporting boats) is on the sector list. The memo reads ACCELERATOR, "impact not yet measured" (rule c2, impact implied by the sector). The Ocean Impact Assessment reads level 5 of 9, Medium, confidence high. Aava answers in the recorded voice (Rachel).
 - **Arctic Fry Oy**, business ID 3166759-6, Nordic Blue 2026 cohort: <https://jx.hankintaviikko.fi/c/3166759-6>. Its first live public record is from 2020 (first sales on 2020-10-05 in the VAT register), more than five years before the cohort, and the sector rule still did not count it, because it is registered as freshwater aquaculture (03220), a code the list does not hold. The memo reads WATCHLIST: business readiness 2 of 9, technology and investment readiness have no public record. Aava also answers in the recorded voice.
-- **Aava is hidden on the public site.** The demo URL carries `?demo=1` (the flag is remembered on that device; `?demo=0` turns it off). Only Viva Jets and Arctic Fry have a recorded voice (6 clips each); every other company is read by the browser's own voice, so stay on these two.
+- **Aava is hidden on the public site.** The demo URL carries `?demo=1` (the flag is remembered on that device; `?demo=0` turns it off). Only Viva Jets and Arctic Fry (6 clips each) and the home page's "what is new" answer (4 clips) have a recorded voice; every other company is read by the browser's own voice, so stay on these two.
 
 What the live pages look like now, so the driver is never surprised:
 - **Home `/`:** the hero is the **Ask Aava bar** (live since 12:54 UTC on 17 Oct): the title, one line saying every answer is built from the public records on file, the input with a send button, five example questions as chips, and one muted line, "22 companies first seen in the last 90 days, 58 on the list. Press Ctrl K to ask." The header tabs are in the **Menu** (top right) and in the footer. Under the bar three tabs (All startups 58, Top fits 23, New this quarter 22), the country views, and on desktop the filter rail on the left ("What the judges score": Verdict, Ocean impact, Technology readiness, Business readiness, Investment readiness, Thesis fit; "Narrow down": Country, Sector, Registered, Source records, Programme deadline, Declared company). Each row has the company name, its line of business, its ocean impact area, a life-line and the **criteria box** (Impact, TRL, BRL, IRL, Fit, Verdict). On a phone the rail is a bottom sheet.
@@ -58,7 +58,7 @@ Opener languages: English first. For Madeleine, a Finnish opener with its Englis
 
 ## The wide intake line (say it exactly this strong, no stronger)
 
-Live `/api/backtest` (17 Oct 2026, about 13:20 UTC): "Entered wide intake before cohort entry: 4 of 19", all four among the 7 cohort companies
+Live `/api/backtest` (17 Oct 2026, about 13:25 UTC): "Entered wide intake before cohort entry: 4 of 19", all four among the 7 cohort companies
 with a Finnish business ID. The four: Kilocode (intake date 2003-08-01, a VAT registration; rank 3 of 8; code family added after seeing
 it), Sireness (2025-04-30 on a declared-research record; rank 1 of 104), Arctic Fry (2020-10-05, family added after seeing it; rank 3 of 16)
 and Emission-Eye (2025-07-02, a public start-up notice; rank 132 of 1,176). Detail: EVAL.md, "Wide intake".
@@ -120,7 +120,7 @@ Answer: they sit behind a login or a paid account, and we do not scrape behind a
 4. **Set the demo flag once** on the presenting laptop (`?demo=1`; it is remembered on that device). With the flag on, Ask Aava appears on every company page and on the home page, and the Ask Aava bar's microphone button appears. Allow the microphone in the browser once and say one question aloud to test it (Chrome or Edge; speech recognition is done by the browser); the bar works by typing if the hall is too loud.
 5. **A second laptop with the same pages open as backup**: same URL, same demo flag, the same tabs open in the demo order, battery full, on power. If the first laptop stalls, take the second without a word and continue from the step you were on.
 6. **Check the home page reads as expected:** the muted line under the bar reads "22 companies first seen in the last 90 days, 58 on the list" (the number moves as records arrive; say the number on screen) and the tabs read 58 / 23 / 22. If the headline is 0 or the list is empty, the store did not load: tell the chief and switch to the fallback recording (Table checklist).
-7. **Do not press the fourth example chip** ("Show investment-ready companies in Finland") on the live path: its honest answer today is "No company of the 58 on the list matches", because no company has a High investment readiness. Use "Tell me about Viva Jets" and "Who should A'Pelago meet?" instead. The first chip ("What is new on the radar?") answers with the newest record on file, which is later than the one the home feed reader names; do not compare the two.
+7. **Do not press the fourth example chip** ("Show investment-ready companies in Finland") on the live path: its honest answer today is "No company of the 58 on the list matches", because no company has a High investment readiness. Use "Tell me about Viva Jets" and "Who should A'Pelago meet?" instead. The first chip ("What is new on the radar?") is safe: its answer text is the one the recorded "what is new" clips were rendered from.
 8. **Keep the Baltic thesis out of the live path** unless asked ("a third thesis file widens the same code to the Baltic countries; it is not part of the demo"). It is warm after a restart (0.5 s when we measured), so it will not stall if a judge asks to see it.
 
 ---

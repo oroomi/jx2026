@@ -114,6 +114,62 @@ ted_cpv:
   - {prefix: "98360", note: "Marine services"}
   - {prefix: "98361", note: "Aquatic-related services"}
 
+# Same ladder and area table as config/thesis.yaml (the Baltic file is the same sector; D22). Edit both together.
+# Ocean Impact Readiness read as EVIDENCE READINESS from public records (radar/ocean_impact.py; D22 in PROJECT_RULES.md). It is not a
+# measure of true impact. The Ocean Impact Navigator publishes impact areas and KPIs but no levels, and no sponsor definition of the levels
+# is in the repo or in data/declared, so this ladder is ours: each rung says which kind of record must be on file. The highest rung whose
+# test passes wins. Rung text and the line that would raise a company one step live here, applied by code; the area table below is the only
+# place an impact area is named. No rung is ever guessed: a company with no record naming an area has no level.
+impact_readiness:
+  title: Ocean Impact Assessment
+  label: Ocean Impact Readiness
+  level_max: 9
+  bands: {low_max: 2, high_min: 8}       # level -> Low (1-2, sector-implied only), Medium (3-7), High (8-9, a measured outcome is on record); no level = no band
+  # Declared research (the ecosystem dataset) may set rungs 7 and 8 only, and only when its own confidence is at least min_confidence;
+  # a low-confidence reading is listed as a lead and sets nothing (A24). Its score runs 0-5 on the dataset's own scale:
+  # assessment_min_score = a reading with evidence is on record; measured_min_score = a quantified outcome with a stated method.
+  declared_research: {min_confidence: medium, assessment_min_score: 1, measured_min_score: 4, scale_max: 5}
+  official_outcome_types: []             # signal types that would count as a measured outcome from an official or register source (rung 9): none is connected
+  programme_hosts: {"apelago.fi": "A'Pelago", "redstone.vc": "Redstone Blue"}   # a record on one of these hosts is a programme or portfolio declaring the company
+  areas:                                 # impact area in words; words match as whole words or word starts (5+ letters); code_prefixes are industry-code families
+    emissions:
+      label: "Climate: lower emissions from ships, boats and ports"
+      words: [emission, decarbon, shipping fuel, ammonia, hydrogen, battery, electrif, päästö, sähköist, vetyvoima, akku]
+      code_prefixes: []
+    aquatech:
+      label: "Sustainable ocean resources: aquaculture and fisheries"
+      words: [aquacultur, fish farm, aquatech, algae, seaweed, fisher, kalankasvat, kalastus, kalatalous, vesiviljely, levä]
+      code_prefixes: ["03"]
+    water_quality:
+      label: "A clean ocean: water quality and pollution"
+      words: [water quality, wastewater, ballast, water treatment, microplastic, eutroph, vedenlaatu, jätevesi, vedenpuhdist, painolastivesi, mikromuov, rehevöit]
+      code_prefixes: ["36", "37"]
+    ocean_data:
+      label: "Ocean data and monitoring"
+      words: [ocean data, oceanograph, hydrograph, remote sensing, sonar, bathymetr, marine data, merikartoit, hydrograf, kaukokartoit, luotaus, syvyysmittaus, meriympäristö, vesistömittaus]
+      code_prefixes: []
+    maritime:
+      label: "Sustainable maritime and port technology"
+      words: []
+      code_prefixes: ["301", "33150", "501", "502", "52220"]
+  scalability:                           # records that show a market beyond one country; otherwise "not assessed from public records"
+    register_countries: {prh: FI, brreg: NO, cvr: DK, estonia_register: EE}   # source family -> the country of that register
+    eu_level_types: [blueinvest, eu_project]                                   # signal types whose programme runs across EU member states
+    market_words: [export, international, global, worldwide, overseas, abroad]
+  levels:
+    - {level: 1, rule: "Sector implied: one record points to the area: an industry code in its family, a sector word in the registered line of business, or a legal-name word backed by a second source family.", raise: "Own text that names the area: a notice title, EU project text or investor-pipeline profile holding an area word."}
+    - {level: 2, rule: "Sector implied: two or more of those records point to the area; none is the source's own text.", raise: "Own text that names the area: a notice title, EU project text or investor-pipeline profile holding an area word."}
+    - {level: 3, rule: "The source's own text names the area: one record (a notice title, project text or profile) holds an area word.", raise: "A second source that names the same area, or a listing on a blue programme or portfolio page."}
+    - {level: 4, rule: "The source's own text names the area in two or more separate records.", raise: "A second source family that names the same area, or a listing on a blue programme or portfolio page."}
+    - {level: 5, rule: "The area is corroborated: a second independent source family names it, or a blue programme or portfolio lists the company.", raise: "The other corroboration: a listing on a blue programme or portfolio page, or a second independent source family naming the area."}
+    - {level: 6, rule: "Corroborated twice: a second independent source family names the area and a blue programme or portfolio lists the company.", raise: "An impact assessment in declared research, with dataset confidence medium or high."}
+    - {level: 7, rule: "An impact assessment is on record: declared research holds an Ocean Impact Readiness reading with evidence, at dataset confidence medium or high.", raise: "A quantified outcome with a stated method in the declared research reading."}
+    - {level: 8, rule: "A measured outcome is on record: declared research reports a quantified outcome with a stated method.", raise: "A measured outcome from an official or register source; none is connected."}
+    - {level: 9, rule: "A measured outcome from an official or register source.", raise: "None: this is the top rung."}
+  no_level:
+    rule: "No rung applies: no record on file names an impact area for this company."
+    raise: "Any record that names an impact area: a registered line of business, a notice title, a project text or a profile."
+
 # The fund memo (radar/memo.py). Rules only. Addressed to the fund or accelerator, never to the company.
 # Levels become Low / Medium / High through the bands below; a level with no public evidence is "unknown", never Low.
 memo:

@@ -49,6 +49,13 @@ matching:
   corporates: data/declared/corporates_clients.csv
   programmes: data/declared/programmes_grants.csv
 
+# Ocean Impact Readiness (D22) does not apply to this sector: no impact areas are defined, so the company page shows no ocean block.
+impact_readiness:
+  title: Impact Assessment
+  label: Impact Readiness
+  level_max: 9
+  areas: {}
+
 # The fund memo (radar/memo.py). Rules only. Addressed to the fund or accelerator, never to the company.
 # Levels become Low / Medium / High through the bands below; a level with no public evidence is "unknown", never Low.
 memo:

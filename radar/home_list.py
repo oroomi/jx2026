@@ -10,6 +10,7 @@ Every group is ordered by verdict strength (INVEST, DUE DILIGENCE, ACCELERATOR, 
 WATCHLIST), then thesis-fit band, then the latest record; "New this quarter" stays newest record first.
   ready   = memo investment readiness band High
   country = companies.country
+Each row also carries `ocean`: the Ocean Impact Assessment's area, level, band and confidence (None when the thesis defines no impact areas).
 Memos are the slow part (about 0.1 s each), so the list is cached per thesis and database file modification time,
 and warmed once in a background thread when the app starts.
 """
@@ -80,6 +81,7 @@ def build(conn, thesis: dict, today: date | None = None) -> dict:
             "verdict": rec.get("decision"), "fit": bands.get("Thesis fit"),
             "investment": ((m.get("levels") or {}).get("investment") or {}).get("band"),
             "covered": sum(checks), "checks": len(checks), "tape": tape,
+            "ocean": {k: (m.get("ocean_impact") or {}).get(k) for k in ("area", "level", "band", "confidence")} if m.get("ocean_impact") else None,
         })
     def strength(r):
         """Verdict strength, then thesis-fit band, then the latest record (newest first), then name."""

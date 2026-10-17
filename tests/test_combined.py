@@ -179,7 +179,7 @@ def test_meta_records_provenance_and_the_team_only_line(built, conn):
     assert meta["thesis_id"] == THESIS and meta["source_store_path"] == str(STORE.resolve())
     assert meta["ecosystem_source_sha256"] == _sha(ECO)
     assert "team use only" in meta["audience"].lower() and "person table" in meta["audience"]
-    for t in ("radar_companies", "radar_signals", "radar_readiness", "radar_verdicts", "radar_briefs"):
+    for t in ("radar_companies", "radar_signals", "radar_readiness", "radar_verdicts", "radar_ocean_impact", "radar_briefs"):
         assert meta[f"rows_{t}"] == str(_count(conn, t))
     assert built[1]["counts"]["radar_meta"] == _count(conn, "radar_meta")
 
@@ -223,3 +223,15 @@ def test_cli_default_name_second_thesis_and_exit_codes(tmp_path, monkeypatch, ca
     c = sqlite3.connect(out)
     n = _count(_ro(SNAP / "radar_health_tech_turku.sqlite"), "companies")
     assert _count(c, "radar_companies") == n and _count(c, "entity") == 215
+
+
+def test_the_ocean_impact_table_has_one_row_per_company_and_reaches_the_view(built, conn):
+    assert _count(conn, "radar_ocean_impact") == _count(conn, "radar_companies")
+    r = conn.execute("SELECT * FROM radar_ocean_impact WHERE level IS NOT NULL LIMIT 1").fetchone()
+    assert r is not None and 1 <= r["level"] <= r["level_max"] == 9 and r["band"] in ("Low", "Medium", "High") and r["area"]
+    assert r["confidence"] in ("high", "medium", "low") and r["level_rule"] and r["evidence_json"].startswith("[")
+    assert conn.execute("SELECT COUNT(*) FROM radar_ocean_impact WHERE level IS NULL AND (band IS NOT NULL)").fetchone()[0] == 0
+    cols = [c[1] for c in conn.execute(f"PRAGMA table_info({combined.VIEW})")]
+    assert {"radar_ocean_area", "radar_ocean_level", "radar_ocean_band", "radar_ocean_confidence"} <= set(cols)
+    for v in conn.execute(f"SELECT radar_company_key, radar_ocean_level FROM {combined.VIEW} WHERE radar_ocean_level IS NOT NULL LIMIT 20"):
+        assert conn.execute("SELECT level FROM radar_ocean_impact WHERE company_key=?", (v["radar_company_key"],)).fetchone()[0] == v["radar_ocean_level"]

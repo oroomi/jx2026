@@ -11,7 +11,7 @@ What happens, in order:
   2. The thesis store is read through a read-only connection and copied to a scratch file (sqlite backup), which gets the
      current schema applied. The live store is never written.
   3. Tables with the `radar_` prefix are appended: radar_companies, radar_signals, radar_readiness (the levels
-     frameworks.page_levels gives the company page), radar_verdicts (radar.memo.build), radar_briefs, radar_meta. The view
+     frameworks.page_levels gives the company page), radar_verdicts (radar.memo.build), radar_ocean_impact (the Ocean Impact Assessment from the same memo), radar_briefs, radar_meta. The view
      v_entity_public_record joins the dataset's entities to radar_companies by Finnish business id (entity.business_id).
   4. Companies only: nothing from the `person` table is joined, copied or exported. Before the file is moved into place a guard
      scans every text column of every radar_ table for the people's names and the run stops on a hit.
@@ -115,6 +115,21 @@ CREATE TABLE radar_verdicts (
   as_of            TEXT,
   error            TEXT
 );
+CREATE TABLE radar_ocean_impact (       -- radar.ocean_impact.assess: evidence readiness from public records (D22), not true impact
+  company_key       TEXT PRIMARY KEY REFERENCES radar_companies(company_key),
+  area              TEXT,                 -- the impact area in words, NULL when no record names one
+  area_basis        TEXT,                 -- own text | corroborated name word | industry code family
+  level             INTEGER,              -- 1..level_max, NULL when no rung applies
+  level_max         INTEGER NOT NULL,
+  level_rule        TEXT NOT NULL,        -- the rung that fired, in words
+  band              TEXT,                 -- Low | Medium | High, NULL with the level
+  confidence        TEXT NOT NULL,        -- high | medium | low
+  confidence_reason TEXT NOT NULL,
+  raise_text        TEXT NOT NULL,        -- the one public record that would raise the level or the confidence
+  scalability_text  TEXT NOT NULL,        -- "not assessed from public records" when no record shows a wider market
+  scalability_basis TEXT,
+  evidence_json     TEXT NOT NULL         -- JSON list of {{text, date, source_label, url, family}}
+);
 CREATE TABLE radar_briefs (
   company_key TEXT PRIMARY KEY REFERENCES radar_companies(company_key),
   written     TEXT NOT NULL,
@@ -154,12 +169,14 @@ SELECT e.id AS entity_id, e.name AS entity_name, e.entity_type, e.side, e.busine
        sig.first_signal, sig.last_signal, sig.signal_types,
        lv.technology_level, lv.business_level, lv.investment_level, lv.category AS radar_category,
        v.decision AS radar_decision, v.matched AS radar_decision_row, v.note AS radar_decision_note,
+       oi.area AS radar_ocean_area, oi.level AS radar_ocean_level, oi.band AS radar_ocean_band, oi.confidence AS radar_ocean_confidence,
        (b.company_key IS NOT NULL) AS has_brief
 FROM ent e
 LEFT JOIN radar_companies rc ON rc.company_key = (SELECT MIN(r.company_key) FROM radar_companies r WHERE r.business_id = e.join_business_id)
 LEFT JOIN sig ON sig.company_key = rc.company_key
 LEFT JOIN lv ON lv.company_key = rc.company_key
 LEFT JOIN radar_verdicts v ON v.company_key = rc.company_key
+LEFT JOIN radar_ocean_impact oi ON oi.company_key = rc.company_key
 LEFT JOIN radar_briefs b ON b.company_key = rc.company_key
 ORDER BY e.id
 """
@@ -271,16 +288,27 @@ def readiness_rows(conn: sqlite3.Connection, key: str) -> list[tuple]:
     return out
 
 
-def verdict_row(conn: sqlite3.Connection, thesis: dict, key: str) -> tuple:
+def memo_rows(conn: sqlite3.Connection, thesis: dict, key: str) -> tuple[tuple, tuple | None]:
+    """(the radar_verdicts row, the radar_ocean_impact row or None) from one memo.build."""
     try:
         m = memo.build(conn, thesis, key)
     except Exception as e:  # noqa: BLE001  (one bad company must not lose the other 17,000; the row says what happened)
-        return (key,) + (None,) * 16 + (f"memo build failed: {type(e).__name__}: {e}",)
+        return (key,) + (None,) * 16 + (f"memo build failed: {type(e).__name__}: {e}",), None
     rec, lv = m["recommendation"], m["levels"]
-    return (key, rec["decision"], None if rec["row_id"] is None else str(rec["row_id"]), rec["matched"], rec["kind"], rec["table_action"],
-            rec["team_label"], rec["because"], lv["impact"]["band"], lv["business"]["band"], lv["investment"]["band"], lv["fit"]["band"],
-            lv["technology"]["band"], rec.get("note"), json.dumps(rec["needs"], ensure_ascii=False),
-            int(bool(rec["fallback_blocked"])), m["as_of"], None)
+    v = (key, rec["decision"], None if rec["row_id"] is None else str(rec["row_id"]), rec["matched"], rec["kind"], rec["table_action"],
+         rec["team_label"], rec["because"], lv["impact"]["band"], lv["business"]["band"], lv["investment"]["band"], lv["fit"]["band"],
+         lv["technology"]["band"], rec.get("note"), json.dumps(rec["needs"], ensure_ascii=False),
+         int(bool(rec["fallback_blocked"])), m["as_of"], None)
+    oi = m.get("ocean_impact")
+    if oi is None:
+        return v, None
+    return v, (key, oi["area"], oi["area_basis"], oi["level"], oi["level_max"], oi["level_rule"], oi["band"], oi["confidence"],
+               oi["confidence_reason"], oi["raise"], oi["scalability"]["text"], oi["scalability"]["basis"],
+               json.dumps(oi["evidence"], ensure_ascii=False))
+
+
+def verdict_row(conn: sqlite3.Connection, thesis: dict, key: str) -> tuple:
+    return memo_rows(conn, thesis, key)[0]
 
 
 def brief_rows(conn: sqlite3.Connection):
@@ -419,8 +447,10 @@ def run(thesis_id: str, out_path: Path | str | None = None, *, store_path: Path 
                 with _memoised_partner_checks():
                     for i, key in enumerate(keys, 1):
                         out.executemany("INSERT INTO radar_readiness VALUES (?,?,?,?,?,?,?,?)", readiness_rows(conn, key))
-                        v = verdict_row(conn, thesis, key)
+                        v, oi_row = memo_rows(conn, thesis, key)
                         out.execute("INSERT INTO radar_verdicts VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", v)
+                        if oi_row:
+                            out.execute("INSERT INTO radar_ocean_impact VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)", oi_row)
                         if v[-1]:
                             errors.append(f"{key}: {v[-1]}")
                         if i % PROGRESS_EVERY == 0 or i == len(keys):
@@ -446,7 +476,7 @@ def run(thesis_id: str, out_path: Path | str | None = None, *, store_path: Path 
 
         # 4. the meta table
         counts = {t: out.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0] for t in
-                  ("radar_companies", "radar_signals", "radar_readiness", "radar_verdicts", "radar_briefs")}
+                  ("radar_companies", "radar_signals", "radar_readiness", "radar_verdicts", "radar_ocean_impact", "radar_briefs")}
         st = store_path.stat()
         meta = {"built_at": datetime.now(timezone.utc).isoformat(timespec="seconds"), "thesis_id": thesis["id"],
                 "thesis_file": thesis["_path"], "source_store_path": str(store_path.resolve()), "source_store_bytes": str(st.st_size),

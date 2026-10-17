@@ -217,3 +217,20 @@
 :root[data-skin="editorial"] .cc-life-years { position: relative; height: 18px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
 :root[data-skin="editorial"] .cc-life-years span { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
 :root[data-skin="editorial"] .cc-life-years span.en { top: -40px; color: var(--text); font-style: italic; }
+
+/* ---- Ocean Impact Assessment and its row mark, per skin (the block and the bullets use the tokens above) ---- */
+:root[data-skin="terminal"] .oi { border-radius: 2px; background: transparent; }
+:root[data-skin="terminal"] .oi-title, :root[data-skin="terminal"] .oi-k { font-family: var(--mono); }
+:root[data-skin="terminal"] .oi-big { font-family: var(--mono); font-weight: 500; font-size: clamp(1.25rem, 5.4vw, 1.625rem); }
+:root[data-skin="terminal"] .oi-band { border-radius: 2px; font-family: var(--mono); text-transform: uppercase; }
+:root[data-skin="terminal"] .oi-steps li { border-radius: 0; }
+:root[data-skin="terminal"] .cc-why-list li > a::before, :root[data-skin="terminal"] .cc-why-list li > span::before { border-radius: 0; content: ">"; background: none; width: auto; height: auto; top: 10px; color: var(--accent); font-size: 14px; }
+:root[data-skin="editorial"] .oi { background: none; border: 0; border-top: 2px solid var(--text); border-radius: 0; padding-left: 0; padding-right: 0; }
+:root[data-skin="editorial"] .oi-title { font-family: var(--e-serif); text-transform: none; letter-spacing: 0; font-size: 24px; font-weight: 400; color: var(--text); margin: 14px 0 12px; padding: 0; border: 0; }
+:root[data-skin="editorial"] .oi-k { font-variant: small-caps; text-transform: lowercase; letter-spacing: .08em; font-size: 15px; color: var(--accent); }
+:root[data-skin="editorial"] .oi-big { font-family: var(--e-serif); font-weight: 400; }
+:root[data-skin="editorial"] .oi-text, :root[data-skin="editorial"] .oi-ev a, :root[data-skin="editorial"] .oi-ev li > span:first-child { font-family: var(--e-serif); font-size: 18px; }
+:root[data-skin="editorial"] .oi-band { border-radius: 2px; }
+:root[data-skin="editorial"] .oi-steps li { border-radius: 0; }
+:root[data-skin="editorial"] .cc-why-list li > a, :root[data-skin="editorial"] .cc-why-list li > span { font-family: var(--e-serif); font-size: 18px; }
+:root[data-skin="editorial"] .cc-why-list li > a::before, :root[data-skin="editorial"] .cc-why-list li > span::before { border-radius: 0; width: 6px; height: 2px; top: 22px; }

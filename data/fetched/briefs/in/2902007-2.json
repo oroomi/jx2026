@@ -1,0 +1,682 @@
+{
+ "company_key": "2902007-2",
+ "name": "Kelluu Oy",
+ "business_id": "2902007-2",
+ "founded": "2018-03-09",
+ "country": "FI",
+ "group": "portfolio",
+ "register_status": "active",
+ "industry": {
+  "code": "30310",
+  "description": "Manufacture of civilian air and spacecraft and related machinery"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2026-09-24",
+   "date_label": "2026-09-24",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2026-09-24 (PRH). Register entries: Board of directors (HAL). Record number: 2026/479624.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-04-14",
+   "date_label": "2026-04-14",
+   "source_url": "https://tech.eu/2026/04/14/kelluu-raises-eur15m-to-scale-autonomous-airship-intelligence-platform/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (series_a) amount EUR 15 000 000. Open the source link for the details",
+   "amount_eur": 15000000.0
+  },
+  {
+   "ref": "S3",
+   "type": "funding_round",
+   "type_label": "Funding round",
+   "date": "2026-04-14",
+   "date_label": "2026-04-14",
+   "source_url": "https://www.nif.fund/news/the-nato-innovation-fund-leads-e15mn-series-a-in-kelluu-to-build-europes-persistent-aerial-intelligence-layer-and-strengthen-natos-surveillance-capabilities/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Funding round amount EUR 15 000 000. Open the source link for the details",
+   "amount_eur": 15000000.0
+  },
+  {
+   "ref": "S4",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2026-02-10",
+   "date_label": "2026-02-10",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2026-02-10 (PRH). Register entries: Board of directors (HAL). Record number: 2026/021390.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "job_ad",
+   "type_label": "Open job ad",
+   "date": "2026-01-08",
+   "date_label": "2026-01-08",
+   "source_url": "https://kelluu.com/news/we-are-looking-for-a-head-of-people-culture",
+   "source_label": "kelluu.com",
+   "confidence": "medium",
+   "adapter": "stitcher",
+   "title": "We are looking for a Head of people & culture",
+   "note": "\"We are looking for a Head of people & culture\" (kelluu.com) Page first archived 2026-01-18. Proposed by an LLM, checked by code: the page names the company and prints the date.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S6",
+   "type": "bf_funding",
+   "type_label": "Business Finland funding",
+   "date": "2026-01-01",
+   "date_label": "2026 (year only)",
+   "source_url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+   "source_label": "Business Finland export",
+   "confidence": "high",
+   "adapter": "businessfinland",
+   "title": null,
+   "note": null,
+   "amount_eur": 501369.0
+  },
+  {
+   "ref": "S7",
+   "type": "exhibitor",
+   "type_label": "Exhibitor or demo",
+   "date": "2025-09-17",
+   "date_label": "2025-09-17",
+   "source_url": "https://www.twz.com/air/bus-sized-uncrewed-airship-being-tested-by-nato-as-maritime-surveillance-platform",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Exhibitor or demo. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S8",
+   "type": "programme_entry",
+   "type_label": "Accelerator or programme entry",
+   "date": "2025-09-12",
+   "date_label": "2025-09-12",
+   "source_url": "https://dailymare.com/news/nato-diana-selects-15-innovators-among-them-kelluus-autonomous-airships-and-polands-is-wireless",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Accelerator or programme entry. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S9",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2025-09-02",
+   "date_label": "2025-09-02",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2025-09-02 (PRH). Register entries: Board of directors (HAL). Record number: 2025/433169.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S10",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2025-08-26",
+   "date_label": "2025-08-26",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2025-08-26 (PRH). Register entries: Board of directors (HAL). Record number: 2025/419871.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S11",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2025-06-19",
+   "date_label": "2025-06-19",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2025-06-19 (PRH). Register entries: Board of directors (HAL). Record number: 2025/309162.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S12",
+   "type": "equity_event",
+   "type_label": "equity_event",
+   "date": "2025-05-22",
+   "date_label": "2025-05-22",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Share issue registered 2025-05-22 (PRH). Register entries: Decision to issue shares (ANTIP), Capital increase (KOROI). Record number: 2025/111149.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S13",
+   "type": "bf_funding",
+   "type_label": "Business Finland funding",
+   "date": "2025-01-01",
+   "date_label": "2025 (year only)",
+   "source_url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+   "source_label": "Business Finland export",
+   "confidence": "high",
+   "adapter": "businessfinland",
+   "title": null,
+   "note": null,
+   "amount_eur": 749000.0
+  },
+  {
+   "ref": "S14",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2024-12-10",
+   "date_label": "2024-12-10",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2024-12-10 (PRH). Register entries: Board of directors (HAL). Record number: 2024/585495.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S15",
+   "type": "research_output",
+   "type_label": "Research output",
+   "date": "2024-11-07",
+   "date_label": "2024-11-07",
+   "source_url": "https://openalex.org/W4404193351",
+   "source_label": "OpenAlex",
+   "confidence": "medium",
+   "adapter": "openalex",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S16",
+   "type": "research_output",
+   "type_label": "Research output",
+   "date": "2024-10-01",
+   "date_label": "2024-10-01",
+   "source_url": "https://openalex.org/W4403038234",
+   "source_label": "OpenAlex",
+   "confidence": "medium",
+   "adapter": "openalex",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S17",
+   "type": "eu_project",
+   "type_label": "EU project",
+   "date": "2024-09-01",
+   "date_label": "2024-09-01",
+   "source_url": "https://cordis.europa.eu/project/id/101157488",
+   "source_label": "CORDIS",
+   "confidence": "high",
+   "adapter": "cordis",
+   "title": null,
+   "note": null,
+   "amount_eur": 301500.0
+  },
+  {
+   "ref": "S18",
+   "type": "equity_event",
+   "type_label": "equity_event",
+   "date": "2024-04-03",
+   "date_label": "2024-04-03",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Share issue registered 2024-04-03 (PRH). Register entries: Capital increase (KOROI), Decision to issue shares (ANTIP). Record number: 2024/050192.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S19",
+   "type": "site_customer",
+   "type_label": "Customer on own site",
+   "date": "2023-10-10",
+   "date_label": "2023-10-10",
+   "source_url": "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production",
+   "source_label": "kelluu.com",
+   "confidence": "medium",
+   "adapter": "stitcher",
+   "title": "Terrafame initiates operation of Kelluu's autonomous airships as part of safe and efficient battery chemicals production",
+   "note": "\"Terrafame initiates operation of Kelluu's autonomous airships as part of safe and efficient battery chemicals production\" (kelluu.com) Page first archived 2023-12-08. Proposed by an LLM, checked by code: the page names the company and prints the date.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S20",
+   "type": "equity_event",
+   "type_label": "equity_event",
+   "date": "2023-06-28",
+   "date_label": "2023-06-28",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Share issue registered 2023-06-28 (PRH). Register entries: Capital increase (KOROI), Decision to issue shares (ANTIP). Record number: 2023/01862H, 2023/216820.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S21",
+   "type": "bf_funding",
+   "type_label": "Business Finland funding",
+   "date": "2022-01-01",
+   "date_label": "2022 (year only)",
+   "source_url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+   "source_label": "Business Finland export",
+   "confidence": "high",
+   "adapter": "businessfinland",
+   "title": null,
+   "note": null,
+   "amount_eur": 884740.0
+  },
+  {
+   "ref": "S22",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2021-03-02",
+   "date_label": "2021-03-02",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/2902007-2",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S23",
+   "type": "funding_round",
+   "type_label": "Funding round",
+   "date": "2021-01-01",
+   "date_label": "2021 (year only)",
+   "source_url": "https://www.redstone.vc/portfolio/kelluu-airships",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Funding round. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S24",
+   "type": "funding_round",
+   "type_label": "Funding round",
+   "date": "2020-01-28",
+   "date_label": "2020-01-28",
+   "source_url": "https://www.yrittajat.fi/uutiset/ilmalaivahankkeesta-ei-tullut-tahdenlento-kelluu-palkkasi-huippuosaajia/",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Funding round amount EUR 1 000 000. Open the source link for the details",
+   "amount_eur": 1000000.0
+  },
+  {
+   "ref": "S25",
+   "type": "bf_funding",
+   "type_label": "Business Finland funding",
+   "date": "2019-01-01",
+   "date_label": "2019 (year only)",
+   "source_url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+   "source_label": "Business Finland export",
+   "confidence": "high",
+   "adapter": "businessfinland",
+   "title": null,
+   "note": null,
+   "amount_eur": 707200.0
+  },
+  {
+   "ref": "S26",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2018-03-09",
+   "date_label": "2018-03-09",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/2902007-2",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S27",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2018-03-09",
+   "date_label": "2018-03-09",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2",
+   "source_label": "PRH/YTJ register",
+   "confidence": "high",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S28",
+   "type": "bf_funding",
+   "type_label": "Business Finland funding",
+   "date": "2018-01-01",
+   "date_label": "2018 (year only)",
+   "source_url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+   "source_label": "Business Finland export",
+   "confidence": "high",
+   "adapter": "businessfinland",
+   "title": null,
+   "note": null,
+   "amount_eur": 50000.0
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": 4,
+   "rule": "Business Finland or EU project funding: a funded development project",
+   "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 6,
+   "rule": "first public contract or named customer on own site",
+   "url": "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": 4,
+   "rule": "two or more funding records",
+   "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+  },
+  "impact_category": {
+   "category": "ocean data",
+   "keyword": "remote sensing",
+   "url": "https://openalex.org/W4404193351"
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Funding round on 2026-04-14: Funding round amount EUR 15 000 000. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://www.nif.fund/news/the-nato-innovation-fund-leads-e15mn-series-a-in-kelluu-to-build-europes-persistent-aerial-intelligence-layer-and-strengthen-natos-surveillance-capabilities/"
+  },
+  {
+   "text": "Exhibitor or demo on 2025-09-17: Exhibitor or demo. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://www.twz.com/air/bus-sized-uncrewed-airship-being-tested-by-nato-as-maritime-surveillance-platform"
+  },
+  {
+   "text": "Accelerator or programme entry on 2025-09-12: Accelerator or programme entry. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://dailymare.com/news/nato-diana-selects-15-innovators-among-them-kelluus-autonomous-airships-and-polands-is-wireless"
+  },
+  {
+   "text": "equity_event on 2025-05-22: Share issue registered 2025-05-22 (PRH). Register entries: Decision to issue shares (ANTIP), Capital increase (KOROI). Record number: 2025/111149.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2"
+  },
+  {
+   "text": "equity_event on 2024-04-03: Share issue registered 2024-04-03 (PRH). Register entries: Capital increase (KOROI), Decision to issue shares (ANTIP). Record number: 2024/050192.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2"
+  },
+  {
+   "text": "equity_event on 2023-06-28: Share issue registered 2023-06-28 (PRH). Register entries: Capital increase (KOROI), Decision to issue shares (ANTIP). Record number: 2023/01862H, 2023/216820.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2"
+  },
+  {
+   "text": "Open job ad on 2026-01-08: \"We are looking for a Head of people & culture\" (kelluu.com) Page first archived 2026-01-18. Proposed by an LLM, checked by code: the page names the company and prints the date.",
+   "confidence": "medium",
+   "url": "https://kelluu.com/news/we-are-looking-for-a-head-of-people-culture"
+  },
+  {
+   "text": "Funding round on 2021 (year only): Funding round. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://www.redstone.vc/portfolio/kelluu-airships"
+  },
+  {
+   "text": "Funding round on 2020-01-28: Funding round amount EUR 1 000 000. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://www.yrittajat.fi/uutiset/ilmalaivahankkeesta-ei-tullut-tahdenlento-kelluu-palkkasi-huippuosaajia/"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "Low / Medium / Low / Medium",
+  "note": "no decision row or rule matches these levels, so the company stays on the watchlist",
+  "why": [
+   {
+    "text": "Ocean impact Low: the declared dataset reads impact readiness 1: Named efficiency KPI 'five times more energy-efficient than drones' without method (https://kelluu.com)",
+    "url": "https://tech.eu/2026/04/14/kelluu-raises-eur15m-to-scale-autonomous-airship-intelligence-platform/"
+   },
+   {
+    "text": "Business readiness Medium (level 6): first public contract or named customer on own site",
+    "url": "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production"
+   },
+   {
+    "text": "Investment readiness Low (level 3): 3 of the 10 investment dimensions have public evidence",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   },
+   {
+    "text": "Thesis fit: declared portfolio company",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2"
+   },
+   {
+    "text": "Why now: board_change on 2026-09-24",
+    "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2"
+   }
+  ],
+  "risks": [
+   {
+    "text": "Ocean impact is Low on the stored evidence",
+    "url": "https://tech.eu/2026/04/14/kelluu-raises-eur15m-to-scale-autonomous-airship-intelligence-platform/"
+   },
+   {
+    "text": "Investment readiness is Low on the stored evidence",
+    "url": "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Watch: reassess when the next public record appears (latest on file: 2026-09-24)",
+    "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2"
+   }
+  ]
+ },
+ "next": {
+  "investors": [
+   {
+    "name": "Ilmarinen",
+    "kind": "investor vc",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.5",
+    "url": "https://www.ilmarinen.fi"
+   },
+   {
+    "name": "Varma",
+    "kind": "investor vc",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.5",
+    "url": "https://www.varma.fi"
+   },
+   {
+    "name": "Kongsberg (Kongsberg Maritime / Kongsberg Digital)",
+    "kind": "investor corporate",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.5",
+    "url": "https://www.kongsberg.com"
+   },
+   {
+    "name": "Motion Ventures",
+    "kind": "investor vc",
+    "reason": "caps ['C9']; kw []; stage 1.0",
+    "url": "https://carbon-pulse.com/379390/"
+   },
+   {
+    "name": "Aboa Advest",
+    "kind": "investor angel",
+    "reason": "caps ['C4']; kw []; stage 0.5",
+    "url": "https://pulse2.com/redstone-reaches-first-close-of-e25-million-blue-fund-to-back-ocean-technology-startups/"
+   }
+  ],
+  "funding": [
+   {
+    "name": "EIC Accelerator (European Innovation Council)",
+    "kind": "public funder",
+    "reason": "caps ['C4', 'C9']; kw []; stage 1.0; impact 0/5",
+    "url": "https://eic.ec.europa.eu"
+   },
+   {
+    "name": "Nordic Innovation (NOCA - Nordic Ocean Cluster Accelerator)",
+    "kind": "public funder",
+    "reason": "caps ['C4']; kw []; stage 1.0; impact 0/5",
+    "url": "https://www.nordicinnovation.org/programs/nordic-ocean-cluster-accelerator-noca"
+   },
+   {
+    "name": "EIF BlueInvest Fund / InvestEU Blue Economy",
+    "kind": "public funder",
+    "reason": "caps ['C4']; kw []; stage 1.0; impact 0/5",
+    "url": "https://www.eif.org"
+   },
+   {
+    "name": "Interreg Central Baltic Programme 2021-2027",
+    "kind": "public funder",
+    "reason": "caps ['C4']; kw []; stage 0.5; impact 0/5",
+    "url": "https://centralbaltic.eu"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "partners": [
+   {
+    "name": "Finnish Meteorological Institute (FMI) - Ice Service",
+    "kind": "research org",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.5",
+    "url": "https://en.ilmatieteenlaitos.fi"
+   },
+   {
+    "name": "Sabik Oy (SPX Aids to Navigation Oy)",
+    "kind": "corporate",
+    "reason": "caps ['C4', 'C9']; kw []; stage 0.5",
+    "url": "https://www.sabik.com"
+   },
+   {
+    "name": "Arctia Oy (Arctia Icebreaking Oy / Arctia Meritaito Oy)",
+    "kind": "shipowner operator",
+    "reason": "caps ['C9']; kw []; stage 0.5",
+    "url": "https://www.arctia.fi"
+   },
+   {
+    "name": "Finnish Defence Forces - Navy (Merivoimat) / Squadron 2020",
+    "kind": "corporate",
+    "reason": "caps ['C9']; kw []; stage 0.5",
+    "url": "https://puolustusvoimat.fi"
+   },
+   {
+    "name": "Finnish Environment Institute (Syke)",
+    "kind": "research org",
+    "reason": "caps ['C4']; kw []; stage 0.5",
+    "url": "https://www.syke.fi"
+   }
+  ]
+ },
+ "counts": {
+  "signals": 28,
+  "by_type": {
+   "board_change": 6,
+   "ecosystem_event": 1,
+   "funding_round": 3,
+   "job_ad": 1,
+   "bf_funding": 5,
+   "exhibitor": 1,
+   "programme_entry": 1,
+   "equity_event": 3,
+   "research_output": 2,
+   "eu_project": 1,
+   "site_customer": 1,
+   "first_hire": 1,
+   "first_sales": 1,
+   "register_entry": 1
+  },
+  "next_investors": 5,
+  "next_funding": 5,
+  "next_partners": 5
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/2902007-2",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=2902007-2",
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://carbon-pulse.com/379390/",
+  "https://centralbaltic.eu",
+  "https://cordis.europa.eu/project/id/101157488",
+  "https://dailymare.com/news/nato-diana-selects-15-innovators-among-them-kelluus-autonomous-airships-and-polands-is-wireless",
+  "https://eic.ec.europa.eu",
+  "https://en.ilmatieteenlaitos.fi",
+  "https://kelluu.com",
+  "https://kelluu.com/news/terrafame-initiates-operation-of-kelluus-autonomous-airships-as-part-of-safe-and-efficient-battery-chemicals-production",
+  "https://kelluu.com/news/we-are-looking-for-a-head-of-people-culture",
+  "https://openalex.org/W4403038234",
+  "https://openalex.org/W4404193351",
+  "https://pulse2.com/redstone-reaches-first-close-of-e25-million-blue-fund-to-back-ocean-technology-startups/",
+  "https://puolustusvoimat.fi",
+  "https://tech.eu/2026/04/14/kelluu-raises-eur15m-to-scale-autonomous-airship-intelligence-platform/",
+  "https://tietopalvelu.ytj.fi/yritys/2902007-2",
+  "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+  "https://www.arctia.fi",
+  "https://www.eif.org",
+  "https://www.ilmarinen.fi",
+  "https://www.kongsberg.com",
+  "https://www.nif.fund/news/the-nato-innovation-fund-leads-e15mn-series-a-in-kelluu-to-build-europes-persistent-aerial-intelligence-layer-and-strengthen-natos-surveillance-capabilities/",
+  "https://www.nordicinnovation.org/programs/nordic-ocean-cluster-accelerator-noca",
+  "https://www.redstone.vc/portfolio/kelluu-airships",
+  "https://www.sabik.com",
+  "https://www.syke.fi",
+  "https://www.twz.com/air/bus-sized-uncrewed-airship-being-tested-by-nato-as-maritime-surveillance-platform",
+  "https://www.varma.fi",
+  "https://www.yrittajat.fi/uutiset/ilmalaivahankkeesta-ei-tullut-tahdenlento-kelluu-palkkasi-huippuosaajia/"
+ ]
+}

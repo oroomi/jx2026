@@ -1,0 +1,370 @@
+{
+ "company_key": "3166759-6",
+ "name": "Arctic Fry Oy",
+ "business_id": "3166759-6",
+ "founded": "2020-10-23",
+ "country": "FI",
+ "group": "cohort",
+ "register_status": "active",
+ "industry": {
+  "code": "03220",
+  "description": "Freshwater aquaculture"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2026-06-03",
+   "date_label": "2026-06-03",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2026-06-03 (PRH). Register entries: Board of directors (HAL). Record number: 2026/290167.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2026-05-13",
+   "date_label": "2026-05-13",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2026-05-13 (PRH). Register entries: Board of directors (HAL). Record number: 2026/246884.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2026-03-27",
+   "date_label": "2026-03-27",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2026-03-27 (PRH). Register entries: Board of directors (HAL). Record number: 2026/153726.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-02-09",
+   "date_label": "2026-02-09",
+   "source_url": "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (accelerator_or_programme_entry). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2025-12-06",
+   "date_label": "2025-12-06",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2025-12-06 (PRH). Register entries: Board of directors (HAL). Record number: 2025/608298.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S6",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2025-04-01",
+   "date_label": "2025-04-01",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3166759-6",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S7",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2024-12-03",
+   "date_label": "2024-12-03",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2024-12-03 (PRH). Register entries: Board of directors (HAL). Record number: 2024/575094.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S8",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2024-12-02",
+   "date_label": "2024-12-02",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2024-12-02 (PRH). Register entries: Board of directors (HAL). Record number: 2024/574994.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S9",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2024-09-08",
+   "date_label": "2024-09-08",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2024-09-08 (PRH). Register entries: Board of directors (HAL). Record number: 2024/440930.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S10",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2023-02-01",
+   "date_label": "2023-02-01",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2023-02-01 (PRH). Register entries: Board of directors (HAL). Record number: 2022/482502.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S11",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2020-10-23",
+   "date_label": "2020-10-23",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6",
+   "source_label": "PRH/YTJ register",
+   "confidence": "high",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S12",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2020-10-05",
+   "date_label": "2020-10-05",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3166759-6",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": "aquatech",
+   "keyword": "aquacultur",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+  }
+ },
+ "fit_reasons": [],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "Medium / Low / unknown / Medium",
+  "note": "more public evidence needed: Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Ocean impact Medium: works in the 'aquatech' category (keyword 'aquacultur')",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   },
+   {
+    "text": "Thesis fit: declared cohort company",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   },
+   {
+    "text": "Why now: BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) closes 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "risks": [
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Investment readiness, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6"
+   }
+  ]
+ },
+ "next": {
+  "investors": [
+   {
+    "name": "Aqua-Spark",
+    "kind": "investor vc",
+    "reason": "caps ['C5']; kw []; stage 0.5",
+    "url": "https://aqua-spark.nl"
+   },
+   {
+    "name": "Farvatn Venture",
+    "kind": "investor angel",
+    "reason": "caps ['C5']; kw []; stage 1.0; impact 0/5",
+    "url": "https://ecosystem.fi/?p=1261"
+   },
+   {
+    "name": "Nysnø Climate Investments",
+    "kind": "investor vc",
+    "reason": "caps ['C5']; kw []; stage 0.0; impact 0/5",
+    "url": "https://www.iea.org/policies/27446"
+   },
+   {
+    "name": "Ocean 14 Capital",
+    "kind": "investor vc",
+    "reason": "caps ['C5']; kw []; stage 0.0; impact 0/5",
+    "url": "https://startupintros.com/orgs/ocean-14-capital"
+   },
+   {
+    "name": "SWEN Blue Ocean Partners (SWEN Capital Partners)",
+    "kind": "investor vc",
+    "reason": "caps ['C5']; kw []; stage 0.0; impact 0/5",
+    "url": "https://emergingoceans.substack.com/p/blue-economy-funds-exceed-raise-targets"
+   }
+  ],
+  "funding": [
+   {
+    "name": "Hatch Blue",
+    "kind": "accelerator incubator",
+    "reason": "caps ['C5']; kw []; stage 1.0",
+    "url": "https://hatch.blue"
+   },
+   {
+    "name": "Baltic Sea Action Plan (BSAP) Fund (NIB + NEFCO)",
+    "kind": "public funder",
+    "reason": "caps ['C5']; kw []; stage 1.0; impact 0/5",
+    "url": "https://www.nib.int/about/cooperation/bsap-fund"
+   },
+   {
+    "name": "Baltic Sea Action Group (BSAG)",
+    "kind": "public funder",
+    "reason": "caps ['C5']; kw []; stage 0.5; impact 0/5",
+    "url": "https://www.bsag.fi"
+   },
+   {
+    "name": "Elinvoimakeskus Lounais-Suomi (EMFAF / EMKVR fisheries tasks, ex-ELY)",
+    "kind": "public funder",
+    "reason": "caps ['C5']; kw []; stage 0.5; impact 0/5",
+    "url": "https://www.elinvoimakeskus.fi"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "partners": [
+   {
+    "name": "Natural Resources Institute Finland (Luke)",
+    "kind": "research org",
+    "reason": "caps ['C5']; kw ['aquaculture']; stage 0.5",
+    "url": "https://www.luke.fi"
+   },
+   {
+    "name": "Åbo Akademi University",
+    "kind": "research org",
+    "reason": "caps ['C5']; kw []; stage 0.5",
+    "url": "https://www.abo.fi"
+   }
+  ]
+ },
+ "counts": {
+  "signals": 12,
+  "by_type": {
+   "board_change": 8,
+   "ecosystem_event": 1,
+   "first_hire": 1,
+   "register_entry": 1,
+   "first_sales": 1
+  },
+  "next_investors": 5,
+  "next_funding": 5,
+  "next_partners": 2
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://aqua-spark.nl",
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3166759-6",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3166759-6",
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://ecosystem.fi/?p=1261",
+  "https://emergingoceans.substack.com/p/blue-economy-funds-exceed-raise-targets",
+  "https://hatch.blue",
+  "https://startupintros.com/orgs/ocean-14-capital",
+  "https://tietopalvelu.ytj.fi/yritys/3166759-6",
+  "https://www.abo.fi",
+  "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+  "https://www.bsag.fi",
+  "https://www.elinvoimakeskus.fi",
+  "https://www.iea.org/policies/27446",
+  "https://www.luke.fi",
+  "https://www.nib.int/about/cooperation/bsap-fund"
+ ]
+}

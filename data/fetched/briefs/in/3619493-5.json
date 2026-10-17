@@ -1,0 +1,185 @@
+{
+ "company_key": "3619493-5",
+ "name": "Tiiliruukin Vesi ja Viemäri Oy",
+ "business_id": "3619493-5",
+ "founded": "2026-04-20",
+ "country": "FI",
+ "group": "feed",
+ "register_status": "active",
+ "industry": {
+  "code": "36000",
+  "description": "Water collection, treatment and supply"
+ },
+ "company_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3619493-5",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "first_sales",
+   "type_label": "First sales",
+   "date": "2026-08-31",
+   "date_label": "2026-08-31",
+   "source_url": "https://tietopalvelu.ytj.fi/yritys/3619493-5",
+   "source_label": "PRH/YTJ tax registers",
+   "confidence": "high",
+   "adapter": "tax_registers",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "startup_notice",
+   "type_label": "startup_notice",
+   "date": "2026-08-31",
+   "date_label": "2026-08-31",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3619493-5",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Start-up notification registered 2026-08-31 (PRH). Register entries: Start-up notification. Record number: 2026/206194.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "board_change",
+   "type_label": "board_change",
+   "date": "2026-08-31",
+   "date_label": "2026-08-31",
+   "source_url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3619493-5",
+   "source_label": "avoindata.prh.fi",
+   "confidence": "high",
+   "adapter": "prh_notices",
+   "title": null,
+   "note": "Board change registered 2026-08-31 (PRH). Register entries: Board of directors (HAL). Record number: 2026/206194.",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "register_entry",
+   "type_label": "New register entry",
+   "date": "2026-04-20",
+   "date_label": "2026-04-20",
+   "source_url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3619493-5",
+   "source_label": "PRH/YTJ register",
+   "confidence": "medium",
+   "adapter": "prh",
+   "title": null,
+   "note": null,
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": 2,
+   "rule": "register entry exists (PRH/YTJ)",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3619493-5"
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Industry code 36000 is on the thesis list (Water collection, treatment and supply).",
+   "confidence": "low",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3619493-5"
+  },
+  {
+   "text": "Legal name contains thesis keyword: vesi, vesi.",
+   "confidence": "medium",
+   "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3619493-5"
+  },
+  {
+   "text": "startup_notice on 2026-08-31: Start-up notification registered 2026-08-31 (PRH). Register entries: Start-up notification. Record number: 2026/206194.",
+   "confidence": "high",
+   "url": "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3619493-5"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / Low / unknown / High",
+  "note": "more public evidence needed: Ocean impact, Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Thesis fit: Industry code 36000 (Water collection, treatment and supply, PRH) is on the thesis list; 2 more reasons.",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3619493-5"
+   },
+   {
+    "text": "Why now: First sales on 2026-08-31",
+    "url": "https://tietopalvelu.ytj.fi/yritys/3619493-5"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "Business readiness is Low on the stored evidence",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3619493-5"
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Investment readiness, Technology readiness",
+    "url": "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3619493-5"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [],
+  "partners": []
+ },
+ "counts": {
+  "signals": 4,
+  "by_type": {
+   "first_sales": 1,
+   "startup_notice": 1,
+   "board_change": 1,
+   "register_entry": 1
+  },
+  "next_investors": 0,
+  "next_funding": 0,
+  "next_partners": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://avoindata.prh.fi/opendata-registerednotices-api/v3/3619493-5",
+  "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3619493-5",
+  "https://tietopalvelu.ytj.fi/yritys/3619493-5"
+ ]
+}

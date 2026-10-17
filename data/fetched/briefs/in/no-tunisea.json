@@ -1,0 +1,229 @@
+{
+ "company_key": "no-tunisea",
+ "name": "TuniSea",
+ "business_id": null,
+ "founded": null,
+ "country": "NO",
+ "group": "cohort",
+ "register_status": null,
+ "industry": {
+  "code": null,
+  "description": null
+ },
+ "company_url": "https://tunisea.no/",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "first_hire",
+   "type_label": "First hire",
+   "date": "2026-07-10",
+   "date_label": "2026-07-10",
+   "source_url": "https://data.brreg.no/enhetsregisteret/api/enheter/936277241",
+   "source_label": "declared research",
+   "confidence": "low",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "First hire or job ad. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-02-24",
+   "date_label": "2026-02-24",
+   "source_url": "https://data.brreg.no/enhetsregisteret/api/enheter/936277241",
+   "source_label": "declared research",
+   "confidence": "low",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S3",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2026-02-09",
+   "date_label": "2026-02-09",
+   "source_url": "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (accelerator_or_programme_entry). Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "product_launch",
+   "type_label": "Product launch",
+   "date": "2025-12-08",
+   "date_label": "2025-12-08",
+   "source_url": "https://tunisea.no/",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Product launch. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S5",
+   "type": "ecosystem_event",
+   "type_label": "Other dated event",
+   "date": "2025-09-28",
+   "date_label": "2025-09-28",
+   "source_url": "https://tunisea.no/",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Other dated event (other). Open the source link for the details",
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Product launch on 2025-12-08: Product launch. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://tunisea.no/"
+  },
+  {
+   "text": "First hire on 2026-07-10: First hire or job ad. Open the source link for the details [declared research (16 Oct 2026); dataset confidence low]",
+   "confidence": "low",
+   "url": "https://data.brreg.no/enhetsregisteret/api/enheter/936277241"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / unknown / unknown / Medium",
+  "note": "more public evidence needed: Ocean impact, Business readiness, Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Thesis fit: declared cohort company",
+    "url": "https://tunisea.no/"
+   },
+   {
+    "text": "Why now: EIC Accelerator 2026 (cut-off 4 Nov 2026) closes 2026-11-04",
+    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "No public evidence for business readiness",
+    "url": null
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Business readiness, Investment readiness, Technology readiness",
+    "url": "https://tunisea.no/"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [
+   {
+    "name": "EIC Accelerator 2026 (cut-off 4 Nov 2026)",
+    "kind": "grant",
+    "reason": "Open: SMEs scaling up; short proposal then full proposal; deadline: 2026-11-04; amount: grant below 2500000 (lump sum) plus equity 1000000 to 10000000. TRL window 6 to 8; company TRL not in public records",
+    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   },
+   {
+    "name": "Helsinki Blue Economy Studio by A'Pelago 2027",
+    "kind": "accelerator",
+    "reason": "Open: pre-seed, seed or early-stage with an MVP; deadline: 2026-11-30; amount: equity-free",
+    "url": "https://www.apelago.fi/helsinki-blue-economy-studio/"
+   },
+   {
+    "name": "A'Pelago Lab2Impact 2027",
+    "kind": "accelerator",
+    "reason": "Open: researchers and research-based innovations (incubator); deadline: TBA",
+    "url": "https://www.apelago.fi/laboff/"
+   },
+   {
+    "name": "A'Pelago Nordic Ocean Accelerator Programme (NOCA) 2027",
+    "kind": "accelerator",
+    "reason": "Open: ocean economy startups and SMEs; deadline: applications open; deadline not stated",
+    "url": "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/"
+   }
+  ],
+  "partners": []
+ },
+ "counts": {
+  "signals": 5,
+  "by_type": {
+   "first_hire": 1,
+   "ecosystem_event": 3,
+   "product_launch": 1
+  },
+  "next_investors": 0,
+  "next_funding": 5,
+  "next_partners": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://data.brreg.no/enhetsregisteret/api/enheter/936277241",
+  "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json",
+  "https://tunisea.no/",
+  "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/",
+  "https://www.apelago.fi/helsinki-blue-economy-studio/",
+  "https://www.apelago.fi/laboff/",
+  "https://www.apelago.fi/nordic-blue-2026-meet-our-next-batch/"
+ ]
+}

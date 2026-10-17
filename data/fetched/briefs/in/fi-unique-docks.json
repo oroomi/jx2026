@@ -1,0 +1,240 @@
+{
+ "company_key": "fi-unique-docks",
+ "name": "Unique Docks",
+ "business_id": null,
+ "founded": null,
+ "country": "FI",
+ "group": "portfolio",
+ "register_status": null,
+ "industry": {
+  "code": null,
+  "description": null
+ },
+ "company_url": "https://www.facebook.com/p/Unique-Docks-100090037266485/",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "funding_round",
+   "type_label": "Funding round",
+   "date": "2023-01-01",
+   "date_label": "2023 (year only)",
+   "source_url": "https://www.redstone.vc/portfolio/unique-docks",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Funding round. Open the source link for the details",
+   "amount_eur": null
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "Funding round on 2023 (year only): Funding round. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://www.redstone.vc/portfolio/unique-docks"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / unknown / unknown / Medium",
+  "note": "more public evidence needed: Ocean impact, Business readiness, Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Thesis fit: declared portfolio company",
+    "url": "https://www.facebook.com/p/Unique-Docks-100090037266485/"
+   },
+   {
+    "text": "Why now: BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries) closes 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "No public evidence for business readiness",
+    "url": null
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Business readiness, Investment readiness, Technology readiness",
+    "url": "https://www.facebook.com/p/Unique-Docks-100090037266485/"
+   },
+   {
+    "text": "Check in: no public signal since 2023-01-01",
+    "url": "https://www.redstone.vc/portfolio/unique-docks"
+   }
+  ]
+ },
+ "next": {
+  "investors": [
+   {
+    "name": "Meyer Turku (GT Lab - MERiON programme)",
+    "kind": "investor corporate",
+    "reason": "caps ['C10', 'C2']; kw []; stage 1.0",
+    "url": "https://www.meyerturku.fi"
+   },
+   {
+    "name": "Ålands Utvecklings Ab (ÅUAB)",
+    "kind": "investor vc",
+    "reason": "caps ['C10', 'C2']; kw []; stage 1.0",
+    "url": "https://www.crowdfundinsider.com/2016/11/93095-invesdor-will-help-companies-raise-capital-aland-islands/"
+   },
+   {
+    "name": "Royal Caribbean Group",
+    "kind": "investor corporate",
+    "reason": "caps ['C10', 'C2']; kw []; stage 0.5",
+    "url": "https://www.royalcaribbeangroup.com"
+   },
+   {
+    "name": "Meriaura Invest Oy",
+    "kind": "investor corporate",
+    "reason": "caps ['C2']; kw []; stage 1.0; impact 0/5",
+    "url": "https://meriaura.fi"
+   },
+   {
+    "name": "Wärtsilä (Next Business Lab / Sustainable Technology Hub / WISE)",
+    "kind": "investor corporate",
+    "reason": "caps ['C2']; kw []; stage 1.0; impact 0/5",
+    "url": "https://www.wartsila.com"
+   }
+  ],
+  "funding": [
+   {
+    "name": "Business Turku / Turku Science Park (Blue Economy and Maritime)",
+    "kind": "accelerator incubator",
+    "reason": "caps ['C2']; kw []; stage 1.0; impact 0/5",
+    "url": "https://businessturku.fi/en/blue-economy-and-maritime/"
+   },
+   {
+    "name": "Elinvoimakeskus Lounais-Suomi (EMFAF / EMKVR fisheries tasks, ex-ELY)",
+    "kind": "public funder",
+    "reason": "caps ['C10']; kw []; stage 1.0; impact 0/5",
+    "url": "https://www.elinvoimakeskus.fi"
+   },
+   {
+    "name": "Interreg Central Baltic Programme 2021-2027",
+    "kind": "public funder",
+    "reason": "caps ['C10']; kw []; stage 0.5; impact 0/5",
+    "url": "https://centralbaltic.eu"
+   },
+   {
+    "name": "Merenkulun säätiö (maritime foundation)",
+    "kind": "public funder",
+    "reason": "caps ['C2']; kw []; stage 0.5; impact 0/5",
+    "url": "(search returned nothing relevant)"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   }
+  ],
+  "partners": [
+   {
+    "name": "Nautor Swan (Nautor Oy / Nautor Holding)",
+    "kind": "corporate",
+    "reason": "caps ['C10', 'C2']; kw []; stage 0.5",
+    "url": "https://nautorswan.com"
+   },
+   {
+    "name": "Aalto University (marine technology)",
+    "kind": "research org",
+    "reason": "caps ['C2']; kw []; stage 0.5",
+    "url": "https://www.aalto.fi"
+   },
+   {
+    "name": "ABB Marine & Ports (ABB Oy, Helsinki)",
+    "kind": "corporate",
+    "reason": "caps ['C2']; kw []; stage 0.5",
+    "url": "https://new.abb.com/marine"
+   },
+   {
+    "name": "Blue Industry Park (Turku)",
+    "kind": "cluster network",
+    "reason": "caps ['C2']; kw []; stage 0.5",
+    "url": "https://blueindustrypark.fi"
+   },
+   {
+    "name": "Eckerö Line Abp (Eckerö Group)",
+    "kind": "shipowner operator",
+    "reason": "caps ['C10']; kw []; stage 0.5",
+    "url": "https://www.eckeroline.fi"
+   }
+  ]
+ },
+ "counts": {
+  "signals": 1,
+  "by_type": {
+   "funding_round": 1
+  },
+  "next_investors": 5,
+  "next_funding": 5,
+  "next_partners": 5
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://blueindustrypark.fi",
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://businessturku.fi/en/blue-economy-and-maritime/",
+  "https://centralbaltic.eu",
+  "https://meriaura.fi",
+  "https://nautorswan.com",
+  "https://new.abb.com/marine",
+  "https://www.aalto.fi",
+  "https://www.crowdfundinsider.com/2016/11/93095-invesdor-will-help-companies-raise-capital-aland-islands/",
+  "https://www.eckeroline.fi",
+  "https://www.elinvoimakeskus.fi",
+  "https://www.facebook.com/p/Unique-Docks-100090037266485/",
+  "https://www.meyerturku.fi",
+  "https://www.redstone.vc/portfolio/unique-docks",
+  "https://www.royalcaribbeangroup.com",
+  "https://www.wartsila.com"
+ ]
+}

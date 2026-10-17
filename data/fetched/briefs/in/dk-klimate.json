@@ -1,0 +1,230 @@
+{
+ "company_key": "dk-klimate",
+ "name": "Klimate",
+ "business_id": null,
+ "founded": null,
+ "country": "DK",
+ "group": "portfolio",
+ "register_status": null,
+ "industry": {
+  "code": null,
+  "description": null
+ },
+ "company_url": "https://www.klimate.co/",
+ "signals": [
+  {
+   "ref": "S1",
+   "type": "pilot_named",
+   "type_label": "First customer or pilot named",
+   "date": "2025-04-22",
+   "date_label": "2025-04-22",
+   "source_url": "https://cleanenergyventures.com/news/klimate-partnership-carbon-offtake",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "First customer or pilot named. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S2",
+   "type": "funding_round",
+   "type_label": "Funding round",
+   "date": "2023-10-17",
+   "date_label": "2023-10-17",
+   "source_url": "https://tech.eu/2023/10/17/klimate-secures-eur35-million-seed-funding-for-carbon-removal-platform/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Funding round amount EUR 3 500 000. Open the source link for the details",
+   "amount_eur": 3500000.0
+  },
+  {
+   "ref": "S3",
+   "type": "funding_round",
+   "type_label": "Funding round",
+   "date": "2023-01-01",
+   "date_label": "2023 (year only)",
+   "source_url": "https://www.redstone.vc/portfolio/klimate",
+   "source_label": "declared research",
+   "confidence": "medium",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Funding round. Open the source link for the details",
+   "amount_eur": null
+  },
+  {
+   "ref": "S4",
+   "type": "funding_round",
+   "type_label": "Funding round",
+   "date": "2021-09-08",
+   "date_label": "2021-09-08",
+   "source_url": "https://rockstart.pr.co/202348-klimate-raises-730k-pre-seed-round-from-rockstart-the-footprint-firm-grow-ventures-and-vaekstfonden/",
+   "source_label": "declared research",
+   "confidence": "high",
+   "adapter": "ecosystem",
+   "title": null,
+   "note": "Funding round amount EUR 730 000. Open the source link for the details",
+   "amount_eur": 730000.0
+  }
+ ],
+ "levels": {
+  "technology": {
+   "label": "Technology readiness level (Aalto TRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "business": {
+   "label": "Business readiness level (KTH BRL, 1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "investment": {
+   "label": "Investment readiness level (1-9)",
+   "level": null,
+   "rule": null,
+   "url": null
+  },
+  "impact_category": {
+   "category": null,
+   "keyword": null,
+   "url": null
+  }
+ },
+ "fit_reasons": [
+  {
+   "text": "First customer or pilot named on 2025-04-22: First customer or pilot named. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://cleanenergyventures.com/news/klimate-partnership-carbon-offtake"
+  },
+  {
+   "text": "Funding round on 2023-10-17: Funding round amount EUR 3 500 000. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://tech.eu/2023/10/17/klimate-secures-eur35-million-seed-funding-for-carbon-removal-platform/"
+  },
+  {
+   "text": "Funding round on 2021-09-08: Funding round amount EUR 730 000. Open the source link for the details [declared research (16 Oct 2026); dataset confidence high]",
+   "confidence": "high",
+   "url": "https://rockstart.pr.co/202348-klimate-raises-730k-pre-seed-round-from-rockstart-the-footprint-firm-grow-ventures-and-vaekstfonden/"
+  },
+  {
+   "text": "Funding round on 2023 (year only): Funding round. Open the source link for the details [declared research (16 Oct 2026); dataset confidence medium]",
+   "confidence": "medium",
+   "url": "https://www.redstone.vc/portfolio/klimate"
+  }
+ ],
+ "memo": {
+  "decision": "WATCHLIST",
+  "matched": null,
+  "because": "unknown / unknown / unknown / Medium",
+  "note": "more public evidence needed: Ocean impact, Business readiness, Investment readiness, Technology readiness",
+  "why": [
+   {
+    "text": "Thesis fit: declared portfolio company",
+    "url": "https://www.klimate.co/"
+   },
+   {
+    "text": "Why now: EIC Accelerator 2026 (cut-off 4 Nov 2026) closes 2026-11-04",
+    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   }
+  ],
+  "risks": [
+   {
+    "text": "No public evidence for ocean impact",
+    "url": null
+   },
+   {
+    "text": "No public evidence for business readiness",
+    "url": null
+   },
+   {
+    "text": "No public evidence for investment readiness",
+    "url": null
+   },
+   {
+    "text": "No public market evidence (public buyers in the category)",
+    "url": null
+   },
+   {
+    "text": "No public financials evidence (grants and contracts)",
+    "url": null
+   },
+   {
+    "text": "No public evidence for technology readiness",
+    "url": null
+   }
+  ],
+  "actions": [
+   {
+    "text": "Revisit when the radar finds public evidence for: Ocean impact, Business readiness, Investment readiness, Technology readiness",
+    "url": "https://www.klimate.co/"
+   },
+   {
+    "text": "Check in: no public signal since 2025-04-22",
+    "url": "https://cleanenergyventures.com/news/klimate-partnership-carbon-offtake"
+   }
+  ]
+ },
+ "next": {
+  "investors": [],
+  "funding": [
+   {
+    "name": "EIC Accelerator 2026 (cut-off 4 Nov 2026)",
+    "kind": "grant",
+    "reason": "Open: SMEs scaling up; short proposal then full proposal; deadline: 2026-11-04; amount: grant below 2500000 (lump sum) plus equity 1000000 to 10000000. TRL window 6 to 8; company TRL not in public records",
+    "url": "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json"
+   },
+   {
+    "name": "BlueInvest E-Pitching Session (energy transition in aquaculture and fisheries)",
+    "kind": "accelerator",
+    "reason": "Open: pitch event; deadline: 2026-11-12",
+    "url": "https://blueinvest-community.converve.io/all_events.html"
+   },
+   {
+    "name": "Helsinki Blue Economy Studio by A'Pelago 2027",
+    "kind": "accelerator",
+    "reason": "Open: pre-seed, seed or early-stage with an MVP; deadline: 2026-11-30; amount: equity-free",
+    "url": "https://www.apelago.fi/helsinki-blue-economy-studio/"
+   },
+   {
+    "name": "A'Pelago Lab2Impact 2027",
+    "kind": "accelerator",
+    "reason": "Open: researchers and research-based innovations (incubator); deadline: TBA",
+    "url": "https://www.apelago.fi/laboff/"
+   },
+   {
+    "name": "A'Pelago Nordic Ocean Accelerator Programme (NOCA) 2027",
+    "kind": "accelerator",
+    "reason": "Open: ocean economy startups and SMEs; deadline: applications open; deadline not stated",
+    "url": "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/"
+   }
+  ],
+  "partners": []
+ },
+ "counts": {
+  "signals": 4,
+  "by_type": {
+   "pilot_named": 1,
+   "funding_round": 3
+  },
+  "next_investors": 0,
+  "next_funding": 5,
+  "next_partners": 0
+ },
+ "exported": "2026-10-17",
+ "urls": [
+  "https://blueinvest-community.converve.io/all_events.html",
+  "https://cleanenergyventures.com/news/klimate-partnership-carbon-offtake",
+  "https://ec.europa.eu/info/funding-tenders/opportunities/data/topicDetails/horizon-eic-2026-accelerator-01.json",
+  "https://rockstart.pr.co/202348-klimate-raises-730k-pre-seed-round-from-rockstart-the-footprint-firm-grow-ventures-and-vaekstfonden/",
+  "https://tech.eu/2023/10/17/klimate-secures-eur35-million-seed-funding-for-carbon-removal-platform/",
+  "https://www.apelago.fi/four-programmes-in-2027-one-growing-apelago-ecosystem/",
+  "https://www.apelago.fi/helsinki-blue-economy-studio/",
+  "https://www.apelago.fi/laboff/",
+  "https://www.klimate.co/",
+  "https://www.redstone.vc/portfolio/klimate"
+ ]
+}

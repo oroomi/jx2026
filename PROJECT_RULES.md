@@ -124,6 +124,19 @@ and `git log`. Times are UTC commit times. Counts are the ones the repo states; 
 **A32. Every rule-driven change is logged with its rule.** A tool that changes records under a rule appends an entry to `provenance` citing the A or D id, with the records affected; a dated decision is recorded with its commit and the counts the repo states. An entry citing an id that is not in this file fails the consistency check.
 *Example:* each `radar.candidates build` run logs an A1 entry with its row and conflict counts. *Where:* `radar/provenance.py`; `radar/schema/061_provenance.sql`.
 
+**A33. Nothing is delivered until the consistency check passes.** Before a ZIP, a deploy or a store swap, `python3 -m radar.consistency` runs read-only over each store and every check prints PASS:
+- no PENDING_DECISION on an applied value;
+- every signal's confidence is what its adapter's rule gives;
+- every signal type and source has a label;
+- every date is ISO 8601 with a precision;
+- every Business ID has a valid check digit;
+- every country code is ISO 3166-1 alpha-2;
+- every amount is EUR;
+- every provenance entry cites an id in this file.
+
+A FAIL is fixed or asked, never waived.
+*Example:* the blue and health snapshot copies pass 8 of 8 (17 Oct). *Where:* `radar/consistency.py`; `tests/test_consistency.py`.
+
 ## D. Decisions
 
 **D1. 2026-10-16 20:23Z (eb1c749, implemented 98c4e1e 21:16Z). Levels use the sponsors' frameworks.** *Rule:* TRL 1-9 (Aalto), BRL 1-9 (KTH, not 1-5), the Navigator category, and ten investment dimensions; afaa4fb (23:25Z) declined the team's own 0-20 rubrics (TASKS.md amendments; the first is headed 20:50Z, git time is used here). *Why:* the official written brief names them. *Affected:* every company's readiness lines; no count stated. `readiness.business.scale` in the thesis files still says "1-5 commercial readiness"; the page prints BRL 1-9.
@@ -297,4 +310,4 @@ Batch B1 (`QUESTIONS_B1.md`, 17 Oct): 15 issues. B1-01 to B1-11 come from the fi
 ## H. History of this register
 
 - 2026-10-17 08:19Z: ASSUMPTIONS.md, A1 to A27 and D1 to D20, drafted on the VPS (bf4547c); merged to main as e0568b2.
-- 2026-10-17: folded into this file with the same ids (task jx40). Added A28 to A32, notes to D1, D2, D12 and D15, D21, the taxonomy, the formats and batch B1.
+- 2026-10-17: folded into this file with the same ids (task jx40). Added A28 to A33, notes to D1, D2, D12 and D15, D21, the taxonomy, the formats and batch B1.

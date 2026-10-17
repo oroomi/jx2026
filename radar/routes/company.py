@@ -134,7 +134,7 @@ def company_page(request: Request, company_key: str):
         eco = ecosystem(conn, company_key, fw)
         nxt = matching.who_comes_next(company_key, thesis, 5, conn=conn)
         step = matching.next_step(company_key, thesis, conn=conn)
-        stitch = stitcher.page_view(conn, company_key)
+        stitch = stitcher.page_view(conn, company_key, thesis)
     finally:
         conn.close()
     reasons = fit_mod.fit(c, sigs, thesis)

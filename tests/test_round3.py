@@ -194,3 +194,35 @@ def test_backtest_on_the_snapshot_names_no_business_id_only_without_one(snap):
     from app import app
     html = TestClient(app).get("/backtest").text
     assert html.count("(no business id)") == len(res["rows"]) - 7
+
+
+# ---- item 8: the stitcher block never prints a person-shaped name ---------------------------------------------------
+
+def test_redaction_keeps_company_and_business_words():
+    from radar import fit, thesis
+    th = thesis.load()
+    r = lambda t: fit.redact_person_names(t, "Arctic Fry Oy", th)  # noqa: E731
+    assert r('"Arctic Fry Oy" Nordic Blue') == '"Arctic Fry Oy" Nordic Blue'
+    assert r("Arctic Fry Oy toimitusjohtaja Matti Virtanen") == "Arctic Fry Oy toimitusjohtaja [name redacted]"
+    assert r("CEO Liisa Korhonen, Arctic Fry Oy") == "CEO [name redacted], Arctic Fry Oy"
+    assert r("Business Finland funding Arctic Fry") == "Business Finland funding Arctic Fry"
+
+
+def test_show_the_searches_redacts_person_names(built, client):
+    rows = [("search", "query", None, '"Synthetic Harbour Boats Oy" Matti Virtanen', None),
+            ("search", "llm_query", None, "Synthetic Harbour Boats founder Liisa Korhonen interview", None),
+            ("verify", "kept", "Synthetic Harbour Boats Oy hired Pekka Niemi as CEO", None, "https://example.test/news/1"),
+            ("verify", "dropped", "quote_not_on_page: Jussi Lahtinen", None, "https://example.test/news/2")]
+    for step, outcome, reason, query, url in rows:
+        built.execute("""INSERT INTO stitch_log (run_id, company_key, step, outcome, reason, query, signal_type, date, date_precision,
+                         source_url, quote, confidence, ts) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+                      ("2026-10-17T00:00:00Z", "9300001-1", step, outcome, reason, query, "job_ad" if step == "verify" else None,
+                       "2026-09-01" if step == "verify" else None, "day" if step == "verify" else None, url,
+                       "Synthetic Harbour Boats Oy CEO Pekka Niemi said the boats ship in May" if step == "verify" else None,
+                       "high" if step == "verify" else None, "2026-10-17T00:00:00Z"))
+    built.commit()
+    t = client.get("/c/9300001-1").text
+    assert 'id="stitch"' in t and "[name redacted]" in t
+    for person in ("Matti Virtanen", "Liisa Korhonen", "Pekka Niemi", "Jussi Lahtinen"):
+        assert person not in t, person
+    assert "Synthetic Harbour Boats" in t

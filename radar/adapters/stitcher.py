@@ -780,10 +780,11 @@ def _reason_text(reason: str | None) -> str:
     return REASON_TEXT.get(code, code.replace("_", " ") or "no reason logged")
 
 
-def page_view(conn: sqlite3.Connection, company_key: str) -> dict | None:
+def page_view(conn: sqlite3.Connection, company_key: str, thesis: dict | None = None) -> dict | None:
     """The latest stitcher run for one company, as the company page shows it: the step counts, what was dropped and why,
-    and each event that passed both checks. None when the company has no run (or the store has no stitch_log)."""
-    from radar import store
+    and each event that passed both checks. None when the company has no run (or the store has no stitch_log).
+    Every text an LLM wrote or chose (queries, quotes, reasons) goes through radar.fit.redact_person_names first."""
+    from radar import fit, store, thesis as thesis_mod
     try:
         r = conn.execute("SELECT run_id FROM stitch_log WHERE company_key=? AND run_id<>'print-prompt' ORDER BY run_id DESC LIMIT 1",
                          (company_key,)).fetchone()
@@ -792,7 +793,14 @@ def page_view(conn: sqlite3.Connection, company_key: str) -> dict | None:
     if r is None:
         return None
     run_id = r[0]
+    th = thesis or thesis_mod.load()
+    co = conn.execute("SELECT name FROM companies WHERE company_key=?", (company_key,)).fetchone()
+    legal = co[0] if co else ""
+    red = lambda t: fit.redact_person_names(t, legal, th) if t else t  # noqa: E731
     rows = [dict(x) for x in conn.execute("SELECT * FROM stitch_log WHERE run_id=? AND company_key=? ORDER BY id", (run_id, company_key))]
+    for x in rows:
+        for f in ("query", "quote", "reason"):
+            x[f] = red(x.get(f))
     by = lambda step, *outcomes: [x for x in rows if x["step"] == step and x["outcome"] in outcomes]  # noqa: E731
     rechecked = bool(by("verify", "confirmed", "refuted"))
     final = by("verify", "confirmed") if rechecked else by("verify", "kept")
@@ -814,7 +822,7 @@ def page_view(conn: sqlite3.Connection, company_key: str) -> dict | None:
     events.sort(key=lambda e: (e["date"], e["source_url"]))
     drops = []
     for x in by("verify", "dropped", "refuted"):
-        drops.append({"pass": "second check" if x["outcome"] == "refuted" else "first check", "why": _reason_text(x["reason"]),
+        drops.append({"pass": "second check" if x["outcome"] == "refuted" else "first check", "why": red(_reason_text(x["reason"])),
                       "source_url": x["source_url"], "host": (urlparse(x["source_url"] or "").hostname or "").removeprefix("www.")})
     fetched = {x["source_url"] for x in by("verify", "kept", "dropped")
                if not (x["outcome"] == "dropped" and (x["reason"] or "").split(":")[0] in ("source_not_allowed", "date_in_future"))}

@@ -208,3 +208,4 @@ body:has(.co-layout) .top .wrap,body:has(.co-layout) .foot{max-width:1360px}
 .co-c .cc-a sup a, .co-c .brief-cite { display: inline-block; min-width: 44px; padding: 0; margin: 0 -18px; text-align: center; position: relative; }
 .co-c .cc-a sup a { margin: 0 -16px 0 -14px; }
 .co-c .brief-cite { color: var(--accent); text-decoration: none; font-weight: 600; font-size: 14px; margin: 0 -14px; }
+.cc-rule { display: inline-flex; align-items: center; height: 28px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--hairline); color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }

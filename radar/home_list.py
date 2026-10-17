@@ -300,16 +300,24 @@ def for_template(thesis: dict, wait=_DEFAULT_WAIT) -> dict | None:
     return {"warming": True, "rows": []} if busy else None  # not cached and not building: the build failed, the page shows the plain feed
 
 
-def peek(thesis: dict) -> dict | None:
-    """The cached list for this thesis if there is one, else None. Never builds and never waits (the sector links use it to see which
-    filters another sector offers)."""
+def stamp(thesis: dict) -> tuple | None:
+    """The key a list (or anything derived from it, such as the Top matching ranking) is cached under: thesis, store file version, day.
+    None when the sector has no store."""
     conn = store.open_db(thesis=thesis)
     if conn is None:
         return None
     try:
-        key = _cache_key(conn, thesis)
+        return _cache_key(conn, thesis)
     finally:
         conn.close()
+
+
+def peek(thesis: dict) -> dict | None:
+    """The cached list for this thesis if there is one, else None. Never builds and never waits (the sector links use it to see which
+    filters another sector offers)."""
+    key = stamp(thesis)
+    if key is None:
+        return None
     with _lock:
         return _cache.get(key)
 

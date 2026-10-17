@@ -10,7 +10,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Request
 from jinja2 import pass_context
 
-from radar import home_filter, home_list, store, thesis as thesis_mod
+from radar import home_filter, home_list, home_orgs, store, thesis as thesis_mod
 from radar.routes import home_list as _registers_first  # noqa: F401  (its template globals must exist before this module overrides one)
 from radar.routes.home import templates
 
@@ -46,7 +46,8 @@ def filtered_view(request: Request, thesis: dict) -> dict | None:
     data = home_list.for_template(thesis)
     if not data or not data.get("rows"):
         return data
-    return home_filter.view(data, home_filter.parse_state(request.query_params), sectors=sectors_for(thesis, data), current=thesis["id"], title=thesis["title"])
+    st = home_filter.parse_state(request.query_params)
+    return home_filter.view(data, st, sectors=sectors_for(thesis, data), current=thesis["id"], title=thesis["title"], match=home_orgs.context(thesis, st.org))
 
 
 @pass_context
@@ -72,3 +73,24 @@ def home_list_partial(request: Request):
     if ok:
         resp.headers["HX-Replace-Url"] = H["state"].url
     return resp
+
+
+def _warm_orgs() -> None:
+    """After the sectors' lists are built, build the Top matching picker and the default organisation's ranking of every sector that has
+    matchmaking, so the tab's first visitor does not wait for the matchmaker (about 1.5 s)."""
+    try:
+        default = thesis_mod.load()
+        todo = [default] + [t for t in (thesis_mod.load(p) for p in thesis_mod.available().values()) if t["id"] != default["id"]]
+    except Exception:  # noqa: BLE001
+        return
+    for th in todo:
+        try:
+            home_list.warm(th)
+            home_orgs.warm(th)
+        except Exception:  # noqa: BLE001  (a warm-up failure only means that sector builds on its first request)
+            pass
+
+
+if __import__("os").environ.get("RADAR_NO_WARM") is None and "pytest" not in __import__("sys").modules:
+    import threading
+    threading.Thread(target=_warm_orgs, name="home-orgs-warm", daemon=True).start()

@@ -265,14 +265,40 @@ def chips(sel: dict[str, list[str]], extra: dict[str, str]) -> list[dict]:
             for p in params() for v in sel.get(p, [])]
 
 
-def view(H: dict, params_, *, sectors: list[dict] | None = None, current: str = "", title: str = "") -> dict:
+def top_matching(H: dict, groups: list[tuple], match: dict | None) -> list[tuple]:
+    """The groups with the Top matching tab (`fit`) made for the organisation in view. Its rows are the matchmaker's ranking for that
+    organisation (radar.home_orgs) intersected with the home list, in the matchmaker's order, each with its reasons in `why`; the other
+    filters are applied after, like on every tab. Without an organisation or a ranking the tab is the plain list under its plain label."""
+    rank = (match or {}).get("rank")
+    if not match or not match.get("org") or rank is None:
+        return groups
+    by_key = {r["company_key"]: r for r in H.get("rows") or []}
+    rows = [dict(by_key[k], why=rank[k]["why"]) for k in sorted((k for k in rank if k in by_key), key=lambda k: rank[k]["rank"])]
+    entry = ("fit", home_config.group_label_for("fit", match["name"]), rows)
+    at = next((i for i, g in enumerate(groups) if g[0] == "fit"), None)
+    return [*groups[:at], entry, *groups[at + 1:]] if at is not None else [*groups[:1], entry, *groups[1:]]
+
+
+ANY_VALUE = "any"      # the `for` value of "no organisation" (radar.home_orgs.ANY)
+
+
+def _hidden(st: State) -> list[tuple[str, str]]:
+    """The state the investor picker's form carries besides its own choice, so a change of investor keeps the tab, the sector and the filters."""
+    pairs = [("group", st.group or "fit")]
+    if st.thesis:
+        pairs.append(("thesis", st.thesis))
+    return pairs + [(p, v) for p in params() for v in st.sel.get(p, [])]
+
+
+def view(H: dict, params_, *, sectors: list[dict] | None = None, current: str = "", title: str = "", match: dict | None = None) -> dict:
     """The cached home list for this request: every group's rows filtered by the state, plus what the list section prints for the group in
     view (`cur`, `rail`, `chips`, `count`). `sectors` are the configured theses ({id, title, rows, offered, groups}), `current` the one in
-    view. The cached dict is never modified; with no filter the rows are the cached ones."""
+    view, `match` the Top matching context (radar.home_orgs.context). The cached dict is never modified; with no filter the rows are the
+    cached ones."""
     st = params_ if isinstance(params_, State) else parse_state(params_)
     sel, extra = st.sel, st.extra()
     base = H.get("groups") or []
-    groups = [(k, home_config.group_label(k, label), rs) for k, label, rs in base]
+    groups = top_matching(H, [(k, home_config.group_label(k, label), rs) for k, label, rs in base], match)
     cur_unfiltered = next((g for g in groups if g[0] == (st.group or "all")), None) or (groups[0] if groups else None)
     out = dict(H)
     out["groups"] = [(k, label, apply(rs, sel)) for k, label, rs in groups]
@@ -280,6 +306,13 @@ def view(H: dict, params_, *, sectors: list[dict] | None = None, current: str = 
     cur = next((g for g in out["groups"] if cur_unfiltered and g[0] == cur_unfiltered[0]), None)
     out["cur"] = cur
     out["params"] = list(params())
+    out["picker"] = None
+    if match and match.get("orgs") and cur and cur[0] == "fit":
+        kinds: dict[str, list[dict]] = {}
+        for o in match["orgs"]:                  # already in the configured kind order: investors first, then accelerators
+            kinds.setdefault(o["kind_label"], []).append(o)
+        out["picker"] = {"orgs": match["orgs"], "kinds": list(kinds.items()), "org": match.get("org"), "name": match.get("name"), "any_label": match.get("any_label"), "pending": match.get("pending"),
+                         "any": ANY_VALUE, "hidden": [(k, v) for k, v in _hidden(st)]}
     out["tabs"] = [{"key": k, "label": label, "n": len(rs), "on": bool(cur) and cur[0] == k,
                     "href": href(sel, {**extra, "group": "" if k == "all" else k}), "hx": href(sel, {**extra, "group": "" if k == "all" else k}, None, PARTIAL)}
                    for k, label, rs in out["groups"]]

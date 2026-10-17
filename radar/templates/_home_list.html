@@ -14,6 +14,16 @@
   <nav class="hc-pills" aria-label="Groups">
     {% for t in H.tabs %}<a href="{{ t.href }}" hx-get="{{ t.hx }}" hx-replace-url="{{ t.href }}" data-key="{{ loop.index }}"{% if t.on %} aria-current="true"{% endif %}><kbd class="sk-terminal">{{ loop.index }}</kbd>{{ t.label }} <span>{{ t.n }}</span></a>{% endfor %}
   </nav>
+  {% if H.picker %}{% set P = H.picker %}<form class="hc-for" action="/" method="get" hx-get="/home/list" hx-trigger="change" aria-label="Investor or accelerator for the Top matching tab">
+    <label for="hc-for-select">Matched for</label>
+    <select id="hc-for-select" name="for">
+      <option value="{{ P.any }}"{% if not P.org %} selected{% endif %}>{{ P.any_label }}</option>
+      {% for kind, grp in P.kinds %}<optgroup label="{{ kind }}">{% for o in grp %}<option value="{{ o.id }}"{% if o.id == P.org %} selected{% endif %}>{{ o.name }}{% if o.members %} ({{ o.members }} in our records){% endif %}</option>{% endfor %}</optgroup>{% endfor %}
+    </select>
+    {% for k, v in P.hidden %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+    <noscript><button type="submit">Show</button></noscript>
+    {% if P.pending %}<p class="hc-for-note">The ranking for this organisation is still being prepared; this is the plain Top matching list.</p>{% endif %}
+  </form>{% endif %}
   {% if R.country and R.country.options | length > 1 %}<nav class="hc-countries" aria-label="Countries">
     {% for o in R.country.options %}<a class="hc-cc{{ ' on' if o.on }}" href="{{ o.href }}" hx-get="{{ o.hx }}" hx-replace-url="{{ o.href }}" role="checkbox" aria-checked="{{ 'true' if o.on else 'false' }}">{% if o.flag %}<img class="hc-flag" src="{{ o.flag }}" width="16" height="12" alt="" loading="lazy">{% endif %}{{ o.label }}</a>{% endfor %}
   </nav>{% endif %}
@@ -29,7 +39,7 @@
     {% set vk = (r.verdict or "none") | lower | replace(" ", "-") %}
     <li id="row-{{ r.company_key }}" data-key="{{ r.company_key }}" style="--i: {{ loop.index0 if loop.index0 < 12 else 12 }}"><a class="hc-row" href="/c/{{ r.company_key }}">
       <span class="hc-mark" aria-hidden="true" style="--pct: {{ ((r.covered / r.checks) * 100) | round | int }}%" title="{{ r.covered }} of {{ r.checks }} public-record checks covered">{{ ((w[0][:1] if w else "") ~ (w[1][:1] if w | length > 1 else (w[0][1:2] if w else ""))) | upper }}</span>
-      <span class="hc-who"><span class="hc-name">{{ r.name }}</span>{% set second = [r.sector] | select | list %}{% if second %}<span class="hc-sub">{{ second | join(" · ") }}</span>{% endif %}{% if r.ocean %}<span class="hc-oi{{ '' if r.ocean.area else ' hc-oi-none' }}" title="Ocean impact area; the dot shows how many independent source families agree: filled high, half medium, ring low"><i class="oi-dot oi-dot-{{ r.ocean.confidence }}" aria-hidden="true"></i><span class="hc-oi-t">{{ r.ocean.area.split(":")[0] if r.ocean.area else "impact area not on record" }}<span class="sr-only">, confidence {{ r.ocean.confidence }}</span></span></span>{% endif %}</span>
+      <span class="hc-who"><span class="hc-name">{{ r.name }}</span>{% set second = [r.sector] | select | list %}{% if second %}<span class="hc-sub">{{ second | join(" · ") }}</span>{% endif %}{% if r.ocean %}<span class="hc-oi{{ '' if r.ocean.area else ' hc-oi-none' }}" title="Ocean impact area; the dot shows how many independent source families agree: filled high, half medium, ring low"><i class="oi-dot oi-dot-{{ r.ocean.confidence }}" aria-hidden="true"></i><span class="hc-oi-t">{{ r.ocean.area.split(":")[0] if r.ocean.area else "impact area not on record" }}<span class="sr-only">, confidence {{ r.ocean.confidence }}</span></span></span>{% endif %}{% if r.why %}<span class="hc-why" aria-label="Why it is listed">{% for w in r.why %}<span class="hc-whyc">{{ w }}</span>{% endfor %}</span>{% endif %}</span>
       <span class="hc-right">
         {% if r.signals %}<span class="hc-spark">{{ sparkline(r.signals, 72, 26) }}</span>{% endif %}
         {% set L = lifeline_dots(r.signals | map(attribute="date") | list) if lifeline_dots is defined else none %}{% if L %}<span class="hc-dots" role="img" aria-label="{{ L.n }} dated public record{{ "s" if L.n != 1 }} since {{ L.first }}">{% for x in L.dots %}<i class="{{ 'd-last' if x == L.latest else 'd' }}" style="left: {{ x }}%"></i>{% endfor %}</span>{% endif %}
@@ -42,8 +52,10 @@
   </ol>
   {% else %}
   <div class="hc-empty">
-    <p class="hc-empty-h">No startup matches these filters</p>
-    {% if R.n_active %}{{ chip_list(R) }}<p class="hc-empty-p">Remove a filter above, or <a class="hc-clearall" href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-replace-url="{{ R.clear_href }}">clear all</a> to see all {{ R.total }}.</p>{% else %}<p class="hc-empty-p">There is nothing in this group yet.</p>{% endif %}
+    {% if R.n_active %}<p class="hc-empty-h">No startup matches these filters</p>
+    {{ chip_list(R) }}<p class="hc-empty-p">Remove a filter above, or <a class="hc-clearall" href="{{ R.clear_href }}" hx-get="{{ R.clear_hx }}" hx-replace-url="{{ R.clear_href }}">clear all</a> to see all {{ R.total }}.</p>
+    {% elif H.picker and H.picker.name %}<p class="hc-empty-h">No startup on this list is matched to {{ H.picker.name }}</p><p class="hc-empty-p">Pick another investor or accelerator above.</p>
+    {% else %}<p class="hc-empty-h">There is nothing in this group yet</p>{% endif %}
   </div>
   {% endif %}
   <p class="hc-note">{{ "Newest public record first." if cur[0] == "new" else "Strongest verdict first." }}{% if not (H.groups | selectattr(0, "equalto", "ready") | list) %} Investor-ready appears once a company's investment readiness reads High.{% endif %} Every row opens its sourced company page.</p>

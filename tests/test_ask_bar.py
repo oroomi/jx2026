@@ -105,8 +105,11 @@ def test_who_should_an_organisation_meet_is_the_match_intent(client):
         assert "accelerator" in d["say"]
     d = _ask(client, "Redstone Blue")
     assert d["intent"] == "match" and "venture capital" in d["say"]
-    # no /match page in this build: no link is offered (a link to a missing page would be worse than none)
-    assert d["url"] is None and d["action"] == "none"
+    # a link only when the /match page is in this build (a link to a missing page would be worse than none); the merged branch selects by id
+    if client.get("/match").status_code == 200:
+        assert d["url"].startswith("/match?org=") and d["action"] == "open" and client.get(d["url"]).status_code == 200
+    else:
+        assert d["url"] is None and d["action"] == "none"
 
 
 def test_who_should_a_company_meet_is_aavas_question_four(client):
@@ -241,3 +244,21 @@ def test_the_old_nav_links_still_resolve(client):
 def test_the_sector_line_is_kept_as_one_line(client):
     t = client.get("/").text
     assert "Sector: <strong>" in t and "Change sector or region" in t and 'class="thesis-now"' in t
+
+
+# ---- the site pages list: one source for the Menu and the footer; Match only when its route exists ------------------------------------------
+def test_site_pages_lists_match_only_when_the_route_exists():
+    from types import SimpleNamespace as NS
+    from radar.routes.ask import site_pages
+    cur = {"cohort_label": "The Nordic Blue 19"}
+    without = NS(app=NS(routes=[NS(path="/"), NS(path="/radar")]))
+    withm = NS(app=NS(routes=[NS(path="/"), NS(original_router=NS(routes=[NS(path="/match")]))]))   # reached through an include_router wrapper
+    assert [k for _h, _l, k in site_pages(without, cur)] == ["feed", "radar", "backtest", "method", "data"]
+    assert [k for _h, _l, k in site_pages(withm, cur)] == ["feed", "radar", "match", "backtest", "method", "data"]
+    assert site_pages(without, cur)[1][1] == "The Nordic Blue 19" and site_pages(without, {})[1][1] == "Cohort radar"
+
+
+def test_the_api_index_and_unknown_api_paths(client):
+    assert any(e["path"].startswith("/api/ask") for e in client.get("/api").json()["endpoints"])
+    r = client.get("/api/no-such-endpoint")
+    assert r.status_code == 404 and "no API endpoint" in r.json()["error"]

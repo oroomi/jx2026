@@ -376,6 +376,10 @@
   var cv = $("ask-orb"), cx2 = cv.getContext("2d");
   var elState = $("ask-voice-state"), elLine = $("ask-voice-line"), elSay = $("ask-voice-say"), elLinks = $("ask-voice-links");
   var typeForm = $("ask-voice-type"), typeIn = $("ask-voice-input");
+  var voiceKick = 0;
+  /* One capture at a time on phones: speech recognition and an analyser on the same microphone can break each other there, so only a
+     pointer-and-keyboard device (a laptop) opens the analyser as well. */
+  var touchFirst = !!(window.matchMedia && matchMedia("(pointer: coarse)").matches);
   var state = "idle", isOpen = false, lastFocus = null, rec = null, micStream = null, micCtx = null, micAn = null, micBuf = null, sayWords = [];
   var LABEL = { idle: "Tap the orb to speak", listening: "Listening", thinking: "Looking at the records", speaking: "Aava is speaking",
                 done: "Tap the orb to ask another question", error: "" };
@@ -410,7 +414,10 @@
   }
   function micLevel() {
     if (typeof window.__askFakeLevel === "function") return window.__askFakeLevel(performance.now() / 1000);   /* a test or a screenshot with no microphone */
-    if (!micAn) return 0;
+    if (!micAn) {   /* no analyser (touch devices, permission refused): the orb follows the recogniser's own activity, a pulse on each result */
+      voiceKick *= 0.93;
+      return state === "listening" ? 0.1 + 0.65 * voiceKick : 0;
+    }
     micAn.getByteTimeDomainData(micBuf);
     var s = 0;
     for (var i = 0; i < micBuf.length; i++) { var v = (micBuf[i] - 128) / 128; s += v * v; }
@@ -527,7 +534,7 @@
     Speech.stop(); stopRec(); clearAnswer(); seq += 1;
     if (!SR) {
       setState("idle", "Speech recognition is not supported in this browser.");
-      startMic();
+      if (!touchFirst) startMic();
       showType();
       return;
     }
@@ -536,6 +543,7 @@
     rec = new SR();
     rec.lang = "en-US"; rec.interimResults = true; rec.continuous = false; rec.maxAlternatives = 1;
     rec.onresult = function (e) {
+      voiceKick = 1;
       var interim = "";
       for (var i = e.resultIndex; i < e.results.length; i++) {
         var r = e.results[i];
@@ -562,7 +570,7 @@
       if (finalText.trim()) heard(finalText);
       else { setState("idle", "I did not catch that. Tap the orb to try again, or type your question."); showType(elState.textContent); }
     };
-    try { rec.start(); startMic(); } catch (err) { setState("error", "Speech recognition could not start. Type your question instead."); showType(); }
+    try { rec.start(); if (!touchFirst) startMic(); } catch (err) { setState("error", "Speech recognition could not start. Type your question instead."); showType(); }
   }
 
   /* -- a question has been heard or typed: ask, then speak the answer -- */

@@ -46,3 +46,16 @@ so light theme and all three skins work. No purple gradient, no emoji.
 ## What we could not take
 
 No model sits behind the bar, so there is no free-form follow-up conversation; an unknown phrase goes to the search page and says so.
+
+## What shipped (feat/ask_bar)
+
+- `GET /api/ask?q=&thesis=` (radar/routes/ask.py, logic in radar/ask.py): `{intent, say, url, action, label, segments, audio_dir, items, count, total}`.
+  Intents: `company` (name or business id, Aava question 1; "who should <company> meet" gives question 4), `feed`, `filter` (the home filter rail's
+  querystring and a count from the cached home list), `match` (an organisation from the declared lists; the link appears when /match is in the build),
+  `search`, `help`. The vocabulary is `ask:` in config/thesis.yaml; another thesis file inherits it and sets its own `examples` and `sectors`.
+- Hero: radar/templates/_ask_bar.html, radar/static/askbar.js, radar/static/askbar.css. The old count block is the one muted line under the bar.
+- Header: radar/templates/_nav_menu.html (a details element, works without JavaScript) and the footer read one list, `site_pages`.
+- Voice: needs the Aava demo flag; recorded MP3 only when the manifest holds the answer's text sha (the committed manifests predate the six-question
+  rewrite, so today the browser voice speaks); the orb follows the playing audio either way.
+- Privacy line, printed in the overlay: the browser does the speech-to-text and some browsers do that on the vendor's servers; this site only
+  receives the text of the question. Add one line to DISCLOSURE.md for the Web Speech API.

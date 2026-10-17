@@ -1,6 +1,7 @@
-"""GET /aava/script/{company_key}?intent=brief|next|talk|why|meet|missing and GET /aava/feed: the narration scripts. Data only through
-radar.store. The same scripts are embedded in the page (template globals aava_company_json, aava_feed_json), so a tap plays them
-with no request: mobile browsers only let speech start inside the tap itself."""
+"""GET /aava/script/{company_key}?intent=brief|why|meet|talk|next|missing and GET /aava/feed: the narration scripts (six questions per
+company, one for the feed; the intent names are the old groups, see radar.aava). Data only through radar.store. The same scripts are
+embedded in the page (template globals aava_company_json, aava_feed_json), so a tap plays them with no request: mobile browsers only
+let speech start inside the tap itself."""
 from __future__ import annotations
 
 import json
@@ -8,22 +9,19 @@ import json
 from fastapi import APIRouter, HTTPException, Request
 from markupsafe import Markup
 
-from radar import aava, blueinvest, fit as fit_mod, frameworks, matching, memo as memo_mod, store
+from radar import aava, matching, memo as memo_mod, store
 from radar.routes.home import templates
 
 router = APIRouter()
 
 
 def _inputs(conn, th: dict, company_key: str) -> dict | None:
-    """Everything a company script reads, from the functions the company page itself uses: the page's levels
-    (frameworks.page_levels), question 03 (matching.who_comes_next), question 04 (matching.next_step) and the memo (memo.build)."""
+    """Everything a company script reads, from the functions the company page itself uses: question 03 (matching.who_comes_next),
+    question 04 (matching.next_step) and the memo (memo.build)."""
     data = store.company(conn, company_key)
     if data is None:
         return None
-    c, sigs = data["company"], data["signals"]
-    fw = frameworks.page_levels(c, sigs, blueinvest.profile_for(conn, company_key))
-    entered = ", ".join(sorted({s["evidence"]["label"] for s in sigs}) or [store.evidence(c)["label"]])
-    return {"c": c, "signals": sigs, "fw": fw, "reasons": fit_mod.fit(c, sigs, th), "entered_via": entered,
+    return {"c": data["company"], "signals": data["signals"],
             "nxt": matching.who_comes_next(company_key, th, 5, conn=conn), "step": matching.next_step(company_key, th, conn=conn),
             "memo": memo_mod.build(conn, th, company_key)}
 
@@ -43,7 +41,7 @@ def company_json(company_key: str, thesis: dict) -> Markup:
         conn.close()
     if x is None:
         return _json({})
-    return _json(aava.company_groups(x["c"], x["signals"], x["fw"], x["reasons"], x["entered_via"], nxt=x["nxt"], step=x["step"], memo=x["memo"]))
+    return _json(aava.company_groups(x["c"], x["signals"], nxt=x["nxt"], step=x["step"], memo=x["memo"], thesis=thesis))
 
 
 def feed_json(rows: list[dict]) -> Markup:
@@ -53,6 +51,7 @@ def feed_json(rows: list[dict]) -> Markup:
 templates.env.globals["aava_company_json"] = company_json
 templates.env.globals["aava_feed_json"] = feed_json
 templates.env.globals["aava_questions"] = aava.QUESTIONS
+templates.env.globals["aava_feed_questions"] = aava.FEED_QUESTIONS
 
 
 @router.get("/aava/feed")
@@ -80,4 +79,4 @@ def company_script(request: Request, company_key: str, intent: str = "brief"):
         conn.close()
     if x is None:
         raise HTTPException(404, f"no company with key {company_key} in this radar")
-    return aava.company_script(x["c"], x["signals"], x["fw"], x["reasons"], x["entered_via"], intent, nxt=x["nxt"], step=x["step"], memo=x["memo"])
+    return aava.company_script(x["c"], x["signals"], intent, nxt=x["nxt"], step=x["step"], memo=x["memo"], thesis=th)

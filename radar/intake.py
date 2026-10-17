@@ -39,12 +39,43 @@ def form_ok(form_code: str | None, cfg: dict) -> bool:
     return str(form_code or "") in cfg["company_forms"]
 
 
-def eligible(form_code: str | None, code: str | None, cfg: dict) -> tuple[bool, str | None]:
+# The legal-form word a registered Finnish or Swedish legal name ends with -> (PRH company form code, plain words). PRH requires the
+# form in the registered name, so a name ending in Oy is a limited company even before the wide-intake pass has read its record.
+NAME_FORMS = {"oy": ("16", "limited company (Oy)"), "ab": ("16", "limited company (Ab)"), "osakeyhtiö": ("16", "limited company (Oy)"),
+              "oyj": ("17", "public limited company (Oyj)"), "abp": ("17", "public limited company (Abp)"),
+              "osuuskunta": ("14", "cooperative"), "osk": ("14", "cooperative"), "andelslag": ("14", "cooperative"),
+              "ky": ("13", "limited partnership (Ky)"), "ay": ("5", "partnership (Ay)"), "tmi": (None, "sole trader (Tmi)")}
+FORM_WORDS = {"16": "limited company", "17": "public limited company", "14": "cooperative", "13": "limited partnership", "5": "partnership",
+              "10": "mutual real estate company", "2": "housing company", "19": "branch of a foreign company"}
+
+
+def form_from_name(name: str | None) -> tuple[str | None, str | None]:
+    """(form code, plain words) read from the legal-form word at the end of a legal name; (None, None) when there is none."""
+    words = [w.strip(".,()").casefold() for w in (name or "").split()]
+    for w in reversed(words[-2:]):
+        if w in NAME_FORMS:
+            return NAME_FORMS[w]
+    return None, None
+
+
+def form_of(prof: dict | None, name: str | None) -> tuple[str | None, str | None, str | None]:
+    """(form code, plain words, where it came from): the register's form from the intake profile, else the legal name's form word."""
+    if prof and prof.get("form_code"):
+        code = str(prof["form_code"])
+        return code, FORM_WORDS.get(code) or (prof.get("form_desc") or "").lower() or None, "register"
+    code, words = form_from_name(name)
+    if words:
+        return code, words, "legal name"
+    return None, None, None
+
+
+def eligible(form_code: str | None, code: str | None, cfg: dict, form_words: str | None = None) -> tuple[bool, str | None]:
     """(ok, reason when not). The reason is a plain sentence that names the stored value that failed."""
-    if form_code is None or form_code == "":
-        return False, "legal form not in public records"
+    if not form_code:
+        return False, (f"legal form {form_words} is not a limited company or cooperative" if form_words
+                       else "legal form not in public records")
     if not form_ok(form_code, cfg):
-        return False, f"legal form {form_code} is not a limited company or cooperative"
+        return False, f"legal form {form_words or FORM_WORDS.get(str(form_code)) or form_code} is not a limited company or cooperative"
     if not (code or "").strip():
         return False, "industry code not in public records"
     if not code_ok(code, cfg):
@@ -107,11 +138,15 @@ def company_view(conn, th: dict, company: dict, sigs: list[dict]) -> dict:
     """What the company page needs: whether thesis evidence exists, and the startup signals that brought the company in."""
     ex = thesis_evidence(conn, th, company, [dict(s, signal_id=s.get("signal_id", s.get("id"))) for s in sigs])
     cfg = settings(th)
-    out = {"evidence": ex["strength"] == "strong", "why": ex["why"], "intake": False, "signals": [], "intake_date": None, "reason": None}
+    declared = company.get("group_tag") if company.get("group_tag") in ("cohort", "portfolio") and company.get("source_url") else None
+    out = {"evidence": ex["strength"] == "strong", "why": ex["why"], "intake": False, "signals": [], "intake_date": None, "reason": None,
+           "declared": declared, "form": None, "form_source": None}
     if cfg is None:
         return out
     prof = profile(conn, company["company_key"])
-    ok, reason = eligible(prof["form_code"] if prof else None, company.get("industry_code"), cfg)
+    form, words, src = form_of(prof, company.get("name"))
+    out.update(form=words, form_source=src)
+    ok, reason = eligible(form, company.get("industry_code"), cfg, words)
     out["reason"] = reason
     if ok:
         d, ss = entered([dict(s, signal_id=s.get("signal_id", s.get("id"))) for s in sigs], cfg)

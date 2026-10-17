@@ -63,7 +63,13 @@
 <section id="q1" class="q q-fit">
   <h2><span class="num">01</span> Who is most promising</h2>
   {% if intake and not intake.evidence %}
+  {% if intake.declared %}
+  {% set floor = ((thesis.memo or {}).get("bands") or {}).get("fit", {}).get("declared_member_band") %}
+  <p class="plain" id="thesis-fit"><strong class="fit-declared">Thesis fit: declared {{ intake.declared }} company</strong> <a class="ev-chip" href="{{ c.source_url }}" target="_blank" rel="noopener"><span class="ev-src">source</span></a></p>
+  <p class="rule">It was selected into the {{ thesis.cohort_label if intake.declared == "cohort" else "portfolio" }}{% if floor %}, so the fund memo reads its thesis fit as at least {{ floor }}{% endif %}. No industry code, line of business, source text or second source shows the fit on its own yet.</p>
+  {% else %}
   <p class="plain" id="thesis-fit"><span class="hatch">Thesis fit: no public evidence yet</span></p>
+  {% endif %}
   {% if intake.signals %}
   <p class="plain">It is in the radar as a startup. {{ intake.signals | length }} startup signal{{ "s" if intake.signals | length != 1 }} brought it in, the first on {{ intake.signals[0].date_label or intake.signals[0].date }}:</p>
   <ul class="reasons intake-signals">

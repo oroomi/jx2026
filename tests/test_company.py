@@ -52,7 +52,10 @@ def test_readiness_without_signals_is_empty(client):
 def test_later_sections_are_honest_lines(client):
     t = client.get("/c/9000001-1").text
     assert t.count("no match in the dataset yet") >= 2  # investors and partners; the funding list may hold open programmes from the declared list
-    assert "Watch: not enough public evidence for a next step yet" in t and "Rule used: 5." in t
+    # question 04 states the verdict from the decision table; the older "watch, not enough public evidence" rule 5 is gone (D32)
+    assert "Watch: not enough public evidence" not in t and "Rule used" not in t
+    q4 = t[t.index('id="q4"'):]
+    assert "Decision used:" in q4 and "The whole decision table" in q4 and "Row 1:" in q4
     assert "not yet scored" not in t
 
 

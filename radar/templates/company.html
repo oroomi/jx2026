@@ -111,7 +111,7 @@
 
   <section class="cc-sec" aria-labelledby="about-h">
     <h2 id="about-h" class="cc-h">About</h2>
-    {% set _brief = brief_for(c.company_key, thesis) if brief_for is defined else none %}
+    {% set _brief = brief_for(c.company_key, thesis, m) if brief_for is defined else none %}
     {% if _brief %}{% include "company_brief.html" %}{% else %}{% include "company_card.html" %}{% endif %}
   </section>
 

@@ -410,9 +410,10 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
     for d in TABLE_DIMS:
         if bands[d] == UNKNOWN:
             implied = " (read as implied by the sector for this decision)" if d == "impact" and rec.get("kind") == "fallback" else ""
-            if d == "impact" and oi is not None and oi.get("level") is not None:  # the ladder has records: the sector implies an area, nothing more (D32)
+            if d == "impact" and oi is not None:  # the ladder is the source of the impact band: say what it holds (D32)
                 url = next((e["url"] for e in oi.get("evidence") or [] if e.get("url")), None)
-                risks.append({"text": f"{labels.get(d, d)} is not yet evidenced beyond the sector (level {oi['level']} of {oi['level_max']}){implied}", "url": url})
+                risks.append({"text": (f"{labels.get(d, d)} is not yet evidenced beyond the sector (level {oi['level']} of {oi['level_max']}){implied}"
+                                       if oi.get("level") is not None else f"No public record names an {labels.get(d, d).lower()} area yet{implied}"), "url": url})
             else:
                 risks.append({"text": f"No public evidence for {labels.get(d, d).lower()}{implied}", "url": None})
         elif bands[d] == "Low":

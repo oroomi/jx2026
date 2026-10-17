@@ -1,10 +1,10 @@
 {% from "_chip.html" import missing %}
-{% set b = brief_for(c.company_key, thesis) %}
+{% set b = _brief if _brief is defined and _brief else brief_for(c.company_key, thesis, m if m is defined else none) %}
 <section class="brief" id="brief" aria-labelledby="brief-h">
   <h2 id="brief-h">What the public record says</h2>
   {% if b %}
   <dl class="brief-rows">
-  {% for s in b.slots %}
+  {% for s in b.slots if not s.stale %}
     <div class="brief-row brief-{{ s.key }}">
       <dt class="brief-label">{{ s.label }}</dt>
       <dd class="brief-sentence">{% if s.text %}{{ s.text }}{% for ct in s.cites %}<a class="brief-cite" href="{{ ct.url }}" target="_blank" rel="noopener" aria-label="Source {{ ct.n }}">[{{ ct.n }}]</a>{% endfor %}{% else %}{{ missing("no public evidence yet") }}{% endif %}</dd>

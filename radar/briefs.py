@@ -355,30 +355,109 @@ def store_brief(conn: sqlite3.Connection, brief: dict) -> None:
                  (brief["company_key"], brief.get("written") or date.today().isoformat(), json.dumps(brief["slots"], ensure_ascii=False)))
 
 
-def brief_for(company_key: str, thesis: dict) -> dict | None:
-    """Template hook: the six slots in order, each text/cites with numbers restarting at 1 per row, or None ("No summary yet")."""
+# ---- keep a stored brief true to the page (D35) ---------------------------------------------------------------
+# A brief is written once and stored; the memo moves (a new rule, a new record, a new band). A stored sentence that names a verdict or
+# a band level different from the memo the page shows now is dropped when the brief is rendered, and a rule id is never printed.
+_RULE_AFTER_UNDER = re.compile(r"\s+under\s+(?:the\s+)?(?:fallback|rule|row|decision table row)\s+\w{1,3}\b", re.I)
+_RULE_ID_LEFT = re.compile(r"\b(?:fallback|rule)\s+[a-z]\d?\b|\brow\s+\d+\b", re.I)
+_BAND_WORD = r"(low|medium|high|unknown)"
+
+
+def _memo_now(memo: dict | None, thesis: dict | None) -> dict | None:
+    """What the page states now: the verdict, whether it came from the fallback, and each dimension's band as the page prints it."""
+    if not memo or not memo.get("recommendation"):
+        return None
+    rec = memo["recommendation"]
+    labels = ((thesis or {}).get("memo") or {}).get("labels") or {}
+    bands = {b["label"].casefold(): str(b["band"]).split(",")[0].strip().casefold() for b in rec.get("because_labels") or []}
+    tech = ((memo.get("levels") or {}).get("technology") or {}).get("band")
+    bands[(labels.get("technology") or "technology readiness").casefold()] = str(tech or "unknown").casefold()
+    return {"decision": rec.get("decision"), "fallback": rec.get("kind") == "fallback", "bands": bands}
+
+
+def _verdict_named(sentence: str) -> str | None:
+    """The verdict a sentence about the memo names: the first verdict word in it (a programme called 'accelerator' later in the
+    sentence does not matter), or None."""
+    low = sentence.casefold()
+    hits = [(m.start(), dec) for dec, rx in _DECISION_WORD.items() if (m := re.search(rx, low))]
+    return min(hits)[1] if hits else None
+
+
+def stale_reason(sentence: str, slot: str, now: dict | None) -> str | None:
+    """Why a stored sentence no longer matches the memo (None when it does): a different verdict, a different band for a dimension,
+    'no evidence' for a dimension that now has a band, 'implied by the sector' when the verdict no longer rests on the fallback, or a
+    rule id that cannot be taken out cleanly."""
+    if _RULE_ID_LEFT.search(sentence):
+        return "names a rule id"
+    if now is None:
+        return None
+    low = sentence.casefold()
+    if slot == "what_the_fund_should_do" or "memo" in low:
+        named = _verdict_named(sentence)
+        if named and now["decision"] and named != now["decision"]:
+            return f"names verdict {named}, the memo now says {now['decision']}"
+    for label, band in now["bands"].items():
+        lab = re.escape(label)
+        for m in re.finditer(lab + r"\b[^.;:()]{0,25}?\b" + _BAND_WORD + r"\b", low):
+            if m.group(1) != band:
+                return f"names {label} {m.group(1)}, the memo now says {band}"
+        if band != "unknown" and re.search(r"no (?:public )?evidence for " + lab, low):
+            return f"says there is no evidence for {label}, the memo now has a band"
+    if "implied by the sector" in low and not now["fallback"]:
+        return "says the impact is implied by the sector, the memo no longer reads it so"
+    return None
+
+
+def current_text(text: str, slot: str, now: dict | None) -> str | None:
+    """A stored slot text as the page may print it: rule ids stripped where they follow 'under', every sentence that no longer matches the
+    memo dropped. None when no sentence is left."""
+    cleaned = _RULE_AFTER_UNDER.sub("", text or "")
+    keep = [s for s in _SENT_SPLIT.split(cleaned) if s.strip() and not stale_reason(s, slot, now)]
+    return " ".join(keep) or None
+
+
+def current_slots(data: dict, memo: dict | None, thesis: dict | None) -> dict:
+    """The stored slots {key: {text, cites} | None} with the stale sentences taken out; a slot with nothing left becomes None."""
+    now = _memo_now(memo, thesis)
+    out = {}
+    for key, v in data.items():
+        text = current_text(v["text"], key, now) if v else None
+        out[key] = {"text": text, "cites": v["cites"]} if text else None
+    return out
+
+
+def brief_for(company_key: str, thesis: dict, memo: dict | None = None) -> dict | None:
+    """Template hook: the six slots in order, each text/cites with numbers restarting at 1 per row, or None ("No summary yet").
+    Sentences that contradict the memo shown now are left out (a slot that loses all of them is marked `stale` and not drawn); fewer than
+    MIN_SLOTS slots left means no brief. `memo` is the page's memo (built here when the caller has none)."""
     conn = store.open_db(thesis=thesis)
     if conn is None:
         return None
     try:
         row = conn.execute("SELECT written, slots_json FROM company_brief_slots WHERE company_key=?", (company_key,)).fetchone()
+        if row is not None and memo is None:
+            from radar import memo as memo_mod
+            memo = memo_mod.build(conn, thesis, company_key)
     except sqlite3.OperationalError:
         return None
     finally:
         conn.close()
     if row is None:
         return None
-    data = json.loads(row[1])
+    stored = json.loads(row[1])
+    data = current_slots(stored, memo, thesis)
+    if sum(1 for v in data.values() if v) < MIN_SLOTS:
+        return None
     slots = []
     for key, label in SLOTS:
         v = data.get(key)
-        slots.append({"key": key, "label": label, "text": v["text"] if v else None,
+        slots.append({"key": key, "label": label, "text": v["text"] if v else None, "stale": bool(stored.get(key)) and not v,
                       "cites": [{"n": i, "url": u} for i, u in enumerate(v["cites"], 1)] if v else []})
     return {"written": row[0], "slots": slots}
 
 
 def one_liners(thesis: dict) -> dict[str, str]:
-    """company_key -> the what_it_does sentence, for the one-liner on the home list. Empty when nothing is imported."""
+    """company_key -> the what_it_does sentence, for the one-liner on the home list. Empty when nothing is imported. No rule id is printed."""
     conn = store.open_db(thesis=thesis)
     if conn is None:
         return {}
@@ -391,8 +470,9 @@ def one_liners(thesis: dict) -> dict[str, str]:
     out = {}
     for k, js in rows:
         v = json.loads(js).get("what_it_does")
-        if v:
-            out[k] = v["text"]
+        text = current_text(v["text"], "what_it_does", None) if v else None
+        if text:
+            out[k] = text
     return out
 
 

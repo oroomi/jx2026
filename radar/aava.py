@@ -260,15 +260,21 @@ def _cond(wi: dict, changes: list[tuple[str, str]]) -> str:
 
 
 def _moves(wi: dict, better: bool) -> list[tuple[list[tuple[str, str]], str]]:
-    """Changes that move the verdict down (or up), fewest changes first, then dimension priority and the smallest step; one per new verdict."""
+    """Changes that move the verdict down (or up), fewest changes first, then dimension priority and the smallest step; one per new verdict.
+    A fall is only ever claimed for levels the records already state (D35): a level with no record yet is never said to pull a verdict
+    down, because a new record cannot lower what the absence of records did not."""
     cur = _RANK[wi["current"]]
     found = []
     for dim in WHATIF_DIMS:
+        if not better and wi["bands"][dim] == UNKNOWN:
+            continue
         for b, dec in sorted(wi["single"][dim].items(), key=lambda kv: _closeness(wi["bands"][dim], kv[0])):
             if (_RANK[dec] < cur) if better else (_RANK[dec] > cur):
                 found.append(([(dim, b)], dec))
     if not found:
         for a, b, dec in wi["pairs"]:
+            if not better and UNKNOWN in (wi["bands"][a[0]], wi["bands"][b[0]]):
+                continue
             if (_RANK[dec] < cur) if better else (_RANK[dec] > cur):
                 found.append(([a, b], dec))
     out, seen = [], set()
@@ -279,21 +285,22 @@ def _moves(wi: dict, better: bool) -> list[tuple[list[tuple[str, str]], str]]:
     return out
 
 
-def _outcomes(wi: dict, dim: str) -> str:
-    """What a record on one level would do: bands grouped by the verdict they lead to."""
-    groups: dict[str, list[str]] = {}
-    for b in reversed(_BANDS):
-        if b in wi["single"][dim]:
-            groups.setdefault(wi["single"][dim][b], []).append(b.lower())
-    if len(groups) == 1 and wi["current"] in groups:
-        return f"a record on {_lc(wi['labels'][dim])} would not change the verdict by itself"
+def _lifts(wi: dict, dim: str) -> str | None:
+    """What a new record on one level could gain, said as what the record would change (D35): the bands that move the verdict up, grouped by
+    the verdict they lead to. It never says a record would lower the verdict. When no band changes anything the answer says so; when the only
+    change the table gives is a fall it says nothing about this level (None)."""
     cur = _RANK[wi["current"]]
-    bits = []
-    for dec, bands in groups.items():
-        where = "at any level" if len(bands) == 3 else "at " + " or ".join(bands)
-        verb = f"it stays {_dec(dec)}" if dec == wi["current"] else f"it {'moves up to' if _RANK[dec] < cur else 'drops to'} {_dec(dec)}"
-        bits.append(f"{where} {verb}")
-    return f"a record on {_lc(wi['labels'][dim])} would settle it: " + "; ".join(bits)
+    ups: dict[str, list[str]] = {}
+    for b in reversed(_BANDS):
+        dec = wi["single"][dim].get(b)
+        if dec is not None and _RANK[dec] < cur:
+            ups.setdefault(dec, []).append(b.lower())
+    if ups:
+        return f"a new record on {_lc(wi['labels'][dim])} could lift it: " + "; ".join(
+            f"at {' or '.join(bands)} it would move up to {_dec(dec)}" for dec, bands in ups.items())
+    if all(_RANK[v] == cur for v in wi["single"][dim].values()):
+        return f"a new record on {_lc(wi['labels'][dim])} would not change the verdict by itself"
+    return None
 
 
 # ---- the verdict in words ------------------------------------------------------------------------------------------------------
@@ -329,11 +336,37 @@ def _gap_clause(text: str) -> str:
     return _lc(t)
 
 
+def _impact_gap(memo: dict | None) -> str | None:
+    """The ocean impact gap in words when the Ocean Impact Assessment holds records (D32): never 'no evidence' for a company whose ladder has
+    rows. A level with no band says the sector implies an area and nothing more; rows without a level say no record names an area."""
+    oi = (memo or {}).get("ocean_impact")
+    if not isinstance(oi, dict) or not oi.get("evidence"):
+        return None
+    if oi.get("level") is not None and not oi.get("band"):
+        return "ocean impact is only implied by the sector so far"
+    if oi.get("level") is None:
+        return "no record names an ocean impact area yet"
+    return None
+
+
+def _needs(memo: dict | None) -> tuple[list[str], str | None]:
+    """(the dimensions with no public record at all, the ocean impact gap in words). A company whose Ocean Impact Assessment holds rows is not
+    said to have 'no evidence' for ocean impact (D32): that dimension moves to the second item."""
+    rec = (memo or {}).get("recommendation") or {}
+    impact_gap = _impact_gap(memo)
+    impact_label = ((rec.get("because_labels") or [{}])[0]).get("label")
+    needs = list(rec.get("needs") or [])
+    if impact_gap and impact_label in needs:
+        return [n for n in needs if n != impact_label], impact_gap
+    return needs, None
+
+
 def _gaps(memo: dict | None, limit: int = 3) -> list[str]:
     """The memo's evidence gaps as short spoken clauses, in its own order, without the bracketed notes."""
     rec = (memo or {}).get("recommendation") or {}
     if rec.get("needs"):
-        return ["no evidence yet for " + _list([_lc(n) for n in rec["needs"]])]
+        needs, impact_gap = _needs(memo)
+        return ((["no evidence yet for " + _list([_lc(n) for n in needs])] if needs else []) + ([impact_gap] if impact_gap else []))[:limit]
     out = []
     for k in (memo or {}).get("risks") or []:
         t = _gap_clause(k.get("text") or "")
@@ -365,8 +398,11 @@ def think(c: dict, signals: list[dict], memo: dict | None, counted=None) -> dict
     parts: list[tuple[int, str]] = [(0, f"Based on what the radar holds on {c['name']}, I think {opinion}{', and here is why:' if watch else '.'}")]
     if watch:
         bits = []
-        if rec.get("needs"):
-            bits.append("there is no public evidence yet for " + _list([_lc(n) for n in rec["needs"]]))
+        needs, impact_gap = _needs(memo)
+        if needs:
+            bits.append("there is no public evidence yet for " + _list([_lc(n) for n in needs]))
+        if impact_gap:
+            bits.append(impact_gap)
         lows = [_lc(x["label"]) for x in rec.get("because_labels") or [] if x.get("band") == "Low"]
         if lows:
             bits.append(f"{_list(lows)} {'is' if len(lows) == 1 else 'are'} only low")
@@ -419,6 +455,9 @@ def _ocean_words(memo: dict, bands: dict) -> str:
         conf = conf.strip().lower() if isinstance(conf, str) and re.fullmatch(r"[A-Za-z ]+", conf.strip()) else ""
         if isinstance(level, int) and not isinstance(level, bool):
             rating = f"level {level} of {_LEVEL_OF}" + ("" if oi.get("band") else ", not yet evidenced")
+        elif band and band != UNKNOWN and "implied" in band:  # no level, the fallback reads the sector as Medium
+            return ("On ocean impact the report has no level on record" + (f" for {area}" if area else "") + f"; the verdict reads it as "
+                    f"{_words(band)}" + (f", with {conf} confidence" if conf else "") + ".")
         elif band and band != UNKNOWN:
             rating = f"the {_words(band)} band, with no level on record"
         else:
@@ -453,6 +492,8 @@ def _plain_rule(rec: dict) -> str:
             body, extra = body[:paren.start()], f", and {_lc(paren.group(1))}"
         needs = [_lc(n.strip()) for n in body.split(",")]
         return f"No row or rule of the table matched, because the code still needs public evidence for {_list(needs)}{extra}."
+    if note.startswith("no row or rule of the decision table covers"):
+        return "No row or rule of the table covers this mix of bands, so it stays on the watchlist."
     if note:
         return _uc(_plain(note)) + "."
     return ""
@@ -640,22 +681,23 @@ def change(memo: dict | None, wi: dict | None) -> dict:
         parts.append((1, _uc(_list(weak)) + "."))
     if wi:
         unk = [d for d in WHATIF_DIMS if wi["bands"][d] == UNKNOWN]
-        moves = [d for d in unk if any(_RANK[v] != _RANK[wi["current"]] for v in wi["single"][d].values())]
-        inert = [_lc(wi["labels"][d]) for d in unk if d not in moves]
+        said = {d: _lifts(wi, d) for d in unk}
+        moves = [d for d in unk if said[d] and "could lift it" in said[d]]
+        inert = [_lc(wi["labels"][d]) for d in unk if said[d] and d not in moves]
         for n, dim in enumerate(moves[:2]):
-            parts.append((0 if n == 0 else 1, _uc(_outcomes(wi, dim)) + "."))
+            parts.append((0 if n == 0 else 1, _uc(said[dim]) + "."))
         if inert and moves:
             parts.append((2, _alone(inert)))
         if not moves:
             up = _moves(wi, better=True)[:1]
             if up and len(up[0][0]) > 1:
-                parts.append((0, "No single new record would change the verdict by itself."))
+                parts.append((0, "No single new record would lift the verdict by itself."))
             if up:
                 parts.append((0, f"It would move to {_dec(up[0][1])} if {_cond(wi, up[0][0])}."))
             elif _RANK[wi["current"]] == 0:
                 parts.append((0, "It already has the strongest verdict the table gives, so only a fall would change my mind."))
             else:
-                parts.append((0, "No single new record would move the verdict under this table."))
+                parts.append((0, "No single new record would lift the verdict under this table."))
     if not parts:
         parts.append((0, "The memo lists no evidence gap against the levels this sector reads."))
     return seg(_fit_parts(parts, MAX_ANSWER), _target(memo), "highlight", next((k.get("url") for k in memo.get("risks") or [] if k.get("url")), None), q=6)

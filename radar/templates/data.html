@@ -24,7 +24,7 @@
 </table></div>
 
 <h2 id="refresh">Refresh sources</h2>
-<p>Re-reads {% for n in refresh.steps_configured %}<code>{{ n }}</code>{% if not loop.last %} and {% endif %}{% else %}no sources (none are set in the sector file){% endfor %} from the public registers. It works on a copy of the database and swaps it in only when the copy checks out, so the pages never see a half-finished run. One run at a time, at least {{ refresh.cooldown_minutes }} minutes apart.</p>
+<p>Re-reads {% for n in refresh.steps_configured %}<strong>{{ n | source_label }}</strong>{% if not loop.last %} and {% endif %}{% else %}no sources (none are set in the sector file){% endfor %} from the public registers. It works on a copy of the database and swaps it in only when the copy checks out, so the pages never see a half-finished run. One run at a time, at least {{ refresh.cooldown_minutes }} minutes apart.</p>
 {% if msg %}<p class="answer" role="status">{{ msg }}</p>{% endif %}
 {% if not refresh.enabled %}<p class="answer" role="status">{{ refresh.disabled_message }}</p>
 {% elif refresh.state.running %}<p class="answer">A refresh is running now. Reload this page in a minute.</p>
@@ -41,7 +41,7 @@
   <thead><tr><th scope="col">Step</th><th scope="col">Result</th><th scope="col">New rows</th><th scope="col">Skipped</th><th scope="col">Seconds</th><th scope="col">Error</th></tr></thead>
   <tbody>
   {% for s in refresh.run.steps %}
-  <tr><th scope="row">{{ s.step }}</th><td>{{ s.status }}</td><td>{{ s.counts.get("signals", "no data") }}</td><td>{{ s.counts.get("skipped", "no data") }}</td><td>{{ s.seconds }}</td><td>{{ s.error or "none" }}</td></tr>
+  <tr><th scope="row">{{ s.step | source_label }}</th><td>{{ s.status }}</td><td>{{ s.counts.get("signals", "no data") }}</td><td>{{ s.counts.get("skipped", "no data") }}</td><td>{{ s.seconds }}</td><td>{{ s.error or "none" }}</td></tr>
   {% else %}
   <tr><td colspan="6">No step ran.</td></tr>
   {% endfor %}
@@ -59,7 +59,7 @@
 <form class="filters" method="get" action="/data">
   <input type="hidden" name="view" value="{{ view }}">
   <label>Source <select name="source"><option value="">all</option>{% for s in sources %}<option value="{{ s.adapter }}" {% if s.adapter == source %}selected{% endif %}>{{ s.label }}</option>{% endfor %}</select></label>
-  {% if view == "signals" %}<label>Kind <select name="type"><option value="">all</option>{% for t in types %}<option value="{{ t }}" {% if t == typ %}selected{% endif %}>{{ t.replace("_", " ") }}</option>{% endfor %}</select></label>{% endif %}
+  {% if view == "signals" %}<label>Kind <select name="type"><option value="">all</option>{% for t in types %}<option value="{{ t }}" {% if t == typ %}selected{% endif %}>{{ t | signal_label }}</option>{% endfor %}</select></label>{% endif %}
   <button type="submit">Filter</button>
 </form>
 <p class="meta">{{ tbl.total }} rows, page {{ page }} of {{ tbl.pages }}.</p>
@@ -68,8 +68,8 @@
   <thead><tr><th scope="col">Company</th><th scope="col">Kind</th><th scope="col">Date</th><th scope="col">How sure</th><th scope="col">Source</th></tr></thead>
   <tbody>
   {% for r in tbl.rows %}
-  <tr><th scope="row"><a href="/c/{{ r.company_key }}">{{ r.name }}</a></th><td>{{ r.signal_type.replace("_", " ") }}</td><td>{{ r.date }}</td><td>{{ r.confidence }}</td>
-      <td><a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.adapter }}</a></td></tr>
+  <tr><th scope="row"><a href="/c/{{ r.company_key }}">{{ r.name }}</a></th><td>{{ r.signal_type | signal_label }}</td><td>{{ r.date }}</td><td>{{ r.confidence }}</td>
+      <td><a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.adapter | source_label }}</a></td></tr>
   {% else %}<tr><td colspan="5">No rows match.</td></tr>{% endfor %}
   </tbody>
 {% else %}

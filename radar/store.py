@@ -12,47 +12,12 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from radar import db as db_mod
+from radar import labels
 from radar import thesis as thesis_mod
 
-# Adapter NAME -> human source name. Anything else falls back to the url host, never a guess.
-SOURCE_LABELS = {
-    "prh": "PRH/YTJ register",
-    "hilma": "Hilma notice",
-    "businessfinland": "Business Finland export",
-    "cordis": "CORDIS",
-    "blueinvest": "BlueInvest pipeline",
-    "declared": "declared list",
-    "tax_registers": "PRH/YTJ tax registers",
-    "openalex": "OpenAlex",
-    "webarchive": "Internet Archive",
-    "ecosystem": "declared research",
-}
-TYPE_LABELS = {
-    "register_entry": "New register entry",
-    "bf_funding": "Business Finland funding",
-    "eu_project": "EU project",
-    "blueinvest": "BlueInvest pipeline",
-    "patent": "Patent filing",
-    "public_contract": "Public contract",
-    "job_ad": "Open job ad",
-    "site_customer": "Customer on own site",
-    "first_sales": "First sales",
-    "first_hire": "First hire",
-    "sales_ended": "Sales ended",
-    "employer_ended": "Employer register ended",
-    "research_output": "Research output",
-    "website_first_seen": "Website first seen",
-    "website_milestone": "Website milestone",
-    "pilot_named": "First customer or pilot named",
-    "certification": "Certification or type approval",
-    "programme_entry": "Accelerator or programme entry",
-    "exhibitor": "Exhibitor or demo",
-    "award": "Award or pitch win",
-    "funding_round": "Funding round",
-    "product_launch": "Product launch",
-    "public_funding": "Grant or public funding",
-    "ecosystem_event": "Other dated event",
-}
+# Labels live in radar/labels.py, the one label table; these names stay for the call sites that read them.
+SOURCE_LABELS = labels.SOURCE_LABELS
+TYPE_LABELS = labels.SIGNAL_LABELS
 # Wording follows the docstring of radar/emit.py.
 CONFIDENCE_RULES = {
     "high": "the source names the company or its business id directly and states the date.",
@@ -222,12 +187,12 @@ def explain(row: dict, others: list, thesis: dict, texts: dict | None = None) ->
         hit = _own_text_hit(sig, thesis, texts)
         if hit:
             reasons.append("own_text")
-            parts["own_text"] = f"the {TYPE_LABELS.get(sig['signal_type'], sig['signal_type']).lower()} text contains '{hit}'"
+            parts["own_text"] = f"the {labels.signal_label(sig['signal_type']).lower()} text contains '{hit}'"
             break
     second = next((o for o in others if o["adapter"] != row["adapter"]), None)
     if name_hits and second is not None:
         reasons.append("corroborated_keyword")
-        src = SOURCE_LABELS.get(second["adapter"], second["adapter"])
+        src = labels.source_label(second["adapter"])
         parts["corroborated_keyword"] = (f"the legal name has '{name_hits[0]}' and a {src} record from "
                                          f"{date_label(second)} supports it")
     reasons.sort(key=_WHY_ORDER.index)
@@ -277,10 +242,7 @@ def evidence(row) -> dict:
     p, dlabel = _date_fields(r.get("date"), r.get("date_precision", "day"))
     adapter = r.get("adapter")
     url = r.get("source_url") or r.get("url")
-    label = SOURCE_LABELS.get(adapter)
-    if label is None:
-        host = urlparse(url or "").netloc
-        label = host or "unknown source"
+    label = labels.source_label(adapter, url)
     conf = r.get("confidence")
     return {
         "label": label,
@@ -364,7 +326,7 @@ def _feed(conn, thesis, *, today=None, signal_type=None, group="feed", limit=500
             f"SELECT COUNT(*) FROM signals WHERE company_key=? AND signal_type IN ({q}) AND date < ?",
             [key, *all_types, start.isoformat()]).fetchone()[0]
         d = dict(best)
-        d["type_label"] = TYPE_LABELS.get(d["signal_type"], d["signal_type"])
+        d["type_label"] = labels.signal_label(d["signal_type"])
         d["earlier_count"] = earlier
         d["signal_count"] = len(rs)
         d["evidence"] = evidence(d)
@@ -478,7 +440,7 @@ def company(conn, key) -> dict | None:
     sigs = []
     for s in conn.execute("SELECT * FROM signals WHERE company_key = ? ORDER BY date DESC, id DESC", (key,)):
         d = dict(s)
-        d["type_label"] = TYPE_LABELS.get(d["signal_type"], d["signal_type"])
+        d["type_label"] = labels.signal_label(d["signal_type"])
         d["evidence"] = evidence(d)
         sigs.append(d)
     with_precision(conn, sigs)

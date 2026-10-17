@@ -6,6 +6,7 @@ from datetime import date
 
 from fastapi import APIRouter, Request
 
+from radar import labels
 from radar import blueinvest, store
 from radar.routes.home import _has_route, templates
 from radar.routes.method import CONNECTOR_SLOTS
@@ -46,7 +47,7 @@ def _strip(events: list[dict], lo: date, hi: date) -> list[dict]:
     for e in events:
         d = date.fromisoformat(e["date"])
         out.append({"x": round(SVG_X0 + (SVG_X1 - SVG_X0) * (d - lo).days / span, 1), "hollow": e["date_precision"] == "year",
-                    "title": f"{store.TYPE_LABELS.get(e['signal_type'], e['signal_type'])}, {e['date_label']}"})
+                    "title": f"{labels.signal_label(e['signal_type'])}, {e['date_label']}"})
     return out
 
 
@@ -69,9 +70,9 @@ def radar_rows(conn: sqlite3.Connection, thesis: dict, group: str) -> list[dict]
             "latest_date": latest["date"] if latest else None,
             "latest": None if latest is None else {
                 "date_label": latest["date_label"], "type": latest["signal_type"],
-                "type_label": store.TYPE_LABELS.get(latest["signal_type"], latest["signal_type"]),
+                "type_label": labels.signal_label(latest["signal_type"]),
                 "source_url": latest["source_url"], "confidence": latest["confidence"], "evidence": store.evidence(latest)},
-            "types": [store.TYPE_LABELS.get(t, t) for t in types],
+            "types": [labels.signal_label(t) for t in types],
             "profile": blueinvest.profile_for(conn, c["company_key"]),
         })
     rows.sort(key=_sort_key)

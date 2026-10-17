@@ -12,6 +12,7 @@ from __future__ import annotations
 import sqlite3
 from datetime import date, timedelta
 
+from radar import labels
 from radar import blueinvest, frameworks, matching, store
 
 DECISIONS = ("INVEST", "DUE DILIGENCE", "ACCELERATOR", "GRANT SUPPORT", "PARTNER INTRODUCTION", "WATCHLIST", "REJECT / LOW FIT")
@@ -157,7 +158,7 @@ def _why_now(ctx: dict, funding: list[dict], today: date) -> dict | None:
     for s in ctx["sigs"]:
         d = s.get("date")
         if d and s.get("source_url") and (today - timedelta(days=180)).isoformat() <= d <= today.isoformat():
-            label = s.get("type_label") or store.TYPE_LABELS.get(s["signal_type"], s["signal_type"])
+            label = s.get("type_label") or labels.signal_label(s["signal_type"])
             cands.append((abs((date.fromisoformat(d) - today).days), f"{label} on {s.get('date_label') or d}", s["source_url"], d))
     if not cands:
         return None
@@ -174,7 +175,7 @@ def _actions(decision: str, nxt: dict, step: dict, unknown: list[str], labels: d
             out.append({"text": text, "url": url, "source": source})
 
     inv, fund, part = nxt["investors"], nxt["funding"], nxt["partners"]
-    src = lambda r: r.get("origin") or ("ecosystem dataset" if r.get("score") is not None else "declared list")  # noqa: E731
+    src = lambda r: labels.origin_label(r.get("origin")) if r.get("origin") else ("ecosystem dataset" if r.get("score") is not None else "declared list")  # noqa: E731
     if decision in ("INVEST", "DUE DILIGENCE"):
         for r in inv[:2]:
             add(f"Introduce them to {r['name']}: {r['reason']}", r["source_url"], src(r))

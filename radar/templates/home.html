@@ -8,7 +8,7 @@
 {% for r in rows %}
   <li>
     <a class="co" href="/c/{{ r.company_key }}">{{ r.name }}</a>
-    <span class="sig">{{ r.signal_type }}</span>
+    <span class="sig">{{ r.signal_type | signal_label }}</span>
     <time datetime="{{ r.date[:4] if r.date_precision == "year" else r.date }}">{{ r.date_label or r.date }}</time>
     <a class="chip" href="{{ r.source_url }}" rel="noopener">{{ r.confidence }} source</a>
   </li>

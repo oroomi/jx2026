@@ -6,6 +6,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Query, Request
 from fastapi.responses import JSONResponse
 
+from radar import labels
 from radar import blueinvest, earliness, fit as fit_mod, frameworks, matching, store, thesis as thesis_mod
 from radar.routes.company import CONNECTORS, ecosystem as eco_reading
 
@@ -49,7 +50,7 @@ def _head(th: dict) -> dict:
 def _signal(s: dict) -> dict:
     ev = s.get("evidence") or store.evidence(s)
     return {"id": s.get("id", s.get("signal_id")), "signal_type": s["signal_type"],
-            "type_label": store.TYPE_LABELS.get(s["signal_type"], s["signal_type"]), "date": s["date"],
+            "type_label": labels.signal_label(s["signal_type"]), "date": s["date"],
             "date_label": s.get("date_label") or ev["date_label"], "date_precision": s.get("date_precision") or ev["date_precision"],
             "confidence": s["confidence"], "confidence_rule": store.CONFIDENCE_RULES.get(s["confidence"]), "detail": s.get("detail"),
             "amount_eur": s.get("amount_eur"), "source_url": s["source_url"], "source_label": ev["label"], "adapter": s.get("adapter"),

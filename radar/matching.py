@@ -22,7 +22,7 @@ CLOSED_WORDS = ("closed", "no open call", "no call open", "will not reopen", "no
 GRANT_TYPES = ("bf_funding", "eu_project", "public_funding")
 EARLY_STAGES = ("idea", "pre_seed", "seed")
 INACTIVE = ("defunct",)
-RANK_RULE = ("Rank = the dataset's match score (highest first), then the nearest open deadline from programmes_grants.csv, then name. "
+RANK_RULE = ("Rank = the dataset's match score (highest first), then the nearest open deadline from the declared programmes list, then name. "
              "Open programmes and public buyers have no dataset score and follow the scored rows. A closed programme, a past deadline, "
              "a TRL outside the programme's stated window or a company older than the programme's age limit is left out. "
              "The last slot of the funding list is kept for the soonest open programme.")

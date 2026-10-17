@@ -6,7 +6,7 @@ from pathlib import Path
 
 from fastapi import APIRouter, Request
 
-from radar import emit, fit, frameworks, intake as intake_mod, matching, store, thesis as thesis_mod
+from radar import emit, fit, frameworks, labels, intake as intake_mod, matching, store, thesis as thesis_mod
 from radar.routes.home import ROOT, _has_route, templates
 
 router = APIRouter()
@@ -60,8 +60,6 @@ SOURCE_NAMES = {
     "hilma": "Hilma public contracts", "businessfinland": "Business Finland funding export", "cordis": "CORDIS EU projects",
     "blueinvest": "BlueInvest pipeline", "declared": "Declared cohort and portfolio list",
 }
-EXTRA_TYPE_LABELS = {"equity_event": "Share issue or capital increase", "board_change": "Board change",
-                     "capital_loss": "Loss of share capital", "startup_notice": "Start-up notification"}
 DATASET_NAMES = {
     "cohort_portfolio_companies.csv": "Cohort and portfolio company list", "corporates_clients.csv": "Corporate buyers list",
     "investors.csv": "Investor list", "programmes_grants.csv": "Programmes and grants list",
@@ -98,7 +96,7 @@ def sources(conn, adapter_names: list[str]) -> list[dict]:
             text = extra
         else:
             text = "not loaded in this build"
-        rows.append({"name": name, "label": SOURCE_NAMES.get(name, store.SOURCE_LABELS.get(name, name)), "signals": n,
+        rows.append({"name": name, "label": SOURCE_NAMES.get(name) or labels.source_label(name), "signals": n,
                      "text": text, "last_fetched": (last or "")[:10] or None})
     return rows
 
@@ -121,7 +119,7 @@ def method(request: Request):
         if conn is not None:
             conn.close()
     declared = datasets()
-    kinds = [store.TYPE_LABELS.get(t) or EXTRA_TYPE_LABELS.get(t) or t.replace("_", " ") for t in emit.SIGNAL_TYPES]
+    kinds = [labels.signal_label(t) for t in emit.SIGNAL_TYPES]
     geo = th["geography"]
     return templates.TemplateResponse(request, "method.html", {
         "thesis": th, "confidence_rules": store.CONFIDENCE_RULES, "kinds": kinds, "feed_rule": store.rule_text(th), "match_rule": fit.MATCH_RULE, "own_text_sources": ", ".join(store.OWN_TEXT_SOURCES),

@@ -7,6 +7,7 @@ from urllib.parse import quote
 from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse
 
+from radar import labels
 from radar import intake as intake_mod, store, thesis as thesis_mod
 from radar.routes.home import _has_route, templates
 
@@ -48,12 +49,12 @@ def _view(request: Request, signal_type: str | None):
     for r in rows:
         r["sure_text"] = sure_text(r)
     by_type = (counts or {}).get("by_type", {})
-    pills = [{"key": t, "label": store.TYPE_LABELS.get(t, t), "count": by_type.get(t, 0), "href": f"/?type={quote(t)}"} for t in types]
+    pills = [{"key": t, "label": labels.signal_label(t), "count": by_type.get(t, 0), "href": f"/?type={quote(t)}"} for t in types]
     total = (counts or {}).get("companies", 0)
     return {
         "thesis": th, "rows": rows, "main_rows": sorted((r for r in rows if r["strength"] == "strong"), key=lambda r: (_CONF_ORDER.get(r["confidence"], 3), -int(r["date"].replace("-", "")), r["name"])),
         "weak_rows": [r for r in rows if r["strength"] == "weak"], "counts": counts, "pills": pills, "selected": signal_type, "total": total,
-        "selected_label": store.TYPE_LABELS.get(signal_type, signal_type) if signal_type else None,
+        "selected_label": labels.signal_label(signal_type) if signal_type else None,
         "rule": store.rule_text(th), "no_db": conn is None, "truncated": total > ROW_LIMIT and signal_type is None,
         "matches": matches, "q": None, "active": "feed", "has_route": _has_route(request),
         "intake_rows": intake_rows, "intake_rule": intake_mod.rule_text(th),

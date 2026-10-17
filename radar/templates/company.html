@@ -160,7 +160,7 @@
         {% for r in nxt[k] %}
         <li><span class="nx-name"><a href="{{ r.source_url }}" target="_blank" rel="noopener">{{ r.name }}</a></span> <span class="nx-kind">{{ r.kind }}</span>
           <span class="nx-why">{{ r.reason }}</span>
-          <span class="nx-meta">{% if r.score is not none %}dataset score {{ r.score }}{% else %}{{ r.origin or "declared list" }}{% endif %}{% if r.confidence %}, confidence {{ r.confidence }}{% endif %}{% if r.deadline %}, deadline {{ r.deadline }}{% endif %}</span>
+          <span class="nx-meta">{% if r.score is not none %}dataset score {{ r.score }}{% else %}{{ r.origin | origin_label }}{% endif %}{% if r.confidence %}, confidence {{ r.confidence }}{% endif %}{% if r.deadline %}, deadline {{ r.deadline }}{% endif %}</span>
           {% if r.facts %}<span class="nx-meta">{{ r.facts }}</span>{% endif %}</li>
         {% endfor %}
       </ol>

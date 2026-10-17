@@ -15,6 +15,7 @@ import sqlite3
 import statistics
 from datetime import date
 
+from radar import labels
 from radar import fit as fit_mod, store, thesis as thesis_mod
 
 PROFILE_TABLE = "intake_profile"
@@ -83,7 +84,7 @@ def _signals(conn, key: str) -> list[dict]:
         "SELECT id AS signal_id, signal_type, date, source_url, confidence, adapter, detail, fetched_at FROM signals WHERE company_key=? ORDER BY date, id", (key,))]
     store.with_precision(conn, rows)
     for r in rows:
-        r["label"] = store.TYPE_LABELS.get(r["signal_type"], r["signal_type"])
+        r["label"] = labels.signal_label(r["signal_type"])
         r["source_label"] = store.evidence(r)["label"]
     return rows
 
@@ -239,7 +240,7 @@ def tier(conn, th: dict, *, today=None, exclude: set[str] | None = None, limit: 
     flat = [s for o in out for s in o["signals"]]
     store.with_precision(conn, flat)
     for s in flat:
-        s["label"] = store.TYPE_LABELS.get(s["signal_type"], s["signal_type"])
+        s["label"] = labels.signal_label(s["signal_type"])
         s["source_label"] = store.evidence(s)["label"]
     for o in out:
         first = o["signals"][cfg["min_signals"] - 1]
@@ -262,7 +263,7 @@ def rule_text(th: dict) -> str | None:
     if cfg is None:
         return None
     forms = " or ".join(f.split(" (")[0].lower() for f in cfg["company_forms"].values())
-    types = ", ".join((store.TYPE_LABELS.get(t) or t.replace("_", " ")).lower() for t in cfg["startup_signals"])
+    types = ", ".join(labels.signal_label(t).lower() for t in cfg["startup_signals"])
     n = cfg["min_signals"]
     return (f"A company is taken in when it is a {forms}, its industry code starts with {', '.join(cfg['code_prefixes'])} (or is a code on the sector list), "
             f"and public records show at least {n} startup signal{'s' if n != 1 else ''} beyond its register entry ({types}). "

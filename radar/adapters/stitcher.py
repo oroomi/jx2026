@@ -44,6 +44,7 @@ import csv
 
 import httpx
 
+from radar import labels
 from radar import emit, frameworks
 from radar.adapters._fetch import CACHE_ROOT, UA, Blocked, cached_get
 from radar.adapters.openalex import core_name, fold
@@ -804,7 +805,7 @@ def page_view(conn: sqlite3.Connection, company_key: str) -> dict | None:
         events.append({
             "date": stored_date(x["date"], prec), "date_label": _PREC_LABEL[prec](x["date"]), "date_precision": prec,
             "type_label": (f"{(x['suggested_type'] or 'unlabelled').replace('_', ' ')} (not a radar signal type)" if unmapped
-                           else store.TYPE_LABELS.get(x["signal_type"], x["signal_type"])),
+                           else labels.signal_label(x["signal_type"])),
             "quote": " ".join((x["quote"] or "").split()[:MAX_QUOTE_WORDS]) or None,
             "source_url": x["source_url"], "host": (urlparse(x["source_url"]).hostname or "").removeprefix("www."),
             "public_since": x["public_since"], "archive_url": x["archive_url"], "confidence": x["confidence"],

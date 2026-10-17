@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import re
 
+from radar import labels
 from radar import store
 
 RULE_LINE = ("Reasons come from the thesis file and the database only: an industry code on the thesis list is low confidence, "
@@ -92,7 +93,7 @@ def fit(company: dict, signals: list[dict], thesis: dict) -> list[dict]:
     feed_types = set(thesis.get("feed_signal_types") or [])
     for s in signals:
         if s.get("signal_type") in feed_types:
-            label = s.get("type_label") or store.TYPE_LABELS.get(s["signal_type"], s["signal_type"])
+            label = s.get("type_label") or labels.signal_label(s["signal_type"])
             text = f"{label} on {s.get('date_label') or s.get('date')}" + (f": {s['detail']}" if s.get("detail") else ".")
             reasons.append({"kind": "signal", "confidence": s.get("confidence"), "text": text,
                             "evidence": s.get("evidence") or store.evidence(s)})

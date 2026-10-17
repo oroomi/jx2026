@@ -200,7 +200,7 @@ def test_question_tap_plays_without_a_request(live_url):
         page.click("#aava-open")
         page.click("[data-q='2']")
         page.wait_for_function("document.getElementById('aava-caption').textContent.startsWith('On ocean impact')", timeout=3000)
-        assert not [u for u in seen if "/aava/" in u]
+        assert not [u for u in seen if "/aava/" in u and "/static/aava/audio/" not in u]  # the pre-rendered clip is a static file, not a request for the answer
         page.click("#aava-stop")
     finally:
         browser.close()

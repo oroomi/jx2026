@@ -1,0 +1,31 @@
+{# The six-row card, "What the public record says" (design C). Rule-written from what the company page already holds:
+   register, fit reasons, framework levels, who comes next, the decision table. Every answer cites numbered sources;
+   a row with nothing behind it is left out (Dayo's no-empties rule). Context: c, reasons, fw, nxt, step, signals, rec, watch. #}
+{% set srcs = [] %}
+{% macro cite(url, label) -%}
+{%- if url -%}{%- if url not in srcs | map(attribute=0) | list -%}{%- set _ = srcs.append((url, label)) -%}{%- endif -%}
+{%- set n = (srcs | map(attribute=0) | list).index(url) + 1 -%}<sup><a href="#cs-{{ n }}" title="{{ label }}">{{ n }}</a></sup>{%- endif -%}
+{%- endmacro %}
+{% set rows = [] %}
+{% if c.industry_desc %}{% set _ = rows.append(("What it does", (c.industry_desc | e) ~ " (industry code " ~ c.industry_code ~ ")." ~ cite(c.source_url, "PRH/YTJ register"))) %}{% endif %}
+{% set fit_band = (rec.because_labels | selectattr("label", "equalto", "Thesis fit") | map(attribute="band") | first) if rec else none %}
+{% if reasons %}{% set r0 = reasons[0] %}{% set _ = rows.append(("Thesis fit", ((fit_band ~ ". ") if fit_band and fit_band != "unknown" else "") ~ (r0.text | e) ~ cite(r0.evidence.url, r0.evidence.label))) %}{% endif %}
+{% set lv = [] %}
+{% for name, r in (("Technology", fw.trl), ("Business", fw.brl), ("Investment", fw.irl)) %}{% if r.level %}{% set _ = lv.append(name ~ " " ~ r.level ~ "/9" ~ (cite(r.evidence[0].evidence.url, r.evidence[0].evidence.label) if r.evidence else "")) %}{% endif %}{% endfor %}
+{% if lv %}{% set _ = rows.append(("Readiness", lv | join(" · "))) %}{% endif %}
+{% set meet = [] %}
+{% for k in ("investors", "buyers", "eu_partners", "research", "funding", "partners") %}{% if nxt[k] %}{% set x = nxt[k][0] %}{% set _ = meet.append((x.name | e) ~ (" (deadline " ~ x.deadline ~ ")" if x.deadline else "") ~ cite(x.source_url, x.name)) %}{% endif %}{% endfor %}
+{% if meet %}{% set _ = rows.append(("Who to meet", meet | join("; ") ~ ".")) %}{% endif %}
+{% set latest = signals | sort(attribute="date") | last if signals else none %}
+{% if step.rule == 4 and latest %}{% set todo = "Check in with the company. Its latest public record is from " ~ (latest.date_label or latest.date) ~ "." %}
+{% elif step.sentence %}{% set todo = (step.sentence | e) ~ "." %}{% else %}{% set todo = none %}{% endif %}
+{% if todo %}{% set _ = rows.append(("What the fund should do", todo ~ cite(step.source_url or c.source_url, "decision table, rule " ~ step.rule))) %}{% endif %}
+{% if watch %}{% set w = watch | join(", ") %}{% set _ = rows.append(("Watch for", w[0] | upper ~ w[1:] ~ ".")) %}{% endif %}
+{% if rows %}
+<div class="cc-card" id="card">
+  <ol class="cc-rows">
+  {% for q, a in rows %}<li><span class="cc-q">{{ q }}</span><div class="cc-a">{{ a | safe }}</div></li>{% endfor %}
+  </ol>
+  {% if srcs %}<ol class="cc-srcs">{% for u, l in srcs %}<li id="cs-{{ loop.index }}"><a href="{{ u }}" target="_blank" rel="noopener">{{ l }}</a></li>{% endfor %}</ol>{% endif %}
+</div>
+{% endif %}

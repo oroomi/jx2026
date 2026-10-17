@@ -144,26 +144,22 @@ def _eco_text(conn) -> dict[str, dict]:
     return out
 
 
-def _verdict(conn, thesis: dict, key: str) -> dict | None:
-    """The memo's decision and the four bands, by the same functions memo.build uses (one source of truth), without the who-comes-next
-    work it does for the page. Tested equal to memo.build for the demo companies."""
-    ctx = matching.company_context(conn, key)
-    if ctx is None:
+def _verdict(conn, thesis: dict, key: str, today: date | None = None) -> dict | None:
+    """The memo's decision and its five bands from the memo's own engine (memo.verdict_of, D75), without the who-comes-next work memo.build
+    does for the page, so a match page names the verdict the company page names. Tested equal to memo.build for every home row."""
+    v = memo.verdict_of(conn, thesis, key, today=today)
+    if v is None:
         return None
-    cfg = memo._cfg(thesis)
-    lv = memo._levels(conn, ctx, key, cfg)
-    imp = memo._impact(conn, ctx, key, cfg["bands"].get("impact") or {})
-    fit = memo._fit(conn, ctx, thesis, cfg["bands"].get("fit") or {})
-    bands = {"impact": imp["band"], "business": memo.band(lv["business"]["level"], cfg["bands"].get("business")),
-             "investment": memo.band(lv["investment"]["level"], cfg["bands"].get("investment")), "fit": fit["band"]}
-    if ctx["status"] in matching.INACTIVE:
-        decision = "WATCHLIST"
-    else:
-        row, _ = memo.decide(bands, cfg, fit["support"])
-        decision = row["decision"] if row else "WATCHLIST"
-    bands["technology"] = memo.band(lv["technology"]["level"], cfg["bands"].get("technology"))
-    return {"decision": decision, "bands": bands, "trl": ctx["trl"], "trl_src": ctx["trl_src"], "brl": ctx["fw"]["brl"]["level"],
-            "irl": ctx["irl"], "category": ctx["category"], "stage": ctx["stage"], "sigs": ctx["sigs"]}
+    ctx = v["ctx"]
+    return {"decision": v["decision"], "bands": dict(v["bands"]), "trl": ctx["trl"], "trl_src": ctx["trl_src"], "brl": ctx["fw"]["brl"]["level"],
+            "irl": ctx["irl"], "category": ctx["category"], "stage": ctx["stage"], "sigs": ctx["sigs"], "not_startup": v["not_startup"]}
+
+
+def startup_kinds(cfg: dict) -> set[str]:
+    """The counterpart kinds that meet startups only (`matching.startup_kinds`: investors and accelerators). A company that is not a startup
+    on the thesis' rule (memo.not_startup, D83) is never offered to them and never shown them; pilot partners, funders, programmes and
+    clusters still meet it where its verdict path says so."""
+    return set(cfg.get("startup_kinds") or [])
 
 
 def startup(conn, thesis: dict, cfg: dict, key: str, today: date, full: bool = True) -> dict | None:
@@ -174,11 +170,11 @@ def startup(conn, thesis: dict, cfg: dict, key: str, today: date, full: bool = T
     sp = dict(base, groups={g: list(v) for g, v in base["groups"].items()})
     if not full:
         return sp
-    v = _verdict(conn, thesis, key)
+    v = _verdict(conn, thesis, key, today)
     if v is None:
         return None
     sp.update(decision=v["decision"], bands=v["bands"], trl=v["trl"], trl_src=v["trl_src"], brl=v["brl"], irl=v["irl"],
-              category=v["category"], stage=v["stage"] or base["eco_stage"])
+              category=v["category"], stage=v["stage"] or base["eco_stage"], not_startup=v["not_startup"])
     if v["category"]:
         for gid, g in cfg["groups"].items():
             if g.get("category") == v["category"]:
@@ -433,6 +429,9 @@ def match_company(company_key: str, thesis: dict, *, conn: sqlite3.Connection | 
             return None
         allowed = set(cfg["path_kinds"].get(sp["decision"]) or []) | set(cfg.get("always_kinds") or [])
         primary = set(cfg["path_kinds"].get(sp["decision"]) or [])
+        if sp.get("not_startup"):          # D83: not a startup, so no investor or accelerator is offered to it
+            allowed -= startup_kinds(cfg)
+            primary -= startup_kinds(cfg)
         rows, connected = [], []
         for org in reg["orgs"]:
             if company_key in org["members"]:
@@ -470,6 +469,7 @@ def _company_head(sp: dict, cfg: dict, primary: set[str]) -> dict:
     return {"key": sp["key"], "name": sp["name"], "url": "/c/" + sp["key"], "country": sp["country"], "founded": sp["founded"],
             "industry_code": sp["code"], "industry_family": sp["family"], "age_band": (sp["band"] or {}).get("label"),
             "verdict": sp["decision"], "meets": [cfg["kinds"][k]["label"] for k in primary if k in cfg["kinds"]],
+            "startup": not sp.get("not_startup"), "not_startup": sp.get("not_startup"),
             "bands": sp["bands"], "trl": sp["trl"], "brl": sp["brl"], "irl": sp["irl"], "impact_category": sp["category"],
             "sector_groups": [cfg["groups"][g]["label"] for g in sp["groups"]],
             "words": sorted(sp["stems"].values())[:12],
@@ -519,9 +519,14 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
         removed: Counter = Counter()
         depth = int(cfg.get("candidates", 300))
         tiers = {g: i for i, g in enumerate(cfg.get("tier_order") or [])}
+        only_startups, not_startups = org["kind"] in startup_kinds(cfg), 0
+        counterparts = orgs_mod.counterpart_index(thesis) if only_startups else {}
         if not closed:
             for key, base in idx.items():
                 if key in org["members"]:
+                    continue
+                if only_startups and memo.not_startup(base, thesis, t, counterparts):    # D83: an investor or accelerator meets startups only
+                    not_startups += 1
                     continue
                 ev = evaluate(dict(base), org, cfg, idx, reg["df"], t, full=False)
                 if ev["excluded"]:
@@ -555,7 +560,7 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
         pipeline = ({"ready": n_ready, "early": len(out_rows) - n_ready, "note": pipeline_note(pc, n_ready) if out_rows else None,
                      "ready_label": pc.get("ready_label"), "early_label": pc.get("early_label")} if pc else None)
         row = _org_row(org, cfg)
-        row["empty_reason"] = None if out_rows or closed else _empty_reason(org, cfg, removed, len(idx), len(cand), pc)
+        row["empty_reason"] = None if out_rows or closed else _empty_reason(org, cfg, removed, len(idx) - not_startups, len(cand), pc)  # D83: count startups only
         row["closed_note"] = closed
         row["revealed"] = {"members_in_records": len(org["members"]), "declared_companies": org["declared_total"],
                            "basis": sorted({m["basis"] for m in org["members"].values()}),
@@ -563,7 +568,8 @@ def match_org(org_id: str, thesis: dict, *, conn: sqlite3.Connection | None = No
         return {"org": row, "as_of": t.isoformat(), "rule": RULE, "weights": cfg["weights"],
                 "candidates_profiled": min(len(cand), depth) if not closed else 0,
                 "unprofiled": max(0, len(cand) - depth) if not closed else 0,
-                "listed": len(out_rows), "startups": shown, "connected": connected, "pipeline": pipeline, "limits": LIMITS}
+                "listed": len(out_rows), "startups": shown, "connected": connected, "pipeline": pipeline, "limits": LIMITS,
+                "not_startups": not_startups}
     finally:
         if own:
             conn.close()
@@ -579,12 +585,12 @@ def _empty_reason(org: dict, cfg: dict, removed: Counter, total: int, passed_top
     """Why an open counterpart ranks nobody, in words and from the counts (never a bare 'no match')."""
     if passed_topic:
         what = "the " + plain_list([v.lower() for v in pc["verdicts"]], "or") + " path" if pc else "a verdict path this kind meets"
-        return f"{passed_topic} of the {total} startups pass its topic and geography filters, and none of them is on {what}."
+        return f"{passed_topic} of the {total:,} startups pass its topic and geography filters, and none of them is on {what}."
     if not org["has_declared"] and not org["lookalikes"]:
         return "it declares no sector text and no portfolio in our records, so there is nothing to match a startup on."
     if removed:
         reason, n = removed.most_common(1)[0]
-        return f"{n} of the {total} startups were removed because {reason[0].lower() + reason[1:]}."
+        return f"{n} of the {total:,} startups were removed because {reason[0].lower() + reason[1:]}."
     return "no startup on the radar passes its filters."
 
 

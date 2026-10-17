@@ -361,6 +361,7 @@ def store_brief(conn: sqlite3.Connection, brief: dict) -> None:
 _RULE_AFTER_UNDER = re.compile(r"\s+under\s+(?:the\s+)?(?:fallback|rule|row|decision table row)\s+\w{1,3}\b", re.I)
 _RULE_ID_LEFT = re.compile(r"\b(?:fallback|rule)\s+[a-z]\d?\b|\brow\s+\d+\b", re.I)
 _BAND_WORD = r"(low|medium|high|unknown)"
+_LEVEL_SAID = re.compile(r"\b(technology|business|investment) readiness\b[^.;:()\d]{0,25}?\blevel (\d)\b", re.I)
 
 
 def _memo_now(memo: dict | None, thesis: dict | None) -> dict | None:
@@ -373,8 +374,11 @@ def _memo_now(memo: dict | None, thesis: dict | None) -> dict | None:
     tech = ((memo.get("levels") or {}).get("technology") or {}).get("band")
     bands[(labels.get("technology") or "technology readiness").casefold()] = str(tech or "unknown").casefold()
     first = (rec.get("because_labels") or [{}])[0].get("label")
+    specs = ((thesis or {}).get("memo") or {}).get("bands") or {}
+    dims = {d: (labels.get(d) or f"{d} readiness").casefold() for d in ("technology", "business", "investment")}
     return {"decision": rec.get("decision"), "fallback": rec.get("kind") == "fallback", "bands": bands, "impact": (first or "").casefold(),
-            "closed": matching.closed_calls(thesis, store._today(None)) if thesis else []}
+            "closed": matching.closed_calls(thesis, store._today(None)) if thesis else [],
+            "dims": dims, "specs": {dims[d]: specs.get(d) for d in dims}}
 
 
 def _verdict_named(sentence: str) -> str | None:
@@ -411,6 +415,16 @@ def stale_reason(sentence: str, slot: str, now: dict | None) -> str | None:
                 return f"states {label} {band} without saying the memo reads it as implied by the sector"
         if band != "unknown" and re.search(r"no (?:public )?evidence for " + lab, low):
             return f"says there is no evidence for {label}, the memo now has a band"
+    from radar import memo as memo_mod
+    for dim, n in _LEVEL_SAID.findall(sentence):     # a level the page no longer prints (D84: a public contract sets no TRL)
+        label = (now.get("dims") or {}).get(dim.casefold())
+        have = now["bands"].get(label) if label else None
+        spec = (now.get("specs") or {}).get(label)
+        if have is None or not spec:
+            continue
+        said = memo_mod.band(int(n), spec).casefold()
+        if said != have:
+            return f"names {label} level {n}, the memo now says {have}"
     if "implied by the sector" in low and not now["fallback"]:
         return "says the impact is implied by the sector, the memo no longer reads it so"
     return None

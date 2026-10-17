@@ -229,7 +229,7 @@ def what_if(memo: dict | None, thesis: dict | None) -> dict | None:
         support = frozenset({"declared_member", f"declared_{rec.get('row_id')}"})
 
     def decision(bands: dict) -> str:
-        row, _ = memo_mod.decide(bands, cfg, support)
+        row, _ = memo_mod.decide(bands, cfg, support, rec.get("not_startup"))   # the startup cut holds in every what-if too (D83)
         return row["decision"] if row else "WATCHLIST"
 
     if decision(lv) != rec["decision"]:

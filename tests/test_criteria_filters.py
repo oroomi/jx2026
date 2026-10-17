@@ -121,9 +121,10 @@ def test_band_range_follows_the_thesis_cut():
 # ---- 2. filtering -------------------------------------------------------------------------------------------------------------------
 def test_filter_combination_returns_the_expected_subset(H):
     rows = H["rows"]
-    sel = {"verdict": ["ACCELERATOR", "PARTNER INTRODUCTION"], "country": ["FI"], "fit": ["High"]}
-    expected = [r["company_key"] for r in rows if r["verdict"] in sel["verdict"] and r["country"] == "FI" and r["fit"] == "High"]
-    assert expected, "the combination is not empty on the snapshot"
+    # since D86 no home row reads ACCELERATOR or PARTNER INTRODUCTION on the snapshot, so two verdicts that are on it are combined
+    sel = {"verdict": ["PORTFOLIO SUPPORT", "WATCHLIST"], "country": ["FI"], "fit": ["Medium"]}
+    expected = [r["company_key"] for r in rows if r["verdict"] in sel["verdict"] and r["country"] == "FI" and r["fit"] == "Medium"]
+    assert expected and len(expected) < len(rows), "the combination is a non-empty subset on the snapshot"
     assert [r["company_key"] for r in home_filter.apply(rows, sel)] == expected
     # range on a level, and "no record" as a value
     sel = {"brl": ["4-6"], "trl": ["none"]}

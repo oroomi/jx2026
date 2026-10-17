@@ -31,11 +31,12 @@ BRL_MAP = (
     (6, "first public contract or named customer on own site", ("public_contract", "site_customer")),
     (7, "repeat contracts: two or more public contracts", "repeat"),
 )
+# A public contract is evidence that a buyer purchased something (business readiness, BRL 6 and 7 above), never that a technology is
+# ready: a dredging works contract or a sludge-transport contract says nothing about a technology, so it sets no TRL (D84).
 TRL_MAP = (
     (3, "patent filing: a protected concept", ("patent",)),
     (4, "Business Finland or EU project funding: a funded development project", ("bf_funding", "eu_project")),
     (5, "listed in the BlueInvest pipeline: screened for investment", ("blueinvest",)),
-    (7, "public contract awarded: a buyer purchased in an operational setting", ("public_contract",)),
 )
 IRL_MAP = (
     (3, "public non-dilutive funding (Business Finland decision or EU project)", ("bf_funding", "eu_project")),
@@ -46,7 +47,7 @@ IRL_MAP = (
 DIM_SOURCES = {
     "Market": ("public_contract",),
     "Financials": ("bf_funding", "public_contract"),
-    "Tech": ("patent", "bf_funding", "eu_project", "blueinvest", "public_contract"),
+    "Tech": ("patent", "bf_funding", "eu_project", "blueinvest"),   # the TRL evidence classes; a public contract is not one (D84)
 }
 DIM_NOTE = {
     "Market": "public buyers in the category", "Financials": "grants and contracts",

@@ -56,7 +56,8 @@ def test_four_labels_in_brief_words(client):
 def test_levels_follow_printed_rules(client):
     t = client.get("/c/9100001-1").text
     assert "level 6 of 9" in t   # BRL: first public contract
-    assert "level 7 of 9" in t   # TRL: public contract
+    assert "level 4 of 9" in t   # TRL: the Business Finland grant; a public contract sets no TRL (D84)
+    assert "level 7 of 9" not in t
     assert "level 3 of 9" in t   # IRL: public non-dilutive funding
     assert "wastewater" in t and "water quality" in t
 

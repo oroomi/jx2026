@@ -10,7 +10,11 @@ Assessment when the thesis defines one (D46): the ladder's Medium or High is the
 ("not yet evidenced", sector-implied only) or no level stays unknown so the fallback applies.
 A level with no public evidence is "unknown", never Low: a row that names a band does not match it, so the company lands in
 WATCHLIST with "more public evidence needed: <level>". REJECT / LOW FIT needs evidence of low fit and low impact.
-Nothing is said without a link: a bullet with no source row is an evidence gap and is shown as one."""
+Nothing is said without a link: a bullet with no source row is an evidence gap and is shown as one.
+One engine (D75): `verdict_of` computes the decision and every band it rests on; the memo, the matchmaker's paths and every page that
+names a verdict or a path read it, so two surfaces can never disagree. After the table, the startup cut (D83) applies: a company that is
+not a startup on the thesis' own rule (older than `geography.stage_max_company_age_years`, or itself a counterpart organisation) cannot
+hold a startup-only verdict (`memo.decisions.stage_cut.verdicts`, ACCELERATOR) and gets the configured decision instead."""
 from __future__ import annotations
 
 import re
@@ -18,7 +22,7 @@ import sqlite3
 from datetime import date, timedelta
 
 from radar import labels as lbl
-from radar import matching, ocean_impact, store
+from radar import matching, ocean_impact, store, words
 
 DECISIONS = ("PORTFOLIO SUPPORT", "INVEST", "DUE DILIGENCE", "ACCELERATOR", "GRANT SUPPORT", "PARTNER INTRODUCTION", "WATCHLIST", "REJECT / LOW FIT")
 BANDS = ("Low", "Medium", "High")
@@ -38,7 +42,8 @@ def _cfg(thesis: dict) -> dict:
     # matchmaker's light verdict) gets the same ladder band as memo.build, with no edit of its own (D46).
     bands = {**(m.get("bands") or {}), "impact": {**((m.get("bands") or {}).get("impact") or {}), "_thesis": thesis}}
     return {"labels": m.get("labels") or {}, "bands": bands, "rows": d.get("rows") or [], "rules": d.get("rules") or [],
-            "source": d.get("source") or "", "fallback": d.get("fallback") or {}, "members": d.get("members") or {}}
+            "source": d.get("source") or "", "fallback": d.get("fallback") or {}, "members": d.get("members") or {},
+            "stage_cut": d.get("stage_cut") or {}}
 
 
 def band(value, spec: dict | None) -> str:
@@ -60,24 +65,77 @@ def _cell_matches(cell, value: str) -> bool:
     return value in cells  # "unknown" is never in a concrete list
 
 
-def decide(bands: dict[str, str], cfg: dict, support=frozenset()) -> tuple[dict | None, list[str]]:
+def decide(bands: dict[str, str], cfg: dict, support=frozenset(), not_startup: str | None = None) -> tuple[dict | None, list[str]]:
     """Pass 1: the first table row whose four cells all equal the bands. Pass 2: the first condition rule that holds. Pass 3: the
     fallback, when `support` (what the High fit rests on beyond the industry code) passes its gate. A cell that needs a band never
     matches "unknown". Pass 0 (D65): a declared portfolio or cohort company (`declared_<group>` in `support`) is already inside, so
-    it gets the member verdict and is not assessed for entry. Returns ({kind, id, ...row} or None, unknown dimensions)."""
+    it gets the member verdict and is not assessed for entry. `bands` must hold "technology" too (rule e reads it). After the table,
+    the startup cut (D83): when `not_startup` gives a reason, a startup-only verdict becomes the cut's decision.
+    Returns ({kind, id, ...row} or None, unknown dimensions)."""
     mem = member_rule(cfg, support)
     if mem is not None:
         return mem, []
     for r in cfg["rows"]:
         if all(_cell_matches(r.get(d), bands[d]) for d in TABLE_DIMS):
-            return {**r, "kind": "row", "text": f"row {r['id']}, " + "/".join(LETTER[bands[d]] for d in TABLE_DIMS)}, []
+            return stage_row({**r, "kind": "row", "text": f"row {r['id']}, " + "/".join(LETTER[bands[d]] for d in TABLE_DIMS)}, cfg, not_startup), []
     for r in cfg["rules"]:
         if all(_cell_matches(v, bands.get(k, UNKNOWN)) for k, v in (r.get("when") or {}).items()):
-            return {**r, "kind": "rule", "text": f"rule {r['id']}"}, []
+            return stage_row({**r, "kind": "rule", "text": rule_words_of(r, cfg)}, cfg, not_startup), []
     fb = fallback(bands, cfg, support)
     if fb is not None:
-        return fb, []
+        return stage_row(fb, cfg, not_startup), []
     return None, [d for d in (*TABLE_DIMS, "technology") if bands.get(d) == UNKNOWN]
+
+
+def rule_words_of(rule: dict, cfg: dict) -> str:
+    """A condition rule named by what it says, never by its letter (D79): 'the rule for technology readiness High and business readiness
+    Low or Medium'. The letter is printed nowhere on the page (the table lists the conditions without it), so it must not be the name."""
+    w = words.condition_words(rule.get("when"), cfg.get("labels") or {})
+    return f"the rule for {w}" if w else "a condition rule of the decision table"
+
+
+def stage_row(row: dict | None, cfg: dict, not_startup: str | None) -> dict | None:
+    """The startup cut (D83, `memo.decisions.stage_cut`): a row whose verdict is startup-only (`verdicts`, ACCELERATOR) is replaced by
+    the cut's `decision` when the company is not a startup on the thesis' rule; `not_startup` is that reason in words. The row the table
+    gave is kept beside it (`cut_decision`, `cut_text`) so the page can say what the cut changed. Any other row is returned as it is."""
+    cut = cfg.get("stage_cut") or {}
+    if row is None or not not_startup or row.get("decision") not in set(cut.get("verdicts") or ()):
+        return row
+    return {"id": "stage", "kind": "stage", "decision": cut.get("decision") or "WATCHLIST", "team": None, "action": None,
+            "cut_decision": row["decision"], "cut_text": row.get("text"), "reason": not_startup, "text": f"not a startup ({not_startup})"}
+
+
+def company_age(founded, today: date) -> float | None:
+    """Years from the register's founding date to `today`; a year-only date reads as 1 January. None when no date is on record."""
+    f = str(founded or "").strip()[:10]
+    try:
+        d = date.fromisoformat(f) if len(f) == 10 else (date(int(f[:4]), 1, 1) if len(f) >= 4 and f[:4].isdigit() else None)
+    except ValueError:
+        return None
+    return None if d is None else (today - d).days / 365.25
+
+
+def not_startup(c: dict, thesis: dict, today: date, counterparts: dict | None = None) -> str | None:
+    """D83: why a company is not a startup on the thesis' own rule, in words, or None when it is one. A declared cohort or portfolio
+    company is a startup by declaration (the partners selected it). Any other company is not one when it is itself a counterpart
+    organisation (its folded name is a counterpart the thesis declares, `matchmaker_orgs.counterpart_index`, or a partner organisation,
+    A23), or when the register's founding date is more than `geography.stage_max_company_age_years` years before today. A company with no
+    founding date on record is not cut: an empty value is not an old one (A25)."""
+    if c.get("group_tag") in ("cohort", "portfolio"):
+        return None
+    from radar import matchmaker_orgs
+    name = c.get("name") or ""
+    index = matchmaker_orgs.counterpart_index(thesis) if counterparts is None else counterparts
+    kind = index.get(matchmaker_orgs.okey(name)) if name else None
+    if kind or store.is_partner_org(name):
+        label = (((thesis.get("matching") or {}).get("kinds") or {}).get(kind) or {}).get("label") if kind else None
+        kind_words = f", {'an' if label[:1].lower() in 'aeiou' else 'a'} {label.lower()}" if label else ""  # no nested brackets on the page
+        return f"listed as a counterpart organisation{kind_words}"
+    years = (thesis.get("geography") or {}).get("stage_max_company_age_years")
+    age = company_age(c.get("founded"), today)
+    if years is not None and age is not None and age > float(years):
+        return f"founded in {str(c['founded'])[:4]}, more than {years} years ago"
+    return None
 
 
 def member_rule(cfg: dict, support=frozenset()) -> dict | None:
@@ -212,31 +270,50 @@ def _fit(conn, ctx: dict, thesis: dict, spec: dict) -> dict:
     own = [s for s in sigs if s["adapter"] != "ecosystem" and s["signal_type"] in feed_types]
     first = own[0] if own else {"signal_type": "register_entry", "adapter": "prh", "detail": None, "date": c.get("founded") or "", "id": -1}
     row = {**c, **first}
-    ex = store.explain(row, [s for s in own if s is not own[0]] if own else [], thesis, store.source_texts(conn, own))
+    texts = store.source_texts(conn, own)
+    ex = store.explain(row, [s for s in own if s is not own[0]] if own else [], thesis, texts)
     reasons = ex["reasons"]
     bullets = []
-    if ex["strength"] == "strong":
-        shared = ("industry_code", "line_of_business", "corroborated_keyword")
-        bullets.append({"text": ex["why"].removeprefix("Why: "),
-                        "url": c.get("source_url") if reasons[0] in shared else (own[0]["source_url"] if own else c.get("source_url"))})
     # A code in a `medium_codes` family (D22) is a sector match, not a High fit on the code alone: it counts as Medium. A reason of the
     # source's own text still lifts the fit to High; a corroborated name word or the line of business is Medium anyway.
     code_medium = "industry_code" in reasons and medium_code(c.get("industry_code"), spec)
-    if any(r in reasons for r in spec.get("high", []) if not (r == "industry_code" and code_medium)):
+    # D86: own text found only in the records of `buyer_text_types` (a public contract's title: what a buyer bought, in the buyer's words)
+    # shows the sector, so the feed row stays strong (A5), but it gives a Medium fit, like the line of business; a High fit from own
+    # text needs the company's own words (a project text, a profile).
+    buyer_types = set(spec.get("buyer_text_types") or [])
+    hit_types = {s["signal_type"] for s in own if store._own_text_hit(s, thesis, texts)} if buyer_types and "own_text" in reasons else set()
+    buyer_only = bool(hit_types) and hit_types <= buyer_types
+
+    def gives_high(r):
+        return r in spec.get("high", []) and not (r == "industry_code" and code_medium) and not (r == "own_text" and buyer_only)
+    if any(gives_high(r) for r in reasons):
         b = "High"
-    elif code_medium or any(r in reasons for r in spec.get("medium", [])):
+    elif code_medium or buyer_only or any(r in reasons for r in spec.get("medium", [])):
         b = "Medium"
     elif fit_mod.matched_keywords(c.get("name"), thesis) and c.get("source_url"):
         b = "Low"
         bullets.append({"text": ex["why"].removeprefix("Weak: "), "url": c["source_url"]})
     else:
         b = UNKNOWN
-    # D66: a High fit that rests on the industry code alone (every reason is in `code_alone_reasons`: the code and the register's own
-    # label for it) is capped at `code_alone_band`; a declared member is excepted below (D47 floor).
+    # D66, D85: a High fit that rests on code-level evidence alone (every reason is in `code_alone_reasons`: the industry code and the
+    # register's own label for a code, the line of business, whichever of the two is on record) is capped at `code_alone_band`; a
+    # declared member is excepted below (D47 floor).
     cap, alone = spec.get("code_alone_band"), set(spec.get("code_alone_reasons") or ["industry_code"])
-    if cap in BANDS and b == "High" and "industry_code" in reasons and set(reasons) <= alone:
+    capped = cap in BANDS and b == "High" and bool(reasons) and set(reasons) <= alone
+    if capped:
         b = cap
-        if bullets:
+    if ex["strength"] == "strong":
+        # D85: the line names the reason that sets the band. A High fit leads with a High-class reason (the source's own text, or the code
+        # when it is not capped), never with the line of business, which is the code's register label and gives at most Medium.
+        parts = ex.get("parts") or {}
+        high = [r for r in reasons if b == "High" and gives_high(r)]
+        lead = high[0] if high and high[0] in parts else reasons[0]
+        more = len(reasons) - 1
+        text = (parts[lead][:1].upper() + parts[lead][1:] + (f"; {more} more reason{'s' if more != 1 else ''}." if more else ".")) if lead in parts \
+            else ex["why"].removeprefix("Why: ")
+        shared = ("industry_code", "line_of_business", "corroborated_keyword")
+        bullets.insert(0, {"text": text, "url": c.get("source_url") if lead in shared else (own[0]["source_url"] if own else c.get("source_url"))})
+        if capped:
             bullets[0] = {**bullets[0], "text": bullets[0]["text"].rstrip(". ") + "; " + (spec.get("code_alone_note") or "the industry code alone gives at most a Medium fit")}
     support = {"own_text": "own_text" in reasons, "line_of_business": "line_of_business" in reasons, "corroborated_signal": "corroborated_keyword" in reasons}
     if c["group_tag"] in ("cohort", "portfolio") and c.get("source_url"):
@@ -442,6 +519,9 @@ def plain_bullets(rec: dict, why: list[dict], oi: dict | None, labels: dict) -> 
     fit_lines = [w for w in why if w["text"].startswith("Thesis fit:")]
     out: list[tuple[str, dict]] = []
 
+    if rec.get("kind") == "stage" and rec.get("not_startup"):   # D83: the cut decided, so it is the first reason a reader meets
+        out.append(("stage", {"text": f"Not a startup on the thesis' rule: {rec['not_startup']}, so the table's "
+                                      f"{str(rec.get('cut_decision') or '').lower()} verdict does not apply.", "url": rec.get("cut_url")}))
     fit_label = labels.get("fit", "Thesis fit")
     if fit_lines:
         reasons = "; ".join(words_only(w["text"].split(": ", 1)[1]).rstrip(".").lower() if i else words_only(w["text"].split(": ", 1)[1]).rstrip(".")
@@ -477,35 +557,49 @@ def plain_bullets(rec: dict, why: list[dict], oi: dict | None, labels: dict) -> 
     return [b for _, b in out[:MAX_BULLETS]]
 
 
-def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=None) -> dict | None:
-    """The memo, or None when the company is not in the database."""
-    ctx = matching.company_context(conn, company_key)
+def verdict_of(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=None, ctx: dict | None = None) -> dict | None:
+    """The one verdict engine (D75): the decision and everything it rests on, by the functions below and nothing else. memo.build and the
+    matchmaker's verdict path (radar.matchmaker._verdict) both call it, so a company page, a match page and the home list can never name two
+    verdicts for one company. The five bands include technology (rule e reads it) before the table is read; the startup cut (D83) is
+    applied after it. None when the company is not in the database."""
+    ctx = ctx if ctx is not None else matching.company_context(conn, company_key)
     if ctx is None:
         return None
     cfg = _cfg(thesis)
     t = store._today(today)
-    c = ctx["c"]
     lv = _levels(conn, ctx, company_key, cfg)
     oi = ocean_impact.assess(conn, ctx, company_key, thesis) if ocean_impact.settings(thesis) else None
     imp = _impact(conn, ctx, company_key, cfg["bands"].get("impact") or {}, oi)
     fit = _fit(conn, ctx, thesis, cfg["bands"].get("fit") or {})
     bands = {"impact": imp["band"], "business": band(lv["business"]["level"], cfg["bands"].get("business")),
-             "investment": band(lv["investment"]["level"], cfg["bands"].get("investment")), "fit": fit["band"]}
-    tech_band = band(lv["technology"]["level"], cfg["bands"].get("technology"))
-    bands["technology"] = tech_band
-    nxt = matching.who_comes_next(company_key, thesis, 5, conn=conn, today=t)
-    step = matching.next_step(company_key, thesis, conn=conn, today=t)
-    nxt = visible_next(conn, thesis, c, nxt)
-
+             "investment": band(lv["investment"]["level"], cfg["bands"].get("investment")), "fit": fit["band"],
+             "technology": band(lv["technology"]["level"], cfg["bands"].get("technology"))}
+    cut = not_startup(ctx["c"], thesis, t)
     blocked = False
     if ctx["status"] in matching.INACTIVE:
         row, unknown, decision = None, [], "WATCHLIST"
     else:
-        row, unknown = decide(bands, cfg, fit["support"])
+        row, unknown = decide(bands, cfg, fit["support"], cut)
         decision = row["decision"] if row else "WATCHLIST"
         blocked = row is None and fallback_blocked(bands, cfg, fit["support"])
         if blocked:
             unknown = ["impact"]  # the one missing piece: the evidence the fallback would have implied by the sector
+    return {"ctx": ctx, "cfg": cfg, "today": t, "levels": lv, "ocean_impact": oi, "impact": imp, "fit": fit, "bands": bands,
+            "row": row, "unknown": unknown, "decision": decision, "fallback_blocked": blocked, "not_startup": cut}
+
+
+def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=None) -> dict | None:
+    """The memo, or None when the company is not in the database."""
+    v = verdict_of(conn, thesis, company_key, today=today)
+    if v is None:
+        return None
+    ctx, cfg, t, lv, oi, imp, fit, bands = v["ctx"], v["cfg"], v["today"], v["levels"], v["ocean_impact"], v["impact"], v["fit"], v["bands"]
+    c = ctx["c"]
+    tech_band = bands["technology"]
+    row, unknown, decision, blocked = v["row"], v["unknown"], v["decision"], v["fallback_blocked"]
+    nxt = matching.who_comes_next(company_key, thesis, 5, conn=conn, today=t)
+    step = matching.next_step(company_key, thesis, conn=conn, today=t)
+    nxt = visible_next(conn, thesis, c, nxt)
     labels = cfg["labels"]
     needed = [d for d in unknown]  # dimensions with no public evidence while no row matched
     shown = dict(bands)
@@ -516,11 +610,15 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
            "matched": row["text"] if row else None, "team_label": row.get("team") if row else None, "kind": row.get("kind") if row else None,
            "because": because, "because_labels": [{"label": labels.get(d, d), "band": shown[d]} for d in TABLE_DIMS],
            "table_source": cfg["source"], "needs": [labels.get(d, d) for d in needed],
-           "dimensions": dimensions_line(ctx["fw"]), "fallback_blocked": blocked}
+           "dimensions": dimensions_line(ctx["fw"]), "fallback_blocked": blocked, "not_startup": v["not_startup"]}
     member_acts = None
     if row and row.get("kind") == "member":
         rec["note"], member_acts = member_support(row, nxt)
         rec["relation"] = row.get("relation")
+    elif row and row.get("kind") == "stage":
+        rec["cut_decision"], rec["cut_url"] = row["cut_decision"], c.get("source_url")
+        rec["note"] = (f"Not a startup on the thesis' rule ({row['reason']}); the table's {row['cut_decision'].lower()} verdict is for "
+                       + ("startups, so the company stays on the watchlist" if decision == "WATCHLIST" else f"startups, so it reads {decision.lower()}"))
     elif row and row.get("kind") == "fallback" and not row.get("implied_impact"):
         rec["note"] = (f"Ocean impact {str(row['measured_impact']).lower()} on record; thesis fit is High, so the decision table's "
                        f"High-fit rule applies.")
@@ -591,14 +689,17 @@ def build(conn: sqlite3.Connection, thesis: dict, company_key: str, *, today=Non
 
 def rule_label(rec: dict) -> str:
     """Which entry of the decision table decided, in words: 'decision table row 7', 'rule c2: impact implied by the sector' (fallback),
-    'decision table condition rule e', or that none matched."""
+    "the decision table's condition rule for technology readiness High and business readiness Low or Medium", 'the startup cut: not a
+    startup (founded in 2014, more than 5 years ago)' (D83), or that none matched."""
     kind, matched = rec.get("kind"), rec.get("matched") or ""
     if kind == "row":
         return matched.replace("row ", "decision table row ", 1)
-    if kind == "rule":
-        return matched.replace("rule ", "decision table condition rule ", 1)
+    if kind == "rule":   # named by what it says, never by its letter (D79)
+        return "the decision table's condition " + matched.removeprefix("the ") if matched.startswith("the rule for ") else matched
     if kind == "member":
         return "the member rule: " + matched
+    if kind == "stage":
+        return "the startup cut: " + matched
     if kind == "fallback":
         return matched.replace("fallback ", "rule ", 1).replace(", impact implied by sector", ": impact implied by the sector")
     return "no row or rule of the decision table matched"
@@ -616,6 +717,9 @@ def table_lines(thesis: dict) -> list[str]:
     text = ((thesis.get("memo") or {}).get("decisions") or {}).get("fallback_text")
     if text:
         out.append(text)
+    cut = (cfg.get("stage_cut") or {}).get("text")
+    if cut:   # D83: the cut after the table is part of the decision, so the whole table prints it, with the thesis' own age cut
+        out.append(cut.replace("{years}", str((thesis.get("geography") or {}).get("stage_max_company_age_years") or "")))
     return out
 
 
@@ -635,7 +739,7 @@ def next_step_view(m: dict | None, step: dict | None, thesis: dict | None = None
     sentence = f"{word}: {action[:1].lower() + action[1:]}" if action else word
     cells = ", ".join(f"{x['label'].lower()} {str(x['band']).lower()}" for x in rec.get("because_labels") or [])
     note = rec.get("note") or ""
-    because = (note[:1].upper() + note[1:]) if rec.get("kind") is None and note else f"{rule_label(rec)}: {cells}"
+    because = (note[:1].upper() + note[1:]) if rec.get("kind") in (None, "stage") and note else f"{rule_label(rec)}: {cells}"
     url = next((w["url"] for w in m.get("why") or [] if w.get("url")), None)
     concrete = None
     if step and step.get("rule") in (1, 2, 3, 4) and step.get("sentence"):

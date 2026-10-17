@@ -6,6 +6,7 @@ import shutil
 import sqlite3
 from datetime import date, timedelta
 from pathlib import Path
+from urllib.parse import quote
 
 import pytest
 
@@ -261,7 +262,7 @@ def test_the_fallback_names_the_same_list_and_links_the_match_page(th):
             first = [s["name"] for s in page["startups"][:3]]
             assert f"the match view puts {', '.join(first[:-1])} and {first[-1]} first" in got["say"], q
             assert "ranked" not in got["say"] and ("already connected" in got["say"]) == bool(page["connected"]), q      # D38
-            assert [i["url"] for i in got["items"]] == [f"/c/{s['key']}" for s in page["startups"][:5]], q
+            assert [i["url"] for i in got["items"]] == [f"/c/{quote(s['key'], safe='')}" for s in page["startups"][:5]], q   # ask.py quotes a key ('name:...' keys too)
     finally:
         conn.close()
 

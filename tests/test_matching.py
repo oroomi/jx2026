@@ -58,13 +58,15 @@ def test_limit_and_empty_state(world):
     assert len(matching.who_comes_next("9100001-1", th, limit=1, conn=conn, today=TODAY)["investors"]) == 1
     n = matching.who_comes_next("name:lonely", th, conn=conn, today=TODAY)
     assert n["investors"] == [] and n["partners"] == []
-    assert matching.who_comes_next("no-such-key", th, conn=conn) == {"investors": [], "funding": [], "partners": []}
+    n = matching.who_comes_next("no-such-key", th, conn=conn)
+    assert set(n) >= {"investors", "funding", "partners"} and not any(n.values())  # added groups are empty too
 
 
 def test_defunct_company_gets_no_leads(world):
     conn, th = world
     key = conn.execute("SELECT company_key FROM eco_entity WHERE entity_id='S3'").fetchone()[0]
-    assert matching.who_comes_next(key, th, conn=conn, today=TODAY) == {"investors": [], "funding": [], "partners": []}
+    n = matching.who_comes_next(key, th, conn=conn, today=TODAY)
+    assert set(n) >= {"investors", "funding", "partners"} and not any(n.values())  # added groups are empty too
     assert "defunct" in matching.next_step(key, th, conn=conn, today=TODAY)["because"]
 
 

@@ -15,7 +15,6 @@
 .navmenu > summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .navmenu-sheet { position: absolute; z-index: 50; right: 0; top: calc(100% + 6px); min-width: min(264px, calc(100vw - 32px)); padding: 6px;
   background: var(--surface); border: 1px solid var(--hairline); border-radius: var(--radius, 8px); box-shadow: 0 18px 40px -16px rgba(0,0,0,.55); }
-.navmenu-sheet ul { list-style: none; margin: 0; padding: 0; }
 .navmenu-sheet a { display: flex; align-items: center; min-height: 44px; padding: 0 12px; color: var(--text); text-decoration: none; font: 500 1rem var(--sans); }
 .navmenu-sheet a:hover { background: color-mix(in srgb, var(--text) 7%, transparent); }
 .navmenu-sheet a:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
@@ -27,7 +26,7 @@
 :root[data-skin="product"] .navmenu > summary, :root[data-skin="product"] .navmenu-sheet { border-radius: 12px; }
 
 /* the sector line: one quiet line, cut with an ellipsis, the change link at its end */
-.thesis-bar .sector > summary { display: flex; align-items: baseline; gap: 12px; min-height: 36px; padding: 4px 0; }
+.thesis-bar .sector > summary { display: flex; align-items: center; gap: 12px; min-height: var(--tap, 44px); padding: 0; }
 .thesis-bar .thesis-now { flex: 1 1 auto; min-width: 0; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 13px; color: var(--muted); }
 .thesis-bar .thesis-now strong { font-weight: 400; color: var(--muted); }
 :root[data-skin] .thesis-bar .sector-change { flex: none; margin: 0; white-space: nowrap; font-size: 13px; font-weight: 400; color: var(--muted); text-decoration-color: var(--hairline); }
@@ -106,7 +105,13 @@
 #ask .ask-chip:hover { color: var(--text); border-color: var(--accent); }
 #ask .ask-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 :root[data-skin="terminal"] #ask .ask-chip { border-radius: 2px; font-family: var(--mono); font-size: 13px; }
-@media (max-width: 639px) { .ask-try li:nth-child(n+4) { display: none; } }
+/* phones: the examples are one row that scrolls sideways, each chip a 44 px target */
+@media (max-width: 639px) {
+  .ask-try { flex-wrap: nowrap; overflow-x: auto; margin-right: -16px; padding-right: 16px; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .ask-try::-webkit-scrollbar { display: none; }
+  .ask-try li { flex: none; }
+  #ask .ask-chip { min-height: 44px; white-space: nowrap; }
+}
 
 .ask-count { margin: 14px 0 22px; color: var(--muted); font-size: .875rem; line-height: 1.45; }
 .ask-kbd { display: inline-block; min-width: 20px; padding: 0 5px; border: 1px solid var(--hairline); border-radius: 4px; font: 500 12px/18px var(--sans); text-align: center; color: var(--muted); }

@@ -64,3 +64,12 @@ Rebuild: `python3 docs/design_v2/build_ab.py && python3 docs/design_v2/shoot.py 
 
 Rebuild: `python3 docs/design_v2/build_c.py && python3 docs/design_v2/shoot.py c_home c_company`.
 The Baltic tab shows an honest "no data" because the snapshot holds no Baltic store. "No thesis evidence yet" reads 0 because the snapshot predates the wide intake.
+
+### What C takes from Trading 212 (references read 17 Oct 2026)
+Sources: the App Store and Google Play listing screenshots (id566325832, com.avuscapital.trading212) and official posts on community.trading212.com (home redesign, portfolio, key stats, pie detail). trading212.com itself returned 403. The images are third-party artwork, so they are not committed; the notes are.
+- Home: an ALL-CAPS grey label over a very large light-weight number, and the change as accent text with an arrow (not a pill). Here that is "On the radar · Finland", 26, "↗ +26 this quarter".
+- Widget cards (20 to 24 px radius, caps label over value). Here these are the Lists cards.
+- List row: a rounded-square logo, name over a grey second line, a thin sparkline, and two stacked values on the right. Here: initials, name, one-liner, signal sparkline, verdict pill over "New · 8 d ago".
+- Instrument page: a grey caps line ("NVDA · NASDAQ") above the name, then the big number, the chart with gradient fill, and time-range chips with the active one in a dark rounded box. Buy and Sell become "Ask Aava" (accent capsule) and "Print memo" (neutral capsule).
+- Bottom tab bar. Trading 212's is icon-only; ours keeps text labels under the icons because the audience is 40 to 60 and reading on first sight.
+- Not taken: their blue (we keep our one teal accent) and green and red for change (in C, colour other than the accent appears only in the verdict pill).

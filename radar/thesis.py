@@ -66,6 +66,9 @@ def _parse(p: Path) -> dict:
     if "countries" in data and not (isinstance(data["countries"], list) and data["countries"]
                                     and all(isinstance(c, str) and re.fullmatch(r"[A-Za-z]{2}", c) for c in data["countries"])):
         raise ThesisError(f"thesis file {p}: 'countries' must be a non-empty list of two-letter ISO country codes")
+    if "code_alone_weak" in data and not (isinstance(data["code_alone_weak"], list)
+                                          and all(isinstance(x, (str, int)) and not isinstance(x, bool) and str(x).strip() for x in data["code_alone_weak"])):
+        raise ThesisError(f"thesis file {p}: 'code_alone_weak' must be a list of industry code prefixes (for example [\"711\", \"721\"])")
     if "country_depth" in data and not isinstance(data["country_depth"], dict):
         raise ThesisError(f"thesis file {p}: 'country_depth' must be a mapping of country code to a depth text")
     if "intake" in data:

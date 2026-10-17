@@ -40,7 +40,7 @@ name word) and there is no impact evidence, the memo reads impact as Medium, imp
 
 ## The demo path (what to click)
 
-1. Open <https://jx.hankintaviikko.fi>. The feed lists 122 companies in the 90-day window, 36 main matches and 86 weak matches
+1. Open <https://jx.hankintaviikko.fi>. The feed lists 122 companies in the 90-day window, 30 main matches and 92 weak matches
    kept in a closed list. Every row names its source (for example PRH/YTJ tax registers or the
    PRH notices API), links to the record and carries a "How sure" line.
 2. Type `Arctic Fry` in **Find a startup**. It opens <https://jx.hankintaviikko.fi/c/3166759-6>, Arctic Fry Oy, a Nordic Blue

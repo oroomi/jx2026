@@ -1,0 +1,45 @@
+{#
+  Bottom tab bar (jx37, direction C), phone only.
+
+  Five destinations, 44 px tap targets, clear of the home indicator through
+  env(safe-area-inset-bottom). Hidden from 640 px up, where the top nav in base.html
+  is already on screen; see radar/static/c_components.css.
+
+  `current` is the active key: radar | search | lists | backtest | data.
+  Icons are inline strokes in currentColor. No emoji, per the slop list in CLAUDE.md.
+#}
+{%- macro tabbar(current='radar') -%}
+{%- set tabs = [
+  ('radar',    'Radar',    '/',         'circles'),
+  ('search',   'Search',   '/search',   'glass'),
+  ('lists',    'Lists',    '/lists',    'rows'),
+  ('backtest', 'Backtest', '/backtest', 'bars'),
+  ('data',     'Data',     '/data',     'grid')
+] -%}
+<nav class="c-tabbar" aria-label="Sections">
+  <ul>
+    {%- for key, label, href, icon in tabs -%}
+    <li>
+      <a href="{{ href }}"{% if key == current %} aria-current="page"{% endif %}>
+        <svg class="c-tab-icon" width="22" height="22" viewBox="0 0 22 22" aria-hidden="true"
+             fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          {%- if icon == 'circles' -%}
+          <circle cx="11" cy="11" r="8"/><circle cx="11" cy="11" r="3.5"/><path d="M11 3v3"/>
+          {%- elif icon == 'glass' -%}
+          <circle cx="9.5" cy="9.5" r="6"/><path d="M14 14l5 5"/>
+          {%- elif icon == 'rows' -%}
+          <path d="M4 6h14M4 11h14M4 16h9"/>
+          {%- elif icon == 'bars' -%}
+          <path d="M4 18V9M9.5 18V4M15 18v-6M20 18h-17"/>
+          {%- else -%}
+          <rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="12.5" y="3.5" width="6" height="6" rx="1"/>
+          <rect x="3.5" y="12.5" width="6" height="6" rx="1"/><rect x="12.5" y="12.5" width="6" height="6" rx="1"/>
+          {%- endif -%}
+        </svg>
+        <span>{{ label }}</span>
+      </a>
+    </li>
+    {%- endfor -%}
+  </ul>
+</nav>
+{%- endmacro -%}

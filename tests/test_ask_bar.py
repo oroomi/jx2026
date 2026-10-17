@@ -267,8 +267,8 @@ def test_site_pages_lists_match_only_when_the_route_exists():
     cur = {"cohort_label": "The Nordic Blue 19"}
     without = NS(app=NS(routes=[NS(path="/"), NS(path="/radar")]))
     withm = NS(app=NS(routes=[NS(path="/"), NS(original_router=NS(routes=[NS(path="/match")]))]))   # reached through an include_router wrapper
-    assert [k for _h, _l, k in site_pages(without, cur)] == ["feed", "radar", "backtest", "method", "data"]
-    assert [k for _h, _l, k in site_pages(withm, cur)] == ["feed", "radar", "match", "backtest", "method", "data"]
+    assert [k for _h, _l, k in site_pages(without, cur)] == ["feed", "radar", "method", "data"]   # no earliness test in the menu (D81)
+    assert [k for _h, _l, k in site_pages(withm, cur)] == ["feed", "radar", "match", "method", "data"]
     assert site_pages(without, cur)[1][1] == "The Nordic Blue 19" and site_pages(without, {})[1][1] == "Cohort radar"
 
 

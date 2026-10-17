@@ -48,7 +48,10 @@ LAST_ROUND_NOTE = ("This is your last round. Do not call a data tool again: writ
 ANSWER_NOW = ("Write your answer now, in this turn, from the tool results you already have: one short paragraph, at most 60 words, naming the companies with one "
               "concrete fact each, why, and one next step, then the Follow-ups line. Do not call a tool.")
 ANSWER_SHAPE = ("Answer shape, every time: it is read aloud in a room, so ONE short paragraph, no line breaks: the direct answer naming at most 3 companies, "
-                "why, and one next step, at most 60 words in all (a greeting or thanks: 1 or 2 sentences; a follow-up: at most 45 words, no fact repeated). "
+                "why, and one next step, at most 60 words in all (a greeting or thanks: 1 or 2 sentences). Never repeat a fact or date you already said in this conversation: build on it and add only what is new, for example the fit for each partner and the next step. "
+                "A yes-or-no or 'when' question gets one or two sentences (the answer and the one date that matters); keep the assessment for when "
+                "they ask for it. A next step is something the company or the investor can do this week (what to publish, who to talk to, from the tool "
+                "results); 'keep watching' is not a next step. Never mention your tools, searches or what they returned: say what the records show. "
                 "No bold, no bullets, then the Follow-ups line. Nothing is written before the tool calls are done.")
 TOOL_LABELS = {"search_startups": "searching the list", "get_startup": "reading the company record", "explain_match": "checking the match",
                "list_organisations": "looking up organisations", "get_current_view": "looking at your screen", "apply_filters": "setting the filters"}

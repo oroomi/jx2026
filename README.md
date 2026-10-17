@@ -97,7 +97,7 @@ Second thesis: `python3 -m radar.build --thesis config/thesis_health_turku.yaml`
 | PRH/YTJ open data API v3 (Finnish trade register) | company facts and the register entry date | `prh.py` |
 | PRH/YTJ registered entries (tax registers) | first sales (VAT or prepayment register) and first hire (employer register) dates | `tax_registers.py` |
 | PRH registered notices API v3 | share issues, board changes, start-up notices, capital losses, each dated | `prh_notices.py` |
-| PRH/YTJ wide intake | startup-shaped limited companies and cooperatives, taken in before any sector test | `prh_intake.py` (not in the live store yet) |
+| PRH/YTJ wide intake | startup-shaped limited companies and cooperatives, taken in before any sector test | `prh_intake.py` (in the live store since 17 Oct (16,385 prh_intake signals)) |
 | Hilma public procurement awards | a young company's first public contract in the sector's categories | `hilma.py` |
 | CORDIS (Horizon Europe and H2020) | EU project participation, start date and EU contribution | `cordis.py` |
 | Business Finland funding export | funding decisions, year only (the dashboard export has no decision date) | `businessfinland.py` |

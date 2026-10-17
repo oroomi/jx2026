@@ -29,10 +29,13 @@ from radar import aava_llm, ask, store, thesis as thesis_mod
 from radar.routes import api as api_routes
 from radar.routes.aava import _inputs
 from radar.routes.ask import has_page
+from radar.routes.home import templates
 
 log = logging.getLogger("aava.chat")
 router = APIRouter()
 api_routes.ENDPOINTS.append({"path": "/api/aava/status", "what": "whether Aava's reasoning model is switched on: {available, model, tts}; a boolean, never the key"})
+
+templates.env.globals["aava_chat_on"] = aava_llm.available   # the pages load the chat only when a key is configured
 
 DEMO_HEADER = "x-aava-demo"
 SSE_HEADERS = {"Cache-Control": "no-store", "X-Accel-Buffering": "no", "Connection": "keep-alive"}

@@ -319,7 +319,8 @@ def test_search_has_the_same_semantics_as_the_filter_rail(th):
         res = json.loads(aava_tools.run_tool(ctx, "search_startups", {**sel, "limit": 25})[0])
         want = home_filter.apply(rows, sel)
         assert res["matches"] == len(want), sel
-        assert [r["company_key"] for r in res["results"]] == [r["company_key"] for r in want[:25]]
+        got = [r["company_key"] for r in res["results"]]   # a long result is shortened to fit the tool budget, never cut mid-JSON
+        assert got and got == [r["company_key"] for r in want[:len(got)]]
     # a model's spellings are mapped to the rail's values: 'accelerator', 'Finland', level 5 -> band 4-6, and text/subsector narrow further
     res = json.loads(aava_tools.run_tool(ctx, "search_startups", {"verdict": "accelerator", "country": "Finland", "trl": [5]})[0])
     assert res["applied_filters"] == {"verdict": ["ACCELERATOR"], "country": ["FI"], "trl": ["4-6"]}

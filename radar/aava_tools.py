@@ -581,8 +581,22 @@ def run_tool(ctx: ToolContext, name: str, args) -> tuple[str, bool]:
         res, ok = {"error": f"{name} failed: {type(e).__name__}"}, False
     text = json.dumps(res, ensure_ascii=False, default=str)
     cap = int(ctx.limits.get("tool_result_chars", 7000))
+    if len(text) > cap and isinstance(res, dict):
+        # shrink the longest list (rows, signals) until it fits, so the model and the tests always get valid JSON
+        lists = sorted(((k, v) for k, v in res.items() if isinstance(v, list) and v), key=lambda kv: -len(json.dumps(kv[1], default=str)))
+        res = dict(res)
+        while len(text) > cap and lists:
+            k, v = lists[0]
+            if len(v) <= 1:
+                lists.pop(0)
+                continue
+            v = v[: max(1, len(v) * 2 // 3)]
+            lists[0] = (k, v)
+            res[k] = v
+            res["note"] = "list shortened to fit; ask for fewer rows or one company for the rest"
+            text = json.dumps(res, ensure_ascii=False, default=str)
     if len(text) > cap:
-        text = text[:cap].rsplit(",", 1)[0] + ' ... [result cut: ask for fewer rows or one company]"}'
+        text = json.dumps({"error": "result too long; ask for fewer rows or one company"})
     ctx.urls |= urls_in(text)
     ctx.calls.append({"name": name, "ms": round((time.monotonic() - t0) * 1000), "ok": ok})
     return text, ok

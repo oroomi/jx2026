@@ -38,6 +38,11 @@ industry_codes:
   - {code: "39000", note: "Remediation activities"}
   - {code: "71121", note: "Engineering and technical consulting"}
   - {code: "71200", note: "Technical testing and analysis"}
+# Broad consultancy and research families (code prefixes; a dot is ignored, so NACE 71.12 is 711). A code from one of these is a hint
+# that the company could be in the sector, never evidence on its own: it admits a company to the main list only together with a sector
+# word from the registered line of business, the source's own text, or a legal-name word corroborated by a different source family.
+# Alone it leaves the row in the weak list (radar/store.py explain). Codes outside these families (ship building, water, aquaculture) are unchanged.
+code_alone_weak: ["711", "712", "721"]
 
 # Name and description keywords (word-start match, case-insensitive). A keyword in the legal name is MEDIUM.
 name_keywords:

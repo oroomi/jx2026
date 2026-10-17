@@ -1,4 +1,4 @@
-{# The home list's filter: a left rail on a desktop, a bottom sheet behind a Filter button on a phone. Included by _home_list.html, inside
+{# The home list's filter (a facet with `parent` in config/home_filters.yaml, the sub-sectors, is listed inside its parent group, below its single choice): a left rail on a desktop, a bottom sheet behind a Filter button on a phone. Included by _home_list.html, inside
    #hc-list. H.rail comes from radar/home_filter.py: every option is a link to the next state's URL (so a view can be shared and works
    without scripts); with htmx a click asks /home/list for the next state, swaps only #hc-list and rewrites the address bar with
    hx-replace-url (never a pushed history entry). #}
@@ -18,6 +18,14 @@
       <li><a id="{{ o.id }}" class="hr-o{{ ' on' if o.on }}{{ ' hr-radio' if f.single }}{{ ' zero' if (o.count == 0 and not o.on) }}" href="{{ o.href }}" hx-get="{{ o.hx }}" hx-replace-url="{{ o.href }}" role="{{ 'radio' if f.single else 'checkbox' }}" aria-checked="{{ 'true' if o.on else 'false' }}"><span class="hr-box" aria-hidden="true"></span><span class="hr-t">{% if o.flag %}<img class="hc-flag" src="{{ o.flag }}" width="16" height="12" alt="" loading="lazy">{% endif %}{{ o.label }}</span><span class="hr-n">{{ o.count if o.count is not none }}</span></a></li>
       {% endfor %}
     </ul>
+    {% for n in f.nested %}<div class="hr-sub" role="group" aria-label="{{ n.heading }}s of {{ n.sector }}" data-f="{{ n.param }}">
+      <p class="hr-sub-h">{{ n.heading }}s of {{ n.sector }}</p>
+      <ul>
+        {% for o in n.options %}
+        <li><a id="{{ o.id }}" class="hr-o{{ ' on' if o.on }}{{ ' zero' if (o.count == 0 and not o.on) }}" href="{{ o.href }}" hx-get="{{ o.hx }}" hx-replace-url="{{ o.href }}" role="checkbox" aria-checked="{{ 'true' if o.on else 'false' }}"><span class="hr-box" aria-hidden="true"></span><span class="hr-t">{{ o.label }}</span><span class="hr-n">{{ o.count }}</span></a></li>
+        {% endfor %}
+      </ul>
+    </div>{% endfor %}
   </details>
   {% endfor %}
   <p class="hr-foot">Choices inside one group are alternatives; different groups all have to hold. Numbers show how many startups would remain.</p>

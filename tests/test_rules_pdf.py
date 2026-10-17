@@ -16,9 +16,8 @@ def test_every_decision_has_rule_reason_and_records_affected():
     ds = [t for k, t in rules_pdf.blocks(md) if k == "para" and re.match(r"^\*\*D\d+\. ", t)]
     parts = [rules_pdf.decision_parts(t) for t in ds]
     assert len(parts) >= 21 and all(p and p["rule"] and p["why"] and p["affected"] for p in parts)
-    ids = [p["id"] for p in parts]
-    reserved = {f"D{i}" for i in range(32, 36)}   # held for the branch that adds D32 to D35 (fix/hygiene starts at D36); absent until it merges
-    assert ids == [f"D{i}" for i in range(1, int(ids[-1][1:]) + 1) if f"D{i}" in ids or f"D{i}" not in reserved]
+    ids = [int(p["id"][1:]) for p in parts]
+    assert ids == sorted(set(ids)) and ids[:31] == list(range(1, 32))     # unique and ascending; parallel branches leave gaps (a new rule is ten above the highest seen)
 
 
 def test_fonts_are_vendored():

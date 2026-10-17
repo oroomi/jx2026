@@ -4,7 +4,8 @@
 # facets      the rail, in order. `param` is the URL parameter and the key of a row's `facets` (radar/home_list.py criteria()).
 #             A facet is offered when the rows carry values for it; to add one (for example a sector taxonomy's `subsector`), list it here
 #             and write `facets[param]` on the rows. `source: theses` is the Sector group: its options are the thesis files in config/,
-#             one of them current, and it takes a single choice.
+#             one of them current, and it takes a single choice. `parent: thesis` lists a facet inside that group, under the sector in view:
+#             `subsector` is the sector taxonomy's sub-sectors (radar/sectors.py, D42), a multi-select with counts, hidden when the sector has none.
 # sections    the headings between rail groups.
 # groups      the tabs above the list. `fit` is Top matching: `label_for` is used when an investor or accelerator is picked.
 # top_matching  which organisations the picker lists (kinds of radar/matchmaker.py) and which one is picked when the URL names none
@@ -14,6 +15,7 @@
 
 facets:
   - {param: thesis,   heading: Sector,                      section: scope,    open: true,  source: theses}
+  - {param: subsector, heading: Sub-sector,                 section: scope,    open: true,  parent: thesis}
   - {param: verdict,  heading: Verdict,                     section: criteria, open: true}
   - {param: impact,   heading: Ocean impact,                section: criteria, open: true}
   - {param: trl,      heading: Technology readiness (TRL),  section: criteria, open: true}

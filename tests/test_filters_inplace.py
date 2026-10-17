@@ -191,20 +191,20 @@ def test_the_browser_module_mirrors_the_servers_parameters(client):
     assert client.get("/static/filters.js").status_code == 200
 
 
-# ---- the hook for a later taxonomy --------------------------------------------------------------------------------------------------
+# ---- the hook for a facet listed in the config only (the real taxonomy facet, `subsector`, is tested in tests/test_sectors.py) --------------------------------------------------------------------------------------------------
 def test_a_facet_listed_in_the_config_is_offered_without_touching_the_code(tmp_path, monkeypatch):
     src = (ROOT / "config" / "home_filters.yaml").read_text()
     cfg = tmp_path / "home_filters.yaml"
-    cfg.write_text(src.replace("  - {param: age,", "  - {param: subsector, heading: Subsector, section: more, open: true}\n  - {param: age,"), encoding="utf-8")
+    cfg.write_text(src.replace("  - {param: age,", "  - {param: focus, heading: Focus, section: more, open: true}\n  - {param: age,"), encoding="utf-8")
     monkeypatch.setattr(home_config, "PATH", cfg)
-    assert "subsector" in home_filter.params()
-    rows = [{"company_key": "a", "facets": {"subsector": ["Kelp farming"], "verdict": ["INVEST"]}},
-            {"company_key": "b", "facets": {"subsector": ["Port robotics"], "verdict": ["INVEST"]}}]
-    R = home_filter.rail(rows, {"subsector": ["Port robotics"]}, {})
-    f = next(f for f in R["facets"] if f["param"] == "subsector")
+    assert "focus" in home_filter.params()
+    rows = [{"company_key": "a", "facets": {"focus": ["Kelp farming"], "verdict": ["INVEST"]}},
+            {"company_key": "b", "facets": {"focus": ["Port robotics"], "verdict": ["INVEST"]}}]
+    R = home_filter.rail(rows, {"focus": ["Port robotics"]}, {})
+    f = next(f for f in R["facets"] if f["param"] == "focus")
     assert [(o["value"], o["on"], o["count"]) for o in f["options"]] == [("Kelp farming", False, 1), ("Port robotics", True, 1)] and R["shown"] == 1
-    assert home_filter.parse(_qp("/?subsector=Port+robotics")) == {"subsector": ["Port robotics"]}
-    assert home_filter.href({"subsector": ["Kelp farming"]}, {}) == "/?subsector=Kelp+farming"
+    assert home_filter.parse(_qp("/?focus=Port+robotics")) == {"focus": ["Port robotics"]}
+    assert home_filter.href({"focus": ["Kelp farming"]}, {}) == "/?focus=Kelp+farming"
 
 
 def test_the_country_name_table_is_complete_and_iso():

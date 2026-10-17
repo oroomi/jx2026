@@ -87,6 +87,10 @@ memo:
       - {id: e, when: {technology: High, business: [Low, Medium]}, decision: PARTNER INTRODUCTION, action: "Technology High, business Low or Medium."}
       - {id: f, when: {business: Medium, investment: Medium, fit: Medium}, decision: WATCHLIST, action: "Business, investment and fit all Medium."}
 
+# Sector taxonomy (D42): none for this sector. The store holds 489 companies, 162 of them human-health practice (TOL 86, left out by A4), and the home
+# list has 1 row, so a sub-sector facet would offer nothing to choose from. An empty list means no sub-sectors are derived and the facet hides.
+taxonomy: []
+
 # Sources the /data page's Refresh button re-reads (names from radar/refresh.py STEPS): the fast live ones only.
 refresh_adapters: [prh_notices, prh_recent]
 

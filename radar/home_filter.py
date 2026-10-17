@@ -7,6 +7,10 @@ is config/home_filters.yaml), the group tab (`group`) and, for the Top matching 
 swaps in place (radar/routes/home_rail.py). Every control is a link that carries the NEXT state, so a click, a refresh and a shared URL all
 land on the same view, with or without scripts. radar/static/filters.js mirrors the same parameters in the browser.
 
+`subsector` (D42) is the sector taxonomy's sub-sectors: a multi-select listed inside the Sector group, under the sector in view (config/home_filters.yaml
+`parent: thesis`). A row carries the slugs in `facets["subsector"]` and the words in `subsectors`; a sector with no taxonomy, or a store not yet backfilled,
+carries none, so the group has no sub-sector list and the facet hides.
+
 Rules:
   - Several values of one facet are alternatives (OR); different facets all have to hold (AND).
   - The number beside an option is how many rows of the current group would show if that option were switched on while every OTHER
@@ -24,6 +28,7 @@ from urllib.parse import urlencode
 from radar import home_config, labels as lbl
 
 NONE = "none"
+UNCLASSIFIED = "not_classified"        # the sub-sector slug of a company with no link (radar/sectors.py)
 MAX_VALUES = 20
 MAX_LEN = 60
 PARTIAL = "/home/list"                 # the list section alone (radar/routes/home_rail.py); the address bar always shows "/"
@@ -134,7 +139,18 @@ def href(sel: dict[str, list[str]], extra: dict[str, str], toggle: tuple[str, st
 
 # ---- labels and order ---------------------------------------------------------------------------------------------------------------
 
-def _label(param: str, value: str) -> str:
+def sub_labels(rows: list[dict] | None) -> dict[str, str]:
+    """{sub-sector slug: label} from the rows' `subsectors` (the words the store's taxonomy gave them): what the sub-sector options and chips print."""
+    out: dict[str, str] = {}
+    for r in rows or []:
+        for x in r.get("subsectors") or []:
+            out.setdefault(x["slug"], x["label"])
+    return out
+
+
+def _label(param: str, value: str, labels: dict[str, str] | None = None) -> str:
+    if param == "subsector":
+        return (labels or {}).get(value) or lbl.plain(value).capitalize()
     if value == NONE:
         return _NONE_LABEL.get(param, "None")
     if param == "verdict":
@@ -175,6 +191,8 @@ def _order(param: str, present: Counter) -> list[str]:
     if param == "member":
         order = [k for k, _ in _MEMBER]
         return sorted(vals, key=lambda v: order.index(v) if v in order else 99)
+    if param == "subsector":
+        return sorted(vals, key=lambda v: (v == UNCLASSIFIED, -present[v], v))      # "Not yet classified" last, the rest by how many startups
     return sorted(vals, key=lambda v: (v == NONE, -present[v], _label(param, v).casefold()))
 
 
@@ -224,9 +242,13 @@ def sector_options(st: State, sectors: list[dict], current: str) -> list[dict]:
 
 def rail(rows: list[dict], sel: dict[str, list[str]], extra: dict[str, str], sector_opts: list[dict] | None = None) -> dict:
     """Everything the rail prints for one group's (unfiltered) rows and the current selection. `sector_opts` (sector_options) fills the
-    Sector group; it takes one choice, so it is neither a filter nor counted among the active ones."""
+    Sector group; it takes one choice, so it is neither a filter nor counted among the active ones, but a facet nested in it (the sub-sectors,
+    `parent: thesis`) is listed inside the group and its selected values are counted on the group."""
     shown = apply(rows, sel)
     facets = []
+    parents = home_config.parents()
+    names = sub_labels(rows)
+    nested: list[tuple[int, dict]] = []
     for param, heading, section, is_open, source in facet_list():
         if source:
             if source == "theses" and sector_opts and len(sector_opts) > 1:
@@ -243,23 +265,35 @@ def rail(rows: list[dict], sel: dict[str, list[str]], extra: dict[str, str], sec
                     count[v] += 1
         for v in sel.get(param, []):
             present.setdefault(v, 0)
-        options = [{"value": v, "label": _label(param, v), "count": count[v], "on": v in sel.get(param, []),
+        options = [{"value": v, "label": _label(param, v, names), "count": count[v], "on": v in sel.get(param, []),
                     "href": href(sel, extra, (param, v)), "hx": href(sel, extra, (param, v), PARTIAL), "id": f"f-{param}-{_slug(v)}",
                     "flag": home_config.flag_url(v) if param == "country" and v != NONE else None}
                    for v in _order(param, present)]
         if not options:
             continue
-        facets.append({"param": param, "heading": heading, "section": section, "options": options,
-                       "active": len(sel.get(param, [])), "open": is_open or bool(sel.get(param))})
+        facet = {"param": param, "heading": heading, "section": section, "options": options,
+                 "active": len(sel.get(param, [])), "open": is_open or bool(sel.get(param))}
+        if param in parents:
+            nested.append((len(facets), facet))
+        else:
+            facets.append(facet)
+    for at, kid in nested:
+        host = next((f for f in facets if f["param"] == parents[kid["param"]]), None)
+        if host is None:                    # the parent group is not on the rail (a lone sector): the facet stands on its own
+            facets.insert(min(at, len(facets)), kid)
+            continue
+        host.setdefault("nested", []).append({**kid, "sector": next((o["label"] for o in host["options"] if o["on"]), "")})
+        host["active"] += kid["active"]
+        host["open"] = host["open"] or kid["active"] > 0
     return {"facets": facets, "shown": len(shown), "of": len(rows), "n_active": sum(len(v) for v in sel.values()),
             "clear_href": href({}, extra), "clear_hx": href({}, extra, None, PARTIAL), "selection": sel,
             "sections": home_config.sections()}
 
 
-def chips(sel: dict[str, list[str]], extra: dict[str, str]) -> list[dict]:
+def chips(sel: dict[str, list[str]], extra: dict[str, str], names: dict[str, str] | None = None) -> list[dict]:
     """One removable chip per selected value: its words, and the URL of the view without it."""
     heading = {f[0]: f[1] for f in facet_list()}
-    return [{"param": p, "value": v, "heading": heading.get(p, p), "label": _label(p, v), "id": f"chip-{p}-{_slug(v)}",
+    return [{"param": p, "value": v, "heading": heading.get(p, p), "label": _label(p, v, names), "id": f"chip-{p}-{_slug(v)}",
              "flag": home_config.flag_url(v) if p == "country" and v != NONE else None,
              "href": href(sel, extra, (p, v)), "hx": href(sel, extra, (p, v), PARTIAL)}
             for p in params() for v in sel.get(p, [])]
@@ -321,7 +355,7 @@ def view(H: dict, params_, *, sectors: list[dict] | None = None, current: str = 
     if R is not None:
         R["total"] = len(H.get("rows") or [])
         R["count_text"] = f"{R['shown']} of {R['total']} startups"
-        R["chips"] = chips(sel, extra)
+        R["chips"] = chips(sel, extra, sub_labels(H.get("rows")))
         R["state_url"] = st.url
         R["country"] = next((f for f in R["facets"] if f["param"] == "country"), None)
         R["sector_chip"] = short_title(title) if title else None

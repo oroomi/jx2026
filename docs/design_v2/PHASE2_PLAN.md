@@ -1,3 +1,39 @@
+# Phase 2, company page only (approved C layout, chart removed)
+
+Applies the moment the chief says "main merged, go". Another agent is editing these files on main now, so nothing here is touched before then. Prototype to match: `c_company.html` (Viva Jets).
+
+## Page order (top to bottom), mapped to today's files
+| # | Block | Built from | File |
+|---|---|---|---|
+| 1 | Back link, initials mark, grey caps "Business ID · group", name | `c`, `register` | `company.html` (replaces `co-head`; the `<h1>` stays first) |
+| 2 | Verdict as the big word, plus the memo's one-line reason | `memo_for(...)` (`company_memo.html` gives the decision and note) | `company.html` header plus a slimmed `company_memo.html` |
+| 3 | One quiet line: "Public record: first <date> · N dated signals · latest <date>", each date an anchor to its row in News | `signals` (min and max date, count) | `company.html` |
+| 4 | Two capsule buttons: "Ask Aava" (the `_aava.html` partial from jx25, its own button and sheet, a plain tap for the speech gesture) and "Print memo" (`window.print()` plus a print stylesheet that hides navigation) | `_aava.html`, `aava.js` | one `{% include "_aava.html" %}` line plus a print button |
+| 5 | Key statistics grid: 4 readiness levels (frameworks level; Investment adds "N of 10 dimensions"), founded, Business ID, first public record, last signal, each with its source chip | `readiness`, `register`, `signals` | `company.html` |
+| 6 | About = "What the public record says": the jx35 brief when one exists (`company_brief.html`, placed here by me, not edited), otherwise the six rule-written rows (what it does, thesis fit, readiness, who to meet, what the fund should do, what's missing) with numbered sources and hatched "no public evidence yet" | `company_brief.html`; **new** `radar/card.py` + **new** `radar/routes/card.py` (template global, no edit to `company.py`) + **new** `company_card.html` | include lines |
+| 7 | News: dated signals, newest first, each with source; row ids `sig-<id>` for the anchors in 3 | `signals` | `company.html` (keeps `id="signals"`, heading "Public records found" kept for tests) |
+| 8 | Analysts: the decision-table bands as four bars, "because: ...", table source | memo `because_labels` | slimmed `company_memo.html` (why, risks and actions move into Evidence) |
+| 9 | Evidence (folded `<details>`): 01 to 04 sections with their ids `q1` to `q4` unchanged, the memo's why, risks and actions, the stitcher block (`company_stitch.html`, included unchanged), connector slots, "Sources on this page" | existing markup, unchanged inside | `company.html` |
+
+Laptop at 960 px and up: blocks 1 to 5 on the left (about 520 px), 6 to 8 on the right, Evidence full width under both. Phone: one column in the order above, bottom tab bar from `base.html`.
+
+## Test constraints read from tests/ (must stay true)
+- `<h1>` comes before "Connections across records", which comes before `id="q1"` (`test_first_traction.py`). Connections move into block 1's grey line or stay just under the `<h1>`.
+- `id="lifeline"` comes before `id="q1"` (`test_first_traction.py:257`). The chart is removed per Dayo, so block 3 (the public-record line) carries `id="lifeline"`. The test keeps passing, and the anchor still means "the company's timeline".
+- The `q1` to `q4` contents are asserted by slice (`test_company.py`, `test_judge_fixes.py`, `test_visual_polish.py`). Their inner markup is moved into Evidence, not rewritten.
+- "Sources on this page" and every source URL stay in the page.
+
+## Files, in order (one commit each, `pytest -q` green, phone and laptop screenshots read)
+1. `radar/static/company.css` + **new** `radar/static/c.css` (from `docs/design_v2/c.css`, company rules only): 30 min
+2. **new** `radar/card.py`, `radar/routes/card.py`, `radar/templates/company_card.html`, `tests/test_card.py`: 50 min
+3. `radar/templates/company.html` (blocks 1 to 9) and `company_memo.html` (split into the verdict and Analysts partials, with why, risks and actions under Evidence): 70 min
+4. Include lines for `company_brief.html` (jx35) and `_aava.html` (jx25) if they exist on main at that moment; otherwise the card and a disabled "Ask Aava" with "not connected yet": 15 min
+5. Print stylesheet (`@media print` in `c.css`: hide navigation, buttons and folds; open Evidence): 15 min
+
+About 3 hours. The home page waits for Dayo's screenshot.
+
+---
+
 # Phase 2 plan
 
 **Current direction: C (jx37), the Trading 212 feel on B's structure, phone first.** The C plan below replaces the B plan's skin steps. B's structural decisions ("/" is the country list of feed main-tier rows, the six-row card, evidence folded under it) still hold.

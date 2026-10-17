@@ -117,9 +117,6 @@
 .ask-kbd { display: inline-block; min-width: 20px; padding: 0 5px; border: 1px solid var(--hairline); border-radius: 4px; font: 500 12px/18px var(--sans); text-align: center; color: var(--muted); }
 @media (hover: none) { .ask-key { display: none; } }
 
-/* the Aava button that floated bottom right on the home page is replaced by this bar (the sheet stays in the page for the company pages) */
-body:has(#ask) .aava-fab { display: none; }
-
 /* ---------------------------------------------------------------------------------------------------------------------------------
    3. The answer card (text mode: no orb)
    --------------------------------------------------------------------------------------------------------------------------------- */

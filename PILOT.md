@@ -13,7 +13,7 @@ Sireness, Arctic Fry and Emission-Eye), and the claim is smaller than that sound
 so it is not an early find; Kilocode and Arctic Fry are in only because we added their code families after seeing them (in-sample);
 Sireness enters on a declared-research record rather than a public one; and Emission-Eye, on a public start-up notice, ranks 132 of
 1,176 among the 2025 registrations in its code family. The other 3 Finnish ones are registered outside the intake's code families.
-Since then two things were added that nobody but you can check. The home list shows each company's criteria (impact, TRL, BRL, IRL, fit, verdict) with an Ocean Impact Assessment whose nine rungs are our own evidence ladder, because the Ocean Impact Navigator publishes areas and no levels; of the 59 companies on the home list, 3 reach a rung, 27 read "not yet evidenced" and 29 read "no public record". And `/match` ranks 191 counterparts against the startups with reasons in words and no score; its weights are a hypothesis with no ground truth, and 17 of the 19 cohort companies and all 9 portfolio companies have at least one counterpart that passes its filters.
+Since then two things were added that nobody but you can check. The home list shows each company's criteria (impact, TRL, BRL, IRL, fit, verdict) with an Ocean Impact Assessment whose nine rungs are our own evidence ladder, because the Ocean Impact Navigator publishes areas and no levels; of the 59 companies on the home list, 3 reach a rung, 27 read "not yet evidenced" and 29 read "no public record". And `/match` ranks 191 counterparts against the startups with reasons in words and no score; its weights are a hypothesis with no ground truth, and 17 of the 19 cohort companies and all 9 portfolio companies have at least one counterpart that passes its filters. Two things changed on the evening of 17 Oct after a judge's dry-run: the 28 cohort and portfolio companies on the home list read PORTFOLIO SUPPORT by rule (the radar does not tell you to put your own companies into an accelerator, and it says what the next pilot partner and grant would be), and an investor's view shows the early pipeline in words, "No startup on the radar is at due diligence yet; these are the closest". The other 31 rows on the home list are the radar's own finds: WATCHLIST 30 and PARTNER INTRODUCTION 1.
 
 ## What you get in 8 weeks
 
@@ -29,7 +29,7 @@ Since then two things were added that nobody but you can check. The home list sh
 - **Entry dates.** When each of the 19 cohort and 9 portfolio companies, and the rest of your 2026 intake, first entered your
   pipeline. You choose the event (application, first meeting, term sheet) and we label it. This turns "before January 2026" into
   "before you".
-- **Your verdicts on 20 companies** that we pick from the feed and the cohort, in week 5: would you have met them, and why.
+- **Your verdicts on 20 companies** that we pick from the feed and the radar's own finds (the 28 declared members read PORTFOLIO SUPPORT by rule, so they are not a test of the memo), in week 5: would you have met them, and why.
 - **Your ratings of 20 matched pairs** (a startup and a counterpart `/match` lists for it), in week 5: useful, not useful, and why. This is the first ground truth the matching has.
 - **Your view of the ocean-impact rungs**: which record you would require for each of the nine, so the ladder is yours and not ours.
 - **One owner** on your side for 1 hour a week, and a 30-minute review at the end of weeks 2, 4, 6 and 8.

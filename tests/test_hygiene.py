@@ -299,6 +299,7 @@ def test_example_chips_are_shown_only_when_their_answer_is_not_empty(site, monke
 
 def test_home_chips_are_a_subset_of_the_configured_examples_with_answers(site):
     client, _ = site
+    home_list.warm(thesis.load())            # build the list here, so a slow machine's 3 second wait cannot turn the chips off
     t = client.get("/").text
     chips = [html.unescape(x) for x in re.findall(r'class="ask-chip" data-q="([^"]*)"', t)]
     assert chips and set(chips) <= set(ask.examples(thesis.load()))

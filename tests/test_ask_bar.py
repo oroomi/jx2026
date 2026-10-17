@@ -120,11 +120,10 @@ def test_who_should_a_company_meet_is_aavas_question_four(client):
     assert not d["say"].startswith("Based on what the radar holds on")
 
 
-def test_an_unknown_word_goes_to_the_search_page_and_says_so(client):
+def test_an_unknown_word_says_nothing_matches_and_links_nowhere(client):
     d = _ask(client, "zebra pancakes")
-    assert d["intent"] == "search" and d["action"] == "search"
-    assert d["url"] == "/search?q=zebra+pancakes" and d["say"] == "Here is what the radar holds on zebra pancakes."
-    assert client.get(d["url"]).status_code == 200
+    assert d["intent"] == "nothing" and d["action"] == "none" and d["url"] is None
+    assert d["say"] == "Nothing on the radar matches zebra pancakes. Try a company name, a country, or a sector."   # D40
 
 
 def test_an_ambiguous_part_of_a_name_lists_candidates_instead_of_guessing(client):
@@ -187,10 +186,8 @@ def test_home_has_the_bar_and_not_the_old_count_block(client):
     assert "companies surfaced" not in t and "company surfaced" not in t and "hc-kicker" not in t and "hc-up" not in t
     assert 'id="ask-form"' in t and 'id="ask-q"' in t and 'id="ask-mic"' in t and 'id="ask-send"' in t and 'id="ask-voice"' in t
     assert '<h1 id="ask-h" class="ask-title">Ask <em>Aava</em></h1>' in t
-    first = ask.examples(thesis.load())[0]
-    assert f'placeholder="{first}"' in t
-    for e in ask.examples(thesis.load()):
-        assert e.replace("'", "&#39;") in t or e in t
+    shown = [e for e in ask.examples(thesis.load()) if e.replace("'", "&#39;") in t or e in t]   # D40: only the examples that have an answer
+    assert shown and shown[0] == ask.examples(thesis.load())[0] and f'placeholder="{shown[0]}"' in t
     # the mic is shipped hidden: only the Aava demo flag (aava.js's gate) shows it, so without the flag the bar is text-only
     assert re.search(r'<button class="ask-mic" id="ask-mic" type="button" hidden', t)
     assert "/static/askbar.js" in t and "/static/askbar.css" in t

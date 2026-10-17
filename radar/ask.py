@@ -109,9 +109,25 @@ def _partner_keys() -> tuple[tuple[str, ...], frozenset[str]]:
     return hit
 
 
+_rows_cache: dict = {}
+
+
 def _company_rows(conn, th: dict) -> list[tuple[str, str, str, str]]:
     """(company_key, name, folded name key, y-tunnus) for every company that may be named: neither a legal name shaped like a private person's
-    nor a partner organisation (A'Pelago, Redstone and the declared lists) is."""
+    nor a partner organisation (A'Pelago, Redstone and the declared lists) is. Read once per version of the store (17,000 names are folded)."""
+    dbp = conn.execute("PRAGMA database_list").fetchone()[2]
+    sig = (th.get("id"), dbp, Path(dbp).stat().st_mtime_ns if dbp and Path(dbp).is_file() else 0)
+    hit = _rows_cache.get(sig)
+    if hit is not None:
+        return hit
+    rows = _company_rows_uncached(conn, th)
+    if dbp:
+        _rows_cache.clear()
+        _rows_cache[sig] = rows
+    return rows
+
+
+def _company_rows_uncached(conn, th: dict) -> list[tuple[str, str, str, str]]:
     prefixes, partner_names = _partner_keys()
     out = []
     for r in conn.execute("SELECT company_key, name, y_tunnus FROM companies"):

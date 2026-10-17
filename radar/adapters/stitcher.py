@@ -44,7 +44,7 @@ import csv
 
 import httpx
 
-from radar import emit
+from radar import emit, frameworks
 from radar.adapters._fetch import CACHE_ROOT, UA, Blocked, cached_get
 from radar.adapters.openalex import core_name, fold
 from radar.adapters.webarchive import CDX, archive_url, domain_of
@@ -355,6 +355,9 @@ def read(conn: sqlite3.Connection, run_id: str, company: dict, queries: list[str
     return out
 
 
+_DASHES = str.maketrans({"\u2014": "-", "\u2013": "-"})  # long dashes become hyphens: folding ignores punctuation, so quotes still match
+
+
 def redact_people(text: str, company_name: str) -> str:
     """Replace person-shaped runs of capitalised words ("Firstname Lastname") with [name]. A run survives only if one of
     its words is part of the company name or a known non-person word. Over-redaction is the accepted cost."""
@@ -365,7 +368,7 @@ def redact_people(text: str, company_name: str) -> str:
         keep = any(w in own or w in _NOT_PERSON for w in words) or any(_hits(ws, " " + " ".join(words) + " ")
                                                                        for ws in TYPE_WORDS.values())
         return m.group(0) if keep else "[name]"
-    return _PERSON_RUN.sub(sub, text or "")
+    return _PERSON_RUN.sub(sub, (text or "").translate(_DASHES))
 
 
 # ---------------------------------------------------------------- step 3: verify (plain code decides)
@@ -1000,6 +1003,16 @@ Rules, all mandatory:
 """
 
 
+def evidence_words(folded_text: str, thesis: dict) -> list[str]:
+    """Thesis words in a text, from configuration only: the thesis name keywords (radar.fit rule), its Hilma keywords and
+    the impact-category words of config/frameworks.yaml (word starts, so 'aquacultur' finds aquaculture)."""
+    from radar import fit
+    hits = fit.matched_keywords(folded_text, thesis)
+    stems = [*(thesis.get("hilma_keywords") or []), *(w for ws in frameworks.CATEGORIES.values() for w in ws)]
+    hits += [w for w in stems if re.search(rf"(?<![a-z0-9]){re.escape(fold(w))}", folded_text)]
+    return list(dict.fromkeys(hits))
+
+
 def check_fit(company: dict, answer: dict, thesis: dict, *, fetch=None, capture=first_capture) -> dict:
     """Code decides the label. A 'yes' stands only when the re-fetched page names the company, holds the quote word for
     word and the quote holds a thesis word; a 'no' only when the page names the company and holds the quote. Anything that
@@ -1033,7 +1046,7 @@ def check_fit(company: dict, answer: dict, thesis: dict, *, fetch=None, capture=
         for form in {fold(n), core_name(n)}:
             if form:
                 rest = rest.replace(f" {form} ", " ")
-    words = fit.matched_keywords(rest, thesis)
+    words = evidence_words(rest, thesis)
     if said == "yes" and not words:
         return dict(out, checked="llm said yes; the quote holds no thesis word, so it is not evidence")
     since, arch = capture(url) if said == "yes" else (None, None)

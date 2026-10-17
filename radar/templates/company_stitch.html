@@ -1,0 +1,40 @@
+{# The AI stitcher's latest run for this company (radar/adapters/stitcher.py, page_view). Rendered only when a run exists.
+   Dropped events show the page and the reason only: what was never confirmed is never shown as a fact. #}
+{% from "_chip.html" import missing %}
+{% if stitch %}
+<link rel="stylesheet" href="/static/stitch.css?v={{ asset_v }}">
+<section class="q stitch" id="stitch" aria-labelledby="st-h">
+  <h2 id="st-h">Found by the AI stitcher, checked by code</h2>
+  <p class="plain">On {{ stitch.run_date }} an LLM searched the public web and proposed dated events. Plain code kept an event only when its page names the company and prints the date, and a second, fresh read of the page still holds the quote word for word, next to the company's name, stating an event of that type.</p>
+  <ol class="st-steps">
+    <li><span class="st-n">{{ stitch.queries|length + stitch.llm_queries|length }}</span> searches run
+      {% if stitch.queries or stitch.llm_queries %}<details><summary>show the searches</summary>
+        <ul class="st-queries">{% for q in stitch.queries %}<li>{{ q }}</li>{% endfor %}{% for q in stitch.llm_queries %}<li>{{ q }} <span class="st-by">(run by the LLM)</span></li>{% endfor %}</ul>
+      </details>{% endif %}</li>
+    <li><span class="st-n">{{ stitch.proposed }}</span> events proposed{% if stitch.rejected %}, {{ stitch.rejected }} more without a usable link or date{% endif %}{% if stitch.read_failed %}; the search step failed, nothing was proposed{% endif %}</li>
+    <li><span class="st-n">{{ stitch.pages_read }}</span> pages read by code</li>
+    <li><span class="st-n">{{ stitch.kept }}</span> kept by the first check, <span class="st-n">{{ stitch.dropped }}</span> dropped</li>
+    {% if stitch.rechecked %}<li><span class="st-n">{{ stitch.confirmed }}</span> confirmed by the second check, <span class="st-n">{{ stitch.refuted }}</span> refuted</li>
+    {% else %}<li>second check not run for this run: the events below passed the first check only</li>{% endif %}
+  </ol>
+  {% if stitch.drops %}
+  <details class="st-drops"><summary>Dropped and why ({{ stitch.drops|length }})</summary>
+    <ul>{% for d in stitch.drops %}<li><span class="st-why">{{ d.why }}</span> <span class="st-by">{{ d.pass }}</span>{% if d.source_url %} <a class="url" href="{{ d.source_url }}" target="_blank" rel="noopener nofollow">{{ d.host or d.source_url }}</a>{% endif %}</li>{% endfor %}</ul>
+  </details>
+  {% endif %}
+  {% if stitch.events %}
+  <ul class="st-events">
+    {% for e in stitch.events %}
+    <li>
+      <span class="st-type">{{ e.type_label }}</span>
+      <time datetime="{{ e.date[:4] if e.date_precision == "year" else e.date[:7] if e.date_precision == "month" else e.date }}">{{ e.date_label }}</time>
+      {% if e.quote %}<q class="st-quote">{{ e.quote }}</q>{% endif %}
+      <span class="st-meta"><a href="{{ e.source_url }}" target="_blank" rel="noopener nofollow">{{ e.host }}</a>
+        {% if e.public_since %}<span>public since <a href="{{ e.archive_url }}" target="_blank" rel="noopener nofollow">{{ e.public_since }}</a> (Internet Archive)</span>{% else %}<span>public since: not in the Internet Archive</span>{% endif %}
+        {% if e.signal %}<span>{{ e.signal }}</span>{% endif %}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}<p>{{ missing("no event passed the checks") }}</p>{% endif %}
+</section>
+{% endif %}

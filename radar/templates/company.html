@@ -58,6 +58,7 @@
   {% else %}median for Finnish companies founded in {{ speed.year }} in our sample: {{ missing("not shown, sample size " ~ speed.sample ~ " is under " ~ min_sample) }}{% endif %}</p>
 </section>
 
+{% include "company_memo.html" %}
 <section id="q1" class="q q-fit">
   <h2><span class="num">01</span> Who is most promising</h2>
   {% if reasons %}
@@ -78,6 +79,7 @@
 
 <section id="q2" class="q q-ready">
   <h2><span class="num">02</span> How ready are they</h2>
+  {% from "_answers.html" import ready_answer %}{{ ready_answer(fw) }}
   {% macro lvl(r, scale) -%}
     {% if r.level %}<p class="lvl"><strong>level {{ r.level }} of {{ scale }}</strong> from public records{% if r.evidence %}, latest source dated {{ r.evidence[0].evidence.date_label or r.evidence[0].evidence.event_date or "no date" }}{% endif %}: {{ r.because }}</p>
     <div class="chips">{% for s in r.evidence[:4] %}{{ chip(s.evidence, True) }}{% endfor %}</div>
@@ -136,6 +138,7 @@
 
 <section id="q3" class="q q-next">
   <h2><span class="num">03</span> Who comes next</h2>
+  {% from "_answers.html" import next_answer %}{{ next_answer(nxt) }}
   <p class="plain">Investors, funding and partners to approach, in priority order. Scored matches come from the declared ecosystem dataset{% if eco and eco.label %}: {{ eco.label }}{% endif %}; low-confidence rows are leads, not facts.</p>
   <div class="nx-grid">
   {% for title, k in (("Investors", "investors"), ("Funding and programmes", "funding"), ("Partners and clients", "partners")) %}
@@ -182,6 +185,8 @@
     {% for n in connectors %}<li><button type="button" disabled>{{ n }}</button> <span>connector slot, not connected</span></li>{% endfor %}
   </ul>
 </section>
+
+{% include "company_stitch.html" %}
 </div>
 
 <aside class="co-sources" aria-labelledby="src-h">

@@ -1,0 +1,44 @@
+{
+ "queries_run": [
+  "\"Valkama Watercrafts Oy\"",
+  "Valkama electric aluminium boat Mikkeli funding OR investment OR award",
+  "site:valkama.com news",
+  "\"valkama\" boat rahoitus OR sijoitus OR palkinto Mikkeli",
+  "\"Valkama Watercrafts\"",
+  "Valkama autonomous surface vehicle AAVe Mikkeli",
+  "Valkama sähkövene alumiini Mikkeli yritys",
+  "\"valkama.com\"",
+  "Valkama picnic cruiser Finland electric boat 2023 launch",
+  "boot Düsseldorf exhibitor \"Valkama\" Finland",
+  "\"Valkama\" Redstone OR \"Business Finland\" OR \"ELY\" electric boat startup Mikkeli 2023",
+  "Valkama Mikkeli sähkövene Länsi-Savo OR Yle [name] veneet",
+  "\"Valkama Watercrafts Oy\" rahoitus OR hanke OR \"Business Finland\" OR ELY",
+  "direct fetch: https://www.valkama.com (no dated news; /feed/, sitemaps, wp-json return 404)",
+  "direct fetch: https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3274823-2",
+  "direct fetch: https://www.finder.fi/search?what=3274823-2",
+  "direct fetch: https://plugboats.com/finlands-valkama-uk-propulsion-new-picnic-model/ (names only 'Valkama', no legal name or domain in text: not used)",
+  "direct fetch: https://www.actunautique.com/2024/02/video-boot-2024-valkama-picnic-cruiser-un-open-electrique-bien-etonnant.html (names only 'Valkama': not used)",
+  "direct fetch: https://een.ec.europa.eu/partnering-opportunities/finnish-company-sustainable-aluminum-electric-boat-looking-european (HTTP 403)",
+  "direct fetch: https://www.mdlmarinas.co.uk/south-coast-virtual-boat-show/exhibitors/valkama/"
+ ],
+ "events": [
+  {
+   "signal_type": "unmapped",
+   "suggested_type": "incorporation",
+   "date": "2022-03-16",
+   "date_precision": "day",
+   "source_url": "https://www.finder.fi/Veneet+ja+veneveist%C3%A4m%C3%B6t/Valkama+Watercrafts+Oy/Mikkeli/yhteystiedot/3791842",
+   "quote": "Virallinen nimi Valkama Watercrafts Oy Perustettu 16.3.2022 Yhtiömuoto Osakeyhtiö Kotipaikka Mikkeli",
+   "confidence": "high"
+  },
+  {
+   "signal_type": "unmapped",
+   "suggested_type": "exhibitor",
+   "date": "2024",
+   "date_precision": "year",
+   "source_url": "https://www.mdlmarinas.co.uk/south-coast-virtual-boat-show/exhibitors/valkama/",
+   "quote": "Visit us at the South Coast & Green Tech Boat Show 2024 to be among the first to experience Valkama",
+   "confidence": "medium"
+  }
+ ]
+}

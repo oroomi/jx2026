@@ -23,6 +23,8 @@
 2. <step, what you see>
 3. <step, what you see>
 
+Data page: /data shows every source, company and dated record in the database; the Refresh button re-reads the register notices on a copy and swaps it in only if it checks out. The button is switched off unless the service environment sets `REFRESH_ENABLED=1`.
+
 ## Run it in 3 commands
 ```bash
 git clone <repo> && cd <repo>

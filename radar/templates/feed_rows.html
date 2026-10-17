@@ -16,10 +16,14 @@
 {# Partial: pills, list and footer. Swapped into #feed-rows by htmx and included by feed.html. #}
 <nav class="pills" aria-label="Filter by kind of public record">
   <a class="pill" href="/" hx-get="/feed/rows" hx-target="#feed-rows" hx-push-url="/" {% if not selected %}aria-current="true"{% endif %}>All <span class="n">{{ total }}</span></a>
-  {% for p in pills %}
+  {# jx30: kinds with signals first; kinds with none wait inside one closed "More filters" disclosure (open when one of them is selected) #}
+  {% set zero_selected = pills | selectattr("count", "equalto", 0) | selectattr("key", "equalto", selected) | list %}
+  {% for p in pills | sort(attribute="count", reverse=true) %}
+  {% if p.count == 0 and (loop.first or loop.previtem.count != 0) %}<details class="more-filters"{% if zero_selected %} open{% endif %}><summary class="pill more">More filters</summary>{% endif %}
   <a class="pill{% if p.count == 0 %} zero{% endif %}" href="{{ p.href }}" hx-get="/feed/rows?type={{ p.key }}" hx-target="#feed-rows" hx-push-url="{{ p.href }}" {% if selected == p.key %}aria-current="true"{% endif %}>
     {{ p.label }} {% if p.count %}<span class="n">{{ p.count }}</span>{% else %}<span class="n">no signals</span>{% endif %}
   </a>
+  {% if loop.last and p.count == 0 %}</details>{% endif %}
   {% endfor %}
 </nav>
 

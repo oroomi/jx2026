@@ -13,6 +13,12 @@
   <li>Found later: <strong>{{ res.later }}</strong></li>
   <li>No public signal: <strong>{{ res.none }}</strong></li>
 </ul>
+{% if res.stitcher and res.stitcher.runs %}
+<div class="bt-stitch" id="stitcher-early">
+  <p>Counted apart, never added to the groups above: <strong>{{ res.stitcher.companies }}</strong> of {{ res.total }} cohort companies have an event found by the AI stitcher and checked by code whose page the Internet Archive captured before the company's reference date ({{ res.stitcher.runs }} of {{ res.total }} have a stitcher run).</p>
+  {% if res.stitcher.rows %}<ul>{% for r in res.stitcher.rows %}<li><a href="/c/{{ r.company_key }}#stitch">{{ r.name }}</a>: {{ type_labels.get(r.event.signal_type, (r.event.suggested_type or r.event.signal_type).replace("_", " ")) }} {{ r.event.date }}, page public since <a href="{{ r.event.archive_url }}" target="_blank" rel="noopener nofollow">{{ r.event.public_since }}</a> (<a href="{{ r.event.source_url }}" target="_blank" rel="noopener nofollow">source</a>)</li>{% endfor %}</ul>{% endif %}
+</div>
+{% endif %}
 <section aria-labelledby="rule-h">
   <h2 id="rule-h">The rule</h2>
   <ol class="rulebox bt-rule">{% for l in rule %}<li>{{ l }}</li>
@@ -44,6 +50,19 @@
     {% endfor %}
     <g class="bt-ref"><line x1="{{ chart.ref_x }}" x2="{{ chart.ref_x }}" y1="{{ chart.top - 4 }}" y2="{{ chart.h - 4 }}"/><text x="{{ chart.ref_x + (-4 if chart.ref_anchor == 'end' else 4) }}" y="12" text-anchor="{{ chart.ref_anchor }}">reference {{ chart.ref_label }}</text></g>
   </svg>
+  {# jx30: the same lanes as HTML for a phone, where the SVG text would shrink below 10 px. Positions come from the chart geometry above. #}
+  {% set span = chart.x1 - chart.x0 %}{% macro pct(x) %}{{ ((x - chart.x0) / span * 100) | round(1) }}%{% endmacro %}
+  <div class="bt-phone">
+    <div class="bt-lrow bt-laxis"><span></span><div class="bt-ltrack">{% for t in chart.ticks %}<span class="bt-ltick" style="left:{{ pct(t.x) }}">{{ t.label }}</span>{% endfor %}<span class="bt-lref" style="left:{{ pct(chart.ref_x) }}"></span></div></div>
+    {% for l in chart.lanes %}
+    <div class="bt-lrow{% if l.blank %} blank{% endif %}">
+      <a class="bt-lname" href="/c/{{ l.key }}">{{ l.name }}</a>
+      <div class="bt-ltrack"><span class="bt-lref" style="left:{{ pct(chart.ref_x) }}"></span>{% if not l.blank %}<span class="bt-lmk{% if l.hollow %} hollow{% endif %}" style="left:{{ pct(l.mx) }}"></span>{% endif %}</div>
+      {% if l.blank %}<span class="bt-llabel bt-lblank">no public signal</span>{% else %}<span class="bt-llabel">{{ l.label }}</span>{% endif %}
+    </div>
+    {% endfor %}
+    <p class="bt-lnote">The vertical line is the reference date, {{ chart.ref_label }}.</p>
+  </div>
 </section>
 
 <section aria-labelledby="tbl-h">

@@ -89,6 +89,8 @@ On the 16 Oct snapshot (`RADAR_DATA_DIR=data/snapshot`, measured locally): `/api
 | Outputs | server-rendered HTML, both viewports |
 | Owner | farm build tasks; the chief merges, deploys and screenshots |
 
+`radar/refresh.py` + `radar/routes/data.py` + `radar/templates/data.html`: read-only database view and guarded refresh (copy, quick_check, os.replace; lock file, 10 min cooldown; steps from thesis key `refresh_adapters`). POST `/data/refresh` answers 403 unless the environment sets `REFRESH_ENABLED=1`.
+
 ## Everything in a database
 
 | Store | File | Tables |

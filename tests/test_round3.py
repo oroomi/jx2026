@@ -138,17 +138,19 @@ def test_fallback_rules():
     from radar import memo, thesis
     cfg = memo._cfg(thesis.load())
     b = lambda **kw: {**{"impact": "unknown", "business": "Low", "investment": "unknown", "fit": "High", "technology": "unknown"}, **kw}  # noqa: E731
-    assert memo.decide(b(), cfg)[0]["id"] == "c2"                                         # business Low, TRL unknown
-    assert memo.decide(b(business="Medium", technology="Low"), cfg)[0]["decision"] == "GRANT SUPPORT"   # TRL 1-3
-    assert memo.decide(b(business="High", investment="High"), cfg)[0]["decision"] == "DUE DILIGENCE"
-    assert memo.decide(b(fit="Medium"), cfg)[0] is None                                   # fit not High: no fallback
-    assert memo.decide(b(impact="Medium"), cfg)[0] is None                                # impact known: the team's table decides
-    assert memo.decide(b(business="unknown"), cfg)[0] is None
+    ev = {"own_text"}                                                                     # the High fit rests on more than the industry code
+    assert memo.decide(b(), cfg, ev)[0]["id"] == "c2"                                     # business Low, TRL unknown
+    assert memo.decide(b(business="Medium", technology="Low"), cfg, ev)[0]["decision"] == "GRANT SUPPORT"   # TRL 1-3
+    assert memo.decide(b(business="High", investment="High"), cfg, ev)[0]["decision"] == "DUE DILIGENCE"
+    assert memo.decide(b(fit="Medium"), cfg, ev)[0] is None                               # fit not High: no fallback
+    assert memo.decide(b(impact="Medium"), cfg, ev)[0] is None                            # impact known: the team's table decides
+    assert memo.decide(b(business="unknown"), cfg, ev)[0] is None
+    assert memo.decide(b(), cfg)[0] is None                                               # the industry code alone: the gate is shut
 
 
 def test_fallback_rule_is_on_method(client):
     t = client.get("/method").text
-    assert 'id="memo-fallback"' in t and "implied by the sector" in t
+    assert 'id="memo-fallback"' in t and "implied by the sector" in t and "industry code" in t
 
 
 # ---- item 2: a declared company never reads "no public evidence yet"; the legal form is read from the name -----------

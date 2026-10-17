@@ -120,8 +120,7 @@ each value beside the `source_url` of the row it came from, and counts are compu
 ## What breaks first at scale
 
 Request-time computation. Every page computes the feed rule and the intake tier from the whole store on each request; nothing is
-precomputed. Today `/api/feed` answers in 0.33 to 0.41 s over the public URL with 808 companies in the store
-<!-- recheck after data swap -->. The wide intake run on a store copy added 15,584 companies and 41,220 signals, and before it was
+precomputed. Today `/api/feed` answers in 0.34 to 0.39 s over the public URL with 17,195 companies in the store. The wide intake run on a store copy added 15,584 companies and 41,220 signals, and before it was
 rewritten into one pass the intake tier took 10 s per request on 4,600 intake companies (now under 1 s). Adding the Nordic registers
 multiplies the store again. The fix is to compute the feed, the tiers and the backtest once per refresh into tables and serve those.
 
@@ -134,6 +133,6 @@ register notices and recent registrations and is switched off on this deployment
   have no Finnish business ID, and 8 of those 12 are Danish, Swedish or Norwegian.
 - Precompute the feed, the intake tiers and the backtest at refresh time, and run the existing copy, check and swap refresh on a
   schedule.
-- Count a keyword in a legal name as corroborated only when the second record comes from a different source family (40 of the 70
-  main-list companies carry the corroborated-name reason today <!-- recheck after data swap -->), and move the sector words still in
+- Count a keyword in a legal name as corroborated only when the second record comes from a different source family (0 of the 36
+  main-list companies carry the corroborated-name reason today), and move the sector words still in
   code into the thesis file.

@@ -4,8 +4,8 @@
 decisions, and a second backtest on your 2026 intake shows whether it finds companies before you do. Then you decide go or no-go.
 
 **Starting point (17 Oct 2026).** Live at <https://jx.hankintaviikko.fi>, with register depth for Finland only. 7 of the 19 Nordic
-Blue 2026 cohort companies have a Finnish business ID. From live records the radar would have shown 1 of 19 before January 2026
-<!-- recheck after data swap -->, yet all 7 Finnish ones already had dated public records in our store before then. The gap is
+Blue 2026 cohort companies have a Finnish business ID. From live records the radar would have shown 0 of 19 before January 2026,
+yet all 7 Finnish ones already had dated public records in our store before then. The gap is
 coverage (12 of the 19 are outside the Finnish register) and the sector rule (the 7 Finnish ones are registered under codes the
 sector list does not hold), as measured in [EVAL.md](EVAL.md).
 
@@ -27,7 +27,7 @@ sector list does not hold), as measured in [EVAL.md](EVAL.md).
 - **One owner** on your side for 1 hour a week, and a 30-minute review at the end of weeks 2, 4, 6 and 8.
 - **Optional, weeks 5-6:** an export of your deal notes, in any format.
 - **Go/no-go criteria, agreed in week 1.** Our proposal: the share of your 2026 intake that live public records show before your
-  entry date, against today's 1 of 19, and how often the memo agrees with your verdict on the 20.
+  entry date, against today's 0 of 19, and how often the memo agrees with your verdict on the 20.
 
 ## What stays public-only
 

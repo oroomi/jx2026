@@ -27,21 +27,21 @@ EU projects, Business Finland funding), keeps one dated event per record with it
 3. **The Nordic Blue 19** (`/radar`) and the **earliness test** (`/backtest`): the 19 Nordic Blue 2026 cohort companies and the
    9 Redstone portfolio companies, and the test of whether the radar would have shown the cohort before it entered the programme.
 
-**The measured result.** Applying its own feed rule to live public records, the radar would have shown **1 of the 19** cohort
-companies before January 2026 <!-- recheck after data swap -->. With declared research added, 13 of 19 have a counted public
-signal before that date <!-- recheck after data swap -->. The reason the number is low is the finding: of the 7 cohort companies
+**The measured result.** Applying its own feed rule to live public records, the radar would have shown **0 of the 19** cohort
+companies before January 2026. With declared research added, 12 of 19 have a counted public
+signal before that date. The reason the number is low is the finding: of the 7 cohort companies
 with a Finnish business ID, none is registered under an industry code on the sector list. They are registered as software,
 retail, wholesale, consulting, R&D and freshwater aquaculture. Method and every caveat: [EVAL.md](EVAL.md).
 Corroboration rule (17 Oct): a sector word in a legal name is backed only by a record from a different source family, and PRH register
 entries, PRH notices and PRH tax registers count as one registry; with that rule the live store shows 0 of 19 (the one hit was the word
-"marin" plus a PRH tax-register record) <!-- recheck after data swap -->.
+"marin" plus a PRH tax-register record).
 Decision fallback (17 Oct): when thesis fit is High and there is no impact evidence, the memo reads impact as Medium, implied by the
 sector, and says so ("because: fallback c2, impact implied by sector"); the rule is printed on `/method`.
 
 ## The demo path (what to click)
 
-1. Open <https://jx.hankintaviikko.fi>. The feed lists 123 companies in the 90-day window, 70 main matches and 53 weak matches
-   kept in a closed list <!-- recheck after data swap -->. Every row names its source (for example PRH/YTJ tax registers or the
+1. Open <https://jx.hankintaviikko.fi>. The feed lists 122 companies in the 90-day window, 36 main matches and 86 weak matches
+   kept in a closed list. Every row names its source (for example PRH/YTJ tax registers or the
    PRH notices API), links to the record and carries a "How sure" line.
 2. Type `Arctic Fry` in **Find a startup**. It opens <https://jx.hankintaviikko.fi/c/3166759-6>, Arctic Fry Oy, a Nordic Blue
    2026 cohort company. The memo reads WATCHLIST, because Ocean impact Medium, Business readiness Low, Investment readiness
@@ -61,10 +61,9 @@ sector, and says so ("because: fallback c2, impact implied by sector"); the rule
    research, found later, no public signal), the chart of first signal against the reference date, the rule in full, the wide
    intake table, and the AI stitcher line, which is counted apart and never added to the groups.
 7. Swap the sector: <https://jx.hankintaviikko.fi/?thesis=health_tech_turku>. Same code, a different thesis file: the heading
-   reads "Early signals of health-tech startups" and the list has 60 companies, 26 main and 34 weak <!-- recheck after data swap -->.
+   reads "Early signals of health-tech startups" and the list has 30 companies, 1 main and 29 weak.
    A third file, `baltic_blue`, widens the blue-economy thesis to the Baltic Sea countries.
-8. Click **Data** (`/data`): every source, company and dated record in the database (808 companies and 4,666 dated records
-   <!-- recheck after data swap -->), each with its link.
+8. Click **Data** (`/data`): every source, company and dated record in the database (17,193 companies and 47,691 dated records), each with its link.
 
 Data page: /data shows every source, company and dated record in the database; the Refresh button re-reads the register notices on a copy and swaps it in only if it checks out. The button is switched off unless the service environment sets `REFRESH_ENABLED=1`.
 

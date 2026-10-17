@@ -1,21 +1,20 @@
 # Evaluation
 
-**Headline, measured on the live site: 1 of 19.** Applying its own feed rule to live public records, the radar would have shown
-1 of the 19 Nordic Blue 2026 cohort companies before January 2026 (Sub Marine Store Oy, first sales on 2021-03-15). With declared
-research added, 13 of 19 have a counted public signal before that date, 5 appear only after it, and 1 has none.
-<!-- recheck after data swap -->
+**Headline, measured on the live site: 0 of 19.** Applying its own feed rule to live public records, the radar would have shown
+0 of the 19 Nordic Blue 2026 cohort companies before January 2026. With declared
+research added, 12 of 19 have a counted public signal before that date, 6 appear only after it, and 1 has none.
 **Rule change, 17 Oct (judge round 3):** a sector word in the legal name is now corroborated only by a record from a different
 source family (PRH register entries, PRH notices and PRH tax registers are one registry). Sub Marine Store's hit was the word "marin"
 plus a PRH tax-register record, so under the new rule the swapped live store shows **0 of 19** from live records (12 declared research
-only, 6 later, 1 none), measured with the code on 17 Oct before deploy. The tables below are from before the change. The memo also
+only, 6 later, 1 none), measured with the code on 17 Oct before deploy. The tables below are measured after the change. The memo also
 gained a fallback: thesis fit High with no impact evidence reads impact as Medium, implied by the sector (rule c2 gives ACCELERATOR,
 c1 GRANT SUPPORT for TRL 1-3, c3 DUE DILIGENCE), printed as "because: fallback c2, impact implied by sector".
-Source: <https://jx.hankintaviikko.fi/api/backtest> and <https://jx.hankintaviikko.fi/backtest>, read on 17 Oct 2026 at 01:54 UTC,
-build 4080686.
+Source: <https://jx.hankintaviikko.fi/api/backtest> and <https://jx.hankintaviikko.fi/backtest>, read on 17 Oct 2026 at 03:24 UTC,
+build c2174cd.
 
 **What the low number means.** For the Finnish companies the data was there; the sector rule is what missed them. All 7 cohort
 companies with a Finnish business ID have dated public records in our store from before January 2026 (register entry, first sales,
-first hire, register notices), and the rule counted one of them, through the word "marin" in its name. None of the 7 is registered
+first hire, register notices), and the rule counted none of them. None of the 7 is registered
 under an industry code on the sector list: they are registered as software (58290, 62100), retail (47279),
 wholesale (46900), management consulting (70200), research and development (72100) and freshwater aquaculture (03220, next to the
 listed 03210 marine aquaculture). A filter on industry codes and name words cannot see a blue-economy startup that registered as a
@@ -57,17 +56,16 @@ Each cohort company falls in exactly one of four groups, and the four always add
 
 | Group | Cohort companies |
 |---|---|
-| Found earlier by live public records | 1 <!-- recheck after data swap --> |
-| Found earlier only by declared research | 12 <!-- recheck after data swap --> |
-| Found later | 5 <!-- recheck after data swap --> |
-| No public signal | 1 <!-- recheck after data swap --> |
+| Found earlier by live public records | 0 |
+| Found earlier only by declared research | 12 |
+| Found later | 6 |
+| No public signal | 1 |
 | Total | 19 |
 
-Per company, first counted signal as served by `/api/backtest` on 17 Oct, 01:54 UTC <!-- recheck after data swap -->:
+Per company, first counted signal as served by `/api/backtest` on 17 Oct, 03:24 UTC:
 
 | Company | Country | Business ID | Group | First counted signal |
 |---|---|---|---|---|
-| Sub Marine Store Oy | FI | 3197621-7 | earlier, live records | 2021-03-15, first sales (PRH/YTJ tax registers) |
 | NIDO Contech | ES | none | earlier, declared research only | 2023-10-31, first customer or pilot named |
 | PEATZ | DK | none | earlier, declared research only | 2024 (year only), accelerator or programme entry |
 | ReefCircular | DK | none | earlier, declared research only | 2024 (year only), award or pitch win |
@@ -80,6 +78,7 @@ Per company, first counted signal as served by `/api/backtest` on 17 Oct, 01:54 
 | Your Devocean | SE | none | earlier, declared research only | 2025-04-03, exhibitor or demo |
 | TuniSea | NO | none | earlier, declared research only | 2025-09-28, other dated event |
 | Finnish Sauna Shop Oy | FI | 3516783-9 | earlier, declared research only | 2025-10-16, product launch |
+| Sub Marine Store Oy | FI | 3197621-7 | later | 2026 (year only), Business Finland funding |
 | Arctic Fry Oy | FI | 3166759-6 | later | 2026-02-09, other dated event (the A'Pelago cohort announcement) |
 | Edilm | FI | none | later | 2026-02-09, other dated event |
 | Emission-Eye Oy | FI | 3543918-7 | later | 2026-02-09, other dated event |
@@ -96,16 +95,16 @@ Edilm, Finnish but with no business ID found). The register adapters cover Finla
 |---|---|
 | Have a dated live public record before 2026-01-01 in the store | 7 of 7 |
 | Industry code on the sector list | 0 of 7 |
-| Found earlier by live public records | 1 (Sub Marine Store Oy) <!-- recheck after data swap --> |
-| Found earlier only by declared research | 3 (Kilocode, Sireness, Finnish Sauna Shop) <!-- recheck after data swap --> |
-| Found later | 2 (Arctic Fry, Emission-Eye) <!-- recheck after data swap --> |
-| No public signal | 1 (Taikoa) <!-- recheck after data swap --> |
+| Found earlier by live public records | 0 |
+| Found earlier only by declared research | 3 (Kilocode, Sireness, Finnish Sauna Shop) |
+| Found later | 3 (Sub Marine Store, Arctic Fry, Emission-Eye) |
+| No public signal | 1 (Taikoa) |
 
 ### The portfolio (9)
 
 `/radar` lists 6 of the 9 portfolio companies with at least one dated public record (Kelluu, Norolan Artisanlures, Viva Jets,
 NanoHalen, Valkama Watercrafts, Redkik) and 3 with none (Klimate, Denmark; Tethys Robotics, Switzerland; Unique Docks, Finland, no
-business ID found) <!-- recheck after data swap -->. 6 of the 9 have a Finnish business ID.
+business ID found). 6 of the 9 have a Finnish business ID.
 
 ## Wide intake (in-sample for two families)
 
@@ -119,8 +118,9 @@ notice, share issue, public funding). Nothing about intake says the company fits
 - **The honesty note.** The families 582 (software publishing) and 03 (fishing and aquaculture) were added after that backtest showed
   the net missed two cohort companies, Kilocode (58290) and Arctic Fry (03220). Any result for those two is measured on the companies
   used to tune the net, and `/method` and `/backtest` print that sentence.
-- **Live today**: the intake rows are not in the live store yet (`/method` lists `prh_intake` as not loaded), so `/backtest` reads
-  "Entered wide intake before cohort entry: 0 of 19" <!-- recheck after data swap -->.
+- **Live today**: the intake rows are in the live store (16,385 from `prh_intake`), so `/backtest` reads
+  "Entered wide intake before cohort entry: 4 of 19": 4 of the 7 Finnish cohort startups entered intake before the cohort entry
+  (Kilocode, Sireness, Arctic Fry, Emission-Eye; median rank 3 of 60).
 
 ## AI stitcher
 
@@ -142,9 +142,8 @@ LLM answers are committed in `data/fetched/stitcher/proposals/` (54 files), so t
 - **Intake thesis-evidence pass** on the top 100 wide-intake companies: 1 yes (Meriva Oy), 30 no, 69 unclear (nothing public describes
   the company's activity). Counted from the 100 committed records on `origin/cloud/stitcher` (commit 634f83c), which is not merged into
   main yet.
-- **Live today**: the batch has not been replayed into the live store; `/backtest` reads "0 of 19 ... (5 of 19 have a stitcher run)"
-  <!-- recheck after data swap -->. The live store holds 2 stitcher signals for Kelluu from the first run of 16 Oct, made before the
-  second check existed.
+- **Live today**: the batch has been replayed into the live store (27 stitcher signals); `/backtest` reads "3 of 19 ... (19 of 19 have a
+  stitcher run)". The live store holds 6 stitcher signals for Kelluu.
 - **Limits of this run**: the cloud session could not reach web.archive.org's CDX index, so `public_since` came from the Wayback
   availability API; the web-search budget ran out mid-batch, so 21 companies were first researched by direct page fetches and the 13
   Main-feed ones among them got no second pass with search.
@@ -164,7 +163,7 @@ LLM answers are committed in `data/fetched/stitcher/proposals/` (54 files), so t
 | Arctic Fry Oy (3166759-6) | found before 2026: first sales 2020-10-05 and registration 2020-10-23 are in the store | later (2026-02-09, declared) | code 03220 freshwater aquaculture is not on the list (03210 marine is), "aqua" matches whole words only, and the registration is older than the 5-year cut |
 | Emission-Eye Oy (3543918-7) | found before 2026: registered 2025-06-13, start-up notice 2025-07-02, first sales 2025-08-01 | later | code 62100 computer programming is not on the list and the name has no sector word |
 | Taikoa Oy (3380111-1) | found: registered 2023-07-28, first sales the same day | no public signal | code 70200 management consulting; the company trades as WAIing, a link the declared list itself marks unconfirmed |
-| Sub Marine Store Oy (3197621-7) | a hit for a sector reason | earlier, but only through the word "marin" in the name backed by a register record from the same PRH/YTJ family | the code is 46900 non-specialised wholesale; the corroborating record is not an independent source |
+| Sub Marine Store Oy (3197621-7) | a hit for a sector reason | later (2026, year-only Business Finland record): the word "marin" in the name is backed only by a register record from the same PRH/YTJ family, which no longer counts | the code is 46900 non-specialised wholesale; the corroborating record is not an independent source |
 | 12 non-Finnish companies | some live record | at most a CORDIS project (NIDO Contech, 2026-06-01) | no register adapter for Denmark, Sweden, Norway, Spain or Bulgaria |
 
 ## Rerun

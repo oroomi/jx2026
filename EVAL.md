@@ -8,7 +8,7 @@ industry code 03220 (freshwater aquaculture) is on the sector list. **It is on t
 earliness audit and a judge's review had both named the missing code as the reason the company was missed, and we added it. So this one
 hit is tuned, the way the intake's two added families are (below). **Before that change the figure was 0 of 19**, measured on 17 Oct with the
 code before the deploy, and 0 of 19 is the number that was not tuned towards the cohort. With declared research added, 12 more companies have a
-counted signal before that date (13 of 19 in all), 5 appear only after it, and 1 has none. The live `/backtest` page and `/api/backtest` read
+counted signal before that date: 13 of 19 had dated public traces before January 2026, our desk research found 12 of them and the live rule 1. 5 appear only after it, and 1 has none. The live `/backtest` page and `/api/backtest` read
 "would have shown 1 before January 2026 using live public records"; since the 17:37 UTC deploy (D74) the page prints a tuning note directly under that headline: the intake families 582 and 03 were added after the backtest showed the net missed two cohort companies, so results for those two are measured on the companies used to tune the net. The note names the families, not the company; Arctic Fry's code 03220 is in family 03, and this document says so in terms of the company.
 **Rule change 1, 17 Oct (judge round 3):** a sector word in the legal name is now corroborated only by a record from a different
 source family (PRH register entries, PRH notices and PRH tax registers are one registry). Sub Marine Store's hit was the word "marin"
@@ -120,7 +120,7 @@ The intake takes in limited companies and cooperatives whose industry code start
 startup signal beyond the register entry (first sales, first hire, EU project or grant, research output, Business Finland, start-up
 notice, share issue, public funding). Nothing about intake says the company fits the sector.
 
-**What we claim.** Had the intake been running through 2025, 4 of the 7 cohort companies with a Finnish business ID (Kilocode,
+**What we claim.** Our strict rule caught 1 of 19 before they joined. Our wide intake would have held 4 of 19, 2 of them, Kilocode and Arctic Fry, only after we tuned it on the misses. Had the intake been running through 2025, those 4 of the 7 cohort companies with a Finnish business ID (Kilocode,
 Sireness, Arctic Fry and Emission-Eye) would have been in it before January 2026, and the claim stops short of "found early":
 Kilocode's intake date is a 2003 VAT registration, so it is not an early find; Kilocode and Arctic Fry are in only because we added
 their code families after seeing them, so they are in-sample; Sireness enters on a declared-research record rather than a public one;
@@ -150,7 +150,7 @@ intake by 2026-01-01, strongest first by startup signals up to that date, then e
   still in the live result). The live store holds records that copy did not (a declared-research grant for Sireness, a start-up
   notification for Emission-Eye), so their dates and ranks moved: that run gave Sireness 2025-09-29, rank 20 of 103, and
   Emission-Eye 2025-08-01, rank 715 of 1,176. The live figures above replace them.
-- **Live store**: the intake rows are in the live store (16,385 from `prh_intake`, `/data`, 17 Oct about 15:17 UTC).
+- **Live store**: the intake rows are in the live store (16,385 from `prh_intake` at 15:17 UTC on 17 Oct; `/data` reads 16,384 at 20:45 UTC, after one more person-shaped name was hidden).
 
 ## AI stitcher
 
@@ -206,7 +206,7 @@ No ground truth exists for who should have met whom ([docs/MATCHING.md](docs/MAT
 - **For an investor (D63):** the Match page and the tab print the early pipeline and say in words that "No startup on the radar is at due diligence yet; these are the closest, in the order below". Live: Redstone Blue 22 best fits and 9 already connected (22 checked in full pass the filters), of which 15 are A'Pelago Nordic Blue cohort companies and 7 are register companies on the accelerator path; Katapult Ocean 25 best fits (26 checked in full), 0 connected; 45 of the 57 investors rank at least one startup and 12 print the reason they rank none (17:50 UTC, one `/api/match/org/{id}` call per investor).
 - **In-sample, and a hypothesis:** the keyword thresholds were set by reading junk matches on the live store; the weights (sector 3, lookalike 3, shared words 2, readiness 2, timing 1, geography 1) are a stated hypothesis that
   only order the list. A partner rating of 20 pairs is the first real check (PILOT.md).
-- **No score:** the API returns the reasons with their links and an ordinal `rank`, never a number that could be read as a score (A34).
+- **No total score:** the match API returns the reasons with their links, an ordinal `rank` and a `weight` on each reason, never one number for a startup (A34). Other endpoints carry internal ordering values: `/api/company/{key}` returns the declared research dataset's own match `score` and its readiness numbers (`oi_score`, `br_score`, `ir_score`, `oir_score`).
 
 ## Judge dry-run fixes (D22 to D26, D31 to D41, D45 to D53, then the j3 round D62 to D74), as they read on the live site
 
@@ -226,7 +226,7 @@ No ground truth exists for who should have met whom ([docs/MATCHING.md](docs/MAT
 | A sector chosen earlier never turns a link into a 404, and the demo link resets the sector | D39 | With the health sector in the cookie `/c/2962040-6` answers 200; `/?demo=1` sets the cookie back to the blue sector and shows "59 of 59" |
 | Example questions have answers | D40 | The five chips each answer: "What is new on the radar?", "Tell me about Viva Jets", "Who should A'Pelago meet?", "Aquaculture startups with TRL at least 4" (1 of 59) and "Show high thesis fit companies in Finland" (46 of 59, and the answer says "I did not use: high, thesis, fit", so it applies Finland only; the filter that means it, Thesis fit High with Finland, holds 16). "Show accelerator candidates in Finland" (15 of 59 until 17:37 UTC) now answers 0 of 59 and is no longer a chip |
 | Two numbers that read as one measure name their measures | D41 | `/method` (as reworded by D72): "31 companies in the main list (found by this rule, outside the declared cohort and portfolio) ... The list on the home page is these 31 plus the 28 declared cohort and portfolio companies, 59 in all" |
-| Sub-sectors, each link traced to a record | D45 | 1,059 links on 979 of 17,195 companies in the live store; on the 59 home rows shipbuilding and boats 14, water and pollution 10, ship repair and maritime services 8, aquaculture and fisheries 4, ocean data and monitoring 4, coastal tourism and boating 3, ports and marine construction 2, maritime software and tech 1, shipping and logistics 1, not yet classified 17 (a company can have several) |
+| Sub-sectors, each link traced to a record | D45 | 1,059 links on 979 of 17,195 companies in the store (`/data` shows 17,192; 3 person-shaped names are hidden there); on the 59 home rows shipbuilding and boats 14, water and pollution 10, ship repair and maritime services 8, aquaculture and fisheries 4, ocean data and monitoring 4, coastal tourism and boating 3, ports and marine construction 2, maritime software and tech 1, shipping and logistics 1, not yet classified 17 (a company can have several) |
 | One impact truth; declared members read High fit; 03220 is a listed code; more evidence never lowers a verdict | D46, D47, D53 | Viva Jets, Valkama and Arctic Fry read impact Medium on record (level 5 of 9); the verdict they read was ACCELERATOR (3 to 21 rows) until D65 made declared members PORTFOLIO SUPPORT at 17:37 UTC (above); Arctic Fry counts in the earliness test (headline) |
 | Inside a verdict the home list orders by evidence | D48 | First ten rows (17:45 UTC): Suomen Vesistökunnostus Oy (the one PARTNER INTRODUCTION, which sorts before PORTFOLIO SUPPORT), Viva Jets Oy, Valkama Watercrafts Oy, Arctic Fry Oy, Kelluu Oy, VesselChain, ReefCircular, Redkik Oy, Tethys Robotics, Sensemakers; a test sorts the real rows with the stated terms (D70) |
 | Aava never says evidence would lower a verdict; a stale brief sentence is dropped; "to raise it" matches the families on file | D49, D50, D52 | Viva Jets question 6, now that it is a declared member (D65): "What I am missing: no public buyer on record yet; market evidence on file: customer on own site. The verdict rests on the declared member list, not on the bands, so only a change to that list would change it"; "To raise it: Rung 6 needs a record from a source family other than the register whose own text names the area" |

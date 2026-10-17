@@ -72,6 +72,7 @@ so the pages, the API and the tests call the same code. The module map with a co
 | JSON API | Company search, company, feed and backtest as JSON | The same read side, for a partner's own tools; read-only, no auth, the thesis comes only from `?thesis=` | `radar/routes/api.py`, `tests/test_api.py` |
 | Refresh | Re-reads the fast live sources from the `/data` page | Works on a copy and swaps it in only after `quick_check`, so pages never see a half-written store; one run at a time with a cooldown; switched off unless `REFRESH_ENABLED=1` | `radar/refresh.py`, `radar/routes/data.py` |
 | Datasette | Raw tables, read-only | Lets the team browse and export without the app. Tables that hold people are denied. It is not routed to a public URL | `deploy/datasette/` |
+| Combined database | `python3 -m radar.combined --thesis <id>` copies the declared ecosystem file and appends the radar's `radar_*` tables and the view `v_entity_public_record` | One file answers "what public record does the radar hold for each dataset entity". The dataset's tables are copied unchanged and checked by digest, the store is only read, and the file is for the team only because it carries the dataset's `person` table | `radar/combined.py`, `data/combined/<thesis id>_combined.sqlite` (gitignored), `tests/test_combined.py` |
 
 ## Architecture decisions
 

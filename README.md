@@ -90,6 +90,8 @@ slow (the wide intake pass alone made 616 requests in its run on a store copy). 
 
 Second thesis: `python3 -m radar.build --thesis config/thesis_health_turku.yaml`. Tests: `python3 -m pytest -q` (397 passed on 17 Oct).
 
+Combined database (team only): `python3 -m radar.combined --thesis redstone_apelago_blue` writes `data/combined/redstone_apelago_blue_combined.sqlite`, the declared ecosystem file unchanged plus the radar's public-record tables (`radar_*`) and the view `v_entity_public_record`; it carries the dataset's `person` table, so it is not for publication.
+
 ## Sources
 
 | Source | What it gives | Adapter |

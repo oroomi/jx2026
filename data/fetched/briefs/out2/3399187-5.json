@@ -1,0 +1,45 @@
+{
+ "company_key": "3399187-5",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "NanoHalen Oy is a portfolio company registered on 2023-10-23 under the industry code 26510, manufacture of instruments and appliances for measuring, testing and navigation.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5"
+   ]
+  },
+  "thesis_fit": {
+   "text": "It is a declared portfolio company, and the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 4, business readiness is level 4 and investment readiness is level 3.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Korkia as an investor, Baltic Sea Action Plan as a programme or funding source and ABB Marine & Ports as a partner.",
+   "cites": [
+    "https://korkia.fi",
+    "https://www.nib.int/about/cooperation/bsap-fund",
+    "https://new.abb.com/marine"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Medium, investment readiness Low, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; investment readiness is Low on the stored evidence; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3399187-5"
+   ]
+  }
+ }
+}

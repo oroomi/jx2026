@@ -1,0 +1,38 @@
+{
+ "company_key": "3659772-6",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Marine Software Solutions Ab is a newly registered company, entered in the register on 2026-10-02 under the industry code 58290, other software publishing.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659772-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659772-6"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The memo reads thesis fit as Low, but the stored record gives no reason text for it.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659772-6"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659772-6"
+   ]
+  },
+  "who_to_meet": null,
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Low), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659772-6"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; thesis fit is Low on the stored evidence.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3659772-6"
+   ]
+  }
+ }
+}

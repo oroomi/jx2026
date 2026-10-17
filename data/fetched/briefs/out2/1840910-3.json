@@ -1,0 +1,45 @@
+{
+ "company_key": "1840910-3",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Kilocode Oy is a cohort company registered on 2003-07-11 with the industry code 58290, other software publishing.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+   ]
+  },
+  "thesis_fit": {
+   "text": "It is a declared cohort company, and the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules technology readiness is level 2 and business readiness is level 2, while investment readiness has no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Meyer Turku as an investor, Elinvoimakeskus Lounais-Suomi as a programme or funding source and Eckerö Line Abp as a partner.",
+   "cites": [
+    "https://www.meyerturku.fi",
+    "https://www.elinvoimakeskus.fi",
+    "https://www.eckeroline.fi"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=1840910-3"
+   ]
+  }
+ }
+}

@@ -1,0 +1,44 @@
+{
+ "company_key": "3644889-4",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Otter Marine Operations Oy is a company registered on 2026-08-07 under the industry code 52229, other service activities incidental to water transportation.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The registered industry is a water transport service on the thesis list, but no public record yet shows technology or growth; the memo reads thesis fit as Medium.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Horizon Europe as a public funder and Pegasor Oy as a project partner.",
+   "cites": [
+    "https://cordis.europa.eu/project/id/101318796",
+    "https://cordis.europa.eu/project/id/101318796"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Medium), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public market evidence (public buyers in the category).",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3644889-4"
+   ]
+  }
+ }
+}

@@ -1,0 +1,40 @@
+{
+ "company_key": "3646787-6",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "TJA Konsultointi Oy is a company registered on 2026-08-14 under the industry code 71129, other engineering activities and related technical consultancy, and the tax register records first sales on 2026-08-14 and a first hire on 2026-09-01.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646787-6",
+    "https://tietopalvelu.ytj.fi/yritys/3646787-6",
+    "https://tietopalvelu.ytj.fi/yritys/3646787-6",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646787-6"
+   ]
+  },
+  "thesis_fit": null,
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646787-6"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Väylävirasto as a buyer from similar companies.",
+   "cites": [
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/9730/enotice/23936"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit unknown), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646787-6"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public evidence for thesis fit.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3646787-6"
+   ]
+  }
+ }
+}

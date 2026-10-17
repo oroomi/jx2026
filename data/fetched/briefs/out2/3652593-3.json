@@ -1,0 +1,43 @@
+{
+ "company_key": "3652593-3",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Rannikon Ilmastointi ja Kylmä OY is a newly registered company, entered in the register on 2026-09-03 under the industry code 43220, plumbing, heat and air-conditioning installation.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3"
+   ]
+  },
+  "thesis_fit": {
+   "text": "The name has a coastal word but the registered industry is installation work; the memo reads thesis fit as Low.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3"
+   ]
+  },
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Etelä-Savon hyvinvointialue as a buyer from similar companies.",
+   "cites": [
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/27953/enotice/49163"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit Low), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; thesis fit is Low on the stored evidence.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3652593-3"
+   ]
+  }
+ }
+}

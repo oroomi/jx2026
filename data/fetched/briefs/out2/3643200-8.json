@@ -1,0 +1,41 @@
+{
+ "company_key": "3643200-8",
+ "written": "2026-10-17",
+ "slots": {
+  "what_it_does": {
+   "text": "Paula & Juhana Oy is a company registered on 2026-08-03 under the industry code 62100, computer programming activities, and the tax register records first sales on 2026-08-03 and a first hire on 2026-08-03.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3643200-8",
+    "https://tietopalvelu.ytj.fi/yritys/3643200-8",
+    "https://tietopalvelu.ytj.fi/yritys/3643200-8",
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3643200-8"
+   ]
+  },
+  "thesis_fit": null,
+  "readiness": {
+   "text": "On the radar's rules business readiness is level 2, while technology readiness and investment readiness have no level on those rules.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3643200-8"
+   ]
+  },
+  "who_to_meet": {
+   "text": "The who-comes-next lists name Business Finland as a public funder and Suomen Tekstiili ja Muoti ry as a buyer from similar companies.",
+   "cites": [
+    "https://tietopankki.businessfinland.fi/anonymous/extensions/MyonnettyRahoitus/MyonnettyRahoitus.html",
+    "https://www.hankintailmoitukset.fi/fi/public/procedure/3431/enotice/4130"
+   ]
+  },
+  "what_the_fund_should_do": {
+   "text": "The memo puts it on the watchlist (ocean impact unknown, business readiness Low, investment readiness unknown, thesis fit unknown), so the fund should reassess it when a new public record appears.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3643200-8"
+   ]
+  },
+  "whats_missing": {
+   "text": "Gaps on the record: no public evidence for ocean impact; business readiness is Low on the stored evidence; no public evidence for investment readiness; no public evidence for thesis fit.",
+   "cites": [
+    "https://avoindata.prh.fi/opendata-ytj-api/v3/companies?businessId=3643200-8"
+   ]
+  }
+ }
+}

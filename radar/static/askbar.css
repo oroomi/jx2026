@@ -182,7 +182,7 @@ html.ask-voice-open { overflow: hidden; }
 :root[data-skin="terminal"] .av-say { font-family: var(--mono); font-size: 1rem; }
 .av-say:empty { display: none; }
 .av-links { align-self: stretch; display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 10px auto 0; max-width: 34em; }
-.av-links:empty { display: none; }
+.av-links:empty, .av-links[hidden] { display: none; }
 .av-links a { display: inline-flex; align-items: center; min-height: 44px; }
 .av-type { align-self: stretch; display: flex; gap: 8px; margin: 14px auto 0; max-width: 34em; width: 100%; }
 .av-type[hidden] { display: none; }

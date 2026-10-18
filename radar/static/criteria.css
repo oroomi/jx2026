@@ -34,7 +34,7 @@
 .hc-filterbar { display: flex; align-items: center; gap: 14px; margin: 14px 0 0; }
 :root .hc-filterbar .hc-fbtn, :root .hc-rail .hr-close { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; min-width: 44px; padding: 0 16px; border-radius: 12px;
   background: transparent; color: var(--text); border: 1px solid var(--text); font: 600 15px var(--sans); cursor: pointer; }
-:root .hc-rail .hr-close { background: var(--text); color: var(--bg); }
+:root .hc-rail .hr-close { background: var(--btn-bg, var(--text)); color: var(--btn-ink, var(--bg)); }
 .hc-fn, .hr-on { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--accent); color: var(--bg); font-size: 13px; font-weight: 700; }
 .hc-fcount { margin: 12px 0 0; font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
 .hc-fcount:focus { outline: none; }

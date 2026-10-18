@@ -1,4 +1,5 @@
 {# Aava: narrated briefing. Voice output only, captions always on, no microphone. Needs aava_kind = "company" or "feed". #}
+{% from "_icons.html" import icon %}
 {# Demo flag. Aava shows only when the URL has demo=1 (stored as localStorage aava_demo = "1" so it survives navigation on this device)
    or that stored flag is set; demo=0 clears it. With the flag off the markup below stays hidden and aava.js is never requested.
    The check is this inline script, ahead of the markup, so nothing flashes. #}
@@ -7,7 +8,7 @@ try{if(q==="1"){on=true;localStorage.setItem("aava_demo","1");}else if(q==="0"){
 window.AAVA_DEMO=on;})();</script>
 <div id="aava" class="aava" hidden data-kind="{{ aava_kind }}"
      {% if aava_kind == "company" %}data-script="/aava/script/{{ c.company_key }}"{% else %}data-script="/aava/feed"{% endif %}>
-  <button id="aava-open" class="aava-fab" type="button" aria-haspopup="dialog" aria-controls="aava-sheet">Ask Aava</button>
+  <button id="aava-open" class="aava-fab" type="button" aria-haspopup="dialog" aria-controls="aava-sheet">{{ icon("ask") }}<span>Ask Aava</span></button>
   <section id="aava-sheet" class="aava-sheet" role="dialog" aria-labelledby="aava-title" hidden>
     <div class="aava-head">
       <h2 id="aava-title">{% if aava_kind == "company" %}Ask Aava about {{ c.name }}{% else %}Ask Aava what is new{% endif %}</h2>

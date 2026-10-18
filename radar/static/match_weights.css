@@ -13,7 +13,7 @@
 .mw-lede { margin: 0 0 10px; font-size: 15px; max-width: 64ch; }
 .mw-presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 6px; }
 #mw .mw-presets button { min-height: 44px; padding: 0 12px; background: transparent; color: var(--text); border: 1px solid var(--hairline); border-radius: 0; font: 500 14px var(--sans); cursor: pointer; }
-#mw .mw-presets button[aria-pressed="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+#mw .mw-presets button[aria-pressed="true"] { background: var(--btn-bg, var(--text)); color: var(--btn-ink, var(--bg)); border-color: var(--btn-bg, var(--text)); }
 #mw .mw-presets .mw-reset { color: var(--muted); }
 #mw .mw-presets button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .mw-factors { list-style: none; margin: 0; padding: 0; }

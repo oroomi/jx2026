@@ -5,7 +5,7 @@
 .mt-lede { max-width: 62ch; margin: 0 0 20px; }
 .mt-toggle { display: inline-flex; border: 1px solid var(--hairline); margin: 0 0 20px; max-width: 100%; }
 .mt-toggle a { display: inline-flex; align-items: center; min-height: 44px; padding: 0 16px; color: var(--muted); text-decoration: none; font-weight: 500; }
-.mt-toggle a[aria-current="true"] { background: var(--text); color: var(--bg); }
+.mt-toggle a[aria-current="true"] { background: var(--btn-bg, var(--text)); color: var(--btn-ink, var(--bg)); }
 .mt-tabs { margin-top: 4px; }
 .mt-tabs a { gap: 8px; }
 .mt-tabs a span { font-weight: 400; opacity: .7; font-variant-numeric: tabular-nums; }
@@ -31,7 +31,7 @@
 .mt-search label { display: block; font-size: 14px; color: var(--muted); margin: 0 0 6px; }
 .mt-search-row { display: flex; gap: 8px; margin: 0 0 12px; }
 .mt-search-row input { flex: 1 1 auto; min-width: 0; min-height: 44px; padding: 0 12px; background: var(--surface); color: var(--text); border: 1px solid var(--hairline); font: 400 16px var(--sans); }
-.mt-search-row button { flex: none; min-height: 44px; padding: 0 16px; background: var(--text); color: var(--bg); border: 1px solid var(--text); font: 600 15px var(--sans); cursor: pointer; }
+.mt-search-row button { flex: none; min-height: 44px; padding: 0 16px; background: var(--btn-bg, var(--text)); color: var(--btn-ink, var(--bg)); border: 1px solid var(--btn-bg, var(--text)); font: 600 15px var(--sans); cursor: pointer; }
 
 /* right column: the result */
 .mt-main { min-width: 0; scroll-margin-top: 12px; }

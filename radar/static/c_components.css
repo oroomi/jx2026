@@ -5,13 +5,13 @@
 /* The verdict pill is the one place DESIGN.md allows a colour besides the accent,
    so these two are declared here rather than added to the shared token block. */
 :root{
-  --c-pos:#3DD68C;          /* on --bg #0B0F14, contrast about 11:1 */
-  --c-neg:#FF6B6B;          /* on --bg #0B0F14, contrast about 6.8:1 */
+  --c-pos:#3DD68C;          /* on --bg #021B44, contrast about 9.0:1 (5.4:1 on the #023E8A surface) */
+  --c-neg:#FF9E8F;          /* on --bg #021B44, contrast about 8.5:1 (5.1:1 on the #023E8A surface) */
   --c-tabbar-h:56px;
 }
 :root[data-theme="light"]{
-  --c-pos:#0F7A4A;          /* on #FFFFFF, contrast about 5.0:1 */
-  --c-neg:#B3261E;          /* on #FFFFFF, contrast about 6.5:1 */
+  --c-pos:#0F7A4A;          /* on --bg #F6FDFF, contrast about 5.2:1 */
+  --c-neg:#B3261E;          /* on --bg #F6FDFF, contrast about 6.4:1 */
 }
 
 /* 1. Sparkline ------------------------------------------------------------- */

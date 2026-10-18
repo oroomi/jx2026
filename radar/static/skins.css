@@ -72,9 +72,12 @@
    2. EDITORIAL
    ========================================================================================= */
 :root[data-skin="editorial"] {
-  --bg: #15130F; --surface: #1B1813; --hairline: #3A342A; --text: #F3EEE4; --muted: #A69D8B; --accent: #F0A37E;
+  /* "Electric Ocean", the pitch deck's palette (D92): deep navy page, navy surface, cyan accent */
+  --bg: #021B44; --surface: #023E8A; --hairline: #2E6BB8; --text: #F6FDFF; --muted: #CDEBFF; --accent: #00E5D4;
+  --accent-hover: #00C2FF; --on-accent: #021B44; --tint: #0B4C9E;
+  --btn-bg: var(--accent); --btn-ink: var(--on-accent);   /* primary buttons: cyan with deep-navy text on dark */
   --e-serif: "Newsreader", Georgia, "Times New Roman", serif;
-  --e-pos: #9CCB7A; --e-neg: #E7826E; --e-amber: #E7B85B;
+  --e-pos: #9CCB7A; --e-neg: #FF9E8F; --e-amber: #E7B85B;
 }
 :root[data-skin="editorial"] body { background: var(--bg); }
 :root[data-skin="editorial"] .hc { max-width: 680px; }

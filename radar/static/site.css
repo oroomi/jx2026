@@ -1,12 +1,14 @@
 /* Editorial across the whole site (design C, phase 5). Loaded last, after skins.css, on every page through base.html.
    Everything here is scoped to :root[data-skin="editorial"], so ?skin=terminal|product keep their own look.
    References: FT Visual Vocabulary (headline sentence, chart, source line), The Pudding (one idea per screen),
-   Businessweek (ruled tables, small caps labels). Tokens only; no blue or teal anywhere. */
+   Businessweek (ruled tables, small caps labels). Tokens only; colours are the pitch deck's "Electric Ocean" palette (D92). */
 
-/* ---- light theme: paper and ink (the dark tokens live in skins.css) ---- */
+/* ---- light theme: the deck's "Electric Ocean" light side, D92 (the dark tokens live in skins.css) ---- */
 :root[data-skin="editorial"][data-theme="light"] {
-  --bg: #F7F1E6; --surface: #FFFBF4; --hairline: #DCD1BE; --text: #1D1914; --muted: #675E50; --accent: #A84B24;
-  --e-pos: #4D7A2C; --e-neg: #B03A26; --e-amber: #8E6414;
+  --bg: #F6FDFF; --surface: #FBFEFF; --hairline: #9FD9F2; --text: #0A1F3D; --muted: #33507A; --accent: #005FCC;
+  --accent-hover: #023E8A; --on-accent: #F6FDFF; --tint: #D6F4FF; --tint-text: #023E8A;
+  --btn-bg: var(--text); --btn-ink: var(--bg);   /* primary buttons stay ink on paper in light */
+  --e-pos: #3F6A22; --e-neg: #B03A26; --e-amber: #8E6414;
   color-scheme: light;
 }
 
@@ -47,7 +49,7 @@
 /* ---- forms and buttons: square, ruled, no fills except the one primary action ---- */
 :root[data-skin="editorial"] main input[type="search"], :root[data-skin="editorial"] main input[type="text"], :root[data-skin="editorial"] main select {
   min-height: 44px; padding: 0 12px; background: var(--surface); color: var(--text); border: 1px solid var(--hairline); border-bottom-color: var(--text); border-radius: 0; font: 400 16px var(--sans); }
-:root[data-skin="editorial"] main button { min-height: 44px; padding: 0 16px; background: var(--text); color: var(--bg); border: 1px solid var(--text); border-radius: 0; font: 600 15px var(--sans); cursor: pointer; }
+:root[data-skin="editorial"] main button { min-height: 44px; padding: 0 16px; background: var(--btn-bg, var(--text)); color: var(--btn-ink, var(--bg)); border: 1px solid var(--btn-bg, var(--text)); border-radius: 0; font: 600 15px var(--sans); cursor: pointer; }
 :root[data-skin="editorial"] main input:focus-visible, :root[data-skin="editorial"] main select:focus-visible, :root[data-skin="editorial"] main button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 :root[data-skin="editorial"] .btnlink { font-weight: 600; }
 :root[data-skin="editorial"] .errpage .btnlink { border-radius: 0; border-color: var(--text); color: var(--text); text-decoration: none; }
@@ -102,7 +104,7 @@
 
 /* ---- print memo: ink on white, serif, no chrome ---- */
 @media print {
-  :root[data-skin] { --bg: #fff; --surface: #fff; --text: #111; --muted: #444; --hairline: #bbb; --accent: #8a3a1a; }
+  :root[data-skin] { --bg: #fff; --surface: #fff; --text: #111; --muted: #444; --hairline: #bbb; --accent: #023E8A; }
   .top, .c-tabbar, .foot, .aava-fab, .aava-sheet, .no-print { display: none !important; }
   body { background: #fff !important; color: #111; padding: 0 !important; font-size: 11pt; }
   main.wrap { max-width: none; padding: 0; }
@@ -149,3 +151,11 @@ details.bt-more > summary { display: flex; align-items: center; min-height: 44px
 :root[data-skin="editorial"] main .aava-btn { background: transparent; color: var(--text); border: 1px solid var(--hairline); border-radius: 0; font-weight: 500; text-align: left; }
 :root[data-skin="editorial"] main .aava-primary, :root[data-skin="editorial"] main .aava-fab { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
 :root[data-skin="editorial"] main .aava-fab { border-radius: 999px; min-height: 48px; padding: 0 20px; }
+
+/* Icons (D92): a few line icons beside words, never alone. They take the accent; the word keeps the text colour. */
+.ico { flex: none; width: 18px; height: 18px; vertical-align: -3px; }
+.navmenu-sheet a { gap: 10px; }
+.navmenu-sheet a .ico { color: var(--accent); }
+main h2 .ico-q { width: .85em; height: .85em; margin: 0 2px 0 2px; vertical-align: -.1em; color: var(--accent); }
+.aava-fab { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.aava-fab .ico { width: 20px; height: 20px; }

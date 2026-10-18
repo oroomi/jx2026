@@ -36,7 +36,7 @@
 .hc-watchlist { color: var(--muted); border: 1px solid var(--hairline); }
 .hc-accelerator, .hc-partner-introduction { background: var(--accent); color: var(--hc-ink); }
 .hc-invest, .hc-due-diligence { background: var(--c-pos, #3DD68C); color: #04140C; }
-.hc-reject { background: var(--c-neg, #FF6B6B); color: #fff; }
+.hc-reject { background: var(--c-neg, #FF9E8F); color: var(--bg); }
 .hc-note { margin: 14px 0 0; font-size: 14px; color: var(--muted); }
 
 .hc-more { max-width: 1200px; margin: 28px auto 0; border-top: 1px solid var(--hairline); }

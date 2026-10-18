@@ -20,7 +20,7 @@ Built at JunctionX Turku 2026 for the Redstone x A'Pelago challenge by team Old 
 
 ![The home page: the Ask Aava bar with its example questions, the filter rail on the left ("What the judges score"), the tabs, and on each row the criteria box with impact, TRL, BRL, IRL, thesis fit and verdict](docs/hero_home.png)
 
-*Screenshot of the live home page, committed at 18:20 UTC on 17 Oct (6d0afc9; the first one was committed at 13:20 UTC, e46a899). The Baltic Sea region reads 152 in it and 150 on the live site now, after sole-trader names that carry an owner's name were hidden (5aad0af, 18:58 UTC). The numbers in the text below are the live ones.*
+*Screenshot of the live home page in the Electric Ocean palette (D92), taken at 06:05 UTC on 18 Oct. The Baltic Sea region reads 149: 152 until sole-trader names that carry an owner's name were hidden (5aad0af, 18:58 UTC on 17 Oct), 150 until the overnight verdict and startup-cut changes (D84 to D88). The numbers in the text below are the live ones.*
 
 ## 30 seconds
 

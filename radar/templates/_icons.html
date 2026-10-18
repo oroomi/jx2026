@@ -1,7 +1,7 @@
 {#
   A handful of line icons (D92): 24 px grid, stroke currentColor, 1.75 stroke, round caps, aria-hidden, drawn here as
-  plain paths (no icon font, no CDN, no library). Used on the menu links, the four question headings of a company page
-  and the Ask Aava button. Keep it to these; an icon is never the only signal, the word always sits beside it.
+  plain paths (no icon font, no CDN, no library). Used on the four question headings of a company page and the Ask Aava button;
+  the five menu links draw the same paths as a CSS mask (site.css), so the menu markup is unchanged. Keep it to these; an icon is never the only signal, the word always sits beside it.
 #}
 {% macro icon(name, cls="ico") -%}
 <svg class="{{ cls }}" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">

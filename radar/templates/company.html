@@ -213,7 +213,7 @@
 
 {% include "company_memo.html" %}
 <section id="q1" class="q q-fit">
-  <h2><span class="num">01</span> {{ icon("promising", "ico ico-q") }} Who is most promising</h2>
+  <h2><span class="num">{{ icon("promising", "ico ico-q") }}01</span> Who is most promising</h2>
   {% if intake and not intake.evidence %}
   {% if intake.declared %}
   {% set floor = ((thesis.memo or {}).get("bands") or {}).get("fit", {}).get("declared_member_band") %}
@@ -247,7 +247,7 @@
 </section>
 
 <section id="q2" class="q q-ready">
-  <h2><span class="num">02</span> {{ icon("ready", "ico ico-q") }} How ready are they</h2>
+  <h2><span class="num">{{ icon("ready", "ico ico-q") }}02</span> How ready are they</h2>
   {% from "_answers.html" import ready_answer %}{{ ready_answer(fw, m.ocean_impact if m else none, impact_lbl | lower) }}
   {% macro lvl(r, scale) -%}
     {% if r.level %}<p class="lvl"><strong>level {{ r.level }} of {{ scale }}</strong> from public records{% if r.evidence %}, latest source dated {{ r.evidence[0].evidence.date_label or r.evidence[0].evidence.event_date or "no date" }}{% endif %}: {{ r.because }}</p>
@@ -308,7 +308,7 @@
 </section>
 
 <section id="q3" class="q q-next">
-  <h2><span class="num">03</span> {{ icon("next", "ico ico-q") }} Who comes next</h2>
+  <h2><span class="num">{{ icon("next", "ico ico-q") }}03</span> Who comes next</h2>
   {% from "_answers.html" import next_answer %}{{ next_answer(nxt) }}
   <p class="plain">Investors, funding and partners to approach, in priority order. Rated matches come from the declared ecosystem dataset{% if eco and eco.label %}: {{ eco.label }}{% endif %}; low-confidence rows are leads, not facts.</p>
   <div class="nx-grid">
@@ -332,7 +332,7 @@
 </section>
 
 <section id="q4" class="q q-step">
-  <h2><span class="num">04</span> {{ icon("step", "ico ico-q") }} What should happen next</h2>
+  <h2><span class="num">{{ icon("step", "ico ico-q") }}04</span> What should happen next</h2>
   {% set ns = next_step_for(m, step, thesis) if m else none %}
   {% if ns %}
   <p class="step-sentence">{{ ns.sentence }}</p>

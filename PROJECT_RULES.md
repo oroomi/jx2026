@@ -296,6 +296,8 @@ and `git log`. Times are UTC commit times. Counts are the ones the repo states; 
 
 **D91. 2026-10-18 (cand/j4). Only an investor's or accelerator's match page says "Startups that fit".** *Rule:* the startup cut (D83, D88) covers investors and accelerators only; every other counterpart kind (funder, programme, corporate, port, cluster) can work with a company of any age, so its match page heads the list "Companies that fit" (`only_startups` in the org match result). *Why:* the verifier found established firms under "Startups that fit" on 118 funder, corporate and port pages. *Affected:* the list heading on non-investor match pages.
 
+**D92. 2026-10-18 (cand/j3). The site wears the pitch deck's "Electric Ocean" palette, as tokens, plus ten line icons.** *Rule:* colours live only in the token blocks (editorial dark in `skins.css`, editorial light in `site.css`, the skinless base in `app.css`). Dark: page #021B44, surface #023E8A, hairline #2E6BB8, text #F6FDFF, muted #CDEBFF, accent #00E5D4 (hover #00C2FF), primary buttons cyan with #021B44 text (`--btn-bg`/`--btn-ink`). Light: page #F6FDFF, surface #FBFEFF, hairline #9FD9F2, text #0A1F3D, muted #33507A, accent #005FCC, hover #023E8A (the deck's #0077FF is 4.0:1 on the light page, under 4.5), primary buttons stay ink. The verdict colours stay, retuned so each holds 4.5:1 on the new surfaces (dark negative #FF9E8F, light positive #3F6A22). Icons are inline SVG paths in one macro (`radar/templates/_icons.html`: 24 grid, stroke currentColor, aria-hidden), only beside a word: the five menu links, the four question headings, the Ask Aava button. *Why:* the judges see the deck first; the site should read as the same product. Every text pair measured at 4.5:1 or better in both themes at 1440 and 390 px (Playwright, computed colours). *Affected:* every page's colours (layout, type and copy unchanged), the menu, the company page headings, the Ask Aava button, the favicon; terminal and product skins keep their own tokens. DESIGN.md's token table amended.
+
 ## T. Taxonomy
 
 ### Signal types
@@ -442,6 +444,7 @@ Batch B1 (`QUESTIONS_B1.md`, 17 Oct): 15 issues. B1-01 to B1-11 come from the fi
 - 2026-10-17: D88 (cand/j4: the startup cut reads its own 10-year limit); amends D83.
 - 2026-10-17: D90 (feat/match_weights: weigh the reasons on a startup's Match page, order only, never a score); no earlier rule changed.
 - 2026-10-18: D91 (cand/j4: only investor and accelerator pages say Startups that fit); no earlier rule changed.
+- 2026-10-18: D92 (cand/j3: the deck's Electric Ocean palette as tokens in both themes, ten line icons); the DESIGN.md colour tokens amended by D92.
 - 2026-10-17: D75, D83, D84, D85 and D79 (fix/verdict_consistency: one verdict engine, the startup cut, no TRL from a public contract, the line of business as code-level evidence, rule words and true counts); D18 and D66 amended by D85, A10 by D84; renumbered at merge (cand/j4): the branch's D76, D77 and D78 are D83, D84 and D85, because D76 to D78 were taken.
 - 2026-10-17: D86 (fix/verdict_consistency, its own commit: a public contract's title gives a Medium thesis fit); A11 amended by D86; the branch's D80, renumbered at merge.
 - 2026-10-17: D87 (fix/verdict_consistency: a stored brief sentence stating a level the page no longer prints is left out); D50 amended by D87; the branch's D81, renumbered at merge.

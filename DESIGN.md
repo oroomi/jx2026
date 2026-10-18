@@ -10,15 +10,7 @@ Supporting component (from direction 2, no extra cost): the readiness ladder for
 Evidence first: an evidence chip under every number (source, date fetched, link), a printed rule next to every level or score, and a hatched chip "not in public records" where there is nothing. A fund associate on a phone in a dark expo hall must be able to check any claim in one tap.
 
 ## Tokens
-| Token | Dark (default) | Light |
-|---|---|---|
-| bg | #0B0F14 | #F6F4EF |
-| surface | #121820 | #FFFFFF |
-| text | #E8EDF2 (16.3:1) | #14181D (16.2:1) |
-| muted | #9AA7B4 (7.8:1) | #5A6470 (5.5:1) |
-| accent (teal) | #4FD1B5 (10.2:1) | #0B6B5C (5.8:1) |
-| hairline | #232C37 | #D9D5CB |
-Define as CSS custom properties on :root; dark default, light through `prefers-color-scheme` plus a toggle that stores the choice in localStorage inside try/catch. One accent only. Missing data uses a diagonal hatch of the muted colour, never a lighter version of a real value.
+Colours follow the pitch deck's "Electric Ocean" palette (D92, 18 Oct; it replaced the first dark-teal and warm-paper sets) and live only as CSS custom properties: editorial dark in skins.css, editorial light in site.css, the skinless base in app.css. Dark (default): page #021B44, surface #023E8A, hairline #2E6BB8, text #F6FDFF (16.4:1), muted #CDEBFF (13.6:1), accent #00E5D4 (10.6:1, hover #00C2FF), primary buttons #00E5D4 with #021B44 text. Light: page #F6FDFF, surface #FBFEFF, hairline #9FD9F2, text #0A1F3D (16.0:1), muted #33507A (7.9:1), accent #005FCC (5.8:1, hover #023E8A), primary buttons ink. The dark theme is the default, light comes through the "Light or dark" toggle, stored in localStorage inside try/catch. One accent only; the verdict colours are the one exception and each holds 4.5:1 on its surface. Missing data uses a diagonal hatch of the hairline colour, never a lighter version of a real value. A few line icons (radar/templates/_icons.html) sit beside words, never alone.
 
 ## Rules
 - Type: Newsreader (headings and the 22 px answer sentences) + IBM Plex Sans (body, chips, tabular figures via `font-variant-numeric: tabular-nums`). Self-hosted woff2 in radar/static/fonts (fetched from the @fontsource packages at build time, licence SIL OFL, declared in DISCLOSURE.md); `font-display: swap`; no Google Fonts request at runtime, hall wifi must not break type. This overrides the system-font default at the founder's request.
